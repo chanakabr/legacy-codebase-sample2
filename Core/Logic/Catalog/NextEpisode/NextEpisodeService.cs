@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ApiObjects.Catalog;
 using ApiObjects.NextEpisode;
+using Core.Api;
 using Core.GroupManagers;
 using TVinciShared;
 
@@ -85,6 +86,34 @@ namespace ApiLogic.Catalog.NextEpisode
 
         public static GenericResponse<UserWatchHistory> GetNextEpisodeBySeriesIdForOpc(NextEpisodeContext context, string seriesId, SeriesType seriesType)
         {
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(context.GroupId, out var catalogGroupCache))
+            {
+                return new GenericResponse<UserWatchHistory>(eResponseStatus.MetaDoesNotExist, "SeriesId meta does not exist");
+            }
+
+            var seriesIdAssetStructs = new HashSet<long>();
+            foreach (var assetStructId in seriesType.AssetStructIds)
+            {
+                if (!catalogGroupCache.AssetStructsMapById.TryGetValue(assetStructId, out var assetStruct) || !assetStruct.ParentId.HasValue)
+                {
+                    return new GenericResponse<UserWatchHistory>(eResponseStatus.InvalidAssetStruct, $"Episode AssetStruct {assetStructId} must be a child of series AssetStruct");
+                }
+
+                seriesIdAssetStructs.Add(assetStruct.ParentId.Value);
+            }
+
+            var seriesAssetSearchResult =
+                FindSeriesAsset(context.GroupId, seriesIdAssetStructs, seriesType.SeriesIdMeta, seriesId);
+            if (!seriesAssetSearchResult.status.IsOkStatusCode())
+            {
+                return new GenericResponse<UserWatchHistory>(seriesAssetSearchResult.status);
+            }
+
+            if (!seriesAssetSearchResult.searchResults.Any())
+            {
+                return new GenericResponse<UserWatchHistory>(eResponseStatus.AssetDoesNotExist, $"Series '{seriesId}' not found");
+            }
+
             return GetNextEpisode(
                 context,
                 seriesType.AssetStructIds,
@@ -393,6 +422,30 @@ namespace ApiLogic.Catalog.NextEpisode
             var episodeNumberMeta = NotificationCache.Instance().GetEpisodeNumberMeta(groupId);
 
             return (seasonNumberMeta, episodeNumberMeta);
+        }
+
+        private static UnifiedSearchResponse FindSeriesAsset(int groupId, IEnumerable<long> seriesIdAssetStructs, string seriesIdMeta, string seriesId)
+        {
+            var filterQuery = new KsqlBuilder()
+                .And(x => x
+                    .Or(y => y.Values(x.Equal, CatalogLogic.ASSET_TYPE, seriesIdAssetStructs))
+                    .Equal(seriesIdMeta, seriesId))
+                .Build();
+
+            return api.SearchAssetsExtended(
+                groupId,
+                filterQuery,
+                0,
+                1,
+                true,
+                0,
+                true,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                0,
+                groupId,
+                false);
         }
     }
 }

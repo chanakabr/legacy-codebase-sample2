@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Api.Managers;
@@ -16,7 +17,7 @@ namespace Core.Catalog.CatalogManagement
 {
     public interface IExternalChannelManager
     {
-        GenericResponse<ExternalChannel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId);
+        GenericResponse<ExternalChannel> GetChannelById(ContextData contextData, int channelId, bool isAllowedToViewInactiveAssets);
     }
 
     public class ExternalChannelManager : IExternalChannelManager
@@ -31,25 +32,24 @@ namespace Core.Catalog.CatalogManagement
         {
         }
 
-        public GenericResponse<ExternalChannel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
+        public GenericResponse<ExternalChannel> GetChannelById(ContextData contextData, int channelId, bool isAllowedToViewInactiveAssets)
         {
             GenericResponse<ExternalChannel> response = new GenericResponse<ExternalChannel>();
-            List<ExternalChannel> channels = GetChannels(groupId, new List<int>() { channelId }, isAllowedToViewInactiveAssets);
+            List<ExternalChannel> channels = GetChannels(contextData.GroupId, new List<int>() { channelId }, isAllowedToViewInactiveAssets);
             if (channels != null && channels.Count == 1)
             {
                 response.Object = channels.First();
-                long ruleId = 0;
+                var userId = contextData.GetCallerUserId();
                 if (userId > 0)
                 {
-                    ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
-                }
-
-                if (ruleId > 0 && response.Object.AssetUserRuleId != ruleId)
-                {
-                    log.DebugFormat("User {0} not allowed on channel {1}. ruleId {2}.", userId, channelId, ruleId);
-                    response.SetStatus(eResponseStatus.ActionIsNotAllowed);
-                    response.Object = null;
-                    return response;
+                    var ruleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(contextData.GroupId, userId);
+                    if (ruleId > 0 && response.Object.AssetUserRuleId != ruleId)
+                    {
+                        log.DebugFormat("User {0} not allowed on channel {1}. ruleId {2}.", userId, channelId, ruleId);
+                        response.SetStatus(eResponseStatus.ActionIsNotAllowed);
+                        response.Object = null;
+                        return response;
+                    }
                 }
 
                 response.SetStatus(eResponseStatus.OK);

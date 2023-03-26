@@ -225,6 +225,14 @@ namespace phoenix {
     static readonly grpc::Marshaller<global::phoenix.IsSegmentUsedRequest> __Marshaller_phoenix_IsSegmentUsedRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsSegmentUsedRequest.Parser));
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Marshaller<global::phoenix.IsSegmentUsedResponse> __Marshaller_phoenix_IsSegmentUsedResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsSegmentUsedResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetAssetUserRuleByUserIdRequest> __Marshaller_phoenix_GetAssetUserRuleByUserIdRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetAssetUserRuleByUserIdRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.GetAssetUserRuleByUserIdResponse> __Marshaller_phoenix_GetAssetUserRuleByUserIdResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.GetAssetUserRuleByUserIdResponse.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.IsAssetUserRuleIdValidRequest> __Marshaller_phoenix_IsAssetUserRuleIdValidRequest = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsAssetUserRuleIdValidRequest.Parser));
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Marshaller<global::phoenix.IsAssetUserRuleIdValidResponse> __Marshaller_phoenix_IsAssetUserRuleIdValidResponse = grpc::Marshallers.Create(__Helper_SerializeMessage, context => __Helper_DeserializeMessage(context, global::phoenix.IsAssetUserRuleIdValidResponse.Parser));
 
     [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
     static readonly grpc::Method<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse> __Method_GetDomainData = new grpc::Method<global::phoenix.GetDomainDataRequest, global::phoenix.GetDomainDataResponse>(
@@ -626,6 +634,22 @@ namespace phoenix {
         __Marshaller_phoenix_IsSegmentUsedRequest,
         __Marshaller_phoenix_IsSegmentUsedResponse);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.GetAssetUserRuleByUserIdRequest, global::phoenix.GetAssetUserRuleByUserIdResponse> __Method_GetAssetUserRuleByUserId = new grpc::Method<global::phoenix.GetAssetUserRuleByUserIdRequest, global::phoenix.GetAssetUserRuleByUserIdResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "GetAssetUserRuleByUserId",
+        __Marshaller_phoenix_GetAssetUserRuleByUserIdRequest,
+        __Marshaller_phoenix_GetAssetUserRuleByUserIdResponse);
+
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::phoenix.IsAssetUserRuleIdValidRequest, global::phoenix.IsAssetUserRuleIdValidResponse> __Method_IsAssetUserRuleIdValid = new grpc::Method<global::phoenix.IsAssetUserRuleIdValidRequest, global::phoenix.IsAssetUserRuleIdValidResponse>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "IsAssetUserRuleIdValid",
+        __Marshaller_phoenix_IsAssetUserRuleIdValidRequest,
+        __Marshaller_phoenix_IsAssetUserRuleIdValidResponse);
+
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
@@ -974,6 +998,18 @@ namespace phoenix {
       /// <returns>The response to send back to the client (wrapped by a task).</returns>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task<global::phoenix.IsSegmentUsedResponse> IsSegmentUsed(global::phoenix.IsSegmentUsedRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.GetAssetUserRuleByUserIdResponse> GetAssetUserRuleByUserId(global::phoenix.GetAssetUserRuleByUserIdRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::phoenix.IsAssetUserRuleIdValidResponse> IsAssetUserRuleIdValid(global::phoenix.IsAssetUserRuleIdValidRequest request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -2203,6 +2239,46 @@ namespace phoenix {
       {
         return CallInvoker.AsyncUnaryCall(__Method_IsSegmentUsed, null, options, request);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetAssetUserRuleByUserIdResponse GetAssetUserRuleByUserId(global::phoenix.GetAssetUserRuleByUserIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetAssetUserRuleByUserId(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.GetAssetUserRuleByUserIdResponse GetAssetUserRuleByUserId(global::phoenix.GetAssetUserRuleByUserIdRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_GetAssetUserRuleByUserId, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetAssetUserRuleByUserIdResponse> GetAssetUserRuleByUserIdAsync(global::phoenix.GetAssetUserRuleByUserIdRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return GetAssetUserRuleByUserIdAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.GetAssetUserRuleByUserIdResponse> GetAssetUserRuleByUserIdAsync(global::phoenix.GetAssetUserRuleByUserIdRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_GetAssetUserRuleByUserId, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.IsAssetUserRuleIdValidResponse IsAssetUserRuleIdValid(global::phoenix.IsAssetUserRuleIdValidRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return IsAssetUserRuleIdValid(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::phoenix.IsAssetUserRuleIdValidResponse IsAssetUserRuleIdValid(global::phoenix.IsAssetUserRuleIdValidRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_IsAssetUserRuleIdValid, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.IsAssetUserRuleIdValidResponse> IsAssetUserRuleIdValidAsync(global::phoenix.IsAssetUserRuleIdValidRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return IsAssetUserRuleIdValidAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::phoenix.IsAssetUserRuleIdValidResponse> IsAssetUserRuleIdValidAsync(global::phoenix.IsAssetUserRuleIdValidRequest request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_IsAssetUserRuleIdValid, null, options, request);
+      }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       protected override PhoenixClient NewInstance(ClientBaseConfiguration configuration)
@@ -2266,7 +2342,9 @@ namespace phoenix {
           .AddMethod(__Method_AddVirtualAssetInfo, serviceImpl.AddVirtualAssetInfo)
           .AddMethod(__Method_UpdateVirtualAssetInfo, serviceImpl.UpdateVirtualAssetInfo)
           .AddMethod(__Method_DeleteVirtualAssetInfo, serviceImpl.DeleteVirtualAssetInfo)
-          .AddMethod(__Method_IsSegmentUsed, serviceImpl.IsSegmentUsed).Build();
+          .AddMethod(__Method_IsSegmentUsed, serviceImpl.IsSegmentUsed)
+          .AddMethod(__Method_GetAssetUserRuleByUserId, serviceImpl.GetAssetUserRuleByUserId)
+          .AddMethod(__Method_IsAssetUserRuleIdValid, serviceImpl.IsAssetUserRuleIdValid).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the  service binding logic.
@@ -2326,6 +2404,8 @@ namespace phoenix {
       serviceBinder.AddMethod(__Method_UpdateVirtualAssetInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.UpdateVirtualAssetInfoRequest, global::phoenix.UpdateVirtualAssetInfoResponse>(serviceImpl.UpdateVirtualAssetInfo));
       serviceBinder.AddMethod(__Method_DeleteVirtualAssetInfo, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.DeleteVirtualAssetInfoRequest, global::phoenix.DeleteVirtualAssetInfoResponse>(serviceImpl.DeleteVirtualAssetInfo));
       serviceBinder.AddMethod(__Method_IsSegmentUsed, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsSegmentUsedRequest, global::phoenix.IsSegmentUsedResponse>(serviceImpl.IsSegmentUsed));
+      serviceBinder.AddMethod(__Method_GetAssetUserRuleByUserId, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.GetAssetUserRuleByUserIdRequest, global::phoenix.GetAssetUserRuleByUserIdResponse>(serviceImpl.GetAssetUserRuleByUserId));
+      serviceBinder.AddMethod(__Method_IsAssetUserRuleIdValid, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::phoenix.IsAssetUserRuleIdValidRequest, global::phoenix.IsAssetUserRuleIdValidResponse>(serviceImpl.IsAssetUserRuleIdValid));
     }
 
   }

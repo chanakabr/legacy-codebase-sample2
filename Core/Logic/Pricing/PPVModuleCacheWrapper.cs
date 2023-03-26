@@ -14,7 +14,7 @@ namespace Core.Pricing
      * 2. Its main functionality is to add caching mechanism to Pricing methods uses by the Conditional Access module.
      * 3. Methods not called by CAS do not cache their results right now (September 2014).
      * 
-     */ 
+     */
     public class PPVModuleCacheWrapper : BasePPVModuleDecorator
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -160,22 +160,20 @@ namespace Core.Pricing
             return res;
         }
 
-        public override PPVModuleDataResponse GetPPVModuleDataResponse(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public override PPVModuleDataResponse GetPPVModuleDataResponse(string sPPVModuleCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long? shopUserId)
 
         {
             PPVModuleDataResponse result = new PPVModuleDataResponse();
             try
             {
                 result.PPVModule = GetPPVModuleData(sPPVModuleCode);
-                if (result.PPVModule != null)
+                if (result.PPVModule == null)
                 {
-                    result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-                else
-                {
-                    result.Status = new ApiObjects.Response.Status((int)eResponseStatus.ModuleNotExists, eResponseStatus.ModuleNotExists.ToString());
+                    result.Status = new Status(eResponseStatus.ModuleNotExists, eResponseStatus.ModuleNotExists.ToString());
+                    return result;
                 }
 
+                result.Status = ValidatePpvInUserShop(result.PPVModule, shopUserId, this.originalBasePPVModule.GroupID);
             }
             catch (Exception ex)
             {

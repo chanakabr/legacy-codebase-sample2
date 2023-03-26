@@ -1,7 +1,11 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects.Base;
+using ApiObjects.Response;
+using KalturaRequestContext;
 using System;
+using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -230,22 +234,23 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         static public KalturaEntitlementListResponse List(KalturaEntitlementFilter filter, KalturaFilterPager pager = null)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            var contextData = KS.GetContextData();
+            long? shopUserId = RequestContextUtilsInstance.Get().IsImpersonateRequest() ? contextData.GetCallerUserId() : (long?)null;
 
             if (pager == null)
             {
                 pager = new KalturaFilterPager();
             }
-
+            
             filter.Validate();
 
             KalturaEntitlementListResponse response = null;
             switch (filter)
             {
                 case KalturaProgramAssetGroupOfferEntitlementFilter f:
-                    response = ListByPagoEntitlementFilter(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), pager, f); break;
+                    response = ListByPagoEntitlementFilter(contextData, pager, f); break;
                 case KalturaEntitlementFilter f:
-                    response = ListByEntitlementFilter(groupId, KS.GetFromRequest().UserId, pager, f); break;
+                    response = ListByEntitlementFilter(contextData, pager, f, shopUserId); break;
                 default: throw new NotImplementedException($"List for {filter.objectType} is not implemented");
             }
 
@@ -253,30 +258,31 @@ namespace WebAPI.Controllers
             {
                 response.TotalCount = response.Entitlements.Count;
             }
+
             return response;
         }
 
-        private static KalturaEntitlementListResponse ListByPagoEntitlementFilter(int groupId, int domainId, KalturaFilterPager pager, KalturaProgramAssetGroupOfferEntitlementFilter filter)
+        private static KalturaEntitlementListResponse ListByPagoEntitlementFilter(ContextData contextData, KalturaFilterPager pager, KalturaProgramAssetGroupOfferEntitlementFilter filter)
         {
-            return ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, domainId,
+            return ClientsManager.ConditionalAccessClient().GetDomainEntitlements(contextData.GroupId, (int)contextData.DomainId.Value,
                            KalturaTransactionType.programAssetGroupOffer, false, pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
         }
 
-        private static KalturaEntitlementListResponse ListByEntitlementFilter(int groupId, string userId, KalturaFilterPager pager, KalturaEntitlementFilter filter)
+        private static KalturaEntitlementListResponse ListByEntitlementFilter(ContextData contextData, KalturaFilterPager pager, KalturaEntitlementFilter filter, long? shopUserId)
         {
             switch (filter.EntityReferenceEqual)
             {
                 case KalturaEntityReferenceBy.user:
                     {
-                        return ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, userId,
+                        return ClientsManager.ConditionalAccessClient().GetUserEntitlements(contextData.GroupId, contextData.UserId.ToString(),
                             filter.EntitlementTypeEqual ?? filter.ProductTypeEqual.Value,
-                            filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
+                            filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy, shopUserId);
                     }
                 case KalturaEntityReferenceBy.household:
                     {
-                        return ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
+                        return ClientsManager.ConditionalAccessClient().GetDomainEntitlements(contextData.GroupId, (int)contextData.DomainId.Value,
                             filter.EntitlementTypeEqual ?? filter.ProductTypeEqual.Value,
-                            filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy);
+                            filter.getIsExpiredEqual(), pager.PageSize.Value, pager.GetRealPageIndex(), filter.OrderBy, shopUserId);
                     }
             }
 

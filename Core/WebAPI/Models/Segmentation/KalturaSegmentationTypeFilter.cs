@@ -8,7 +8,6 @@ namespace WebAPI.Models.Segmentation
     /// <summary>
     /// Filter for segmentation types
     /// </summary>
-    [SchemeClass(MaxProperties = 1)]
     public partial class KalturaSegmentationTypeFilter : KalturaBaseSegmentationTypeFilter
     {
         /// <summary>
@@ -39,5 +38,14 @@ namespace WebAPI.Models.Segmentation
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(IsNullable = true, MinLength = 1, MaxLength = 50)]
         public string NameContain { get; set; }
+
+        /// <summary>
+        /// comma-separated list of KalturaSegmentationType.assetUserRuleId values
+        /// </summary>
+        [DataMember(Name = "assetUserRuleIdIn")]
+        [JsonProperty("assetUserRuleIdIn")]
+        [XmlElement(ElementName = "assetUserRuleIdIn")]
+        [SchemeProperty(MinLength = 1, DynamicMinInt = 1, IsNullable = true)]
+        public string AssetUserRuleIdIn { get; set; }
     }
 }

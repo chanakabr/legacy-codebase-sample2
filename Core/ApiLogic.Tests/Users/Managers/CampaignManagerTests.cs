@@ -7,6 +7,7 @@ using ApiObjects.Rules;
 using AutoFixture;
 using AutoFixture.Kernel;
 using CachingProvider.LayeredCache;
+using Core.Api.Managers;
 using Core.Catalog.CatalogManagement;
 using Core.Notification;
 using Core.Pricing;
@@ -60,8 +61,7 @@ namespace ApiLogic.Tests.Users.Managers
 
             var campaignRepositoryMock = new Mock<ICampaignRepository>();
 
-            campaignRepositoryMock.Setup(x => x.Update_Campaign(It.IsAny<ApiObjects.Campaign>(),
-                                                                It.IsAny<ContextData>()))
+            campaignRepositoryMock.Setup(x => x.UpdateCampaign(It.IsAny<ApiObjects.Campaign>(), It.IsAny<ContextData>()))
                                          .Returns(true);
 
             var ChannelManagerMock = Mock.Of<IChannelManager>();
@@ -71,6 +71,7 @@ namespace ApiLogic.Tests.Users.Managers
             var conditionValidator = Mock.Of<IConditionValidator>();
             var promotionValidator = Mock.Of<IPromotionValidator>();
             var messageInboxManger = Mock.Of<IMessageInboxManger>();
+            var assetUserRuleManager = Mock.Of<IAssetUserRuleManager>();
 
             CampaignManager manager = new CampaignManager(layeredCacheMock.Object,
                                                           campaignRepositoryMock.Object,
@@ -80,7 +81,8 @@ namespace ApiLogic.Tests.Users.Managers
                                                           groupsCache,
                                                           conditionValidator,
                                                           promotionValidator,
-                                                          messageInboxManger);
+                                                          messageInboxManger,
+                                                          assetUserRuleManager);
 
             var response = manager.SetState(contextData, id, newState);
 

@@ -93,6 +93,8 @@ namespace Core.Catalog.Request
         [DataMember]
         public bool isGroupingOptionInclude;
 
+        public long? OriginalUserId;
+
         /// <summary>
         /// Full constructor, including user Id and domain Id
         /// </summary>
@@ -207,6 +209,21 @@ namespace Core.Catalog.Request
             sb.Append(String.Concat(" User IP: ", m_sUserIP));
 
             return sb.ToString();
+        }
+
+        public long GetCallerUserId()
+        {
+            if (OriginalUserId.HasValue && OriginalUserId.Value > 0)
+            {
+                return OriginalUserId.Value;
+            }
+
+            if (long.TryParse(m_sSiteGuid, out var userId) && userId > 0)
+            {
+                return userId;
+            }
+
+            return 0;
         }
     }
 }

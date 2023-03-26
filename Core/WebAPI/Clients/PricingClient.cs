@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using Core.Pricing;
@@ -7,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ApiObjects.Base;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -178,7 +178,7 @@ namespace WebAPI.Clients
             return coupon;
         }
 
-        internal KalturaPpv GetPPVModuleData(int groupId, long ppvCode)
+        internal KalturaPpv GetPPVModuleData(int groupId, long ppvCode, long? shopUserId)
         {
             PPVModuleDataResponse response = null;
             KalturaPpv result = new KalturaPpv();
@@ -187,7 +187,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetPPVModuleResponse(groupId, ppvCode.ToString(), string.Empty, string.Empty, string.Empty);
+                    response = Core.Pricing.Module.GetPPVModuleResponse(groupId, ppvCode.ToString(), string.Empty, string.Empty, string.Empty, shopUserId);
                 }
             }
             catch (Exception ex)

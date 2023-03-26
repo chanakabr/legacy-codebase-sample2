@@ -56,6 +56,9 @@ namespace ApiObjects.Segmentation
         [JsonProperty()]
         public long Version;
 
+        [JsonProperty()]
+        public long? AssetUserRuleId;
+
         public GenericResponse<SegmentationType> ValidateForInsert()
         {
             var response = new GenericResponse<SegmentationType>();

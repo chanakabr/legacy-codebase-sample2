@@ -1463,6 +1463,8 @@ namespace WebAPI.Reflection
                 case "KalturaCampaign":
                     switch(property.Name)
                     {
+                        case "AssetUserRuleId":
+                            return "assetUserRuleId";
                         case "CollectionIdIn":
                             return "collectionIdIn";
                         case "CreateDate":
@@ -1509,6 +1511,8 @@ namespace WebAPI.Reflection
                 case "KalturaCampaignSearchFilter":
                     switch(property.Name)
                     {
+                        case "AssetUserRuleIdIn":
+                            return "assetUserRuleIdIn";
                         case "EndDateLessThanOrEqual":
                             return "endDateLessThanOrEqual";
                         case "HasPromotion":
@@ -1975,6 +1979,8 @@ namespace WebAPI.Reflection
                 case "KalturaChannelsFilter":
                     switch(property.Name)
                     {
+                        case "AssetUserRuleIdIn":
+                            return "assetUserRuleIdIn";
                         case "IdEqual":
                             return "idEqual";
                         case "IdIn":
@@ -2109,6 +2115,8 @@ namespace WebAPI.Reflection
                     {
                         case "AlsoInactive":
                             return "alsoInactive";
+                        case "AssetUserRuleIdIn":
+                            return "assetUserRuleIdIn";
                         case "CollectionIdIn":
                             return "collectionIdIn";
                         case "CouponGroupIdEqual":
@@ -6657,6 +6665,8 @@ namespace WebAPI.Reflection
                     {
                         case "AlsoInactive":
                             return "alsoInactive";
+                        case "AssetUserRuleIdIn":
+                            return "assetUserRuleIdIn";
                         case "CouponGroupIdEqual":
                             return "couponGroupIdEqual";
                         case "IdIn":
@@ -7789,6 +7799,8 @@ namespace WebAPI.Reflection
                     {
                         case "Actions":
                             return "actions";
+                        case "AssetUserRuleId":
+                            return "assetUserRuleId";
                         case "Conditions":
                             return "conditions";
                         case "ConditionsOperator":
@@ -7815,6 +7827,8 @@ namespace WebAPI.Reflection
                 case "KalturaSegmentationTypeFilter":
                     switch(property.Name)
                     {
+                        case "AssetUserRuleIdIn":
+                            return "assetUserRuleIdIn";
                         case "IdIn":
                             return "idIn";
                         case "Ksql":

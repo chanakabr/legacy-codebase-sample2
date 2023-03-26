@@ -59,6 +59,7 @@ using MongoDB.Driver.Core.Operations;
 using System.Diagnostics;
 using ApiLogic.EPG;
 using ApiObjects.Epg;
+using ApiObjects.Base;
 
 namespace Core.Catalog
 {
@@ -421,7 +422,8 @@ namespace Core.Catalog
                 {
                     // isAllowedToViewInactiveAssets = true because only operator can cause upsert of channel
                     //todo tests move to ctor
-                    GenericResponse<Channel> response = _channelManager.GetChannelById(_partnerId, channelId, true, userId);
+                    var contextData = new ContextData(_partnerId) { UserId = userId };
+                    GenericResponse<Channel> response = _channelManager.GetChannelById(contextData, channelId, true);
                     if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return result;
@@ -3987,26 +3989,29 @@ namespace Core.Catalog
                 queryFilter = new QueryFilter() { FilterSettings = filterSettings };
             }
 
-            if (definitions.AssetUserRuleId > 0)
+            if (definitions.AssetUserRuleIds != null && definitions.AssetUserRuleIds.Any())
             {
                 if (queryFilter == null)
                 {
                     filterSettings = new FilterCompositeType(CutWith.AND);
-                    filterSettings.AddChild(new ESTerm(true)
+                    var terms = new ESTerms(true)
                     {
-                        Key = CHANNEL_ASSET_USER_RULE_ID,
-                        Value = definitions.AssetUserRuleId.ToString()
-                    });
+                        Key = CHANNEL_ASSET_USER_RULE_ID
+                    };
+                    terms.Value.AddRange(definitions.AssetUserRuleIds.Select(id => id.ToString()));
+                    filterSettings.AddChild(terms);
 
                     queryFilter = new QueryFilter() { FilterSettings = filterSettings };
                 }
                 else
                 {
-                    queryFilter.FilterSettings.AddChild(new ESTerm(true)
+                    var terms = new ESTerms(true)
                     {
-                        Key = CHANNEL_ASSET_USER_RULE_ID,
-                        Value = definitions.AssetUserRuleId.ToString()
-                    });
+                        Key = CHANNEL_ASSET_USER_RULE_ID
+                    };
+                    terms.Value.AddRange(definitions.AssetUserRuleIds.Select(id => id.ToString()));
+
+                    queryFilter.FilterSettings.AddChild(terms);
                 }
             }
 
@@ -7773,7 +7778,7 @@ namespace Core.Catalog
 
             if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
-                var assetUserRule = AssetUserRuleManager.GetAssetUserRuleByRuleId(channel.m_nGroupID, channel.AssetUserRuleId.Value);
+                var assetUserRule = AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(channel.m_nGroupID, channel.AssetUserRuleId.Value);
 
                 if (assetUserRule != null && assetUserRule.Status != null && assetUserRule.Status.Code == (int)eResponseStatus.OK && assetUserRule.Object != null)
                 {

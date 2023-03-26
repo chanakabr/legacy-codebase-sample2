@@ -4,14 +4,14 @@ using ApiObjects;
 using ApiObjects.Response;
 using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
-using Phx.Lib.Appconfig;
 using DAL;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 using System.Text;
 using System.Xml;
-using ApiObjects.CanaryDeployment;
+using Phx.Lib.Log;
 using ApiObjects.CanaryDeployment.Microservices;
 using CanaryDeploymentManager;
 using TVinciShared;
@@ -50,6 +50,8 @@ namespace Core.Users
         public DateTime UpdateDate;
         public DateTime LastLoginDate;
         public int FailedLoginCount;
+        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public UserBasicData()
         {
@@ -126,12 +128,20 @@ namespace Core.Users
 
             if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(nGroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory))
             {
-                var authClient = AuthenticationClient.GetClientFromTCM();
-                var failHistory = authClient.GetUserLoginHistory(nGroupID, nUserID);
-                if (failHistory != null)
+                try
                 {
-                    failedLoginCount = failHistory.ConsecutiveFailedLoginCount;
-                    lastLoginDate = DateUtils.UtcUnixTimestampSecondsToDateTime(failHistory.LastLoginSuccessDate);
+                    var authClient = AuthenticationClient.GetClientFromTCM();
+                    var failHistory = authClient.GetUserLoginHistory(nGroupID, nUserID);
+                    
+                    if (failHistory != null)
+                    {
+                        failedLoginCount = failHistory.ConsecutiveFailedLoginCount;
+                        lastLoginDate = DateUtils.UtcUnixTimestampSecondsToDateTime(failHistory.LastLoginSuccessDate);
+                    }
+                }
+                catch (Exception e)
+                {
+                    log.Error($"Failed to GetUserLoginHistory from auth client. UserID: {nUserID}, GroupID : {nGroupID}",e);
                 }
             }
             else

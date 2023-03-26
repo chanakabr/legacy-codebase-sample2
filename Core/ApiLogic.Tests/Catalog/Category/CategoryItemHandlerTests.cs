@@ -65,13 +65,13 @@ namespace ApiLogic.Tests.Catalog.Category
             
             var externalChannelManagerMock = new Mock<IExternalChannelManager>();
             var externalChannelResponse = new GenericResponse<ExternalChannel>(Status.Ok, fixture.Create<ExternalChannel>());
-            externalChannelManagerMock.Setup(x => x.GetChannelById(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<long>()))
+            externalChannelManagerMock.Setup(x => x.GetChannelById(It.IsAny<ContextData>(), It.IsAny<int>(), It.IsAny<bool>()))
                              .Returns(externalChannelResponse);
 
             var channelManagerMock = new Mock<IChannelManager>();
             fixture.Customizations.Add(new TypeRelay(typeof(ApiObjects.SearchObjects.BooleanPhraseNode), typeof(ApiObjects.SearchObjects.BooleanLeaf)));
             var channelResponse = new GenericResponse<Channel>(Status.Ok, fixture.Create<Channel>());
-            channelManagerMock.Setup(x => x.GetChannelById(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<long>()))
+            channelManagerMock.Setup(x => x.GetChannelById(It.IsAny<ContextData>(), It.IsAny<int>(), It.IsAny<bool>()))
                              .Returns(channelResponse);
 
             var imageManagerMock = new Mock<IImageManager>();
@@ -323,13 +323,13 @@ namespace ApiLogic.Tests.Catalog.Category
 
             var externalChannelManagerMock = new Mock<IExternalChannelManager>();
             var externalChannelResponse = new GenericResponse<ExternalChannel>(Status.Ok, fixture.Create<ExternalChannel>());
-            externalChannelManagerMock.Setup(x => x.GetChannelById(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<long>()))
+            externalChannelManagerMock.Setup(x => x.GetChannelById(It.IsAny<ContextData>(), It.IsAny<int>(), It.IsAny<bool>()))
                              .Returns(externalChannelResponse);
 
             var channelManagerMock = new Mock<IChannelManager>();
             fixture.Customizations.Add(new TypeRelay(typeof(ApiObjects.SearchObjects.BooleanPhraseNode), typeof(ApiObjects.SearchObjects.BooleanLeaf)));
             var channelResponse = new GenericResponse<Channel>(Status.Ok, fixture.Create<Channel>());
-            channelManagerMock.Setup(x => x.GetChannelById(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<long>()))
+            channelManagerMock.Setup(x => x.GetChannelById(It.IsAny<ContextData>(), It.IsAny<int>(), It.IsAny<bool>()))
                              .Returns(channelResponse);
 
             var virtualAssetManagerMock = new Mock<IVirtualAssetManager>();

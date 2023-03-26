@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
@@ -89,7 +90,8 @@ namespace Core.Catalog.Request
                         }
                         defaultLanguage = catalogGroupCache.GetDefaultLanguage();
 
-                        var channelResponse = ChannelManager.Instance.GetChannelById(groupId, request.m_nChannelID, false, 0);
+                        var contextData = new ContextData(groupId) { UserId = 0 };
+                        var channelResponse = ChannelManager.Instance.GetChannelById(contextData, request.m_nChannelID, false);
                         if (!channelResponse.HasObject())
                         {
                             return response;

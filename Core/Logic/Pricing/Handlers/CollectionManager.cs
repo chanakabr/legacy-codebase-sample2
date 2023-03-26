@@ -19,7 +19,13 @@ using Tvinci.Core.DAL;
 
 namespace ApiLogic.Pricing.Handlers
 {
-    public class CollectionManager
+    public interface ICollectionManager
+    {
+        GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string[] collCodes, string country, int pageIndex = 0, int pageSize = 30,
+            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, HashSet<long> assetUserRuleIds = null);
+    }
+
+    public class CollectionManager : ICollectionManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<CollectionManager> lazy = new Lazy<CollectionManager>(() =>
@@ -158,7 +164,7 @@ namespace ApiLogic.Pricing.Handlers
             bool isShopUser = false;
             if (collectionToInsert.AssetUserRuleId > 0)
             {
-                var assetRuleResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleByRuleId(contextData.GroupId, collectionToInsert.AssetUserRuleId.Value);
+                var assetRuleResponse = Core.Api.Managers.AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(contextData.GroupId, collectionToInsert.AssetUserRuleId.Value);
                 if (!assetRuleResponse.IsOkStatusCode())
                 {
                     response.SetStatus(assetRuleResponse.Status);
@@ -166,11 +172,11 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
-            if (assetUserRulesResponse.HasObjects())
+            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+            if (shopId > 0)
             {
                 isShopUser = true;
-                collectionToInsert.AssetUserRuleId = assetUserRulesResponse.Objects[0].Id;
+                collectionToInsert.AssetUserRuleId = shopId;
             }
 
             long id = _repository.AddCollection(contextData.GroupId, contextData.UserId.Value, collectionToInsert);
@@ -258,12 +264,10 @@ namespace ApiLogic.Pricing.Handlers
                 return result;
             }
 
-            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
-            if (assetUserRulesResponse.HasObjects())
+            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+            if (shopId > 0)
             {
-                long assetUserruleId = assetUserRulesResponse.Objects[0].Id;
-
-                if (collection.AssetUserRuleId != assetUserruleId)
+                if (collection.AssetUserRuleId != shopId)
                 {
                     result.Set(eResponseStatus.CollectionNotExist, $"Collection {id} does not exist");
                     return result;
@@ -308,33 +312,37 @@ namespace ApiLogic.Pricing.Handlers
             return result;
         }
 
-        public GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string[] collCodes, string country, string language, string udid, int pageIndex = 0, int pageSize = 30,
-            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None)
+        public GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string[] collCodes, string country, int pageIndex = 0, int pageSize = 30,
+            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, HashSet<long> assetUserRuleIds = null)
         {
             GenericListResponse<Collection> response = new GenericListResponse<Collection>();
             List<long> collectionsIds = null;
             int totalResults = 0;
-
             int groupId = contextData.GroupId;
-
-            long? assetUserruleId = null; 
-            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
-            if (assetUserRulesResponse.HasObjects())
+            var shopUserId = contextData.GetCallerUserId();
+            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, shopUserId);
+            if (shopId > 0)
             {
-                assetUserruleId = assetUserRulesResponse.Objects[0].Id;
+                if (assetUserRuleIds == null)
+                {
+                    assetUserRuleIds = new HashSet<long>() { shopId };
+                }
+                else
+                {
+                    assetUserRuleIds.Add(shopId);
+                }
             }
 
             if (collCodes == null || collCodes.Length == 0)
             {
-                collectionsIds = PricingCache.GetCollectionsIds(groupId, inactiveAssets, assetUserruleId);
+                collectionsIds = PricingCache.GetCollectionsIds(groupId, inactiveAssets, assetUserRuleIds);
             }
             else
             {
                 collectionsIds = collCodes.Select(x => long.Parse(x)).ToList();
-
-                if (assetUserruleId > 0)
+                if (assetUserRuleIds?.Count > 0)
                 {
-                    collectionsIds = PricingCache.FilterCollectionsByAssetUserRuleId(groupId, collectionsIds, assetUserruleId.Value);
+                    collectionsIds = PricingCache.FilterCollectionsByAssetUserRuleId(groupId, collectionsIds, assetUserRuleIds);
                 }
             }
 
@@ -357,7 +365,7 @@ namespace ApiLogic.Pricing.Handlers
                     }
                 }
 
-                response.Objects = _pricingModule.GetCollections(groupId, collectionsIds, country, udid, language, couponGroupIdEqual, inactiveAssets);
+                response.Objects = _pricingModule.GetCollections(groupId, collectionsIds, country, contextData.Udid, contextData.Language, couponGroupIdEqual, inactiveAssets);
 
                 if (response.Objects != null)
                 {
@@ -367,7 +375,7 @@ namespace ApiLogic.Pricing.Handlers
             else
             {
                 // getting all collections
-                response.Objects = _pricingModule.GetCollections(groupId, collectionsIds, country, udid, language, couponGroupIdEqual, inactiveAssets);
+                response.Objects = _pricingModule.GetCollections(groupId, collectionsIds, country, contextData.Udid, contextData.Language, couponGroupIdEqual, inactiveAssets);
                 if (response.Objects != null)
                 {
                     // filter couponGroupIdEqual
@@ -412,10 +420,10 @@ namespace ApiLogic.Pricing.Handlers
             return response;
         }
 
-        public GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string country, string language, string udid, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null,
-            bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None)
+        public GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string country, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null,
+            bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, HashSet<long> assetUserRuleIds = null)
         {
-            return GetCollectionsData(contextData, null, country, language, udid, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual, inactiveAssets, orderBy);
+            return GetCollectionsData(contextData, null, country, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual, inactiveAssets, orderBy, assetUserRuleIds);
         }
 
         public IdsResponse GetCollectionIdsContainingMediaFile(int groupId, int mediaId, int mediaFileID)
@@ -552,12 +560,10 @@ namespace ApiLogic.Pricing.Handlers
                 return response;
             }
 
-            var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(contextData.GroupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
-            if (assetUserRulesResponse.HasObjects())
+            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+            if (shopId > 0)
             {
-                long assetUserruleId = assetUserRulesResponse.Objects[0].Id;
-
-                if (collection.AssetUserRuleId != assetUserruleId)
+                if (collection.AssetUserRuleId != shopId)
                 {
                     response.SetStatus(eResponseStatus.CollectionNotExist, $"Collection {collectionToUpdate.Id} does not exist");
                     return response;
@@ -909,8 +915,8 @@ namespace ApiLogic.Pricing.Handlers
 
                 if (_groupSettingsManager.IsOpc(groupId) && contextData.UserId.HasValue && contextData.UserId.Value > 0)
                 {
-                    var assetUserRulesResponse = Core.Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(groupId, contextData.UserId, true, RuleActionType.UserFilter, RuleConditionType.AssetShop);
-                    if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK && assetUserRulesResponse.HasObjects())
+                    var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(groupId, contextData.UserId);
+                    if (shopId > 0)
                     {
                         response = new GenericListResponse<long>();
 

@@ -373,7 +373,7 @@ namespace Core.Pricing
             return result;
         }
 
-        public static List<long> GetCollectionsIds(int groupId, bool inactiveAssets, long? assetUserRuleId)
+        public static List<long> GetCollectionsIds(int groupId, bool inactiveAssets, HashSet<long> assetUserRuleIds)
         {
             var response = new List<long>();
             
@@ -390,7 +390,7 @@ namespace Core.Pricing
                             continue;
                         }
 
-                        if (assetUserRuleId > 0 && item.AssetUserRuleId != assetUserRuleId)
+                        if (assetUserRuleIds?.Count > 0 && (!item.AssetUserRuleId.HasValue || !assetUserRuleIds.Contains(item.AssetUserRuleId.Value)))
                         {
                             continue;
                         }
@@ -407,7 +407,7 @@ namespace Core.Pricing
             return response;
         }
 
-        public static List<long> FilterCollectionsByAssetUserRuleId(int groupId, List<long> collectionIds, long assetUserRuleId)
+        public static List<long> FilterCollectionsByAssetUserRuleId(int groupId, List<long> collectionIds, HashSet<long> assetUserRuleIds)
         {
             var response = new List<long>();
 
@@ -417,7 +417,7 @@ namespace Core.Pricing
 
                 if (result?.Count > 0)
                 {
-                    response = result.Where(x => x.AssetUserRuleId == assetUserRuleId && collectionIds.Contains(x.Id)).Select(x => x.Id).ToList();
+                    response = result.Where(x => x.AssetUserRuleId.HasValue && assetUserRuleIds.Contains(x.AssetUserRuleId.Value) && collectionIds.Contains(x.Id)).Select(x => x.Id).ToList();
                 }
             }
             catch (Exception ex)

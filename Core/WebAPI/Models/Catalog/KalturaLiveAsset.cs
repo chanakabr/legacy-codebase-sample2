@@ -19,7 +19,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCdvrState")]
         [JsonProperty(PropertyName = "enableCdvrState")]
         [XmlElement(ElementName = "enableCdvrState")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public KalturaTimeShiftedTvState? EnableCdvrState { get; set; }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableCatchUpState")]
         [JsonProperty(PropertyName = "enableCatchUpState")]
         [XmlElement(ElementName = "enableCatchUpState")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public KalturaTimeShiftedTvState? EnableCatchUpState { get; set; }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableStartOverState")]
         [JsonProperty(PropertyName = "enableStartOverState")]
         [XmlElement(ElementName = "enableStartOverState")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public KalturaTimeShiftedTvState? EnableStartOverState { get; set; }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "bufferCatchUpSetting")]
         [JsonProperty(PropertyName = "bufferCatchUpSetting")]
         [XmlElement(ElementName = "bufferCatchUpSetting")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]        
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, MinLong = 0)]        
         public long? BufferCatchUp { get; set; }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "paddingBeforeProgramStarts")]
         [JsonProperty(PropertyName = "paddingBeforeProgramStarts")]
         [XmlElement(ElementName = "paddingBeforeProgramStarts")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, MinLong = 0)]
         public long? PaddingBeforeProgramStarts { get; set; }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "paddingAfterProgramEnds")]
         [JsonProperty(PropertyName = "paddingAfterProgramEnds")]
         [XmlElement(ElementName = "paddingAfterProgramEnds")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, MinLong = 0)]
         public long? PaddingAfterProgramEnds { get; set; }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "bufferTrickPlaySetting")]
         [JsonProperty(PropertyName = "bufferTrickPlaySetting")]
         [XmlElement(ElementName = "bufferTrickPlaySetting")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL, MinLong = 0)]        
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, MinLong = 0)]        
         public long? BufferTrickPlay { get; set; }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableRecordingPlaybackNonEntitledChannelState")]
         [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannelState")]
         [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannelState")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public KalturaTimeShiftedTvState? EnableRecordingPlaybackNonEntitledChannelState { get; set; }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableTrickPlayState")]
         [JsonProperty(PropertyName = "enableTrickPlayState")]
         [XmlElement(ElementName = "enableTrickPlayState")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public KalturaTimeShiftedTvState? EnableTrickPlayState { get; set; }
 
         /// <summary>

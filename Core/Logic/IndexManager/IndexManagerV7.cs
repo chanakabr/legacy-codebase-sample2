@@ -57,6 +57,7 @@ using Force.DeepCloner;
 using BoolQuery = Nest.BoolQuery;
 using System.Runtime.Caching;
 using ApiLogic.IndexManager.Transaction;
+using ApiObjects.Base;
 
 namespace Core.Catalog
 {
@@ -740,7 +741,8 @@ namespace Core.Catalog
             {
                 if (channel == null)
                 {
-                    var response = _channelManager.GetChannelById(_partnerId, channelId, true, userId);
+                    var contextData = new ContextData(_partnerId) { UserId = userId };
+                    var response = _channelManager.GetChannelById(contextData, channelId, true);
                     if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return false;
@@ -2185,11 +2187,11 @@ namespace Core.Catalog
                                 mustQueryContainers.Add(termContainer);
                             }
 
-                            if (definitions.AssetUserRuleId > 0)
+                            if (definitions.AssetUserRuleIds != null && definitions.AssetUserRuleIds.Any())
                             {
-                                var termContainer = queryContainerDescriptor.Term(term => term.
+                                var termContainer = queryContainerDescriptor.Terms(terms => terms.
                                     Field(c => c.AssetUserRuleId).
-                                    Value(definitions.AssetUserRuleId)
+                                    Terms<long>(definitions.AssetUserRuleIds)
                                 );
                                 mustQueryContainers.Add(termContainer);
                             }

@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
-
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
@@ -41,27 +40,12 @@ namespace WebAPI.Models.Catalog
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string FreeText { get; set; }
 
-        internal override KalturaAssetListResponse GetAssets(
-            ContextData contextData,
-            KalturaBaseResponseProfile responseProfile,
-            KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             var deviceType = HttpContext.Current.Request.GetUserAgentString();
-            var domainId = (int)(contextData.DomainId ?? 0);
-            var userId = contextData.UserId.ToString();
 
-            return ClientsManager.CatalogClient().GetExternalChannelAssets(
-                contextData.GroupId,
-                IdEqual.ToString(),
-                userId,
-                domainId,
-                contextData.Udid,
-                contextData.Language,
-                pager.GetRealPageIndex(),
-                pager.PageSize,
-                deviceType,
-                UtcOffsetEqual.ToString(),
-                FreeText);
+            return ClientsManager.CatalogClient().GetExternalChannelAssets
+                (contextData, IdEqual.ToString(), pager.GetRealPageIndex(), pager.PageSize, deviceType, UtcOffsetEqual.ToString(), FreeText);
         }
     }
 }

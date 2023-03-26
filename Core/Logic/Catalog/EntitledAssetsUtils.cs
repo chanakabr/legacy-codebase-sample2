@@ -1,5 +1,6 @@
 ﻿using ApiLogic.IndexManager.Helpers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
@@ -79,11 +80,10 @@ namespace Core.Catalog
             {
                 if (doesGroupUsesTemplates)
                 {
-                    long userId = 0;
-                    long.TryParse(request.m_sSiteGuid, out userId);
-
-                    GenericListResponse<Channel> channelRes = CatalogManagement.ChannelManager.Instance.SearchChannels(groupId, true, string.Empty, 
-                        userBundles.channels, 0, userBundles.channels.Count, ChannelOrderBy.Id, OrderDir.ASC, false, userId);
+                    long.TryParse(request.m_sSiteGuid, out var userId);
+                    var contextData = new ContextData(groupId) { UserId = userId };
+                    GenericListResponse<Channel> channelRes = CatalogManagement.ChannelManager.Instance.SearchChannels(contextData, true, string.Empty, 
+                        userBundles.channels, 0, userBundles.channels.Count, ChannelOrderBy.Id, OrderDir.ASC, false);
                     if (channelRes.HasObjects())
                     {
                         allChannels.AddRange(channelRes.Objects);

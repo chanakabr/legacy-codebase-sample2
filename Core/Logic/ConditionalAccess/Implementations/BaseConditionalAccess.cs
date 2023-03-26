@@ -56,6 +56,7 @@ using ApiLogic.Pricing;
 using ApiObjects.Base;
 using ApiObjects.Recordings;
 using FeatureFlag;
+using ApiLogic.Catalog.Request;
 
 namespace Core.ConditionalAccess
 {
@@ -3723,7 +3724,8 @@ namespace Core.ConditionalAccess
                     {
                         CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
                         {
-                            IdIn = new List<long>() { campaignDetails.Id }
+                            IdIn = new List<long>() { campaignDetails.Id },
+                            IgnoreSetFilterByShop = true
                         };
 
                         ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(m_nGroupID);
@@ -4697,9 +4699,9 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get User Permitted Items
         /// </summary>
-        public virtual Entitlements GetUsersEntitlementPPVItems(List<int> lUsersIDs, bool isExpired, int domainID = 0, bool shouldCheckByDomain = true, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
+        public virtual Entitlements GetUsersEntitlementPPVItems(EntitlementItemsRequest request)
         {
-            return EntitlementManager.GetUsersEntitlementPPVItems(this, m_nGroupID, lUsersIDs, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
+            return EntitlementManager.GetUsersEntitlementPPVItems(this, request);
         }
 
         /// <summary>
@@ -6982,7 +6984,7 @@ namespace Core.ConditionalAccess
                     {
                         long lUserId = long.Parse(userId);
 
-                        GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.GetAssetUserRuleList(m_nGroupID, lUserId);
+                        GenericListResponse<AssetUserRule> assetUserRulesToUser = AssetUserRuleManager.Instance.GetAssetUserRuleList(m_nGroupID, lUserId);
 
                         if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
                         {
@@ -11944,10 +11946,10 @@ namespace Core.ConditionalAccess
         /// Get users' entitlements (PPV or subscriptions or collections)
         /// </summary>
         public virtual Entitlements GetUsersEntitlements(int domainID, List<int> userIds, eTransactionType type, bool isExpired = false, int numOfItems = 0, bool shouldCheckByDomain = true,
-            int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
+            int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc, long? shopUserId = null)
         {
             Entitlements response = new Entitlements();
-            response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             if (!shouldCheckByDomain)
             {
@@ -11960,17 +11962,20 @@ namespace Core.ConditionalAccess
                 {
                     case eTransactionType.PPV:
                         {
-                            response = GetUsersEntitlementPPVItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
+                            var entitlementItemsRequest = new EntitlementItemsRequest(m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy, shopUserId);
+                            response = GetUsersEntitlementPPVItems(entitlementItemsRequest);
                             break;
                         }
                     case eTransactionType.Subscription:
                         {
-                            response = EntitlementManager.GetUsersEntitlementSubscriptionsItems(this, m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
+                            var entitlementItemsRequest = new EntitlementItemsRequest(m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
+                            response = EntitlementManager.GetUsersEntitlementSubscriptionsItems(this, entitlementItemsRequest);
                             break;
                         }
                     case eTransactionType.Collection:
                         {
-                            response = EntitlementManager.GetUsersEntitlementCollectionsItems(this, m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
+                            var entitlementItemsRequest = new EntitlementItemsRequest(m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy, shopUserId);
+                            response = EntitlementManager.GetUsersEntitlementCollectionsItems(this, entitlementItemsRequest);
                             break;
                         }
                     case eTransactionType.ProgramAssetGroupOffer:
@@ -11992,13 +11997,14 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
+        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0, 
+            EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc, long? shopUserId = null)
         {
             int userId, domainID = 0;
             DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
             if (int.TryParse(siteGuid, out userId) && Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref userSuspendStatus))
             {
-                return GetUsersEntitlements(domainID, new List<int>() { userId }, type, isExpired, 0, false, pageSize, pageIndex, orderBy);
+                return GetUsersEntitlements(domainID, new List<int>() { userId }, type, isExpired, 0, false, pageSize, pageIndex, orderBy, shopUserId);
             }
             else
             {
@@ -12008,10 +12014,10 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
+        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc, long? shopUserId = null)
         {
             List<int> intUsersList = GetDomainsUsers(domainId);
-            return GetUsersEntitlements(domainId, intUsersList, type, isExpired, 0, true, pageSize, pageIndex, orderBy);
+            return GetUsersEntitlements(domainId, intUsersList, type, isExpired, 0, true, pageSize, pageIndex, orderBy, shopUserId);
         }
 
         /// <summary>
@@ -14143,7 +14149,7 @@ namespace Core.ConditionalAccess
 
                     if (canRecord)
                     {
-                        var recordingDuration = QuotaManager.GetRecordingDurationSeconds(m_nGroupID, recording);
+                        var recordingDuration = QuotaManager.GetRecordingDurationSeconds(m_nGroupID, recording, true, domainID);
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
                         if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
                         {
@@ -14583,7 +14589,7 @@ namespace Core.ConditionalAccess
                     {
                         if (totalSeconds != -1)
                         {
-                            int recordingDuration = QuotaManager.GetRecordingDurationSeconds(this.m_nGroupID, recording);
+                            int recordingDuration = QuotaManager.GetRecordingDurationSeconds(this.m_nGroupID, recording, true, domainID);
                             if (recordingDuration > totalSeconds)
                             {
                                 recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
@@ -14786,7 +14792,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
+        public RecordingResponse SearchDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
             string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, Dictionary<string, string> metaData, HashSet<string> externalRecordingIds = null)
         {
             RecordingResponse response = new RecordingResponse();
@@ -14883,7 +14889,7 @@ namespace Core.ConditionalAccess
 
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at SerachDomainRecordings. ");
+                StringBuilder sb = new StringBuilder("Exception at SearchDomainRecordings. ");
                 sb.Append(String.Concat("userId: ", userID));
                 sb.Append(String.Concat("domainID: ", domainID));
                 sb.Append(", RecordingStatuses: ");

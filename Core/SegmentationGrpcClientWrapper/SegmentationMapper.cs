@@ -12,8 +12,8 @@ namespace SegmentationGrpcClientWrapper
 {
     public static class SegmentationMapper
     {
-        public static List<SegmentationTypeObject> MapToListResponse(GetSegmentationTypesResponse response) =>
-            response.Objects?.Select(MapToSegmentationType).ToList();
+        public static (List<SegmentationTypeObject>, int) MapToListResponse(GetSegmentationTypesResponse response) =>
+            (response.Objects?.Select(MapToSegmentationType).ToList(), response.Count);
 
         public static SegmentationTypeObject MapToSegmentationType(SegmentationType source) =>
             new SegmentationTypeObject
@@ -26,6 +26,7 @@ namespace SegmentationGrpcClientWrapper
                 Value = MapToSingleSegmentValue(source.Value),
                 CreateDate = source.CreateDate,
                 Version = source.Version,
+                AssetUserRuleId = source.AssetUserRuleId
             };
         
         private static List<Segmentation.SegmentAction> MapToActions(RepeatedField<OTT.Service.Segmentation.Action> source)
@@ -191,7 +192,6 @@ namespace SegmentationGrpcClientWrapper
             }
         }
 
-
         public static Segmentation.ContentConditionLengthType? Map(ContentActionConditionLengthType source)
         {
             switch (source)
@@ -203,6 +203,5 @@ namespace SegmentationGrpcClientWrapper
                     throw new EvaluateException($"ContentActionConditionLengthType [{source}] is not supported");
             }
         }
-
     }
 }

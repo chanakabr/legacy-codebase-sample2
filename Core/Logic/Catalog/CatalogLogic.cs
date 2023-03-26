@@ -1,8 +1,18 @@
 ﻿using AdapterControllers;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog;
+using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.Catalog.CatalogManagement.Services;
+using ApiLogic.Catalog.NextEpisode;
+using ApiLogic.Catalog.Services;
+using ApiLogic.Catalog.Tree;
+using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders.SearchPriority;
+using ApiLogic.IndexManager.Sorting;
+using ApiLogic.Segmentation;
 using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
@@ -10,10 +20,10 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.Segmentation;
 using ApiObjects.Statistics;
+using ApiObjects.TimeShiftedTv;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
 using Catalog.Response;
-using Phx.Lib.Appconfig;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
@@ -21,14 +31,17 @@ using Core.Catalog.Response;
 using Core.GroupManagers;
 using Core.Notification;
 using Core.Users;
+using CouchbaseManager;
 using DAL;
 using DalCB;
+using ElasticSearch.Searcher;
 using EpgBL;
 using GroupsCacheManager;
-using Phx.Lib.Log;
-
+using KalturaRequestContext;
 using Newtonsoft.Json;
 using NPVR;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Log;
 using QueueWrapper;
 using StatisticsBL;
 using System;
@@ -37,37 +50,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using ApiLogic.Catalog.CatalogManagement.Models;
-using ApiLogic.Catalog.CatalogManagement.Services;
-using ApiLogic.Catalog.Tree;
-using ApiLogic.IndexManager;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using Status = ApiObjects.Response.Status;
-using ApiLogic.IndexManager.QueryBuilders;
-using ApiLogic.IndexManager.Helpers;
-using CouchbaseManager;
-using KalturaRequestContext;
-using System.Threading;
-using ApiLogic.Catalog.NextEpisode;
-using ApiLogic.Catalog.Services;
-using ApiLogic.Context;
-using ApiLogic.IndexManager.QueryBuilders.SearchPriority;
-using ApiLogic.IndexManager.Sorting;
-using ApiLogic.Segmentation;
-using ApiObjects.NextEpisode;
-using ApiObjects.TimeShiftedTv;
-using ChannelsSchema;
-using ElasticSearch.Searcher;
-using ElasticSearch.Utils;
-using EventBus.Kafka;
-using Microsoft.Extensions.Logging;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
+using Status = ApiObjects.Response.Status;
 
 namespace Core.Catalog
 {
@@ -5824,11 +5814,10 @@ namespace Core.Catalog
             Dictionary<string, string> enrichments = CatalogLogic.GetEnrichments(request, externalChannel.Enrichments);
 
             // If no recommendation engine defined - use group's default
+            var group = new GroupManager().GetGroup(request.m_nGroupID);
             if (externalChannel.RecommendationEngineId <= 0)
             {
-                GroupManager groupManager = new GroupManager();
-                externalChannel.RecommendationEngineId =
-                    groupManager.GetGroup(request.m_nGroupID).defaultRecommendationEngine;
+                externalChannel.RecommendationEngineId = group.defaultRecommendationEngine;
             }
 
             // If there is still no recommendation engine
@@ -5860,7 +5849,7 @@ namespace Core.Catalog
             // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression) && string.IsNullOrEmpty(request.filterQuery))
             {
-                searchResultsList = GetValidateRecommendationsAssets(recommendations, request.m_nGroupID);
+                searchResultsList = GetValidateRecommendationsAssets(recommendations, request, group);
 
                 if (totalItems == 0 ||
                     (recommendations.Count != searchResultsList.Count &&
@@ -5989,21 +5978,20 @@ namespace Core.Catalog
             return status;
         }
 
-        private static List<UnifiedSearchResult> GetValidateRecommendationsAssets(
-            List<RecommendationResult> recommendations, int groupId)
+        private static List<UnifiedSearchResult> GetValidateRecommendationsAssets(List<RecommendationResult> recommendations, BaseRequest request, Group group)
         {
             var searchResultsList = new List<UnifiedSearchResult>();
-            var groupPermittedWatchRules = WatchRuleManager.Instance.GetGroupPermittedWatchRules(groupId);
+            var groupPermittedWatchRules = WatchRuleManager.Instance.GetGroupPermittedWatchRules(request.m_nGroupID);
 
-            bool isOPC = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+            bool isOPC = CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID);
             if (isOPC || (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0))
             {
-                string watchRules = string.Join(" ", WatchRuleManager.Instance.GetGroupPermittedWatchRules(groupId));
+                string watchRules = string.Join(" ", WatchRuleManager.Instance.GetGroupPermittedWatchRules(request.m_nGroupID));
 
                 // validate media on ES
                 UnifiedSearchDefinitions searchDefinitions = new UnifiedSearchDefinitions()
                 {
-                    groupId = groupId,
+                    groupId = request.m_nGroupID,
                     permittedWatchRules = watchRules,
                     specificAssets = new Dictionary<eAssetTypes, List<string>>(),
                     shouldUseFinalEndDate = true,
@@ -6014,6 +6002,12 @@ namespace Core.Catalog
                     shouldUseEndDateForEpg = false,
                     shouldUseStartDateForEpg = false
                 };
+
+                var shopUserId = request.GetCallerUserId();
+                if (shopUserId > 0)
+                {
+                    UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref searchDefinitions, request.m_nGroupID, shopUserId);
+                }
 
                 int elasticSearchPageSize = 0;
                 var recommendationsMapping = recommendations.GroupBy(x => x.type)
@@ -6043,7 +6037,7 @@ namespace Core.Catalog
 
                 if (elasticSearchPageSize > 0)
                 {
-                    int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
+                    int parentGroupId = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
                     var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
                     int esTotalItems = 0;
                     var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems);
@@ -6284,7 +6278,7 @@ namespace Core.Catalog
                     return status;
                 }
 
-                searchResultsList = GetValidateRecommendationsAssets(recommendations, request.m_nGroupID);
+                searchResultsList = GetValidateRecommendationsAssets(recommendations, request, group);
 
                 if (totalItems == 0 ||
                     (recommendations.Count != searchResultsList.Count &&
@@ -6537,11 +6531,8 @@ namespace Core.Catalog
             CatalogGroupCache catalogGroupCache = null;
             if (CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID))
             {
-                long.TryParse(request.m_sSiteGuid, out var userId);
-
-                GenericResponse<GroupsCacheManager.Channel> response =
-                    ChannelManager.Instance.GetChannelById(request.m_nGroupID, channelId,
-                        request.isAllowedToViewInactiveAssets, userId);
+                var contextData = new ContextData(request.m_nGroupID) { UserId = request.GetCallerUserId() };
+                GenericResponse<GroupsCacheManager.Channel> response = ChannelManager.Instance.GetChannelById(contextData, channelId, request.isAllowedToViewInactiveAssets);
                 if (response != null && response.Status != null && response.Status.Code != (int) eResponseStatus.OK)
                 {
                     return response.Status;
@@ -6783,7 +6774,9 @@ namespace Core.Catalog
                     if (unifiedSearchDefinitions.groupBy != null && unifiedSearchDefinitions.groupBy.Any())
                     {
                         var groupByKey = string.Join(",", unifiedSearchDefinitions.groupBy.Select(_ => $"{_.Key}|{_.Type}|{_.Value}"));
-                        cacheKey.AppendFormat("_gb={0}", groupByKey);
+                        cacheKey
+                            .AppendFormat("_gb={0}", groupByKey)
+                            .AppendFormat("_gbo={0}", unifiedSearchDefinitions.GroupByOption);
                     }
 
                     if (lastUpdateDate > 0)  //BEO-11618
@@ -7406,11 +7399,10 @@ namespace Core.Catalog
 
             #region Asset User Rule
 
-            long userId = 0;
-            if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
+            var shopUserId = request.GetCallerUserId();
+            if (shopUserId > 0)
             {
-                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId,
-                    userId);
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, shopUserId);
             }
 
             #endregion
@@ -8189,6 +8181,11 @@ namespace Core.Catalog
         // so the solution is to see if the value is an int or not by... flooring the double and see if its value remains the same or not.
         private static void HandleNumericLeaf(BooleanLeaf leaf)
         {
+            if (leaf.operand == ComparisonOperator.In)
+            {
+                return;
+            }
+
             if (leaf.value != DBNull.Value && leaf.value != null)
             {
                 string leafValue = Convert.ToString(leaf.value);
@@ -8597,15 +8594,13 @@ namespace Core.Catalog
 
             if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
-                UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId,
-                    channel.AssetUserRuleId.Value);
+                UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId, channel.AssetUserRuleId.Value);
             }
 
-            long userId = 0;
-            if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
+            var shopUserId = request.GetCallerUserId();
+            if (shopUserId > 0)
             {
-                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId,
-                    userId);
+                UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, shopUserId);
             }
 
             #endregion
@@ -8616,11 +8611,9 @@ namespace Core.Catalog
                 request.m_sSiteGuid != "0")
             {
                 var userSegmentIds = UserSegmentLogic.ListAll(groupId, request.m_sSiteGuid);
-
                 if (userSegmentIds?.Count > 0)
                 {
-                    List<SegmentationType> segmentationTypes =
-                        SegmentationTypeLogic.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
+                    List<SegmentationType> segmentationTypes = SegmentationTypeLogic.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
 
                     definitions.boostScoreValues = new List<BoostScoreValueDefinition>();
 
@@ -8886,7 +8879,7 @@ namespace Core.Catalog
                 string.Empty, doesGroupUsesTemplates ? groupId : group.m_nParentGroupID, request.m_nPageSize,
                 request.m_nPageIndex, request.m_sUserIP, request.m_sSignature, request.m_sSignString, request.m_oFilter,
                 assetFilterKsql,
-                new OrderObj() { });
+                new OrderObj() { }, request.OriginalUserId);
 
             channelRequest.isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets;
 

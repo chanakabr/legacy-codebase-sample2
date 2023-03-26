@@ -396,10 +396,10 @@ namespace Core.Catalog
 
                 #region Asset User Rule
 
-                long userId = 0;
-                if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
+                var shopUserId = request.GetCallerUserId();
+                if (shopUserId > 0)
                 {
-                    GetUserAssetRulesPhrase(request, group, ref definitions, request.m_nGroupID, userId);
+                    GetUserAssetRulesPhrase(request, group, ref definitions, request.m_nGroupID, shopUserId);
                 }
 
                 #endregion
@@ -499,7 +499,7 @@ namespace Core.Catalog
         internal static void GetChannelUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, long ruleId)
         {
             BooleanPhraseNode phrase = null;
-            var assetUserRulesResponse = AssetUserRuleManager.GetAssetUserRuleByRuleId(request.m_nGroupID, ruleId);
+            var assetUserRulesResponse = AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(request.m_nGroupID, ruleId);
             if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)
             {
                 if (assetUserRulesResponse.Object != null)
@@ -535,12 +535,12 @@ namespace Core.Catalog
             }            
         }
 
-        internal static BooleanPhraseNode GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, 
+        private static BooleanPhraseNode GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, 
             RuleActionType ruleActionType, long userId)
         {
             BooleanPhraseNode phrase = null;
-            var assetUserRulesResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleList(request.m_nGroupID, userId, true, ruleActionType);
-            if (assetUserRulesResponse.Status.Code == (int)eResponseStatus.OK)
+            var assetUserRulesResponse = AssetUserRuleManager.Instance.GetAssetUserRuleList(request.m_nGroupID, userId, true, ruleActionType);
+            if (assetUserRulesResponse.IsOkStatusCode())
             {
                 if (assetUserRulesResponse.HasObjects())
                 {
@@ -551,7 +551,6 @@ namespace Core.Catalog
 
                     definitions.assetUserRuleIds.AddRange(rulesIds);
                     BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
-
                     CatalogLogic.UpdateNodeTreeFields(request, ref phrase, definitions, group, groupId);
 
                     return phrase;

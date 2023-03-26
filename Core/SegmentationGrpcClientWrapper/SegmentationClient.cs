@@ -41,7 +41,7 @@ namespace SegmentationGrpcClientWrapper
             }
         }
         
-        public List<SegmentationType> GetSegmentationTypesByValue(GetSegmentationTypesByValueRequest request)
+        public (List<SegmentationType>, int) GetSegmentationTypesByValue(GetSegmentationTypesByValueRequest request)
         {
             using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, request.PartnerId.ToString()))
             {

@@ -422,6 +422,7 @@ namespace ApiObjects.Response
         DynamicSegmentPeriodExceeded = 5092,
         DynamicSegmentConditionsExceeded = 5093,
         NameMustBeUnique = 5094,
+        EntityIsNotAssociatedWithShop = 5095,
 
         #endregion
 

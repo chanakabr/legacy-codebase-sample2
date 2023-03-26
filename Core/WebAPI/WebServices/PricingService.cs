@@ -1,14 +1,13 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Pricing;
+using ApiObjects.Response;
+using Core.Pricing;
+using Phx.Lib.Log;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.Services;
-using System.Data;
-using ApiObjects.Response;
-using Phx.Lib.Log;
-using ApiObjects;
-using Core.Pricing;
-using ApiObjects.Pricing;
+
 namespace WebAPI.WebServices
 {
     public class PricingService : System.Web.Services.WebService, IPricingService
@@ -1759,7 +1758,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Pricing.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetPPVModuleResponse(nGroupID, sPPVCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                return Core.Pricing.Module.GetPPVModuleResponse(nGroupID, sPPVCode, sCountryCd2, sLanguageCode3, sDeviceName, null);
             }
             else
             {

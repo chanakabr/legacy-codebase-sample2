@@ -47,7 +47,8 @@ namespace CampaignHandler
                     Service = (ApiService)serviceEvent.ApiService,
                     Action = (ApiAction)serviceEvent.ApiAction,
                     StateEqual = CampaignState.ACTIVE,
-                    IsActiveNow = true
+                    IsActiveNow = true,
+                    IgnoreSetFilterByShop = true
                 };
                 var triggerCampaigns = CampaignManager.Instance.ListTriggerCampaigns(contextData, filter);
                 if (!triggerCampaigns.HasObjects())

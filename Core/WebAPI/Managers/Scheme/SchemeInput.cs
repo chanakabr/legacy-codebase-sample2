@@ -12,6 +12,7 @@ namespace WebAPI.Managers.Scheme
         public const string ASCII_ONLY_PATTERN = @"[\x00-\x7F]";
         public const string NOT_EMPTY_PATTERN = @"^(?!\s*$).+";
         public const string NO_COMMAS_PATTERN = @"^[^,]+$";
+        public const string NO_COLONS_PATTERN = @"^[^:]+$";
 
         public Type DynamicType { get; set; }
         public int DynamicMinInt { get; set; }

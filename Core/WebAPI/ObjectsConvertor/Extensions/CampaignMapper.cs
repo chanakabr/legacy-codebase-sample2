@@ -20,5 +20,10 @@ namespace WebAPI.ObjectsConvertor.Extensions
             var streamerTypes = Utils.Utils.ParseCommaSeparatedValues<List<KalturaObjectState>, KalturaObjectState>(model.StateIn, "stateIn", true, true);
             return AutoMapper.Mapper.Map<List<CampaignState>>(streamerTypes);
         }
+
+        public static HashSet<long> GetAssetUserRuleIds(this KalturaCampaignSearchFilter model)
+        {
+            return Utils.Utils.ParseCommaSeparatedValues<HashSet<long>, long>(model.AssetUserRuleIdIn, "assetUserRuleIdIn", true);
+        }
     }
 }

@@ -16,7 +16,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "lcn")]
         [JsonProperty(PropertyName = "lcn")]
         [XmlElement(ElementName = "lcn")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
         public int? LinearChannelNumber { get; set; }
     }
 }

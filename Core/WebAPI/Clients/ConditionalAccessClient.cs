@@ -494,7 +494,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaEntitlementListResponse GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0,
-            KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
+            KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC, long? shopUserId = null)
         {
             KalturaEntitlementListResponse response = new Models.ConditionalAccess.KalturaEntitlementListResponse();
             List<KalturaEntitlement> entitlements = new List<KalturaEntitlement>();
@@ -514,8 +514,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Core.ConditionalAccess.Module.GetDomainEntitlements(groupId, domainId, wsType, isExpired,
-                        pageSize, pageIndex, wsOrderBy);
+                    wsResponse = Core.ConditionalAccess.Module.GetDomainEntitlements(groupId, domainId, wsType, isExpired, pageSize, pageIndex, wsOrderBy, shopUserId);
                 }
             }
             catch (Exception ex)
@@ -552,7 +551,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaEntitlementListResponse GetUserEntitlements(int groupId, string userId, KalturaTransactionType type, bool isExpired = false, int pageSize = 50, int pageIndex = 0,
-            KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
+            KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC, long? shopUserId = null)
         {
             KalturaEntitlementListResponse response = new Models.ConditionalAccess.KalturaEntitlementListResponse();
             List<KalturaEntitlement> entitlements = new List<KalturaEntitlement>();
@@ -570,8 +569,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Core.ConditionalAccess.Module.GetUserEntitlements(groupId, userId, wsType, isExpired,
-                        pageSize, pageIndex, wsOrderBy);
+                    wsResponse = Core.ConditionalAccess.Module.GetUserEntitlements(groupId, userId, wsType, isExpired, pageSize, pageIndex, wsOrderBy, shopUserId);
                 }
             }
             catch (Exception ex)

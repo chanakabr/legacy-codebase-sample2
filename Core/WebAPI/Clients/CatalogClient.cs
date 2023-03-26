@@ -59,6 +59,7 @@ using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using Ratio = Core.Catalog.Ratio;
 using SearchAssetsFilter = WebAPI.InternalModels.SearchAssetsFilter;
 using WebAPI.ObjectsConvertor.Extensions;
+using ApiObjects.Base;
 
 namespace WebAPI.Clients
 {
@@ -510,7 +511,7 @@ namespace WebAPI.Clients
 
                 if (shouldUsePagination)
                 {
-                    result.Objects = result.Objects
+                    result.Objects = result.Objects?
                         .Skip(request.m_nPageIndex * request.m_nPageSize)
                         .Take(request.m_nPageSize)
                         .ToList();
@@ -723,7 +724,8 @@ namespace WebAPI.Clients
                     SignString,
                     ref request,
                     searchAssetFilter.GroupByType,
-                    searchAssetFilter.ShouldApplyPriorityGroups);
+                    searchAssetFilter.ShouldApplyPriorityGroups,
+                    searchAssetFilter.OriginalUserId);
 
                 if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
                 {
@@ -831,6 +833,7 @@ namespace WebAPI.Clients
                 GroupByOption = searchAssetsFilter.GroupByType,
                 orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetsFilter.OrderingParameters),
                 specificAssets = searchAssetsFilter.SpecificAssets,
+                OriginalUserId = searchAssetsFilter.OriginalUserId
             };
 
             // for testing purposes
@@ -925,6 +928,7 @@ namespace WebAPI.Clients
                 GroupByOption = searchAssetFilter.GroupByType,
                 orderingParameters = KalturaOrderMapper.Instance.MapParameters(searchAssetFilter.OrderingParameters),
                 specificAssets = searchAssetFilter.SpecificAssets,
+                OriginalUserId = searchAssetFilter.OriginalUserId
             };
 
             // fire unified search request
@@ -1246,11 +1250,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse GetRelatedMedia(
-            int groupId,
-            string siteGuid,
-            int domainId,
-            string udid,
-            string language,
+            ContextData contextData,
             int pageIndex,
             int? pageSize,
             int mediaId,
@@ -1262,7 +1262,7 @@ namespace WebAPI.Clients
             bool shouldApplyPriorityGroups = false)
         {
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             // build request
             var request = new MediaRelatedRequest
@@ -1271,25 +1271,26 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_sDeviceId = contextData.Udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(contextData.GroupId, contextData.Language),
                     m_bUseStartDate = group.UseStartDate,
                     m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
-                m_nGroupID = groupId,
+                m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 m_nMediaID = mediaId,
                 m_nMediaTypes = mediaTypes,
-                m_sSiteGuid = siteGuid,
-                domainId = domainId,
+                m_sSiteGuid = contextData.UserId.ToString(),
+                domainId = (int)(contextData.DomainId ?? 0),
                 m_sFilter = filter,
-                OrderingParameters = KalturaOrderMapper.Instance.MapParameters(orderings)
+                OrderingParameters = KalturaOrderMapper.Instance.MapParameters(orderings),
+                OriginalUserId = contextData.OriginalUserId
             };
             if (shouldApplyPriorityGroups)
             {
-                request.PriorityGroupsMappings = _searchPriorityGroupManager.ListSearchPriorityGroupMappings(groupId);
+                request.PriorityGroupsMappings = _searchPriorityGroupManager.ListSearchPriorityGroupMappings(contextData.GroupId);
             }
 
             if (groupBy != null && groupBy.Count > 0)
@@ -1306,11 +1307,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse GetRelatedMediaExcludeWatched(
-            int groupId,
-            int userId,
-            int domainId,
-            string udid,
-            string language,
+            ContextData contextData,
             int pageIndex,
             int? pageSize,
             int mediaId,
@@ -1321,7 +1318,7 @@ namespace WebAPI.Clients
             bool shouldApplyPriorityGroups = false)
         {
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             MediaRelatedRequest request = null;
             List<BaseObject> totalAssetsBaseDataList = new List<BaseObject>();
@@ -1332,11 +1329,7 @@ namespace WebAPI.Clients
             while (pageIndex < 10)
             {
                 var searchResponse = CatalogUtils.GetMediaExcludeWatched(
-                    groupId,
-                    userId,
-                    domainId,
-                    udid,
-                    language,
+                    contextData,
                     pageIndex,
                     pageSize,
                     mediaId,
@@ -1358,7 +1351,7 @@ namespace WebAPI.Clients
                     // Get user user's watched media and exclude them from searchResults
                     if (pageIndex == 0)
                     {
-                        userWatchedMediaIds = CatalogUtils.GetUserWatchedMediaIds(groupId, userId);
+                        userWatchedMediaIds = CatalogUtils.GetUserWatchedMediaIds(contextData.GroupId, (int)contextData.UserId);
                     }
                     // filter out watched media
                     if (userWatchedMediaIds != null && userWatchedMediaIds.Count > 0)
@@ -1403,8 +1396,9 @@ namespace WebAPI.Clients
                 searchResults = totalAssetsBaseDataList.Select(x => x as UnifiedSearchResult).ToList(),
                 m_nTotalItems = totalCount
             };
+
             return ClientsManager.CatalogClient().GetAssetFromUnifiedSearchResponse(
-                    request?.m_nGroupID ?? groupId,
+                    request?.m_nGroupID ?? contextData.GroupId,
                     mediaIdsResponse,
                     request,
                     false,
@@ -1828,12 +1822,12 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetListResponse GetEPGByInternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, KalturaAssetOrderBy orderBy)
+        public KalturaAssetListResponse GetEPGByInternalIds(ContextData contextData, int pageIndex, int? pageSize, List<int> epgIds, KalturaAssetOrderBy orderBy)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             // build request
             EpgProgramDetailsRequest request = new EpgProgramDetailsRequest()
@@ -1842,18 +1836,19 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_sDeviceId = contextData.Udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(contextData.GroupId, contextData.Language),
                     m_bUseStartDate = group.UseStartDate,
                     m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
-                m_nGroupID = groupId,
+                m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
-                m_sSiteGuid = siteGuid,
-                domainId = domainId,
+                m_sSiteGuid = contextData.UserId.ToString(),
+                domainId = (int)(contextData.DomainId ?? 0),
                 m_lProgramsIds = epgIds,
+                OriginalUserId = contextData.OriginalUserId
             };
 
             EpgProgramResponse epgProgramResponse = null;
@@ -1927,20 +1922,12 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetListResponse GetEPGByExternalIds(
-            int groupId,
-            string siteGuid,
-            int domainId,
-            string udid,
-            string language,
-            int pageIndex,
-            int? pageSize,
-            List<string> epgIds)
+        public KalturaAssetListResponse GetEPGByExternalIds(ContextData contextData, int pageIndex, int? pageSize, List<string> epgIds)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             // build request
             EPGProgramsByProgramsIdentefierRequest request = new EPGProgramsByProgramsIdentefierRequest()
@@ -1949,18 +1936,19 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_sDeviceId = contextData.Udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(contextData.GroupId, contextData.Language),
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
-                m_nGroupID = groupId,
+                m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
-                m_sSiteGuid = siteGuid,
-                domainId = domainId,
+                m_sSiteGuid = contextData.UserId.ToString(),
+                domainId = (int)(contextData.DomainId ?? 0),
                 pids = epgIds,
                 eLang = Language.English,
-                duration = 0
+                duration = 0,
+                OriginalUserId = contextData.OriginalUserId
             };
 
             if (CatalogUtils.GetBaseResponse(request, out EpgProgramsResponse epgProgramResponse)
@@ -1979,9 +1967,9 @@ namespace WebAPI.Clients
 
                 // get assets from catalog/cache
 
-                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
+                if (Utils.Utils.DoesGroupUsesTemplates(contextData.GroupId))
                 {
-                    KalturaAssetListResponse getAssetRes = GetAssetsForOPCAccount(groupId, domainId, assetsBaseDataList, Utils.Utils.IsAllowedToViewInactiveAssets(groupId, siteGuid, true));
+                    KalturaAssetListResponse getAssetRes = GetAssetsForOPCAccount(contextData.GroupId, request.domainId, assetsBaseDataList, Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, request.m_sSiteGuid, true));
                     if (getAssetRes != null)
                     {
                         result.Objects = getAssetRes.Objects;
@@ -2054,8 +2042,7 @@ namespace WebAPI.Clients
 
         }
 
-
-        public KalturaChannel GetChannelInfo(int groupId, string siteGuid, int domainId, string udid, string language, int channelId)
+        public KalturaChannel GetChannelInfo(ContextData contextData, int channelId)
         {
             KalturaChannel result = null;
             ChannelObjRequest request = new ChannelObjRequest()
@@ -2064,14 +2051,15 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_sDeviceId = contextData.Udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(contextData.GroupId, contextData.Language),
                 },
-                m_sSiteGuid = siteGuid,
-                m_nGroupID = groupId,
+                m_sSiteGuid = contextData.UserId.ToString(),
+                m_nGroupID = contextData.GroupId,
                 m_sUserIP = Utils.Utils.GetClientIP(),
-                domainId = domainId,
+                domainId = (int)contextData.DomainId,
                 ChannelId = channelId,
+                OriginalUserId = contextData.OriginalUserId
             };
 
             ChannelObjResponse response = null;
@@ -2521,47 +2509,38 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetExternalChannelAssets(
-            int groupId,
-            string channelId,
-            string userID,
-            int domainId,
-            string udid,
-            string language,
-            int pageIndex,
-            int? pageSize,
-            string deviceType,
-            string utcOffset,
-            string freeParam)
+        internal KalturaAssetListResponse GetExternalChannelAssets
+            (ContextData contextData, string channelId, int pageIndex, int? pageSize, string deviceType, string utcOffset, string freeParam)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             // build request
             ExternalChannelRequest request = new ExternalChannelRequest()
             {
                 m_sSignature = Signature,
                 m_sSignString = SignString,
-                deviceId = udid,
+                deviceId = contextData.Udid,
                 deviceType = deviceType,
-                domainId = domainId,
+                domainId = (int)(contextData.DomainId ?? 0),
                 internalChannelID = channelId,
-                m_nGroupID = groupId,
+                m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 m_oFilter = new Filter()
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_sDeviceId = contextData.Udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(contextData.GroupId, contextData.Language),
                     m_bUseStartDate = group.UseStartDate,
                     m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
-                m_sSiteGuid = userID,
+                m_sSiteGuid = contextData.UserId.ToString(),
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 utcOffset = utcOffset,
-                free = freeParam
+                free = freeParam,
+                OriginalUserId = contextData.OriginalUserId
             };
 
             // fire search request
@@ -2602,13 +2581,13 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetRelatedMediaExternal(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId,
-            List<int> mediaTypes, int utcOffset, string freeParam)
+        internal KalturaAssetListResponse GetRelatedMediaExternal
+            (ContextData contextData, int pageIndex, int? pageSize, int mediaId, List<int> mediaTypes, int utcOffset, string freeParam)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             // build request
             MediaRelatedExternalRequest request = new MediaRelatedExternalRequest()
@@ -2617,41 +2596,41 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_sDeviceId = contextData.Udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(contextData.GroupId, contextData.Language),
                     m_bUseStartDate = group.UseStartDate,
                     m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
-                m_sLanguage = language,
+                m_sLanguage = contextData.Language,
                 m_sUserIP = Utils.Utils.GetClientIP(),
-                m_nGroupID = groupId,
+                m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 m_nMediaID = mediaId,
                 m_nMediaTypes = mediaTypes,
-                m_sSiteGuid = userID,
-                domainId = domainId,
+                m_sSiteGuid = contextData.UserId.ToString(),
+                domainId = (int)(contextData.DomainId ?? 0),
                 m_nUtcOffset = utcOffset,
-                m_sFreeParam = freeParam
+                m_sFreeParam = freeParam,
+                OriginalUserId = contextData.OriginalUserId
             };
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
-                mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
+                mediaId, pageIndex, pageSize, contextData.GroupId, contextData.Language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
             result = CatalogUtils.GetMediaWithStatus(request, key.ToString());
 
             return result;
         }
 
-        internal KalturaAssetListResponse GetSearchMediaExternal(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, string query,
-            List<int> mediaTypes, int utcOffset)
+        internal KalturaAssetListResponse GetSearchMediaExternal(ContextData contextData, int pageIndex, int? pageSize, string query, List<int> mediaTypes, int utcOffset)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             // build request
             MediaSearchExternalRequest request = new MediaSearchExternalRequest()
@@ -2660,28 +2639,29 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_sDeviceId = contextData.Udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(contextData.GroupId, contextData.Language),
                     m_bUseStartDate = group.UseStartDate,
                     m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
-                m_sLanguage = language,
+                m_sLanguage = contextData.Language,
                 m_sUserIP = Utils.Utils.GetClientIP(),
-                m_nGroupID = groupId,
+                m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 m_sQuery = query,
                 m_nMediaTypes = mediaTypes,
-                m_sSiteGuid = userID,
-                domainId = domainId,
+                m_sSiteGuid = contextData.UserId.ToString(),
+                domainId = (int)(contextData.DomainId ?? 0),
                 m_nUtcOffset = utcOffset,
-                m_sDeviceID = udid
+                m_sDeviceID = contextData.Udid,
+                OriginalUserId = contextData.OriginalUserId
             };
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
             key.AppendFormat("search_q={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
-                query, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
+                query, pageIndex, pageSize, contextData.GroupId, contextData.Language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
             UnifiedSearchResponse response = new UnifiedSearchResponse();
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out response, true, key.ToString())
@@ -2702,11 +2682,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetChannelAssets(int groupId,
-            string userID,
-            int domainId,
-            string udid,
-            string language,
+        internal KalturaAssetListResponse GetChannelAssets(ContextData contextData,
             int pageIndex,
             int? pageSize,
             int id,
@@ -2722,7 +2698,7 @@ namespace WebAPI.Clients
             var orderingParameters = orderings != null ? KalturaOrderMapper.Instance.MapParameters(orderings) : null;
 
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             // build request
             var request = new InternalChannelRequest
@@ -2731,28 +2707,29 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_sDeviceId = contextData.Udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(contextData.GroupId, contextData.Language),
                     m_bUseStartDate = group.UseStartDate,
                     m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
-                m_nGroupID = groupId,
+                m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
-                m_sSiteGuid = userID,
-                domainId = domainId,
+                m_sSiteGuid = contextData.UserId.ToString(),
+                domainId = (int)(contextData.DomainId ?? 0),
                 orderingParameters = orderingParameters,
                 internalChannelID = id.ToString(),
                 filterQuery = filterQuery,
                 m_dServerTime = getServerTime(),
                 m_bIgnoreDeviceRuleID = false,
-                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                OriginalUserId = contextData.OriginalUserId
             };
 
             if (shouldApplyPriorityGroups)
             {
-                request.PriorityGroupsMappings = _searchPriorityGroupManager.ListSearchPriorityGroupMappings(groupId);
+                request.PriorityGroupsMappings = _searchPriorityGroupManager.ListSearchPriorityGroupMappings(contextData.GroupId);
             }
 
             var shouldUsePagination = true;
@@ -2782,7 +2759,7 @@ namespace WebAPI.Clients
             }
 
             return GetAssetFromUnifiedSearchResponse(
-                groupId,
+                contextData.GroupId,
                 channelResponse,
                 request,
                 isAllowedToViewInactiveAssets,
@@ -2793,11 +2770,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetChannelAssetsExcludeWatched(
-            int groupId,
-            int userId,
-            int domainId,
-            string udid,
-            string language,
+            ContextData contextData,
             int pageIndex,
             int? pageSize,
             int id,
@@ -2811,7 +2784,7 @@ namespace WebAPI.Clients
             var orderingParameters = orderings != null ? KalturaOrderMapper.Instance.MapParameters(orderings) : null;
 
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             InternalChannelRequest request = null;
             List<BaseObject> totalAssetsBaseDataList = new List<BaseObject>();
@@ -2821,11 +2794,7 @@ namespace WebAPI.Clients
             while (pageIndex < 10)
             {
                 var searchResponse = CatalogUtils.GetChannelAssets(
-                    groupId,
-                    userId,
-                    domainId,
-                    udid,
-                    language,
+                    contextData,
                     pageIndex,
                     pageSize,
                     id,
@@ -2847,7 +2816,7 @@ namespace WebAPI.Clients
                     // Get user user's watched media and exclude them from searchResults
                     if (pageIndex == 0)
                     {
-                        userWatchedMediaIds = CatalogUtils.GetUserWatchedMediaIds(groupId, userId);
+                        userWatchedMediaIds = CatalogUtils.GetUserWatchedMediaIds(contextData.GroupId, (int)(contextData.UserId ?? 0));
                     }
 
                     // filter out watched media
@@ -2895,7 +2864,7 @@ namespace WebAPI.Clients
             };
 
             return GetAssetFromUnifiedSearchResponse(
-                groupId,
+                contextData.GroupId,
                 channelResponse,
                 request,
                 isAllowedToViewInactiveAssets,
@@ -2950,7 +2919,8 @@ namespace WebAPI.Clients
                     m_dServerTime = getServerTime(),
                     isGroupingOptionInclude = searchAssetsFilter.GroupByType == GroupingOption.Include,
                     AssetFilterKsql = searchAssetsFilter.Filter,
-                    AssetTypes = searchAssetsFilter.AssetTypes
+                    AssetTypes = searchAssetsFilter.AssetTypes,
+                    OriginalUserId = searchAssetsFilter.OriginalUserId
                 };
             }
             else
@@ -2980,7 +2950,8 @@ namespace WebAPI.Clients
                     m_nBundleID = id,
                     isAllowedToViewInactiveAssets = searchAssetsFilter.IsAllowedToViewInactiveAssets,
                     isGroupingOptionInclude = searchAssetsFilter.GroupByType == GroupingOption.Include,
-                    AssetFilterKsql = searchAssetsFilter.Filter
+                    AssetFilterKsql = searchAssetsFilter.Filter,
+                    OriginalUserId = searchAssetsFilter.OriginalUserId
                 };
             }
 
@@ -3116,11 +3087,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetScheduledRecordingAssets(
-            int groupId,
-            string userID,
-            int domainId,
-            string udid,
-            string language,
+            ContextData contextData,
             List<long> channelIdsToFilter,
             int pageIndex,
             int? pageSize,
@@ -3133,7 +3100,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(contextData.GroupId);
 
             // build request
             ScheduledRecordingsRequest request = new ScheduledRecordingsRequest
@@ -3142,24 +3109,25 @@ namespace WebAPI.Clients
                 m_sSignString = SignString,
                 m_oFilter = new Filter()
                 {
-                    m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_sDeviceId = contextData.Udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(contextData.GroupId, contextData.Language),
                     m_bUseStartDate = group.UseStartDate,
                     m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
-                m_nGroupID = groupId,
+                m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
-                m_sSiteGuid = userID,
-                domainId = domainId,
+                m_sSiteGuid = contextData.UserId.ToString(),
+                domainId = (int)(contextData.DomainId ?? 0),
                 orderingParameters = KalturaOrderMapper.Instance.MapParameters(orderings, OrderBy.NONE),
                 m_dServerTime = getServerTime(),
                 channelIds = channelIdsToFilter,
                 seriesIds = seriesIdsToFilter,
                 scheduledRecordingAssetType = CatalogMappings.ConvertKalturaScheduledRecordingAssetType(scheduledRecordingType),
                 startDate = startDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(startDateToFilter.Value) : new DateTime?(),
-                endDate = endDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(endDateToFilter.Value) : new DateTime?()
+                endDate = endDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(endDateToFilter.Value) : new DateTime?(),
+                OriginalUserId = contextData.OriginalUserId
             };
 
             // fire request
@@ -3478,7 +3446,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteImage(int groupId, long userId, long id)
         {
-            Func<Status> deleteImageFunc = () => Core.Catalog.CatalogManagement.ImageManager.Instance.DeleteImage(groupId, id, userId);
+            Func<Status> deleteImageFunc = () => Core.Catalog.CatalogManagement.ImageManager.Instance.DeleteImage(groupId, id, userId, isStandaloneOperation: true);
             return ClientUtils.GetResponseStatusFromWS(deleteImageFunc);
         }
 
@@ -3505,7 +3473,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ImageManager.Instance.SetContent(groupId, userId, id, url);
+                    response = Core.Catalog.CatalogManagement.ImageManager.Instance.SetContent(groupId, userId, id, url, isStandaloneOperation: true);
                 }
             }
             catch (Exception ex)
@@ -3689,7 +3657,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaChannel GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
+        internal KalturaChannel GetChannel(ContextData contextData, int channelId, bool isAllowedToViewInactiveAssets)
         {
             GenericResponse<Channel> response = null;
             KalturaChannel result = null;
@@ -3697,12 +3665,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ChannelManager.Instance.GetChannel(groupId, channelId, isAllowedToViewInactiveAssets, true, userId);
+                    response = ChannelManager.Instance.GetChannel(contextData, channelId, isAllowedToViewInactiveAssets, true);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while calling GetChannel. groupId: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while calling GetChannel. groupId: {0}, exception: {1}", contextData.GroupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3970,11 +3938,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetPersonalListAssets(
-            int groupId,
-            string userID,
-            int domainId,
-            string udid,
-            string language,
+            ContextData contextData,
             string kSql,
             IReadOnlyCollection<KalturaBaseAssetOrder> orderingParameters,
             List<string> groupBy,
@@ -3985,8 +3949,8 @@ namespace WebAPI.Clients
             bool shouldApplyPriorityGroups)
         {
             var personalListResponse = ClientsManager.ApiClient().GetPersonalListItems(
-                groupId,
-                int.Parse(userID),
+                contextData.GroupId,
+                (int)contextData.UserId,
                 0,
                 0,
                 KalturaPersonalListOrderBy.CREATE_DATE_ASC,
@@ -4012,11 +3976,11 @@ namespace WebAPI.Clients
 
                 var searchAssetsFilter = new SearchAssetsFilter
                 {
-                    GroupId = groupId,
-                    SiteGuid = userID,
-                    DomainId = domainId,
-                    Udid = udid,
-                    Language = language,
+                    GroupId = contextData.GroupId,
+                    SiteGuid = contextData.UserId.ToString(),
+                    DomainId = (int)(contextData.DomainId ?? 0),
+                    Udid = contextData.Udid,
+                    Language = contextData.Language,
                     PageIndex = pageIndex,
                     PageSize = pageSize,
                     Filter = ksqlFilter.ToString(),
@@ -4031,7 +3995,8 @@ namespace WebAPI.Clients
                     UseFinal = false,
                     OrderingParameters = orderingParameters,
                     ShouldApplyPriorityGroups = shouldApplyPriorityGroups,
-                    ResponseProfile = responseProfile
+                    ResponseProfile = responseProfile,
+                    OriginalUserId = contextData.OriginalUserId
                 };
 
                 return ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter);

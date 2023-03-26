@@ -1,9 +1,12 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using CachingProvider.LayeredCache;
+using Core.Users;
 using DAL;
+using KalturaRequestContext;
 using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
@@ -11,12 +14,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using ApiLogic.Api.Managers;
-using Core.Users;
-using KalturaRequestContext;
-using TVinciShared;
-using UserModule = Core.Users.Module;
 using Status = ApiObjects.Response.Status;
+using UserModule = Core.Users.Module;
 
 namespace APILogic.Api.Managers
 {
@@ -33,8 +32,6 @@ namespace APILogic.Api.Managers
 
         private static readonly Lazy<RolesPermissionsManager> lazy = new Lazy<RolesPermissionsManager>(() => new RolesPermissionsManager(LayeredCache.Instance, RequestContextUtilsInstance.Get(), GeneralPartnerConfigManager.Instance, UserModule.Instance), LazyThreadSafetyMode.PublicationOnly);
         public static RolesPermissionsManager Instance => lazy.Value;
-
-        public const long ANONYMOUS_ROLE_ID = 0;
 
         private readonly ILayeredCache _layeredCache;
         private readonly IRequestContextUtils _requestContextUtils;
@@ -93,7 +90,7 @@ namespace APILogic.Api.Managers
         private List<long> GetRoleIds(int groupId, string userId)
         {
             // ??????? we set list to be only anonymous at first but it is never used. something here smells fishy!
-            List<long> roleIds = new List<long>() { ANONYMOUS_ROLE_ID };
+            List<long> roleIds = new List<long>() { PredefinedRoleId.ANONYMOUS };
 
             LongIdsResponse response = _userModule.GetUserRoleIds(groupId, long.Parse(userId));
             if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
@@ -395,7 +392,6 @@ namespace APILogic.Api.Managers
             return result;
 
         }
-
 
         private static Tuple<Dictionary<string, Permission>, bool> BuildGroupFeatures(Dictionary<string, object> funcParams)
         {

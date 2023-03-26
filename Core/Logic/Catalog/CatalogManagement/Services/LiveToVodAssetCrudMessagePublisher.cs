@@ -1,33 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using ApiLogic.Context;
 using Confluent.Kafka;
+using EventBus.Kafka;
 using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using Phoenix.Generated.Api.Events.Crud.Asset.LiveToVodAsset;
+using Phx.Lib.Log;
 using TVinciShared;
 
 namespace ApiLogic.Catalog.CatalogManagement.Services
 {
     public class LiveToVodAssetCrudMessagePublisher : ILiveToVodAssetCrudMessagePublisher
     {
-        private readonly IKafkaProducer<string, LiveToVodAsset> _liveToVodAssetProducer;
-        private readonly ILogger<LiveToVodAssetCrudMessagePublisher> _logger;
+        private static readonly Lazy<ILiveToVodAssetCrudMessagePublisher> LazyInstance =
+            new Lazy<ILiveToVodAssetCrudMessagePublisher>(
+                () => new LiveToVodAssetCrudMessagePublisher(
+                    KafkaProducerFactoryInstance.Get(),
+                    WebKafkaContextProvider.Instance),
+                LazyThreadSafetyMode.PublicationOnly);
+        private static readonly KLogger Logger = new KLogger(nameof(LiveToVodAssetCrudMessagePublisher));
 
-        public LiveToVodAssetCrudMessagePublisher(
-            IKafkaProducerFactory producerFactory,
-            IKafkaContextProvider contextProvider,
-            ILogger<LiveToVodAssetCrudMessagePublisher> logger)
+        private readonly IKafkaProducer<string, LiveToVodAsset> _liveToVodAssetProducer;
+
+        public static ILiveToVodAssetCrudMessagePublisher Instance = LazyInstance.Value;
+
+        public LiveToVodAssetCrudMessagePublisher(IKafkaProducerFactory producerFactory, IKafkaContextProvider contextProvider)
         {
             _liveToVodAssetProducer = producerFactory.Get<string, LiveToVodAsset>(contextProvider, Partitioner.Murmur2Random);
-            _logger = logger;
         }
 
         public void Publish(long partnerId, Core.Catalog.LiveToVodAsset asset, IEnumerable<string> files, int operationType, long updaterId)
         {
             if (_liveToVodAssetProducer == null)
             {
-                _logger.LogError($"{nameof(LiveToVodAsset)} message with parameters {nameof(partnerId)}={partnerId}," +
+                Logger.LogError($"{nameof(LiveToVodAsset)} message with parameters {nameof(partnerId)}={partnerId}," +
                     $"{nameof(LiveToVodAsset.Id)}=[{asset.Id}], operation={operationType}" +
                     $"can not be published : {nameof(_liveToVodAssetProducer)} is null.");
                 return;

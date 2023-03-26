@@ -1,47 +1,56 @@
-﻿using ApiObjects.Response;
-using CachingProvider.LayeredCache;
-using CouchbaseManager;
-using Phx.Lib.Log;
-using Phx.Lib.Appconfig;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using ApiObjects.CanaryDeployment.Microservices;
+﻿using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.Segmentation;
 using OTT.Service.Segmentation;
 using SegmentationGrpcClientWrapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using SegmentationType = ApiObjects.Segmentation.SegmentationType;
 
 namespace ApiLogic.Segmentation
 {
-    public class SegmentationTypeLogic
+    public interface ISegmentationTypeLogic
     {
-        public static List<SegmentationType> List(int groupId, List<long> ids, int pageIndex, int pageSize, out int totalCount)
+        List<SegmentationType> ListBySegmentIds(int groupId, List<long> segmentIds, int pageIndex, int pageSize, out int totalCount, long userId, IEnumerable<long> userRoleIds);
+    }
+
+    public class SegmentationTypeLogic : ISegmentationTypeLogic
+    {
+        private static readonly Lazy<SegmentationTypeLogic> LazyInstance =
+            new Lazy<SegmentationTypeLogic>(() => new SegmentationTypeLogic(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static readonly ISegmentationTypeLogic Instance = LazyInstance.Value;
+
+        private SegmentationTypeLogic()
+        {
+        }
+
+        public List<SegmentationType> ListBySegmentIds(int groupId, List<long> segmentIds, int pageIndex, int pageSize, out int totalCount, long userId, IEnumerable<long> userRoleIds)
         {
             List<SegmentationType> result = new List<SegmentationType>();
             totalCount = 0;
-            if(CanaryDeploymentManager.CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.Segmentation))
+            if(CanaryDeploymentManager.CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager()
+                .IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.Segmentation))
             {
-
-                result = SegmentationClient.Instance.GetSegmentationTypesByValue(new GetSegmentationTypesByValueRequest
+                var request = new GetSegmentationTypesByValueRequest
                 {
                     PartnerId = groupId,
-                    Ids = { ids },
                     PageIndex = pageIndex,
-                    PageSize = pageSize
-                });
+                    PageSize = pageSize,
+                    UserId = userId
+                };
+                if (segmentIds != null && segmentIds.Any()) request.Ids.AddRange(segmentIds);
+                if (userRoleIds != null && userRoleIds.Any()) request.RoleIds.AddRange(userRoleIds);
 
-                totalCount = result.Count;
-                
+                var response = SegmentationClient.Instance.GetSegmentationTypesByValue(request);
+                result = response.Item1;
+                totalCount = response.Item2;
             }
             else
             {
-                result = SegmentationType.ListFromCb(groupId, ids, pageIndex, pageSize, out totalCount);
+                result = SegmentationType.ListFromCb(groupId, segmentIds, pageIndex, pageSize, out totalCount);
             }
-
-            DateTime now = DateTime.UtcNow;
 
             if (result == null)
             {
@@ -51,16 +60,18 @@ namespace ApiLogic.Segmentation
             return result;
         }
 
-        public static List<ApiObjects.Segmentation.SegmentationType> ListActionOfType<T>(int groupId, List<long> ids) where T : SegmentAction
+        public static List<SegmentationType> ListActionOfType<T>(int groupId, List<long> ids) where T : SegmentAction
         {
-            List<ApiObjects.Segmentation.SegmentationType> segmentations;
-            
-            if(CanaryDeploymentManager.CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.Segmentation))
+            List<SegmentationType> segmentations;
+
+            if (CanaryDeploymentManager.CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager()
+                .IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.Segmentation))
             {
-                segmentations = SegmentationClient.Instance.GetSegmentationTypesByValue(new GetSegmentationTypesByValueRequest
+                var response = SegmentationClient.Instance.GetSegmentationTypesByValue(new GetSegmentationTypesByValueRequest
                 {
                     PartnerId = groupId
                 });
+                segmentations = response.Item1;
             }
             else
             {
@@ -75,17 +86,17 @@ namespace ApiLogic.Segmentation
             if (CanaryDeploymentManager.CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager()
                 .IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.Segmentation))
             {
-                return SegmentationClient.Instance.GetSegmentationTypesByValue(new GetSegmentationTypesByValueRequest
+                var response = SegmentationClient.Instance.GetSegmentationTypesByValue(new GetSegmentationTypesByValueRequest
                 {
                     PartnerId = groupId,
-                    Ids = {segmentIds}
+                    Ids = { segmentIds }
                 });
+                return response.Item1;
             }
             else
             {
                 return SegmentationType.GetSegmentationTypesBySegmentIdsFromCb(groupId, segmentIds);
             }
         }
-        
     }
 }

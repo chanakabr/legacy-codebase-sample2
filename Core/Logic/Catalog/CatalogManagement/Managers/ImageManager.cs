@@ -12,8 +12,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using ElasticSearch.Utilities;
 using Tvinci.Core.DAL;
+using ApiObjects.Base;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -23,9 +25,9 @@ namespace Core.Catalog.CatalogManagement
 
         GenericResponse<Image> AddImage(int groupId, Image imageToAdd, long userId);
 
-        Status SetContent(int groupId, long userId, long id, string url);
+        Status SetContent(int groupId, long userId, long id, string url, bool isStandaloneOperation = false);
 
-        Status DeleteImage(int groupId, long id, long userId);
+        Status DeleteImage(int groupId, long id, long userId, bool isStandaloneOperation = false);
     }
 
     public class ImageManager : IImageManager
@@ -841,7 +843,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public Status DeleteImage(int groupId, long id, long userId)
+        public Status DeleteImage(int groupId, long id, long userId, bool isStandaloneOperation = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -903,6 +905,11 @@ namespace Core.Catalog.CatalogManagement
 
                         // invalidate asset with this image
                         InvalidateAsset(groupId, image.ImageObjectId, image.ImageObjectType);
+
+                        if (isStandaloneOperation && image.ImageObjectType == eAssetImageType.Media)
+                        {
+                            MediaAssetCrudMessageService.Instance.PublishKafkaUpdateEvent(groupId, image.ImageObjectId, userId);
+                        }
                     }
                 }
             }
@@ -996,7 +1003,8 @@ namespace Core.Catalog.CatalogManagement
                 if (imageToAdd.ImageObjectType == eAssetImageType.Channel && imageToAdd.ImageObjectId > 0)
                 {
                     //isAllowedToViewInactiveAssets = true because only operator can add image
-                    GenericResponse<GroupsCacheManager.Channel> channel = ChannelManager.Instance.GetChannel(groupId, (int)imageToAdd.ImageObjectId, true);
+                    var contextData = new ContextData(groupId) { UserId = userId };
+                    GenericResponse<GroupsCacheManager.Channel> channel = ChannelManager.Instance.GetChannel(contextData, (int)imageToAdd.ImageObjectId, true);
                     if (channel.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Channel not found. channelId = {0}", imageToAdd.ImageObjectId);
@@ -1073,7 +1081,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public Status SetContent(int groupId, long userId, long id, string url)
+        public Status SetContent(int groupId, long userId, long id, string url, bool isStandaloneOperation = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -1177,6 +1185,11 @@ namespace Core.Catalog.CatalogManagement
                     if (image.ImageObjectType == eAssetImageType.Program)
                     {
                         EpgAssetManager.UpdateProgramAssetPictures(groupId, userId, image, url);
+                    }
+                    else if (image.ImageObjectType == eAssetImageType.Media && isStandaloneOperation)
+                    {
+                        // publish asset updated event to Kafka
+                        MediaAssetCrudMessageService.Instance.PublishKafkaUpdateEvent(groupId, image.ImageObjectId, userId);
                     }
 
                     // invalidate asset with this image

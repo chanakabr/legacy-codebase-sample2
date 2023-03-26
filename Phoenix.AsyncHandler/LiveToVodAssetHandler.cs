@@ -235,12 +235,7 @@ namespace Phoenix.AsyncHandler
                     epgAsset.Id);
             }
 
-            _liveToVodPublisher.Publish(
-                epgAsset.PartnerId,
-                liveToVodAsset,
-                liveToVodAsset.Files.Select(x => x.Url),
-                CrudOperationType.DELETE_OPERATION,
-                epgAsset.UpdaterId);
+            // Do not publish l2v asset DELETE event here, it will be done at _assetManager.DeleteAsset
 
             return Result.Ok;
         }

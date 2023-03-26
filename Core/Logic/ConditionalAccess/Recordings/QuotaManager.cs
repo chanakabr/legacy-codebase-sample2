@@ -91,7 +91,7 @@ namespace Core.Recordings
             {
                 int currentEpgSeconds = 0;
                 int initialSecondsLeft = SecondsLeft;
-                currentEpgSeconds = GetRecordingDurationSeconds(groupId, recording);
+                currentEpgSeconds = GetRecordingDurationSeconds(groupId, recording, true, householdId);
                 int tempSeconds = SecondsLeft - currentEpgSeconds;
                 // Mark this, current-specific, recording as failed
                 if (tempSeconds < 0)
@@ -129,32 +129,29 @@ namespace Core.Recordings
                 {
                     var removalPolicy = GetDefaultPaddingRemovalPolicy(contextData, accountSettings, recording);
                     
+                    //BEO-13648
+                    var _record = PaddedRecordingsManager.Instance.GetRecordingById(groupId, recording.Id);
+                    var _startPadding = _record.PaddingBeforeMins;
+                    var _endPadding = _record.PaddingAfterMins;
+
                     if (!recording.AbsoluteStartTime.HasValue) //Not immediate (Padded)
                     {
                         if (!removalPolicy.removeStartPadding)
-                        {
-                            seconds += 60 * recording.StartPadding ?? 0;
-                        }
+                            seconds += Utils.ConvertMinutesToSeconds(_startPadding);
                     
                         if (!removalPolicy.removeEndPadding)
-                        {
-                            seconds += 60 * recording.EndPadding ?? 0;
-                        }    
+                            seconds += Utils.ConvertMinutesToSeconds(_endPadding);
                     }
                     else //immediate
                     {
                         seconds = PaddedRecordingsManager.Instance.GetImmediateRecordingTimeSpanSeconds(
                             recording.AbsoluteStartTime, recording.AbsoluteEndTime);
-                        
-                        if (removalPolicy.removeStartPadding)//In case of immediate start this value would be 0
-                        {
-                            seconds -= 60 * recording.StartPadding ?? 0;
-                        }
-                    
-                        if (removalPolicy.removeEndPadding)//In case of stop this value would be 0
-                        {
-                            seconds -= 60 * recording.EndPadding ?? 0;
-                        }    
+
+                        if (removalPolicy.removeStartPadding)
+                            seconds -= Utils.ConvertMinutesToSeconds(_startPadding); //In case of immediate start this value would be 0
+                     
+                        if (removalPolicy.removeEndPadding)
+                            seconds -= Utils.ConvertMinutesToSeconds(_endPadding); //In case of stop this value would be 0
                     }
                 }
                 else
@@ -166,11 +163,10 @@ namespace Core.Recordings
                     }
                     else
                     {
-                        if (recording.StartPadding.HasValue)
-                            seconds += 60 * recording.StartPadding.Value;
-                    
-                        if (recording.EndPadding.HasValue)
-                            seconds += 60 * recording.EndPadding.Value;
+                        //BEO-13648
+                        var _record = PaddedRecordingsManager.Instance.GetRecordingById(groupId, recording.Id);
+                        seconds += Utils.ConvertMinutesToSeconds(_record.PaddingBeforeMins);
+                        seconds += Utils.ConvertMinutesToSeconds(_record.PaddingAfterMins);
                     }
                 }
             }
@@ -316,7 +312,7 @@ namespace Core.Recordings
                 return response;
             }
 
-            response = allRecords.Values.Where(x => x.isExternalRecording == false)
+            response = allRecords.Values.Where(x => !x.isExternalRecording)
                 .Select(recording => GetRecordingDurationSeconds(groupId, recording, true, domainId)).Sum();
 
             return response;
@@ -532,7 +528,7 @@ namespace Core.Recordings
                             deletedRecordings.Add(recording.Value);
 
                             recordingDuration =
-                                GetRecordingDurationSeconds(groupId, recording.Value, false);
+                                GetRecordingDurationSeconds(groupId, recording.Value, true, domainId);
                             quotaClearanceSeconds += recordingDuration;
 
                             if (quotaClearanceSeconds >= newRecordingDuration)

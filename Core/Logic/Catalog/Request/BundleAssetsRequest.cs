@@ -1,4 +1,5 @@
-﻿using ApiObjects.Catalog;
+﻿using ApiObjects.Base;
+using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
@@ -78,12 +79,9 @@ namespace Core.Catalog.Request
                 
                 if (doesGroupUsesTemplates)
                 {
-                    long userId = 0;
-                    long.TryParse(m_sSiteGuid, out userId);
-
-                    GenericListResponse<GroupsCacheManager.Channel> channelRes = CatalogManagement.ChannelManager.Instance.SearchChannels(
-                        parentGroupId, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id,
-                        ApiObjects.SearchObjects.OrderDir.ASC, false, userId);
+                    var contextData = new ContextData(parentGroupId) { UserId = request.GetCallerUserId() };
+                    var channelRes = CatalogManagement.ChannelManager.Instance.SearchChannels
+                        (contextData, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id, OrderDir.ASC, false);
                     if (channelRes.HasObjects())
                     {
                         allChannels.AddRange(channelRes.Objects);

@@ -71,20 +71,10 @@ namespace WebAPI.Models.Catalog
         }
 
         // returns assets that are scheduled to be recorded
-        internal override KalturaAssetListResponse GetAssets(
-            ContextData contextData,
-            KalturaBaseResponseProfile responseProfile,
-            KalturaFilterPager pager)
+        internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
-            var domainId = (int)(contextData.DomainId ?? 0);
-            var userId = contextData.UserId.ToString();
-
             return ClientsManager.CatalogClient().GetScheduledRecordingAssets(
-                contextData.GroupId,
-                userId,
-                domainId,
-                contextData.Udid,
-                contextData.Language,
+                contextData,
                 ConvertChannelsIn(),
                 pager.GetRealPageIndex(),
                 pager.PageSize.Value,

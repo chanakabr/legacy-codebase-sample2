@@ -1,5 +1,6 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
@@ -239,7 +240,8 @@ namespace APILogic.Api.Managers
 
         public List<long> GetChannelsByMediald(int groupId, long mediaId)
         {
-            var channels = ChannelManager.Instance.GetChannelsContainingMedia(groupId, mediaId, 0, 0, ChannelOrderBy.Id, OrderDir.NONE, true, 0);
+            var contextData = new ContextData(groupId) { UserId = 0 };
+            var channels = ChannelManager.Instance.GetChannelsContainingMedia(contextData, mediaId, 0, 0, ChannelOrderBy.Id, OrderDir.NONE, true);
             if (channels.Objects?.Count > 0)
             {
                 return channels.Objects.Select(x => (long)x.m_nChannelID).ToList();

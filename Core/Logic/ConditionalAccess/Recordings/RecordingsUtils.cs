@@ -15,6 +15,7 @@ using EpgBL;
 using Phx.Lib.Log;
 using QueueWrapper;
 using TVinciShared;
+using Status = ApiObjects.Response.Status;
 
 namespace Core.Recordings
 {
@@ -333,8 +334,18 @@ namespace Core.Recordings
                 recording.ProtectedUntilDate = householdRecording.ProtectedUntilEpoch;
             }
 
-            TstvRecordingStatus? recordingStatus;
-            if (Enum.IsDefined(typeof(RecordingInternalStatus), timeBasedRecording.Status))
+            TstvRecordingStatus? recordingStatus = null;
+            //BEO-13705
+            var modifiedStatuses = new List<DomainRecordingStatus>
+                { DomainRecordingStatus.Canceled, DomainRecordingStatus.Deleted }.Select(x=>x.ToString());
+            if (householdRecording != null && householdRecording.Id > 0 && modifiedStatuses.Contains(householdRecording.Status))
+            {
+                if (householdRecording.Status == DomainRecordingStatus.Canceled.ToString())
+                    recordingStatus = TstvRecordingStatus.Canceled;
+                else if(householdRecording.Status == DomainRecordingStatus.Deleted.ToString())
+                    recordingStatus = TstvRecordingStatus.Deleted;
+            }
+            else if (Enum.IsDefined(typeof(RecordingInternalStatus), timeBasedRecording.Status))
             {
                 var recordingInternalStatus = (RecordingInternalStatus)Enum.Parse(typeof(RecordingInternalStatus), timeBasedRecording.Status);
 

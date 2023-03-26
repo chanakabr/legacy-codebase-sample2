@@ -20,13 +20,15 @@ using ApiLogic.Catalog;
 using GroupsCacheManager.Mappers;
 using Tvinci.Core.DAL;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
+using ApiObjects.Base;
 
 namespace Core.Catalog.CatalogManagement
 {
     public interface IChannelManager
     {
-        GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId);
-        GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems);
+        GenericResponse<Channel> GetChannelById(ContextData contextData, int channelId, bool isAllowedToViewInactiveAssets);
+        GenericListResponse<Channel> GetChannelsListResponseByChannelIds(ContextData contextData, 
+            List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems, bool shouldFilterByShop, List<long> assetUserRuleIds = null);
         List<Channel> GetGroupChannels(int groupId);
     }
 
@@ -415,23 +417,50 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
         }
 
-        public GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems)
+        public GenericListResponse<Channel> GetChannelsListResponseByChannelIds(ContextData contextData, List<int> channelIds, bool isAllowedToViewInactiveAssets, 
+            int? totalItems, bool shouldFilterByShop, List<long> assetUserRuleIds = null)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {
-                List<Channel> unorderedChannels = ChannelManager.GetChannels(groupId, channelIds, isAllowedToViewInactiveAssets);
+                List<Channel> unorderedChannels = ChannelManager.GetChannels(contextData.GroupId, channelIds, isAllowedToViewInactiveAssets);
                 if (unorderedChannels == null || unorderedChannels.Count != channelIds.Count)
                 {
-                    log.ErrorFormat("Failed getting channels from GetChannels, for groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty);
+                    log.ErrorFormat("Failed getting channels from GetChannels, for groupId: {0}, channelIds: {1}", contextData.GroupId, channelIds != null ? string.Join(",", channelIds) : string.Empty);
                     result.SetStatus(eResponseStatus.ElasticSearchReturnedDeleteItem, eResponseStatus.ElasticSearchReturnedDeleteItem.ToString());
                     return result;
                 }
 
-                Dictionary<int, Channel> mappedChannels = unorderedChannels.ToDictionary(x => x.m_nChannelID, x => x);
-                foreach (int channelId in channelIds)
+                // if it's an operator that also filters according to asset user rule ids 
+                if (assetUserRuleIds != null && assetUserRuleIds.Any())
                 {
-                    result.Objects.Add(mappedChannels[channelId]);
+                    unorderedChannels = unorderedChannels.Where(x => x.AssetUserRuleId.HasValue && assetUserRuleIds.Contains(x.AssetUserRuleId.Value)).ToList();
+                }
+                // or it is not an operator and we must limit the search only to the user's shop id
+                else
+                {
+                    long? assetUserRuleId = null;
+                    if (shouldFilterByShop)
+                    {
+                        var userId = contextData.GetCallerUserId();
+                        if (userId > 0)
+                        {
+                            assetUserRuleId =
+                                AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(
+                                    contextData.GroupId, userId);
+                        }
+                    }
+
+                    if (assetUserRuleId.HasValue && assetUserRuleId.Value > 0)
+                    {
+                        unorderedChannels = unorderedChannels.Where(x =>
+                            x.AssetUserRuleId.HasValue && x.AssetUserRuleId.Value == assetUserRuleId.Value).ToList();
+                    }
+                }
+                
+                foreach (var channel in unorderedChannels)
+                {
+                    result.Objects.Add(channel);
                 }
 
                 if (result.Objects != null)
@@ -442,7 +471,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetChannelsListResponseByChannelIds with groupId: {0}, channelIds: {1}", groupId, channelIds != null ? string.Join(",", channelIds) : string.Empty), ex);
+                log.Error(string.Format("Failed GetChannelsListResponseByChannelIds with groupId: {0}, channelIds: {1}", contextData.GroupId, channelIds != null ? string.Join(",", channelIds) : string.Empty), ex);
             }
 
             return result;
@@ -484,17 +513,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
-
-        private List<Channel> SearchChannelByAssetUserId(int groupId, long ruleId)
-        {
-            List<Channel> channels = null;
-            GenericListResponse<Channel> response = SearchChannels(groupId, true, string.Empty, null, 0, 500, ChannelOrderBy.Id, OrderDir.ASC, false, 0, ruleId);
-            if (response != null && response.HasObjects())
-            {
-                channels = response.Objects.Where(x => x.AssetUserRuleId == ruleId).ToList();
-            }
-            return channels;
         }
 
         private static long CreateVirtualChannel(int groupId, long userId, Channel channel)
@@ -585,25 +603,24 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        public GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
+        public GenericResponse<Channel> GetChannelById(ContextData contextData, int channelId, bool isAllowedToViewInactiveAssets)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
-            List<Channel> channels = GetChannels(groupId, new List<int>() { channelId }, isAllowedToViewInactiveAssets);
+            List<Channel> channels = GetChannels(contextData.GroupId, new List<int>() { channelId }, isAllowedToViewInactiveAssets);
             if (channels != null && channels.Count == 1)
             {
                 response.Object = channels.First();
-                long ruleId = 0;
+                var userId = contextData.GetCallerUserId();
                 if (userId > 0)
                 {
-                    ruleId = AssetUserRuleManager.GetAssetUserRule(groupId, userId, true);
-                }
-
-                if (ruleId > 0 && response.Object.AssetUserRuleId != ruleId)
-                {
-                    log.DebugFormat("User {0} not allowed on channel {1}. ruleId {2}.", userId, channelId, ruleId);
-                    response.SetStatus(eResponseStatus.ActionIsNotAllowed);
-                    response.Object = null;
-                    return response;
+                    var ruleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(contextData.GroupId, userId);
+                    if (ruleId > 0 && response.Object.AssetUserRuleId != ruleId)
+                    {
+                        log.DebugFormat("User {0} not allowed on channel {1}. ruleId {2}.", userId, channelId, ruleId);
+                        response.SetStatus(eResponseStatus.ActionIsNotAllowed);
+                        response.Object = null;
+                        return response;
+                    }
                 }
             }
             response.SetStatus(eResponseStatus.OK);
@@ -613,18 +630,16 @@ namespace Core.Catalog.CatalogManagement
         internal bool TryRemoveAssetRuleIdFromChannel(int groupId, long ruleId, long userId)
         {
             bool result = false;
-
-            GenericListResponse<Channel> response = new GenericListResponse<Channel>();
-            List<Channel> channels = SearchChannelByAssetUserId(groupId, ruleId);
-            if (channels != null)
+            var contextData = new ContextData(groupId) { UserId = userId };
+            var searchChannelsResponse = SearchChannels(contextData, true, string.Empty, null, 0, 500, ChannelOrderBy.Id, OrderDir.ASC, true, new List<long>() { ruleId });
+            if (searchChannelsResponse.Objects != null)
             {
-                GenericResponse<Channel> channelResponse = null;
-                foreach (var channel in channels)
+                foreach (var channel in searchChannelsResponse.Objects)
                 {
                     // remove rule
                     channel.AssetUserRuleId = 0;
                     // update channel
-                    channelResponse = UpdateChannel(groupId, channel.m_nChannelID, channel, UserSearchContext.GetByUserId(userId));
+                    var channelResponse = UpdateChannel(groupId, channel.m_nChannelID, channel, UserSearchContext.GetByUserId(userId));
                     if (channelResponse != null && channelResponse.Status != null && channelResponse.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error while RemoveAssetRuleIdFromChannel. groupId {0}, channel {1}, rule {2}, user {3}", groupId, channel.m_nChannelID, ruleId, userId);
@@ -762,24 +777,39 @@ namespace Core.Catalog.CatalogManagement
             return groupChannels;
         }
 
-        public GenericListResponse<Channel> SearchChannels(int groupId, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
-            ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets, long userId, long assetUserRuleId = 0)
+        public GenericListResponse<Channel> SearchChannels(ContextData contextData, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
+            ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets, List<long> assetUserRuleIds = null)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {
-                if (!CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
+                if (!CatalogManager.Instance.DoesGroupUsesTemplates(contextData.GroupId))
                 {
                     result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                     return result;
                 }
 
                 // get userRules action filter && ApplyOnChannel
-                assetUserRuleId = assetUserRuleId == 0 ? AssetUserRuleManager.GetAssetUserRule(groupId, userId, true) : assetUserRuleId;
+                var userId = contextData.GetCallerUserId();
+                if (userId > 0)
+                {
+                    var shopId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(contextData.GroupId, userId);
+                    if (shopId > 0)
+                    {
+                        if (assetUserRuleIds == null)
+                        {
+                            assetUserRuleIds = new List<long>() { shopId };
+                        }
+                        else if (!assetUserRuleIds.Contains(shopId))
+                        {
+                            assetUserRuleIds.Add(shopId);
+                        }
+                    }
+                }
 
                 ChannelSearchDefinitions definitions = new ChannelSearchDefinitions()
                 {
-                    GroupId = groupId,
+                    GroupId = contextData.GroupId,
                     PageIndex = pageIndex,
                     PageSize = pageSize,
                     AutocompleteSearchValue = isExcatValue ? string.Empty : searchValue,
@@ -788,17 +818,17 @@ namespace Core.Catalog.CatalogManagement
                     OrderBy = orderBy,
                     OrderDirection = orderDirection,
                     isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                    AssetUserRuleId = assetUserRuleId
+                    AssetUserRuleIds = assetUserRuleIds
                 };
 
-                var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(contextData.GroupId);
                 int totalItems = 0;
                 List<int> channelIds = indexManager.SearchChannels(definitions, ref totalItems);
-                result = GetChannelsListResponseByChannelIds(groupId, channelIds, isAllowedToViewInactiveAssets, totalItems);
+                result = GetChannelsListResponseByChannelIds(contextData, channelIds, isAllowedToViewInactiveAssets, totalItems, false);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed SearchChannels with groupId: {0}, isExcatValue: {1}, searchValue: {2}", groupId, isExcatValue, searchValue), ex);
+                log.Error(string.Format("Failed SearchChannels with groupId: {0}, isExcatValue: {1}, searchValue: {2}", contextData.GroupId, isExcatValue, searchValue), ex);
             }
 
             return result;
@@ -926,7 +956,7 @@ namespace Core.Catalog.CatalogManagement
 
                 string groupBy = channelToAdd.searchGroupBy != null && channelToAdd.searchGroupBy.groupBy != null && channelToAdd.searchGroupBy.groupBy.Count == 1 ? channelToAdd.searchGroupBy.groupBy.First() : null;
 
-                long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, searchContext.UserId, true);
+                long assetUserRuleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(groupId, searchContext.UserId);
                 if (channelToAdd.AssetUserRuleId.HasValue && channelToAdd.AssetUserRuleId.Value > 0)
                 {
                     if (assetUserRuleId > 0 && assetUserRuleId != channelToAdd.AssetUserRuleId)
@@ -1062,7 +1092,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!isForMigration)
                 {
                     //isAllowedToViewInactiveAssets = true because only operator can update channel
-                    response = GetChannelById(groupId, channelId, true, searchContext.UserId);
+                    response = GetChannelById(new ContextData(groupId) { UserId = searchContext.UserId }, channelId, true);
                     if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return response;
@@ -1305,21 +1335,20 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, bool shouldCheckGroupUsesTemplates = true,
-            long userId = 0)
+        public GenericResponse<Channel> GetChannel(ContextData contextData, int channelId, bool isAllowedToViewInactiveAssets, bool shouldCheckGroupUsesTemplates = true)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
 
             try
             {
-                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(contextData.GroupId);
                 if (shouldCheckGroupUsesTemplates && !doesGroupUsesTemplates)
                 {
                     response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                     return response;
                 }
 
-                response = GetChannelById(groupId, channelId, isAllowedToViewInactiveAssets, userId);
+                response = GetChannelById(contextData, channelId, isAllowedToViewInactiveAssets);
                 if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                 {
                     return response;
@@ -1343,7 +1372,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetChannel for groupId: {0} and channelId: {1}", groupId, channelId), ex);
+                log.Error(string.Format("Failed GetChannel for groupId: {0} and channelId: {1}", contextData.GroupId, channelId), ex);
             }
 
             return response;
@@ -1361,7 +1390,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //check if channel exists - isAllowedToViewInactiveAssets = true becuase only operator can delete channel
-                GenericResponse<Channel> channelResponse = GetChannel(groupId, channelId, true, false, userId);
+                GenericResponse<Channel> channelResponse = GetChannel(new ContextData(groupId) { UserId = userId }, channelId, true, false);
                 if (channelResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response = channelResponse.Status;
@@ -1464,23 +1493,22 @@ namespace Core.Catalog.CatalogManagement
             affectedAssets.ForEach(x => AssetManager.Instance.InvalidateAsset((eAssetTypes)x.Value, groupId, x.Key));
         }
 
-        public GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize,
-            ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets, long userId)
+        public GenericListResponse<Channel> GetChannelsContainingMedia(ContextData contextData, long mediaId, int pageIndex, int pageSize,
+            ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {
-                if (!CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
+                if (!CatalogManager.Instance.DoesGroupUsesTemplates(contextData.GroupId))
                 {
                     result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                     return result;
                 }
 
-                List<int> channelIds = Utils.GetChannelsContainingMedia(groupId, (int)mediaId);
+                List<int> channelIds = Utils.GetChannelsContainingMedia(contextData.GroupId, (int)mediaId);
                 if (channelIds != null && channelIds.Count > 0)
                 {
-                    result = SearchChannels(groupId, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection,
-                        isAllowedToViewInactiveAssets, userId);
+                    result = SearchChannels(contextData, true, string.Empty, channelIds, pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets);
                 }
                 else
                 {
@@ -1490,7 +1518,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetChannelsContainingMedia with groupId: {0}, mediaId: {1}", groupId, mediaId), ex);
+                log.Error(string.Format("Failed GetChannelsContainingMedia with groupId: {0}, mediaId: {1}", contextData.GroupId, mediaId), ex);
             }
 
             return result;
@@ -1556,27 +1584,32 @@ namespace Core.Catalog.CatalogManagement
             return new Status(eResponseStatus.OK);
         }
 
-        public GenericListResponse<GroupsCacheManager.Channel> GetChannels(int groupId, AssetSearchDefinition assetSearchDefinition, ChannelType? channelType,
+        public GenericListResponse<Channel> GetChannels(ContextData contextData, AssetSearchDefinition assetSearchDefinition, ChannelType? channelType,
             int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection)
         {
-            GenericListResponse<GroupsCacheManager.Channel> response = new GenericListResponse<GroupsCacheManager.Channel>();
+            var response = new GenericListResponse<Channel>();
             HashSet<long> channelIds = null;
 
             // get userRules action filter && ApplyOnChannel
-            long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, assetSearchDefinition.UserId, true);
-
+            var userId = contextData.GetCallerUserId();
+            if (userId == 0)
+            {
+                userId = assetSearchDefinition.UserId;
+            }
+            
+            long assetUserRuleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(contextData.GroupId, userId);
             if (assetUserRuleId > 0)
             {
                 ChannelSearchDefinitions definitions = new ChannelSearchDefinitions()
                 {
-                    GroupId = groupId,
+                    GroupId = contextData.GroupId,
                     OrderBy = orderBy,
                     OrderDirection = orderDirection,
                     isAllowedToViewInactiveAssets = assetSearchDefinition.IsAllowedToViewInactiveAssets,
-                    AssetUserRuleId = assetUserRuleId
+                    AssetUserRuleIds = new List<long>() { assetUserRuleId }
                 };
 
-                var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(contextData.GroupId);
                 int totalItems = 0;
                 channelIds = indexManager.SearchChannels(definitions, ref totalItems).Select(x => (long)x).ToHashSet();
 
@@ -1589,7 +1622,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (channelType.HasValue)
             {
-                assetSearchDefinition.AssetStructId = api.GetChannelAssetStruct(groupId, channelType.Value);
+                assetSearchDefinition.AssetStructId = api.GetChannelAssetStruct(contextData.GroupId, channelType.Value);
 
                 if (assetSearchDefinition.AssetStructId == 0)
                 {
@@ -1598,7 +1631,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
-            var result = api.Instance.GetObjectVirtualAssetObjectIdsForChannels(groupId, assetSearchDefinition, channelIds, pageIndex, pageSize);
+            var result = api.Instance.GetObjectVirtualAssetObjectIdsForChannels(contextData.GroupId, assetSearchDefinition, channelIds, pageIndex, pageSize);
             if (result.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
             {
                 response.SetStatus(result.Status);
@@ -1607,7 +1640,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (result.ObjectIds?.Count > 0)
             {
-                response.Objects = GetChannels(groupId, result.ObjectIds.Select(x => (int)x).ToList(), assetSearchDefinition.IsAllowedToViewInactiveAssets);
+                response.Objects = GetChannels(contextData.GroupId, result.ObjectIds.Select(x => (int)x).ToList(), assetSearchDefinition.IsAllowedToViewInactiveAssets);
                 response.TotalItems = result.TotalItems;
             }
 

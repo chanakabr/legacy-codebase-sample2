@@ -10506,6 +10506,21 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute AssetUserRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -10600,6 +10615,15 @@ namespace WebAPI.Models.API
                     CollectionIdInSchemaProperty.Validate("collectionIdIn", parameters["collectionIdIn"]);
                     CollectionIdIn = (String) Convert.ChangeType(parameters["collectionIdIn"], typeof(String));
                 }
+                if (parameters.ContainsKey("assetUserRuleId__null") && parameters["assetUserRuleId__null"] != null)
+                {
+                    this.AddNullableProperty("assetUserRuleId");
+                }
+                if (parameters.ContainsKey("assetUserRuleId") && parameters["assetUserRuleId"] != null)
+                {
+                    AssetUserRuleIdSchemaProperty.Validate("assetUserRuleId", parameters["assetUserRuleId"]);
+                    AssetUserRuleId = (Int64) Convert.ChangeType(parameters["assetUserRuleId"], typeof(Int64));
+                }
             }
         }
     }
@@ -10649,7 +10673,7 @@ namespace WebAPI.Models.API
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -10663,7 +10687,7 @@ namespace WebAPI.Models.API
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -10677,9 +10701,24 @@ namespace WebAPI.Models.API
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 1,
             IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute AssetUserRuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaignSearchFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = 1,
             MinItems = -1,
@@ -10732,6 +10771,11 @@ namespace WebAPI.Models.API
                 {
                     StateInSchemaProperty.Validate("stateIn", parameters["stateIn"]);
                     StateIn = (String) Convert.ChangeType(parameters["stateIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("assetUserRuleIdIn") && parameters["assetUserRuleIdIn"] != null)
+                {
+                    AssetUserRuleIdInSchemaProperty.Validate("assetUserRuleIdIn", parameters["assetUserRuleIdIn"]);
+                    AssetUserRuleIdIn = (String) Convert.ChangeType(parameters["assetUserRuleIdIn"], typeof(String));
                 }
             }
         }
@@ -24301,6 +24345,21 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute AssetUserRuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelsFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 1,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaChannelsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -24328,6 +24387,11 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("assetUserRuleIdIn") && parameters["assetUserRuleIdIn"] != null)
+                {
+                    AssetUserRuleIdInSchemaProperty.Validate("assetUserRuleIdIn", parameters["assetUserRuleIdIn"]);
+                    AssetUserRuleIdIn = (String) Convert.ChangeType(parameters["assetUserRuleIdIn"], typeof(String));
                 }
             }
         }
@@ -25303,29 +25367,12 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLineupChannelAsset
     {
-        private static RuntimeSchemePropertyAttribute LinearChannelNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLineupChannelAsset")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 7,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-            UniqueItems = false,
-        };
         public KalturaLineupChannelAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("lcn") && parameters["lcn"] != null)
                 {
-                    LinearChannelNumberSchemaProperty.Validate("lcn", parameters["lcn"]);
                     LinearChannelNumber = (Int32) Convert.ChangeType(parameters["lcn"], typeof(Int32));
                 }
             }
@@ -25358,7 +25405,7 @@ namespace WebAPI.Models.Catalog
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -25372,7 +25419,7 @@ namespace WebAPI.Models.Catalog
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -25386,7 +25433,7 @@ namespace WebAPI.Models.Catalog
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -25400,7 +25447,7 @@ namespace WebAPI.Models.Catalog
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -25415,7 +25462,7 @@ namespace WebAPI.Models.Catalog
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -25430,7 +25477,7 @@ namespace WebAPI.Models.Catalog
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -25445,7 +25492,7 @@ namespace WebAPI.Models.Catalog
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -25460,7 +25507,7 @@ namespace WebAPI.Models.Catalog
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -25474,7 +25521,7 @@ namespace WebAPI.Models.Catalog
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 6,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
@@ -26507,6 +26554,7 @@ namespace WebAPI.Models.Catalog
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = 50,
             MinLength = 1,
+            Pattern = @"^[^:]+$",
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,
@@ -29199,6 +29247,21 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute AssetUserRuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollectionFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 1,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaCollectionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -29223,6 +29286,11 @@ namespace WebAPI.Models.Pricing
                 {
                     AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
                     AlsoInactive = (Boolean) Convert.ChangeType(parameters["alsoInactive"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("assetUserRuleIdIn") && parameters["assetUserRuleIdIn"] != null)
+                {
+                    AssetUserRuleIdInSchemaProperty.Validate("assetUserRuleIdIn", parameters["assetUserRuleIdIn"]);
+                    AssetUserRuleIdIn = (String) Convert.ChangeType(parameters["assetUserRuleIdIn"], typeof(String));
                 }
             }
         }
@@ -30501,9 +30569,24 @@ namespace WebAPI.Models.Pricing
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 7,
+            RequiresPermission = 1,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute AssetUserRuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpvFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
@@ -30528,6 +30611,11 @@ namespace WebAPI.Models.Pricing
                 {
                     AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
                     AlsoInactive = (Boolean) Convert.ChangeType(parameters["alsoInactive"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("assetUserRuleIdIn") && parameters["assetUserRuleIdIn"] != null)
+                {
+                    AssetUserRuleIdInSchemaProperty.Validate("assetUserRuleIdIn", parameters["assetUserRuleIdIn"]);
+                    AssetUserRuleIdIn = (String) Convert.ChangeType(parameters["assetUserRuleIdIn"], typeof(String));
                 }
             }
         }
@@ -34736,6 +34824,21 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute AssetUserRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaSegmentationType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -34823,6 +34926,11 @@ namespace WebAPI.Models.Segmentation
                     VersionSchemaProperty.Validate("version", parameters["version"]);
                     Version = (Int64) Convert.ChangeType(parameters["version"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("assetUserRuleId") && parameters["assetUserRuleId"] != null)
+                {
+                    AssetUserRuleIdSchemaProperty.Validate("assetUserRuleId", parameters["assetUserRuleId"]);
+                    AssetUserRuleId = (Int64) Convert.ChangeType(parameters["assetUserRuleId"], typeof(Int64));
+                }
             }
         }
     }
@@ -34871,14 +34979,23 @@ namespace WebAPI.Models.Segmentation
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute AssetUserRuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationTypeFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            DynamicMinInt = 1,
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaSegmentationTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
-            if (fromRequest)
-            {
-                if (parameters?.Where(x => !Deserializer.PropertiesToIgnore.Contains(x.Key)).Count() > 1)
-                    throw new BadRequestException(BadRequestException.ARGUMENT_MAX_PROPERTIES_CROSSED, "KalturaSegmentationTypeFilter", 1);
-
-            }
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
@@ -34897,6 +35014,11 @@ namespace WebAPI.Models.Segmentation
                 {
                     NameContainSchemaProperty.Validate("nameContain", parameters["nameContain"]);
                     NameContain = (String) Convert.ChangeType(parameters["nameContain"], typeof(String));
+                }
+                if (parameters.ContainsKey("assetUserRuleIdIn") && parameters["assetUserRuleIdIn"] != null)
+                {
+                    AssetUserRuleIdInSchemaProperty.Validate("assetUserRuleIdIn", parameters["assetUserRuleIdIn"]);
+                    AssetUserRuleIdIn = (String) Convert.ChangeType(parameters["assetUserRuleIdIn"], typeof(String));
                 }
             }
         }

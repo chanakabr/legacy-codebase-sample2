@@ -30,6 +30,7 @@ namespace FeatureFlag
         public bool IsRenewSubscriptionEndsUseKronos() => _featureFlag.Enabled("is-renew-subscription-ends-use-kronos", GetUser());
         public bool IsCloudfrontInvalidationEnabled() => _featureFlag.Enabled("cloudfront-invalidation", GetUser()); //BEO-12440
         public bool IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed() => _featureFlag.Enabled("is-improved-update-media-asset-stored-procedure-should-be-used", GetUser());
+        public bool IsKafkaIdempotencyShieldShouldNotBeUsed() => _featureFlag.Enabled("is-kafka-idempotency-shield-should-not-be-used", GetUser()); // BEO-13733
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private KalturaFeatureToggleUser GetUser(long? groupId = null)

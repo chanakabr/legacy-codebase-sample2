@@ -9,6 +9,8 @@ namespace ApiObjects
     public class CampaignFilter : ICrudFilter
     {
         public CampaignOrderBy? OrderBy { get; set; }
+        public long? AssetUserRuleIdEqual { get; set; }
+        public bool IgnoreSetFilterByShop { get; set; }
 
         public List<T> ApplyOrderBy<T>(List<T> campaigns) where T : Campaign, new()
         {
@@ -59,6 +61,7 @@ namespace ApiObjects
         public string NameEqual { get; set; }
         public string NameContains { get; set; }
         public List<CampaignState> StateIn { get; set; }
+        public HashSet<long> AssetUserRuleIds { get; set; }
 
         public IEnumerable<CampaignDB> Apply(IEnumerable<CampaignDB> campaignsDB)
         {
@@ -85,6 +88,11 @@ namespace ApiObjects
             if (this.IsActiveNow)
             {
                 campaignsDB = FilterByState(campaignsDB);
+            }
+
+            if (AssetUserRuleIds != null && AssetUserRuleIds.Any())
+            {
+                campaignsDB = campaignsDB.Where(x => x.AssetUserRuleId.HasValue && AssetUserRuleIds.Contains(x.AssetUserRuleId.Value));
             }
 
             return campaignsDB;

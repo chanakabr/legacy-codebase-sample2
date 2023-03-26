@@ -31,6 +31,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using ApiObjects.Rules;
 using Core.GroupManagers;
+using ApiObjects.Base;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -269,7 +270,7 @@ namespace Core.Catalog.CatalogManagement
         {
             try
             {
-                var assetUserRuleResponse = Api.Managers.AssetUserRuleManager.GetAssetUserRuleByRuleId(groupId, assetUserRuleId);
+                var assetUserRuleResponse = Api.Managers.AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(groupId, assetUserRuleId);
                 if (assetUserRuleResponse.HasObject())
                 {
                     var condition = assetUserRuleResponse.Object.Conditions.FirstOrDefault(x => x is AssetShopCondition);
@@ -2303,10 +2304,13 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("Failed to delete media index for assetId: {0}, groupId: {1} after DeleteAsset", mediaId, groupId);
                 }
+
                 //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
                 //not sure it's required but better be safe
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId));
 
+                // publish asset deleted event to Kafka
+                MediaAssetCrudMessageService.Instance.PublishKafkaDeleteEvent(groupId, currentAsset, userId);
             }
             else
             {
@@ -2366,7 +2370,8 @@ namespace Core.Catalog.CatalogManagement
                         return;
                     }
 
-                    GenericResponse<GroupsCacheManager.Channel> channelToUpdate = ChannelManager.Instance.GetChannelById(groupId, channelId, true, userId);
+                    var contextData = new ContextData(groupId) { UserId = userId };
+                    GenericResponse<GroupsCacheManager.Channel> channelToUpdate = ChannelManager.Instance.GetChannelById(contextData, channelId, true);
 
                     if (!channelToUpdate.HasObject())
                     {
@@ -3488,6 +3493,9 @@ namespace Core.Catalog.CatalogManagement
                 {
                     // invalidate asset
                     Instance.InvalidateAsset(assetToUpdate.AssetType, groupId, id);
+
+                    // publish asset updated event to Kafka
+                    MediaAssetCrudMessageService.Instance.PublishKafkaUpdateEvent(groupId, result.Object.Id, userId);
                 }
 
                 //Retry if has failed recordings and start time is within 30 minutes
@@ -3717,6 +3725,7 @@ namespace Core.Catalog.CatalogManagement
                             //not sure it's required but better be safe
                             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
 
+                            MediaAssetCrudMessageService.Instance.PublishKafkaUpdateEvent(groupId, id, userId);
                         }
                     }
                     else
@@ -3735,7 +3744,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status TrySetShopMeta(int groupId, Asset asset, CatalogGroupCache catalogGroupCache, long userId)
         {
-            var getAssetUserRulesResponse = AssetUserRuleManager.GetAssetUserRuleList(groupId, userId, ruleConditionType: RuleConditionType.AssetShop);
+            var getAssetUserRulesResponse = AssetUserRuleManager.Instance.GetAssetUserRuleList(groupId, userId, ruleConditionType: RuleConditionType.AssetShop);
             if (!getAssetUserRulesResponse.IsOkStatusCode())
             {
                 return getAssetUserRulesResponse.Status;

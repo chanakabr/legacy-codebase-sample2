@@ -1,13 +1,7 @@
-﻿using ApiObjects.Response;
-using CouchbaseManager;
-using Phx.Lib.Log;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Segmentation
 {
@@ -89,6 +83,11 @@ namespace ApiObjects.Segmentation
             return null;
         }
 
+        public virtual long GetSegmentId()
+        {
+            return 0;
+        }
+
         #endregion
     }
 
@@ -158,6 +157,11 @@ namespace ApiObjects.Segmentation
             }
 
             return false;
+        }
+
+        public override long GetSegmentId()
+        {
+            return this.Id;
         }
     }
 }
