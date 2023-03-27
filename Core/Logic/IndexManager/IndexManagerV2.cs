@@ -80,6 +80,7 @@ namespace Core.Catalog
 
         // Basic TCM configurations for indexing - number of shards/replicas, max results
         private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+        private static readonly int NUM_OF_SHARDS_EPG_V3 = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShardsV3.Value;
         private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
         private static readonly int MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
         private static readonly int SIZE_OF_BULK_DEFAULT_VALUE = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
@@ -1000,7 +1001,7 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX, numOfShards);
+                AddEmptyEpgV2Index(dailyEpgIndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX, numOfShards);
                 AddEpgMappings(dailyEpgIndexName, EpgFeatureVersion.V2);
                 AddEpgAlias(dailyEpgIndexName);
             }
@@ -1009,6 +1010,16 @@ namespace Core.Catalog
                 log.Error($"index creation failed [{dailyEpgIndexName}]", e);
                 throw new Exception($"index creation failed");
             }
+        }
+
+        private void AddEmptyEpgV2Index(string indexName, string refreshInterval, int? numOfShards = 0)
+        {
+            AddEmptyIndex(indexName, refreshInterval, numOfShards);
+        }
+        
+        private void AddEmptyEpgV3Index(string indexName, string refreshInterval)
+        {
+            AddEmptyIndex(indexName, refreshInterval, NUM_OF_SHARDS_EPG_V3);
         }
 
         private void AddEmptyIndex(string indexName, string refreshInterval, int? numOfShards = 0)

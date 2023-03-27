@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Phx.Lib.Appconfig;
 using ESUtils = ElasticSearch.Common.Utils;
 
 namespace Core.Catalog
@@ -33,7 +34,7 @@ namespace Core.Catalog
             if (epgIndices.Count == 0)
             {
                 log.Info($"EPG v3 creating new index with name:{indexName}");
-                AddEmptyIndex(indexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
+                AddEmptyEpgV3Index(indexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
                 log.Info($"EPG v3 adding mapping to new index with name:{indexName}");
                 AddEpgMappings(indexName, EpgFeatureVersion.V3);
                 log.Info($"EPG v3 adding alias to new index with name:{indexName}");
