@@ -1063,8 +1063,12 @@ namespace EpgBL
             try
             {
                 var indexManager = Core.Catalog.IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
-                List<string> documentIds = indexManager.GetChannelPrograms(channelId, startDate, endDate, esOrderObjs);
-                documentIds = GetEpgsCBKeysV1(documentIds.Select(x=>long.Parse(x)), null);
+                var documentIds = indexManager.GetChannelPrograms(channelId, startDate, endDate, esOrderObjs);
+                if (GroupSettingsManager.Instance.GetEpgFeatureVersion(m_nGroupID) == EpgFeatureVersion.V1)
+                {
+                    documentIds = GetEpgsCBKeysV1(documentIds.Select(long.Parse), null);
+                }
+
                 result = GetEpgChannelProgrammeObjects(documentIds, isOpcAccount);
             }
             catch (Exception ex)
