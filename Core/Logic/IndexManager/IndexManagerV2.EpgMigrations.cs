@@ -178,7 +178,7 @@ namespace Core.Catalog
                 filterCompositeType.AddChild(ttlGtZero);
 
                 var generalFilter = new QueryFilter() { FilterSettings = filterCompositeType };
-                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter, _elasticSearchApi);
+                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter);
 
                 reindexV3ToV2Filter.Filter = generalFilter;
                 reindexV3ToV2Filter.ReturnFields.Clear();
@@ -275,7 +275,7 @@ namespace Core.Catalog
             var filterCompositeType = new FilterCompositeType(CutWith.AND);
             filterCompositeType.AddChild(ttlGtZero);
             var generalFilter = new QueryFilter() { FilterSettings = filterCompositeType };
-            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter, _elasticSearchApi);
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter);
 
             log.Info($"starting reindex from:{epgAlias} to:{epgV1IndexName}");
 

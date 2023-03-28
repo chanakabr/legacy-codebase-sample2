@@ -1171,11 +1171,7 @@ namespace Core.Catalog
 
 
             var queryFilter = new QueryFilter { FilterSettings = filterCompositeType };
-            var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion(_partnerId);
-            if (epgFeatureVersion == EpgFeatureVersion.V3)
-            {
-                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _elasticSearchApi);
-            }
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _groupSettingsManager);
 
             query.Filter = queryFilter;
 
@@ -1250,11 +1246,7 @@ namespace Core.Catalog
 
 
             var queryFilter = new QueryFilter() { FilterSettings = filterCompositeType };
-            var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion(_partnerId);
-            if (epgFeatureVersion == EpgFeatureVersion.V3)
-            {
-                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _elasticSearchApi);
-            }
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _groupSettingsManager);
             query.Filter = queryFilter;
 
             query.ReturnFields.Clear();
@@ -1488,21 +1480,13 @@ namespace Core.Catalog
             }
 
 
-            ESEpgQueryBuilder queryBuilder = new ESEpgQueryBuilder()
+            ESEpgQueryBuilder queryBuilder = new ESEpgQueryBuilder(_partnerId)
             {
                 m_oEpgSearchObj = epgSearchObj
             };
 
             var filteredQuery = queryBuilder.BuildEpgAutoCompleteQuery();
-            var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion(_partnerId);
-            if (epgFeatureVersion == EpgFeatureVersion.V3)
-            {
-                var queryFilter = new QueryFilter();
-                filteredQuery.Filter = queryFilter;
-                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _elasticSearchApi);
-            }
             var sQuery = filteredQuery.ToString();
-
 
             string sGroupAlias = string.Format("{0}_epg", epgSearchObj.m_nGroupID);
             string searchRes = _elasticSearchApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
@@ -1945,7 +1929,7 @@ namespace Core.Catalog
 
                 DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
-                ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder()
+                ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder(_partnerId)
                 {
                     m_oEpgSearchObj = epgSearch,
                     bAnalyzeWildcards = true
@@ -1956,12 +1940,15 @@ namespace Core.Catalog
                 DateTime dTempDate = epgSearch.m_dStartDate.AddDays(-1);
                 dTempDate = new DateTime(dTempDate.Year, dTempDate.Month, dTempDate.Day);
 
+                // we should skip any kind of routing to EPGv3, it's not by date anymore. EPGv2 uses dates as routing, but it'd be never run on TVPAPI (hopefully).
                 List<string> lRouting = new List<string>();
-
-                while (dTempDate <= epgSearch.m_dEndDate)
+                if (_groupSettingsManager.GetEpgFeatureVersion(_partnerId) == EpgFeatureVersion.V1)
                 {
-                    lRouting.Add(dTempDate.ToString("yyyyMMdd"));
-                    dTempDate = dTempDate.AddDays(1);
+                    while (dTempDate <= epgSearch.m_dEndDate)
+                    {
+                        lRouting.Add(dTempDate.ToString("yyyyMMdd"));
+                        dTempDate = dTempDate.AddDays(1);
+                    }
                 }
 
                 string sGroupAlias = string.Format("{0}_epg", _partnerId);
@@ -5181,16 +5168,10 @@ namespace Core.Catalog
                 }
             }
 
-            var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion(_partnerId);
-            if (epgFeatureVersion == EpgFeatureVersion.V3)
-            {
-                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _elasticSearchApi);
-            }
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _groupSettingsManager);
 
             // get the epg document ids from elasticsearch
             var searchQuery = query.ToString();
-
-
 
             var searchResult = _elasticSearchApi.Search(index, type, ref searchQuery);
 
@@ -5200,7 +5181,7 @@ namespace Core.Catalog
             List<string> documentIds = null;
 
             // Checking is new Epg ingest here as well to avoid calling GetEpgCBKey if we already called elastic and have all required coument Ids
-            var isNewEpgIngest = epgFeatureVersion != EpgFeatureVersion.V1;
+            var isNewEpgIngest = _groupSettingsManager.GetEpgFeatureVersion(_partnerId) != EpgFeatureVersion.V1;
             if (isNewEpgIngest)
             {
                 documentIds = hits.Select(hit => ESUtils.ExtractValueFromToken<string>(hit["fields"], "document_id")).ToList();
@@ -5239,11 +5220,7 @@ namespace Core.Catalog
             composite.AddChild(terms);
 
             filter.FilterSettings = composite;
-            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
-            if (epgFeatureVersion == EpgFeatureVersion.V3)
-            {
-                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, filter, _elasticSearchApi);
-            }
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, filter);
             query.Filter = filter;
 
             string searchQuery = query.ToString();

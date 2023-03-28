@@ -8,10 +8,11 @@ using System.ServiceModel;
 using System.Text;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.Transaction;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using CachingProvider;
 using Core.Catalog.Cache;
-using ElasticSearch.Common;
+using Core.GroupManagers;
 using ElasticSearch.Searcher;
 using Phx.Lib.Log;
 using ESUtils = ElasticSearch.Common.Utils;
@@ -77,28 +78,18 @@ namespace Core.Catalog.Searchers
             }
         }
         
-        public static void WrapFilterWithCommittedOnlyTransactionsForEpgV3(int partnerId, QueryFilter originalQuery, IElasticSearchApi esApi)
+        public static void WrapFilterWithCommittedOnlyTransactionsForEpgV3(int partnerId, QueryFilter originalQuery, IGroupSettingsManager groupSettingsManager = null)
         {
-            // TODO: should we use a better cache mechanism here or configure the cache expiration ? 
-            // TODO: we can remove this code as the index name for epg v3 has been made static witout any epoch attached to it
-            var epgV3IndexNameKey = $"epg_v3_index_name_{partnerId}";
-            var epgV3IndexName = MemoryCache.Default.Get(epgV3IndexNameKey)?.ToString();
-            if (string.IsNullOrEmpty(epgV3IndexName))
-            {            
-                var epgAlias = NamingHelper.GetEpgIndexAlias(partnerId);
-                var indices = esApi.ListIndicesByAlias(epgAlias);
-                epgV3IndexName = indices.First().Name;
-                MemoryCache.Default.Set(
-                    new CacheItem(epgV3IndexNameKey,epgV3IndexName),
-                    new CacheItemPolicy(){AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(60)}
-                );
+            if ((groupSettingsManager ?? GroupSettingsManager.Instance).GetEpgFeatureVersion(partnerId) != EpgFeatureVersion.V3)
+            {
+                return;
             }
 
+            var epgV3IndexName = $"{partnerId}_epg_v3";
             var epgIndexTerm = ESTerms.GetSimpleStringTerm("_index", new[] { epgV3IndexName });
             var hasTransactionParentDocument = new ESCustomQuery($"{{\"has_parent\":{{\"parent_type\":\"{NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME}\",\"query\":{{\"match_all\":{{}}}}}}}}");
             var insertingStatusTerm = ESTerms.GetSimpleStringTerm(ESUtils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME, new[] { eTransactionOperation.INSERTING.ToString() });
             var deletingStatusTerm = ESTerms.GetSimpleStringTerm(ESUtils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME, new[] { eTransactionOperation.DELETING.ToString() });
-            
 
             var insertingAndCommitted = BoolQuery.Must(hasTransactionParentDocument, insertingStatusTerm);
             var deletingAndNotCommitted = BoolQuery.MustNot(hasTransactionParentDocument).AddMust(deletingStatusTerm);
