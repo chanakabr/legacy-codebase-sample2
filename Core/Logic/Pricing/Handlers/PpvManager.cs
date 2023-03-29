@@ -1,4 +1,10 @@
-﻿using ApiObjects;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Pricing.Dto;
@@ -9,12 +15,6 @@ using Core.Catalog.CatalogManagement;
 using Core.Pricing;
 using DAL;
 using Phx.Lib.Log;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -297,7 +297,7 @@ namespace ApiLogic.Pricing.Handlers
         
         public GenericListResponse<PPVModule> GetPPVModules(ContextData contextData, List<long> ppvModuleIds = null, 
             bool shouldShrink = false, int? couponGroupIdEqual = null, bool alsoInactive = false, PPVOrderBy orderBy = PPVOrderBy.NameAsc, 
-            int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, List<long> assetUserRuleIds = null)
+            int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, List<long> assetUserRuleIds = null, string nameContains = null)
         {
             var response = new GenericListResponse<PPVModule>();
 
@@ -321,19 +321,24 @@ namespace ApiLogic.Pricing.Handlers
                 return response;
             }
 
+            var tempPpvs = allPpvs.AsEnumerable();
             if (ppvModuleIds != null && ppvModuleIds.Count > 0)
             {
-                allPpvs = allPpvs.Where(p => ppvModuleIds.Contains(p.Id)).ToList();
+                tempPpvs = tempPpvs.Where(p => ppvModuleIds.Contains(p.Id));
             }
 
             if (!alsoInactive)
             {
-                allPpvs = allPpvs.Where(p => p.IsActive).ToList();
+                tempPpvs = tempPpvs.Where(p => p.IsActive);
             }
 
+            if (!string.IsNullOrEmpty(nameContains))
+            {
+                tempPpvs = tempPpvs.Where(p => !string.IsNullOrEmpty(p.Name) && p.Name.IndexOf(nameContains, StringComparison.OrdinalIgnoreCase) > -1);
+            }
             if (couponGroupIdEqual.HasValue)
             {
-                allPpvs = allPpvs.Where(ppv => ppv.CouponsGroupCode == couponGroupIdEqual.Value).ToList();
+                tempPpvs = tempPpvs.Where(ppv => ppv.CouponsGroupCode == couponGroupIdEqual.Value);
             }
 
             // get assetUserRuleId to filter ppvs by the same shop
@@ -356,27 +361,27 @@ namespace ApiLogic.Pricing.Handlers
 
             if (assetUserRuleIds?.Count > 0)
             {
-                allPpvs = allPpvs.Where(x => x.AssetUserRuleId.HasValue && assetUserRuleIds.Contains(x.AssetUserRuleId.Value)).ToList();
+                tempPpvs = tempPpvs.Where(x => x.AssetUserRuleId.HasValue && assetUserRuleIds.Contains(x.AssetUserRuleId.Value));
 
             }
 
             switch (orderBy)
             {
                 case PPVOrderBy.NameAsc:
-                    allPpvs = allPpvs.OrderBy(ppv => ppv.Name).ToList();
+                    tempPpvs = tempPpvs.OrderBy(ppv => ppv.Name);
                     break;
                 case PPVOrderBy.NameDesc:
-                    allPpvs = allPpvs.OrderByDescending(ppv => ppv.Name).ToList();
+                    tempPpvs = tempPpvs.OrderByDescending(ppv => ppv.Name);
                     break;
                 case PPVOrderBy.UpdateDataAsc:
-                    allPpvs = allPpvs.OrderBy(ppv => ppv.UpdateDate).ToList();
+                    tempPpvs = tempPpvs.OrderBy(ppv => ppv.UpdateDate);
                     break;
                 case PPVOrderBy.UpdateDataDesc:
-                    allPpvs = allPpvs.OrderByDescending(ppv => ppv.UpdateDate).ToList();
+                    tempPpvs = tempPpvs.OrderByDescending(ppv => ppv.UpdateDate);
                     break;
             }
                 
-            response.TotalItems = allPpvs.Count;
+            response.TotalItems = tempPpvs.Count();
 
             if (!shouldIgnorePaging)
             {
@@ -384,11 +389,11 @@ namespace ApiLogic.Pricing.Handlers
                 int rangeToGetFromList = (startIndexOnList + pageSize) > allPpvs.Count ? (allPpvs.Count - startIndexOnList) > 0 ? (allPpvs.Count - startIndexOnList) : 0 : pageSize;
                 if (rangeToGetFromList > 0)
                 {
-                    allPpvs = allPpvs.Skip(startIndexOnList).Take(rangeToGetFromList).ToList();
+                    tempPpvs = tempPpvs.Skip(startIndexOnList).Take(rangeToGetFromList);
                 }
             }
 
-            var ppvWithData = GetPpvsData(allPpvs, shouldShrink, groupId);
+            var ppvWithData = GetPpvsData(tempPpvs.ToList(), shouldShrink, groupId);
             response.Objects = ppvWithData;
             response.SetStatus(eResponseStatus.OK);
             return response;

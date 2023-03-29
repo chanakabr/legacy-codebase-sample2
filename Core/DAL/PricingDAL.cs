@@ -2380,7 +2380,8 @@ namespace DAL
                     {
                         Id = Utils.GetLongSafeVal(dr, "ID"),
                         IsActive = Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 0 ? false : true,
-                        AssetUserRuleId = Utils.GetNullableLong(dr, "ASSET_USER_RULE_ID")
+                        AssetUserRuleId = Utils.GetNullableLong(dr, "ASSET_USER_RULE_ID"),
+                        Name = Utils.GetSafeStr(dr, "NAME"),
                     };
 
                     res.Add(collectionItemDTO);

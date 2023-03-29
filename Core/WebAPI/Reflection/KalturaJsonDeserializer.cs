@@ -29262,8 +29262,30 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute NameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollectionFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaCollectionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaCollectionFilter");
+
+                Deserializer.CheckOneOf(parameters, new[] {"collectionIdIn", "mediaFileIdEqual", "nameContains"});
+
+            }
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
@@ -29291,6 +29313,11 @@ namespace WebAPI.Models.Pricing
                 {
                     AssetUserRuleIdInSchemaProperty.Validate("assetUserRuleIdIn", parameters["assetUserRuleIdIn"]);
                     AssetUserRuleIdIn = (String) Convert.ChangeType(parameters["assetUserRuleIdIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("nameContains") && parameters["nameContains"] != null)
+                {
+                    NameContainsSchemaProperty.Validate("nameContains", parameters["nameContains"]);
+                    NameContains = (String) Convert.ChangeType(parameters["nameContains"], typeof(String));
                 }
             }
         }
@@ -30578,6 +30605,20 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute NameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpvFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         private static RuntimeSchemePropertyAttribute AssetUserRuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpvFilter")
         {
             ReadOnly = false,
@@ -30611,6 +30652,11 @@ namespace WebAPI.Models.Pricing
                 {
                     AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
                     AlsoInactive = (Boolean) Convert.ChangeType(parameters["alsoInactive"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("nameContains") && parameters["nameContains"] != null)
+                {
+                    NameContainsSchemaProperty.Validate("nameContains", parameters["nameContains"]);
+                    NameContains = (String) Convert.ChangeType(parameters["nameContains"], typeof(String));
                 }
                 if (parameters.ContainsKey("assetUserRuleIdIn") && parameters["assetUserRuleIdIn"] != null)
                 {
@@ -32042,6 +32088,20 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute NameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAssetGroupOfferFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaProgramAssetGroupOfferFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -32052,6 +32112,11 @@ namespace WebAPI.Models.Pricing
                 {
                     AlsoInactiveSchemaProperty.Validate("alsoInactive", parameters["alsoInactive"]);
                     AlsoInactive = (Boolean) Convert.ChangeType(parameters["alsoInactive"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("nameContains") && parameters["nameContains"] != null)
+                {
+                    NameContainsSchemaProperty.Validate("nameContains", parameters["nameContains"]);
+                    NameContains = (String) Convert.ChangeType(parameters["nameContains"], typeof(String));
                 }
             }
         }
@@ -32075,6 +32140,14 @@ namespace WebAPI.Models.Pricing
         };
         public KalturaProgramAssetGroupOfferIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaProgramAssetGroupOfferIdInFilter");
+
+                Deserializer.CheckOneOf(parameters, new[] {"idIn", "nameContains"});
+
+            }
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
@@ -33400,8 +33473,30 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute NameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaSubscriptionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSubscriptionFilter");
+
+                Deserializer.CheckOneOf(parameters, new[] {"ksql", "mediaFileIdEqual", "productCodeIn", "subscriptionIdIn", "nameContains"});
+
+            }
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
@@ -33448,6 +33543,11 @@ namespace WebAPI.Models.Pricing
                 {
                     DependencyTypeInSchemaProperty.Validate("dependencyTypeIn", parameters["dependencyTypeIn"]);
                     DependencyTypeIn = (String) Convert.ChangeType(parameters["dependencyTypeIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("nameContains") && parameters["nameContains"] != null)
+                {
+                    NameContainsSchemaProperty.Validate("nameContains", parameters["nameContains"]);
+                    NameContains = (String) Convert.ChangeType(parameters["nameContains"], typeof(String));
                 }
             }
         }

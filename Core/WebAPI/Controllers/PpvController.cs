@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
             Func<GenericListResponse<PPVModule>> getListFunc = () =>
                 PpvManager.Instance.GetPPVModules(contextData, filter.GetIdIn("idIn", filter.IdIn), false, filter.CouponGroupIdEqual,
                     filter.AlsoInactive.HasValue ? filter.AlsoInactive.Value : false, coreFilter.OrderBy,
-                    pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.GetIdIn("assetUserRuleIdIn", filter.AssetUserRuleIdIn));
+                    pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.GetIdIn("assetUserRuleIdIn", filter.AssetUserRuleIdIn), filter.NameContains);
             KalturaGenericListResponse<KalturaPpv> response =
                 ClientUtils.GetResponseListFromWS<KalturaPpv, PPVModule>(getListFunc);
 

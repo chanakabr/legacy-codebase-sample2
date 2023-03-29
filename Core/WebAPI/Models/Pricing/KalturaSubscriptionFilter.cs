@@ -6,6 +6,8 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
+    [SchemeClass(OneOf = new[] { "ksql", "mediaFileIdEqual", "productCodeIn", "subscriptionIdIn", "nameContains" })]
+
     public partial class KalturaSubscriptionFilter : KalturaFilter<KalturaSubscriptionOrderBy>
     {
         /// <summary>
@@ -93,6 +95,15 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "dependencyTypeIn")]
         [SchemeProperty(IsNullable = true, DynamicType = typeof(KalturaSubscriptionDependencyType), MinLength = 1)]
         public string DependencyTypeIn { get; set; }
+
+        /// <summary>
+        /// A string that is included in the subscription name
+        /// </summary>
+        [DataMember(Name = "nameContains")]
+        [JsonProperty("nameContains")]
+        [XmlElement(ElementName = "nameContains")]
+        [SchemeProperty(IsNullable = true, MinLength = 1, MaxLength = 50, RequiresPermission = (int)RequestType.READ)]
+        public string NameContains { get; set; }
 
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {

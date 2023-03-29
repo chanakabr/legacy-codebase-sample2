@@ -2123,6 +2123,8 @@ namespace WebAPI.Reflection
                             return "couponGroupIdEqual";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
+                        case "NameContains":
+                            return "nameContains";
                     }
                     break;
                     
@@ -6671,6 +6673,8 @@ namespace WebAPI.Reflection
                             return "couponGroupIdEqual";
                         case "IdIn":
                             return "idIn";
+                        case "NameContains":
+                            return "nameContains";
                     }
                     break;
                     
@@ -7047,6 +7051,8 @@ namespace WebAPI.Reflection
                     {
                         case "AlsoInactive":
                             return "alsoInactive";
+                        case "NameContains":
+                            return "nameContains";
                     }
                     break;
                     
@@ -8549,6 +8555,8 @@ namespace WebAPI.Reflection
                             return "kSql";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
+                        case "NameContains":
+                            return "nameContains";
                         case "PreviewModuleIdEqual":
                             return "previewModuleIdEqual";
                         case "PricePlanIdEqual":

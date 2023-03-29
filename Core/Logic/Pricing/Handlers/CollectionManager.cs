@@ -22,7 +22,7 @@ namespace ApiLogic.Pricing.Handlers
     public interface ICollectionManager
     {
         GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string[] collCodes, string country, int pageIndex = 0, int pageSize = 30,
-            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, HashSet<long> assetUserRuleIds = null);
+            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, HashSet<long> assetUserRuleIds = null, string nameContains = null);
     }
 
     public class CollectionManager : ICollectionManager
@@ -313,7 +313,8 @@ namespace ApiLogic.Pricing.Handlers
         }
 
         public GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string[] collCodes, string country, int pageIndex = 0, int pageSize = 30,
-            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, HashSet<long> assetUserRuleIds = null)
+            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, 
+            HashSet<long> assetUserRuleIds = null, string nameContains = null)
         {
             GenericListResponse<Collection> response = new GenericListResponse<Collection>();
             List<long> collectionsIds = null;
@@ -335,7 +336,7 @@ namespace ApiLogic.Pricing.Handlers
 
             if (collCodes == null || collCodes.Length == 0)
             {
-                collectionsIds = PricingCache.GetCollectionsIds(groupId, inactiveAssets, assetUserRuleIds);
+                collectionsIds = PricingCache.GetCollectionsIds(groupId, inactiveAssets, assetUserRuleIds, nameContains);
             }
             else
             {
@@ -421,9 +422,9 @@ namespace ApiLogic.Pricing.Handlers
         }
 
         public GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string country, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null,
-            bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, HashSet<long> assetUserRuleIds = null)
+            bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, HashSet<long> assetUserRuleIds = null, string nameContains = null)
         {
-            return GetCollectionsData(contextData, null, country, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual, inactiveAssets, orderBy, assetUserRuleIds);
+            return GetCollectionsData(contextData, null, country, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual, inactiveAssets, orderBy, assetUserRuleIds, nameContains);
         }
 
         public IdsResponse GetCollectionIdsContainingMediaFile(int groupId, int mediaId, int mediaFileID)

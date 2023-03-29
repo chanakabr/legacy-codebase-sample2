@@ -154,7 +154,7 @@ namespace WebAPI.Controllers
             }
 
             GenericListResponse<ProgramAssetGroupOffer> listFunc() =>
-                PagoManager.Instance.List(contextData, null, inactiveAssets, orderBy, corePager);
+                PagoManager.Instance.List(contextData, null, inactiveAssets, filter.NameContains, orderBy, corePager);
 
             KalturaGenericListResponse<KalturaProgramAssetGroupOffer> response =
                ClientUtils.GetResponseListFromWS<KalturaProgramAssetGroupOffer, ProgramAssetGroupOffer>(listFunc);
@@ -174,7 +174,7 @@ namespace WebAPI.Controllers
             }
 
             GenericListResponse<ProgramAssetGroupOffer> listFunc() =>
-                PagoManager.Instance.List(contextData, ProgramAssetGroupOfferMapper.GetProgramAssetGroupOfferIds(filter), inactiveAssets, orderBy, corePager);
+                PagoManager.Instance.List(contextData, ProgramAssetGroupOfferMapper.GetProgramAssetGroupOfferIds(filter), inactiveAssets, filter.NameContains, orderBy, corePager);
 
             KalturaGenericListResponse<KalturaProgramAssetGroupOffer> response =
                ClientUtils.GetResponseListFromWS<KalturaProgramAssetGroupOffer, ProgramAssetGroupOffer>(listFunc);
