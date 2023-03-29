@@ -693,6 +693,11 @@ namespace WebAPI.Managers
                 {
                     return false;
                 }
+                
+                if (!isAdmin && roleIds.Any(x => x == PredefinedRoleId.DMS_OPERATOR))
+                {
+                    return false;
+                }
             }
 
             return true;

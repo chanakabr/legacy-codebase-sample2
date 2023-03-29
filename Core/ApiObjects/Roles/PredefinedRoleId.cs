@@ -11,5 +11,6 @@
         public const long SYSTEM_ADMINISTRATOR = 9;
         public const long SHOP_MANAGER_CAMPAIGN = 15;
         public const long SHOP_SERVER = 16;
+        public const long DMS_OPERATOR = 17;
     }
 }
