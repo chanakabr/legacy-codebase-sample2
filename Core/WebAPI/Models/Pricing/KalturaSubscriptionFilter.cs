@@ -6,8 +6,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
-    [SchemeClass(OneOf = new[] { "ksql", "mediaFileIdEqual", "productCodeIn", "subscriptionIdIn", "nameContains" })]
-
     public partial class KalturaSubscriptionFilter : KalturaFilter<KalturaSubscriptionOrderBy>
     {
         /// <summary>

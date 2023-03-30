@@ -9,7 +9,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Collection Filter
     /// </summary>
-    [SchemeClass(OneOf = new[] { "collectionIdIn", "mediaFileIdEqual", "nameContains" })]
     public partial class KalturaCollectionFilter : KalturaFilter<KalturaCollectionOrderBy>
     {
         /// <summary>

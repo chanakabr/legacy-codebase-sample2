@@ -8,7 +8,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Program asset group offer filter
     /// </summary>
-    [SchemeClass(OneOf = new[] { "idIn", "nameContains" })]
     public partial class KalturaProgramAssetGroupOfferIdInFilter : KalturaProgramAssetGroupOfferFilter
     {
         /// <summary>

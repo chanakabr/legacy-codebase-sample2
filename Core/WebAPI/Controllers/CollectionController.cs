@@ -40,6 +40,10 @@ namespace WebAPI.Controllers
             {
                 filter = new KalturaCollectionFilter();
             }
+            else
+            {
+                filter.Validate();
+            }
 
             var contextData = KS.GetContextData();
             Func<GenericListResponse<Collection>> getListFunc;

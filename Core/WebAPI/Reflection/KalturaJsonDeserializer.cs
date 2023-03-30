@@ -29278,14 +29278,6 @@ namespace WebAPI.Models.Pricing
         };
         public KalturaCollectionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
-            if (fromRequest)
-            {
-                if (parameters == null || parameters.Count == 0)
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaCollectionFilter");
-
-                Deserializer.CheckOneOf(parameters, new[] {"collectionIdIn", "mediaFileIdEqual", "nameContains"});
-
-            }
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
@@ -32140,14 +32132,6 @@ namespace WebAPI.Models.Pricing
         };
         public KalturaProgramAssetGroupOfferIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
-            if (fromRequest)
-            {
-                if (parameters == null || parameters.Count == 0)
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaProgramAssetGroupOfferIdInFilter");
-
-                Deserializer.CheckOneOf(parameters, new[] {"idIn", "nameContains"});
-
-            }
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
@@ -33489,14 +33473,6 @@ namespace WebAPI.Models.Pricing
         };
         public KalturaSubscriptionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
-            if (fromRequest)
-            {
-                if (parameters == null || parameters.Count == 0)
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSubscriptionFilter");
-
-                Deserializer.CheckOneOf(parameters, new[] {"ksql", "mediaFileIdEqual", "productCodeIn", "subscriptionIdIn", "nameContains"});
-
-            }
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
