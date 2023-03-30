@@ -16,6 +16,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Caching;
 using APILogic.Api.Managers;
+using Core.GroupManagers;
 
 
 namespace Core.ConditionalAccess
@@ -166,7 +167,7 @@ namespace Core.ConditionalAccess
                         if (IsServiceAllowed(domainID, eService.NPVR))
                         {
                             // get media files which corresponds to the given asset ID (program ID)
-                            List<int> fileIds = DAL.ConditionalAccessDAL.GetFileIdsByEpgProgramId(Convert.ToInt32(assetID), m_nGroupID);
+                            List<int> fileIds = GetFileIdsByEpgProgramId(Convert.ToInt32(assetID));
 
                             // validate that at least one of the file is free/purchased 
                             if (fileIds != null && fileIds.Count > 0)
@@ -296,6 +297,64 @@ namespace Core.ConditionalAccess
             }
 
             return res;
+        }
+
+        private List<int> GetFileIdsByEpgProgramId(int programId)
+        {
+            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(m_nGroupID);
+            if (epgFeatureVersion == EpgFeatureVersion.V1)
+            {
+                return ConditionalAccessDAL.GetFileIdsByEpgProgramId(programId, m_nGroupID);
+            }
+
+            // In case of EPGv2/EPGv3 EPGs aren't stored in SQL, so we should take first EPG and use Linear to grab media files.
+            return GetFileIdsByEpgProgramIdV2V3(programId);
+        }
+
+        private List<int> GetFileIdsByEpgProgramIdV2V3(int programId)
+        {
+            var fileIds = new List<int>();
+            var epgProgramDetailsRequest = new EpgProgramDetailsRequest
+            {
+                m_nGroupID = m_nGroupID,
+                m_oFilter = new Filter(),
+                m_lProgramsIds = new List<int>
+                {
+                    programId
+                }
+            };
+            Utils.FillCatalogSignature(epgProgramDetailsRequest);
+            var response = epgProgramDetailsRequest.GetProgramsByIDs(epgProgramDetailsRequest);
+            if (response == null)
+            {
+                return fileIds;
+            }
+
+            if (!response.m_lObj.Any())
+            {
+                return fileIds;
+            }
+
+            var program = response.m_lObj[0] as ProgramObj;
+            if (program?.m_oProgram == null)
+            {
+                return fileIds;
+            }
+
+            var epg = program.m_oProgram;
+            if (epg == null)
+            {
+                return fileIds;
+            }
+
+            int.TryParse(epg.STATUS, out var status);
+            bool.TryParse(epg.IS_ACTIVE, out var isActive);
+            if (status != 1 && isActive != true)
+            {
+                return fileIds;
+            }
+
+            return ConditionalAccessDAL.GetFileIdsByEpgChannelIdSpecific(int.Parse(epg.GROUP_ID), epg.EPG_CHANNEL_ID);
         }
 
         private List<int> GetFileList(List<int> fileIds, ref bool priceValidationPassed)
