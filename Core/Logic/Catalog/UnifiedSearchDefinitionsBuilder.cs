@@ -91,11 +91,13 @@ namespace Core.Catalog
                     definitions.shouldIgnoreDeviceRuleID = true;
                 }
 
+                definitions.IgnoreSearchRegions = request.IgnoreSearchRegions;
+
                 if (request.filterTree != null)
                 {
                     CatalogLogic.UpdateNodeTreeFields(request, ref request.filterTree, definitions, group, parentGroupID);
                 }
-                
+
                 #region Priority Groups
 
                 definitions.PriorityGroupsMappings = PriorityGroupsPreprocessor.Instance.Preprocess(request.PriorityGroupsMappings, request, definitions, group, parentGroupID);
@@ -150,8 +152,8 @@ namespace Core.Catalog
                 }
 
                 // 0 or 'epg' - hard coded for EPG
-                if (definitions.mediaTypes.Remove(UnifiedSearchDefinitions.EPG_ASSET_TYPE) || 
-                    definitions.ksqlAssetTypes.Contains("epg") || 
+                if (definitions.mediaTypes.Remove(UnifiedSearchDefinitions.EPG_ASSET_TYPE) ||
+                    definitions.ksqlAssetTypes.Contains("epg") ||
                     definitions.ksqlAssetTypes.Contains(UnifiedSearchDefinitions.EPG_ASSET_TYPE.ToString()))
                 {
                     definitions.shouldSearchEpg = true;
@@ -173,7 +175,7 @@ namespace Core.Catalog
                 {
                     definitions.shouldSearchMedia = true;
                 }
-                
+
                 if (definitions.hasMediaIdTerm && !definitions.hasOrNode)
                 {
                     definitions.shouldSearchEpg = false;
@@ -190,7 +192,7 @@ namespace Core.Catalog
                 if (doesGroupUsesTemplates)
                 {
                     definitions.ObjectVirtualAssetIds = catalogGroupCache.GetObjectVirtualAssetIds();
-                    
+
                     mediaTypes = new HashSet<int>(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x));
                 }
                 else
@@ -215,7 +217,7 @@ namespace Core.Catalog
 
                 #region Regions
 
-                if (!definitions.isAllowedToViewInactiveAssets)
+                if (!definitions.isAllowedToViewInactiveAssets && !definitions.IgnoreSearchRegions)
                 {
                     List<int> regionIds;
                     List<string> linearMediaTypes;
@@ -251,8 +253,8 @@ namespace Core.Catalog
                     }
                     else if (definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets)
                     {
-                        type = definitions.entitlementSearchDefinitions.shouldGetOnlySubscriptionAssets 
-                            ? eEntitlementSearchType.Subscriptions 
+                        type = definitions.entitlementSearchDefinitions.shouldGetOnlySubscriptionAssets
+                            ? eEntitlementSearchType.Subscriptions
                             : eEntitlementSearchType.Entitled;
                     }
 
@@ -327,7 +329,7 @@ namespace Core.Catalog
                         }
 
                         recordingIds = GetDomainRecordings(definitions, request.m_nGroupID, (long)request.domainId, specificRecordingIds);
-                        
+
                         // If domain has at least one recording
                         if (recordingIds != null && recordingIds.Count > 0)
                         {
@@ -335,7 +337,7 @@ namespace Core.Catalog
                         }
                         // if not, create a new list which symbols no assets at all.
                         else
-                        {                           
+                        {
                             definitions.specificAssets[eAssetTypes.NPVR] = new List<string>() { "0" };
                         }
                     }
@@ -386,7 +388,7 @@ namespace Core.Catalog
 
                 #region Geo Availability
 
-                if (!definitions.isAllowedToViewInactiveAssets && !definitions.isInternalSearch && 
+                if (!definitions.isAllowedToViewInactiveAssets && !definitions.isInternalSearch &&
                     (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled))
                 {
                     definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
@@ -465,8 +467,8 @@ namespace Core.Catalog
             definitions.assetUserBlockRulePhrase = GetUserAssetRulesPhrase(request, group, ref definitions, groupId, RuleActionType.UserBlock, userId);
 
             BooleanPhraseNode userPhraseNode = GetUserAssetRulesPhrase(request, group, ref definitions, groupId, RuleActionType.UserFilter, userId);
-            definitions.assetUserRuleFilterPhrase = UnionBooleanPhraseNode(definitions.assetUserRuleFilterPhrase, userPhraseNode);          
-        }       
+            definitions.assetUserRuleFilterPhrase = UnionBooleanPhraseNode(definitions.assetUserRuleFilterPhrase, userPhraseNode);
+        }
 
         private static BooleanPhraseNode UnionBooleanPhraseNode(BooleanPhraseNode channelPhraseNode, BooleanPhraseNode userPhraseNode)
         {
@@ -504,7 +506,7 @@ namespace Core.Catalog
             {
                 if (assetUserRulesResponse.Object != null)
                 {
-                    // check if rule applay on channel 
+                    // check if rule applay on channel
                     ApiObjects.Rules.AssetUserRuleFilterAction assetUserRuleFilterAction = assetUserRulesResponse.Object.Actions[0] as ApiObjects.Rules.AssetUserRuleFilterAction;
                     if (assetUserRuleFilterAction != null && assetUserRuleFilterAction.ApplyOnChannel)
                     {
@@ -532,10 +534,10 @@ namespace Core.Catalog
             else
             {
                 log.ErrorFormat("Failed to get asset user rule {0}, code = {1}", ruleId, assetUserRulesResponse.Status.Code);
-            }            
+            }
         }
 
-        private static BooleanPhraseNode GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId, 
+        private static BooleanPhraseNode GetUserAssetRulesPhrase(BaseRequest request, Group group, ref UnifiedSearchDefinitions definitions, int groupId,
             RuleActionType ruleActionType, long userId)
         {
             BooleanPhraseNode phrase = null;
@@ -718,7 +720,7 @@ namespace Core.Catalog
                 else if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
                 {
                     // Convert the file type that we received in request (taken from groups_media_type)
-                    // into the file type that the media file knows (based on the table media_files)                    
+                    // into the file type that the media file knows (based on the table media_files)
 
                     if (fileTypes != null)
                     {
@@ -750,7 +752,7 @@ namespace Core.Catalog
                 definitions.subscriptionSearchObjects.Count == 0)
             {
                 // Make sure that all lists in dictionaries are empty
-                bool entitledToAnything = 
+                bool entitledToAnything =
                     definitions.freeAssets.Values.Any(item => item.Count > 0) || definitions.entitledPaidForAssets.Values.Any(item => item.Count > 0);
 
                 if (!entitledToAnything)

@@ -34,7 +34,7 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public OrderObj order;
-        
+
         [DataMember]
         public IReadOnlyCollection<AssetOrder> orderingParameters;
 
@@ -80,7 +80,7 @@ namespace Core.Catalog.Request
         public bool shouldIgnoreEndDate;
 
         /// <summary>
-        /// add new GroupID to Search assets ONLY in specific group 
+        /// add new GroupID to Search assets ONLY in specific group
         /// </summary>
         [DataMember]
         public int exactGroupId;
@@ -115,6 +115,8 @@ namespace Core.Catalog.Request
         /// Key Value Pair. Key - Score. Value - Corresponding Priority Group.
         /// </summary>
         public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroupsMappings { get; set; }
+
+        public bool IgnoreSearchRegions { get; set; }
 
         #endregion
 
@@ -157,6 +159,7 @@ namespace Core.Catalog.Request
             this.exactGroupId = 0;
             this.isAllowedToViewInactiveAssets = false;
             this.isGroupingOptionInclude = false;
+            this.IgnoreSearchRegions = false;
         }
 
         #endregion
@@ -230,7 +233,7 @@ namespace Core.Catalog.Request
                     newNodes.Add(nameAndDescriptionPhrase);
 
                     // If there is no filter tree from the string, create a new one containing only name and description
-                    // If there is a tree already, use it as a branch and connect it with "And" to "name and description" 
+                    // If there is a tree already, use it as a branch and connect it with "And" to "name and description"
                     if (filterTree != null)
                     {
                         newNodes.Add(filterTree);
@@ -350,7 +353,7 @@ namespace Core.Catalog.Request
 
             return (BaseResponse)response;
         }
-        
+
         #endregion
 
 
@@ -361,7 +364,7 @@ namespace Core.Catalog.Request
 
         internal virtual bool GetShouldUseSearchEndDate()
         {
-            return ConditionalAccess.Utils.GetIsTimeShiftedTvPartnerSettingsExists(m_nGroupID);            
+            return ConditionalAccess.Utils.GetIsTimeShiftedTvPartnerSettingsExists(m_nGroupID);
         }
     }
 }

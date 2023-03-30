@@ -46,7 +46,7 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public OrderObj order;
-        
+
         [JsonProperty()]
         [DataMember]
         public IReadOnlyCollection<IEsOrderByField> orderByFields;
@@ -73,7 +73,7 @@ namespace ApiObjects.SearchObjects
         public bool isEpgV2 = false;
 
         public EpgFeatureVersion EpgFeatureVersion = EpgFeatureVersion.V1;
-        
+
         [JsonProperty()]
         [DataMember]
         public string permittedWatchRules
@@ -288,7 +288,7 @@ namespace ApiObjects.SearchObjects
         public bool shouldUseSearchEndDate;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         [JsonProperty()]
         [DataMember]
@@ -386,7 +386,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public UserInterestsMetasAndTags userPreferences;        
+        public UserInterestsMetasAndTags userPreferences;
 
         [JsonProperty()]
         [DataMember]
@@ -399,7 +399,7 @@ namespace ApiObjects.SearchObjects
         public IReadOnlyDictionary<double, IEsPriorityGroup> PriorityGroupsMappings { get; set; }
 
         /// <summary>
-        /// The country Id of the calling user for geo availability 
+        /// The country Id of the calling user for geo availability
         /// </summary>
         [JsonProperty()]
         [DataMember]
@@ -455,7 +455,7 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public bool hasMediaIdTerm;
-        
+
         [JsonProperty()]
         [DataMember]
         public bool hasOrNode;
@@ -466,6 +466,10 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public HashSet<string> numericEpgMetas;
+
+        [JsonProperty]
+        [DataMember]
+        public bool IgnoreSearchRegions { get; set; }
 
         #endregion
 
