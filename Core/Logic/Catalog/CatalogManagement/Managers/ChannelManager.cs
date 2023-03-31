@@ -16,6 +16,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using ApiLogic.Api.Managers.Rule;
 using ApiLogic.Catalog;
 using GroupsCacheManager.Mappers;
 using Tvinci.Core.DAL;
@@ -27,7 +28,7 @@ namespace Core.Catalog.CatalogManagement
     public interface IChannelManager
     {
         GenericResponse<Channel> GetChannelById(ContextData contextData, int channelId, bool isAllowedToViewInactiveAssets);
-        GenericListResponse<Channel> GetChannelsListResponseByChannelIds(ContextData contextData, 
+        GenericListResponse<Channel> GetChannelsListResponseByChannelIds(ContextData contextData,
             List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems, bool shouldFilterByShop, List<long> assetUserRuleIds = null);
         List<Channel> GetGroupChannels(int groupId);
     }
@@ -417,7 +418,24 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
         }
 
-        public GenericListResponse<Channel> GetChannelsListResponseByChannelIds(ContextData contextData, List<int> channelIds, bool isAllowedToViewInactiveAssets, 
+        private static string BuildFilterQuery(ICollection<long> mediaIds, ICollection<long> epgIds)
+        {
+            return new TVinciShared.KsqlBuilder()
+                .Or(x =>
+                {
+                    if (mediaIds.Any())
+                    {
+                        x.And(y => y.MediaType().AnyMediaIds(mediaIds));
+                    }
+
+                    if (epgIds.Any())
+                    {
+                        x.And(y => y.EpgType().AnyEpgIds(mediaIds));
+                    }
+                }).Build();
+        }
+
+        public GenericListResponse<Channel> GetChannelsListResponseByChannelIds(ContextData contextData, List<int> channelIds, bool isAllowedToViewInactiveAssets,
             int? totalItems, bool shouldFilterByShop, List<long> assetUserRuleIds = null)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
@@ -431,7 +449,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                // if it's an operator that also filters according to asset user rule ids 
+                // if it's an operator that also filters according to asset user rule ids
                 if (assetUserRuleIds != null && assetUserRuleIds.Any())
                 {
                     unorderedChannels = unorderedChannels.Where(x => x.AssetUserRuleId.HasValue && assetUserRuleIds.Contains(x.AssetUserRuleId.Value)).ToList();
@@ -457,7 +475,7 @@ namespace Core.Catalog.CatalogManagement
                             x.AssetUserRuleId.HasValue && x.AssetUserRuleId.Value == assetUserRuleId.Value).ToList();
                     }
                 }
-                
+
                 foreach (var channel in unorderedChannels)
                 {
                     result.Objects.Add(channel);
@@ -1552,21 +1570,19 @@ namespace Core.Catalog.CatalogManagement
                 .Where(x => x.AssetType == eAssetTypes.EPG)
                 .Select(x => x.AssetId)
                 .ToArray();
-
-            var ksqlFilter = new StringBuilder("(or ");
-            if (mediaIds.Any())
+            var searchRequest = new UnifiedSearchRequestBuilder(FilterAsset.Instance)
+                .WithFilterQuery(BuildFilterQuery(mediaIds, epgIds))
+                .Build(groupId, searchContext);
+            if (searchRequest == null)
             {
-                ksqlFilter.AppendFormat($"(and asset_type='media' media_id:'{string.Join(",", mediaIds)}')");
+                return Status.Error;
             }
 
-            if (epgIds.Any())
+            var searchResponse = SearchProvider.Instance.SearchAssets(searchRequest);
+            if (!searchResponse.status.IsOkStatusCode())
             {
-                ksqlFilter.AppendFormat($"(and asset_type='epg' epg_id:'{string.Join(",", epgIds)}')");
+                return searchResponse.status;
             }
-
-            ksqlFilter.Append(")");
-
-            var searchResponse = SearchProvider.Instance.SearchAssets(groupId, searchContext, ksqlFilter.ToString());
 
             var missingMediaIds = mediaIds
                 .Concat(epgIds)
@@ -1596,7 +1612,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 userId = assetSearchDefinition.UserId;
             }
-            
+
             long assetUserRuleId = AssetUserRuleManager.GetAssetUserRuleIdWithApplyOnChannelFilterAction(contextData.GroupId, userId);
             if (assetUserRuleId > 0)
             {

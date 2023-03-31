@@ -1,6 +1,10 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using ApiLogic.Catalog.CatalogManagement.Services;
+using ApiObjects.Lineup;
 using ApiObjects.Response;
+using AutoMapper;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -8,6 +12,8 @@ using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.Catalog.Lineup;
+using WebAPI.Models.General;
 using WebAPI.Validation;
 
 namespace WebAPI.Controllers
@@ -71,6 +77,51 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Returns list of lineup regional linear channels associated with one LCN and its region information. Allows to apply sorting and filtering by LCN and linear channels.
+        /// </summary>
+        /// <param name="filter">Request filter</param>
+        /// <param name="pager">Paging the request</param>
+        /// <returns>Regional lineup.</returns>
+        [Action("list")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.RegionNotFound)]
+        public static KalturaLineupChannelAssetListResponse List(KalturaLineupRegionalChannelFilter filter, KalturaFilterPager pager = null)
+        {
+            var contextData = KS.GetContextData();
+            _lineupRequestValidator.ValidateRequestFilter(filter);
+            var searchContext = Utils.Utils.GetUserSearchContext();
+            pager = pager ?? new KalturaFilterPager();
+            var lineupRequest = new LineupRegionalChannelRequest
+            {
+                RegionId = filter.RegionIdEqual,
+                Ksql = filter.KSql,
+                LcnLessThanOrEqual = filter.LcnLessThanOrEqual,
+                LcnGreaterThanOrEqual = filter.LcnGreaterThanOrEqual,
+                ParentRegionIncluded = filter.ParentRegionIncluded ?? default,
+                PartnerId = contextData.GroupId,
+                PageIndex = pager.PageIndex.Value,
+                PageSize = pager.PageSize.Value,
+                OrderBy = Map(filter.OrderBy)
+            };
+
+            var response = LineupService.Instance.GetLineupChannelAssetsWithFilter(searchContext, lineupRequest);
+            var result = new KalturaLineupChannelAssetListResponse
+            {
+                Objects = Mapper.Map<List<KalturaLineupChannelAsset>>(response.Objects),
+                TotalCount = response.TotalItems
+            };
+
+            if (response.Objects.Count > 0)
+            {
+                _mediaFileFilter.FilterAssetFiles(result.Objects, contextData.GroupId, searchContext.SessionCharacteristicKey);
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Sends lineup update requested notification.
         /// </summary>
         /// <param name="regionIds">Region IDs separated by commas.</param>
@@ -96,6 +147,23 @@ namespace WebAPI.Controllers
             var ks = KS.GetFromRequest();
 
             return ClientsManager.CatalogClient().SendUpdatedNotification(ks.GroupId, ks.UserId, regionIdsList);
+        }
+
+        private static LineupRegionalChannelOrderBy Map(KalturaLineupRegionalChannelOrderBy orderBy)
+        {
+            switch (orderBy)
+            {
+                case KalturaLineupRegionalChannelOrderBy.LCN_ASC:
+                    return LineupRegionalChannelOrderBy.LCN_ASC;
+                case KalturaLineupRegionalChannelOrderBy.LCN_DESC:
+                    return LineupRegionalChannelOrderBy.LCN_DESC;
+                case KalturaLineupRegionalChannelOrderBy.NAME_ASC:
+                    return LineupRegionalChannelOrderBy.NAME_ASC;
+                case KalturaLineupRegionalChannelOrderBy.NAME_DESC:
+                    return LineupRegionalChannelOrderBy.NAME_DESC;
+                default:
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, nameof(orderBy));
+            }
         }
     }
 }
