@@ -102,7 +102,7 @@ namespace Core.Catalog.CatalogManagement
                             ingestResponse.AssetsStatus[i].InternalAssetId = (int)mediaAsset.Id;
                             ingestResponse.AssetsStatus[i].ExternalAssetId = mediaAsset.CoGuid;
 
-                            if (mediaAsset.Tags.Count == 0)
+                            if (currTags.Count == 0)
                             {
                                 assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
                             }
@@ -116,7 +116,7 @@ namespace Core.Catalog.CatalogManagement
                                 }
                             }
 
-                            // update notification 
+                            // update notification
                             if (mediaAsset.IsActive.Value)
                             {
                                 Notification.Module.AddFollowNotificationRequestForOpc(groupId, mediaAsset, USER_ID, cache);
@@ -473,7 +473,7 @@ namespace Core.Catalog.CatalogManagement
                 //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
                 //not sure it's required but better be safe
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, asset.Key));
-                
+
                 // if asset is exists
                 if (asset.Value)
                 {

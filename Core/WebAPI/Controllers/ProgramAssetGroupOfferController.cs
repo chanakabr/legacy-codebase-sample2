@@ -114,6 +114,10 @@ namespace WebAPI.Controllers
             {
                 filter = new KalturaProgramAssetGroupOfferFilter();
             }
+            else
+            {
+                filter.Validate();
+            }
 
             if (pager == null)
             {

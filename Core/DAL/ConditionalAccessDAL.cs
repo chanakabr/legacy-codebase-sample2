@@ -2056,6 +2056,32 @@ namespace DAL
             return fileIds;
         }
 
+        public static List<int> GetFileIdsByEpgChannelIdSpecific(long groupId, string epgChannelId)
+        {
+            var fileIds = new List<int>();
+
+            var spGet_MediaFileByEpgChannelID = new ODBCWrapper.StoredProcedure("Get_FilesByEpgChannelId_Specific");
+            spGet_MediaFileByEpgChannelID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGet_MediaFileByEpgChannelID.AddParameter("@GroupId", groupId);
+            spGet_MediaFileByEpgChannelID.AddParameter("@EpgChannelId", epgChannelId);
+
+            DataSet ds = spGet_MediaFileByEpgChannelID.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        fileIds.Add(Utils.GetIntSafeVal(dt.Rows[i]["ID"]));
+                    }
+                }
+            }
+
+            return fileIds;
+        }
+
         public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData,
             string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
             bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate,

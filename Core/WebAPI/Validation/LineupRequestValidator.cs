@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ApiLogic.Api.Managers;
+using ApiObjects;
+using WebAPI.Exceptions;
+using WebAPI.Models.Catalog.Lineup;
 
 namespace WebAPI.Validation
 {
@@ -22,5 +26,13 @@ namespace WebAPI.Validation
         public bool ValidatePageIndex(int pageIndex) => pageIndex >= MIN_PAGE_INDEX;
 
         public bool ValidatePageSize(int pageSize) => AllowedPageSizes.Contains(pageSize);
+
+        public void ValidateRequestFilter(KalturaLineupRegionalChannelFilter filter)
+        {
+            if (filter.LcnGreaterThanOrEqual > filter.LcnLessThanOrEqual)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, nameof(filter.LcnLessThanOrEqual), nameof(filter.LcnGreaterThanOrEqual));
+            }
+        }
     }
 }

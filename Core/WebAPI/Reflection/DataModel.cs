@@ -61,6 +61,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.Catalog.Lineup;
 using WebAPI.Models.Catalog.GroupRepresentatives;
 using WebAPI.Models.LiveToVod;
 using WebAPI.Models.Api;
@@ -5005,6 +5006,22 @@ namespace WebAPI.Reflection
                     {
                         case "Enabled":
                             return "enabled";
+                    }
+                    break;
+                    
+                case "KalturaLineupRegionalChannelFilter":
+                    switch(property.Name)
+                    {
+                        case "KSql":
+                            return "kSql";
+                        case "LcnGreaterThanOrEqual":
+                            return "lcnGreaterThanOrEqual";
+                        case "LcnLessThanOrEqual":
+                            return "lcnLessThanOrEqual";
+                        case "ParentRegionIncluded":
+                            return "parentRegionIncluded";
+                        case "RegionIdEqual":
+                            return "regionIdEqual";
                     }
                     break;
                     
@@ -11556,6 +11573,10 @@ namespace WebAPI.Reflection
                         case "get":
                             RolesManager.ValidateActionPermitted("lineup", "get", WebAPI.Managers.eKSValidation.All);
                             return LineupController.Get((Nullable<int>) methodParams[0], (Nullable<int>) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("lineup", "list", WebAPI.Managers.eKSValidation.All);
+                            return LineupController.List((KalturaLineupRegionalChannelFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "sendupdatednotification":
                             RolesManager.ValidateActionPermitted("lineup", "sendUpdatedNotification", WebAPI.Managers.eKSValidation.All);
@@ -19497,6 +19518,21 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsNullable = true,
                                 Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLineupRegionalChannelFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
