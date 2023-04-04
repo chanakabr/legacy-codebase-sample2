@@ -28,18 +28,20 @@ namespace phoenix {
             "dGF0dXMucHJvdG8aD2Fzc2V0UnVsZS5wcm90bxoVZUJ1c2luZXNzTW9kdWxl",
             "LnByb3RvGiJDb25jdXJyZW5jeVJlc3RyaWN0aW9uUG9saWN5LnByb3RvGhpN",
             "ZWRpYUNvbmN1cnJlbmN5UnVsZS5wcm90bxoUUnVsZUFjdGlvblR5cGUucHJv",
-            "dG8aE3J1bGVDb25kaXRpb24ucHJvdG8iVAoUSGFzQXNzZXRSdWxlc1JlcXVl",
-            "c3QSDwoHZ3JvdXBJZBgBIAEoBRIrCgphY3Rpb25UeXBlGAMgASgOMhcucGhv",
-            "ZW5peC5SdWxlQWN0aW9uVHlwZSJeChhDaGVja05ldHdvcmtSdWxlc1JlcXVl",
-            "c3QSJQoJU2xpbUFzc2V0GAEgAygLMhIucGhvZW5peC5TbGltQXNzZXQSDwoH",
-            "Z3JvdXBJZBgCIAEoBRIKCgJpcBgDIAEoCSJjChlDaGVja05ldHdvcmtSdWxl",
-            "c1Jlc3BvbnNlEh8KBnN0YXR1cxgBIAEoCzIPLnBob2VuaXguU3RhdHVzEiUK",
-            "CUFzc2V0UnVsZRgCIAEoCzISLnBob2VuaXguQXNzZXRSdWxlIrsBChRHZXRB",
-            "c3NldFJ1bGVzUmVxdWVzdBI6ChZhc3NldFJ1bGVDb25kaXRpb25UeXBlGAEg",
-            "ASgOMhoucGhvZW5peC5SdWxlQ29uZGl0aW9uVHlwZRIPCgdncm91cElkGAIg",
-            "ASgFEiUKCXNsaW1Bc3NldBgDIAEoCzISLnBob2VuaXguU2xpbUFzc2V0Ei8K",
-            "DnJ1bGVBY3Rpb25UeXBlGAQgASgOMhcucGhvZW5peC5SdWxlQWN0aW9uVHlw",
-            "ZSJ0ChVHZXRBc3NldFJ1bGVzUmVzcG9uc2USJgoKQXNzZXRSdWxlcxgBIAMo",
+            "dG8aFkFzc2V0UnVsZU9yZGVyQnkucHJvdG8aE3J1bGVDb25kaXRpb24ucHJv",
+            "dG8iVAoUSGFzQXNzZXRSdWxlc1JlcXVlc3QSDwoHZ3JvdXBJZBgBIAEoBRIr",
+            "CgphY3Rpb25UeXBlGAMgASgOMhcucGhvZW5peC5SdWxlQWN0aW9uVHlwZSJe",
+            "ChhDaGVja05ldHdvcmtSdWxlc1JlcXVlc3QSJQoJU2xpbUFzc2V0GAEgAygL",
+            "MhIucGhvZW5peC5TbGltQXNzZXQSDwoHZ3JvdXBJZBgCIAEoBRIKCgJpcBgD",
+            "IAEoCSJjChlDaGVja05ldHdvcmtSdWxlc1Jlc3BvbnNlEh8KBnN0YXR1cxgB",
+            "IAEoCzIPLnBob2VuaXguU3RhdHVzEiUKCUFzc2V0UnVsZRgCIAEoCzISLnBo",
+            "b2VuaXguQXNzZXRSdWxlIv0BChRHZXRBc3NldFJ1bGVzUmVxdWVzdBI6ChZh",
+            "c3NldFJ1bGVDb25kaXRpb25UeXBlGAEgASgOMhoucGhvZW5peC5SdWxlQ29u",
+            "ZGl0aW9uVHlwZRIPCgdncm91cElkGAIgASgFEiUKCXNsaW1Bc3NldBgDIAEo",
+            "CzISLnBob2VuaXguU2xpbUFzc2V0Ei8KDnJ1bGVBY3Rpb25UeXBlGAQgASgO",
+            "MhcucGhvZW5peC5SdWxlQWN0aW9uVHlwZRIUCgxuYW1lQ29udGFpbnMYBSAB",
+            "KAkSKgoHb3JkZXJCeRgGIAEoDjIZLnBob2VuaXguQXNzZXRSdWxlT3JkZXJC",
+            "eSJ0ChVHZXRBc3NldFJ1bGVzUmVzcG9uc2USJgoKQXNzZXRSdWxlcxgBIAMo",
             "CzISLnBob2VuaXguQXNzZXRSdWxlEh8KBnN0YXR1cxgCIAEoCzIPLnBob2Vu",
             "aXguU3RhdHVzEhIKCnRvdGFsQ291bnQYAyABKAUiNwokR2V0R3JvdXBNZWRp",
             "YUNvbmN1cnJlbmN5UnVsZXNSZXF1ZXN0Eg8KB2dyb3VwSWQYASABKAUiZQol",
@@ -59,12 +61,12 @@ namespace phoenix {
             "eVJ1bGVzGAEgAygLMh0ucGhvZW5peC5NZWRpYUNvbmN1cnJlbmN5UnVsZUIU",
             "WgguL21vZGVsc6oCB3Bob2VuaXhiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::phoenix.AssetReflection.Descriptor, global::phoenix.StatusReflection.Descriptor, global::phoenix.AssetRuleReflection.Descriptor, global::phoenix.EBusinessModuleReflection.Descriptor, global::phoenix.ConcurrencyRestrictionPolicyReflection.Descriptor, global::phoenix.MediaConcurrencyRuleReflection.Descriptor, global::phoenix.RuleActionTypeReflection.Descriptor, global::phoenix.RuleConditionReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::phoenix.AssetReflection.Descriptor, global::phoenix.StatusReflection.Descriptor, global::phoenix.AssetRuleReflection.Descriptor, global::phoenix.EBusinessModuleReflection.Descriptor, global::phoenix.ConcurrencyRestrictionPolicyReflection.Descriptor, global::phoenix.MediaConcurrencyRuleReflection.Descriptor, global::phoenix.RuleActionTypeReflection.Descriptor, global::phoenix.AssetRuleOrderByReflection.Descriptor, global::phoenix.RuleConditionReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.HasAssetRulesRequest), global::phoenix.HasAssetRulesRequest.Parser, new[]{ "GroupId", "ActionType" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.CheckNetworkRulesRequest), global::phoenix.CheckNetworkRulesRequest.Parser, new[]{ "SlimAsset", "GroupId", "Ip" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.CheckNetworkRulesResponse), global::phoenix.CheckNetworkRulesResponse.Parser, new[]{ "Status", "AssetRule" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetAssetRulesRequest), global::phoenix.GetAssetRulesRequest.Parser, new[]{ "AssetRuleConditionType", "GroupId", "SlimAsset", "RuleActionType" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetAssetRulesRequest), global::phoenix.GetAssetRulesRequest.Parser, new[]{ "AssetRuleConditionType", "GroupId", "SlimAsset", "RuleActionType", "NameContains", "OrderBy" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetAssetRulesResponse), global::phoenix.GetAssetRulesResponse.Parser, new[]{ "AssetRules", "Status", "TotalCount" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetGroupMediaConcurrencyRulesRequest), global::phoenix.GetGroupMediaConcurrencyRulesRequest.Parser, new[]{ "GroupId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetGroupMediaConcurrencyRulesResponse), global::phoenix.GetGroupMediaConcurrencyRulesResponse.Parser, new[]{ "MediaConcurrencyRules" }, null, null, null, null),
@@ -780,6 +782,8 @@ namespace phoenix {
       groupId_ = other.groupId_;
       slimAsset_ = other.slimAsset_ != null ? other.slimAsset_.Clone() : null;
       ruleActionType_ = other.ruleActionType_;
+      nameContains_ = other.nameContains_;
+      orderBy_ = other.orderBy_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -832,6 +836,28 @@ namespace phoenix {
       }
     }
 
+    /// <summary>Field number for the "nameContains" field.</summary>
+    public const int NameContainsFieldNumber = 5;
+    private string nameContains_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string NameContains {
+      get { return nameContains_; }
+      set {
+        nameContains_ = value == null ? "" : value;
+      }
+    }
+
+    /// <summary>Field number for the "orderBy" field.</summary>
+    public const int OrderByFieldNumber = 6;
+    private global::phoenix.AssetRuleOrderBy orderBy_ = global::phoenix.AssetRuleOrderBy.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::phoenix.AssetRuleOrderBy OrderBy {
+      get { return orderBy_; }
+      set {
+        orderBy_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as GetAssetRulesRequest);
@@ -849,6 +875,8 @@ namespace phoenix {
       if (GroupId != other.GroupId) return false;
       if (!object.Equals(SlimAsset, other.SlimAsset)) return false;
       if (RuleActionType != other.RuleActionType) return false;
+      if (NameContains != other.NameContains) return false;
+      if (OrderBy != other.OrderBy) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -859,6 +887,8 @@ namespace phoenix {
       if (GroupId != 0) hash ^= GroupId.GetHashCode();
       if (slimAsset_ != null) hash ^= SlimAsset.GetHashCode();
       if (RuleActionType != global::phoenix.RuleActionType.Block) hash ^= RuleActionType.GetHashCode();
+      if (NameContains.Length != 0) hash ^= NameContains.GetHashCode();
+      if (OrderBy != global::phoenix.AssetRuleOrderBy.None) hash ^= OrderBy.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -891,6 +921,14 @@ namespace phoenix {
         output.WriteRawTag(32);
         output.WriteEnum((int) RuleActionType);
       }
+      if (NameContains.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(NameContains);
+      }
+      if (OrderBy != global::phoenix.AssetRuleOrderBy.None) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) OrderBy);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -916,6 +954,14 @@ namespace phoenix {
         output.WriteRawTag(32);
         output.WriteEnum((int) RuleActionType);
       }
+      if (NameContains.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(NameContains);
+      }
+      if (OrderBy != global::phoenix.AssetRuleOrderBy.None) {
+        output.WriteRawTag(48);
+        output.WriteEnum((int) OrderBy);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -936,6 +982,12 @@ namespace phoenix {
       }
       if (RuleActionType != global::phoenix.RuleActionType.Block) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) RuleActionType);
+      }
+      if (NameContains.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(NameContains);
+      }
+      if (OrderBy != global::phoenix.AssetRuleOrderBy.None) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) OrderBy);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -962,6 +1014,12 @@ namespace phoenix {
       }
       if (other.RuleActionType != global::phoenix.RuleActionType.Block) {
         RuleActionType = other.RuleActionType;
+      }
+      if (other.NameContains.Length != 0) {
+        NameContains = other.NameContains;
+      }
+      if (other.OrderBy != global::phoenix.AssetRuleOrderBy.None) {
+        OrderBy = other.OrderBy;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -996,6 +1054,14 @@ namespace phoenix {
             RuleActionType = (global::phoenix.RuleActionType) input.ReadEnum();
             break;
           }
+          case 42: {
+            NameContains = input.ReadString();
+            break;
+          }
+          case 48: {
+            OrderBy = (global::phoenix.AssetRuleOrderBy) input.ReadEnum();
+            break;
+          }
         }
       }
     #endif
@@ -1027,6 +1093,14 @@ namespace phoenix {
           }
           case 32: {
             RuleActionType = (global::phoenix.RuleActionType) input.ReadEnum();
+            break;
+          }
+          case 42: {
+            NameContains = input.ReadString();
+            break;
+          }
+          case 48: {
+            OrderBy = (global::phoenix.AssetRuleOrderBy) input.ReadEnum();
             break;
           }
         }

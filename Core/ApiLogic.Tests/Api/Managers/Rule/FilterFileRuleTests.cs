@@ -6,13 +6,29 @@ using ApiObjects.Rules;
 using ApiObjects.Rules.FilterActions;
 using Core.Catalog;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 
 namespace ApiLogic.Tests.Api.Managers.Rule
 {
+    [TestFixture]
     public class FilterFileRuleTests
     {
-        private readonly IFilterFileRule _filterFileRule = new FilterFileRule();
+        private MockRepository _mockRepository;
+        private IFilterFileRule _filterFileRule;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _mockRepository = new MockRepository(MockBehavior.Strict);
+            _filterFileRule = new FilterFileRule();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _mockRepository.VerifyAll();
+        }
         
         [TestCase(new object[]{ "MP1", "aac" }, true)]
         [TestCase(new object[]{ "MP1", "MP2" }, false)]
@@ -170,7 +186,7 @@ namespace ApiLogic.Tests.Api.Managers.Rule
             {
                 Qualities = new List<MediaFileTypeQuality> { MediaFileTypeQuality.Adaptive, MediaFileTypeQuality.HD_720 }
             };
-            var rules = new AssetRuleAction[] { streamerTypeRule, qualityRule };
+            var rules = new AssetRuleFilterAction[] { streamerTypeRule, qualityRule };
             
             var fileType = DefaultFileType;
             fileType.StreamerType = streamerType;

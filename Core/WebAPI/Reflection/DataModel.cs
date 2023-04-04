@@ -48,6 +48,7 @@ using WebAPI.Models.AssetSelection;
 using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
+using WebAPI.Models.ConditionalAccess.FilterActions;
 using WebAPI.Models.Upload;
 using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.DMS;
@@ -56,7 +57,6 @@ using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
 using WebAPI.Models;
 using WebAPI.Models.Users.UserSessionProfile;
-using WebAPI.Models.ConditionalAccess.FilterActions;
 using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
@@ -754,6 +754,8 @@ namespace WebAPI.Reflection
                             return "assetRuleIdEqual";
                         case "ConditionsContainType":
                             return "conditionsContainType";
+                        case "NameContains":
+                            return "nameContains";
                     }
                     break;
                     
@@ -3726,6 +3728,14 @@ namespace WebAPI.Reflection
                     {
                         case "OrderBy":
                             return "orderBy";
+                    }
+                    break;
+                    
+                case "KalturaFilterAction":
+                    switch(property.Name)
+                    {
+                        case "PreActionCondition":
+                            return "preActionCondition";
                     }
                     break;
                     
@@ -8038,6 +8048,14 @@ namespace WebAPI.Reflection
                             return "userSegmentsIds";
                         case "UserSessionProfilesIds":
                             return "userSessionProfilesIds";
+                    }
+                    break;
+                    
+                case "KalturaShopPreActionCondition":
+                    switch(property.Name)
+                    {
+                        case "ShopAssetUserRuleId":
+                            return "shopAssetUserRuleId";
                     }
                     break;
                     

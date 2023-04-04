@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace CachingProvider.LayeredCache
 {
@@ -501,14 +502,32 @@ namespace CachingProvider.LayeredCache
             return string.Format("discountCodes_groupId_{0}", groupId);
         }
 
-        public static string GetAllAssetRulesKey(int groupId, int conditionType, int? actionType)
+        public static string GetAllAssetRulesKey(
+            int groupId,
+            int conditionType,
+            int? actionType,
+            string nameContains,
+            string orderBy)
         {
+            var sb = new StringBuilder()
+                .AppendFormat("all_asset_rules_groupId_{0}_conditionType_{1}", groupId, conditionType);
+
             if (actionType.HasValue)
             {
-                return string.Format("all_asset_rules_groupId_{0}_conditionType_{1}_actionType_{2}", groupId, conditionType, actionType.Value);
+                sb.AppendFormat("_actionType_{0}", actionType.Value);
             }
 
-            return string.Format("all_asset_rules_groupId_{0}_conditionType_{1}", groupId, conditionType);
+            if (!string.IsNullOrEmpty(nameContains))
+            {
+                sb.AppendFormat("_nameContains_{0}", nameContains);
+            }
+
+            if (!string.IsNullOrEmpty(orderBy))
+            {
+                sb.AppendFormat("_orderBy_{0}", orderBy);
+            }
+
+            return sb.ToString();
         }
 
         public static string GetAllAssetRulesFromDBKey()

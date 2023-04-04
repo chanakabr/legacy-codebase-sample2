@@ -15,6 +15,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Core.Api.Managers;
 using Tvinci.Core.DAL;
 
 namespace ApiLogic.Pricing.Handlers
@@ -36,7 +37,8 @@ namespace ApiLogic.Pricing.Handlers
                                                   CatalogDAL.Instance,
                                                   Core.Pricing.Module.Instance,
                                                   api.Instance,
-                                                  Core.Catalog.CatalogManagement.FileManager.Instance),
+                                                  Core.Catalog.CatalogManagement.FileManager.Instance,
+                                                  AssetUserRuleManager.Instance),
                             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly ICollectionRepository _repository;
@@ -47,6 +49,7 @@ namespace ApiLogic.Pricing.Handlers
         private readonly IPricingModule _pricingModule;
         private readonly IVirtualAssetManager _virtualAssetManager;
         private readonly IMediaFileTypeManager _fileManager;
+        private readonly IAssetUserRuleManager _assetUserRuleManager;
 
         public static CollectionManager Instance => lazy.Value;
 
@@ -57,7 +60,8 @@ namespace ApiLogic.Pricing.Handlers
                                  IChannelRepository channelRepository,
                                  IPricingModule pricingModule,
                                  IVirtualAssetManager virtualAssetManager,
-                                 IMediaFileTypeManager fileManager)
+                                 IMediaFileTypeManager fileManager,
+                                 IAssetUserRuleManager assetUserRuleManager)
         {
             _repository = repository;
             _groupSettingsManager = groupSettingsManager;
@@ -67,6 +71,7 @@ namespace ApiLogic.Pricing.Handlers
             _pricingModule = pricingModule;
             _virtualAssetManager = virtualAssetManager;
             _fileManager = fileManager;
+            _assetUserRuleManager = assetUserRuleManager;
         }
 
         public GenericResponse<CollectionInternal> Add(ContextData contextData, CollectionInternal collectionToInsert)
@@ -164,7 +169,7 @@ namespace ApiLogic.Pricing.Handlers
             bool isShopUser = false;
             if (collectionToInsert.AssetUserRuleId > 0)
             {
-                var assetRuleResponse = Core.Api.Managers.AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(contextData.GroupId, collectionToInsert.AssetUserRuleId.Value);
+                var assetRuleResponse =  _assetUserRuleManager.GetAssetUserRuleByRuleId(contextData.GroupId, collectionToInsert.AssetUserRuleId.Value);
                 if (!assetRuleResponse.IsOkStatusCode())
                 {
                     response.SetStatus(assetRuleResponse.Status);
@@ -172,7 +177,7 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+            var shopId = _assetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
             if (shopId > 0)
             {
                 isShopUser = true;
@@ -264,7 +269,7 @@ namespace ApiLogic.Pricing.Handlers
                 return result;
             }
 
-            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+            var shopId = _assetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
             if (shopId > 0)
             {
                 if (collection.AssetUserRuleId != shopId)
@@ -313,7 +318,7 @@ namespace ApiLogic.Pricing.Handlers
         }
 
         public GenericListResponse<Collection> GetCollectionsData(ContextData contextData, string[] collCodes, string country, int pageIndex = 0, int pageSize = 30,
-            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None, 
+            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null, bool inactiveAssets = false, CollectionOrderBy orderBy = CollectionOrderBy.None,
             HashSet<long> assetUserRuleIds = null, string nameContains = null)
         {
             GenericListResponse<Collection> response = new GenericListResponse<Collection>();
@@ -321,7 +326,7 @@ namespace ApiLogic.Pricing.Handlers
             int totalResults = 0;
             int groupId = contextData.GroupId;
             var shopUserId = contextData.GetCallerUserId();
-            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, shopUserId);
+            var shopId = _assetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, shopUserId);
             if (shopId > 0)
             {
                 if (assetUserRuleIds == null)
@@ -561,7 +566,7 @@ namespace ApiLogic.Pricing.Handlers
                 return response;
             }
 
-            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+            var shopId = _assetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
             if (shopId > 0)
             {
                 if (collection.AssetUserRuleId != shopId)
@@ -916,7 +921,7 @@ namespace ApiLogic.Pricing.Handlers
 
                 if (_groupSettingsManager.IsOpc(groupId) && contextData.UserId.HasValue && contextData.UserId.Value > 0)
                 {
-                    var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(groupId, contextData.UserId);
+                    var shopId = _assetUserRuleManager.GetShopAssetUserRuleId(groupId, contextData.UserId);
                     if (shopId > 0)
                     {
                         response = new GenericListResponse<long>();

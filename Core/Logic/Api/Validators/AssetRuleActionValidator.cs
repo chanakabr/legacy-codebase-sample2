@@ -1,15 +1,19 @@
-﻿using ApiObjects.Response;
-using ApiObjects.Rules;
-using Core.Catalog.CatalogManagement;
-using Core.Pricing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using ApiObjects.Rules.FilterActions;
-using Core.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
+using ApiObjects;
+using ApiObjects.Response;
+using ApiObjects.Rules;
+using ApiObjects.Rules.FilterActions;
+using ApiObjects.Rules.PreActionCondition;
 using ApiObjects.SearchObjects;
+using Core.Api.Managers;
+using Core.Catalog;
+using Core.Catalog.CatalogManagement;
+using Core.Pricing;
+using Module = Core.Pricing.Module;
 
 namespace ApiLogic.Api.Validators
 {
@@ -21,7 +25,12 @@ namespace ApiLogic.Api.Validators
     public class AssetRuleActionValidator : IAssetRuleActionValidator
     {
         private static readonly Lazy<AssetRuleActionValidator> LazyInstance = new Lazy<AssetRuleActionValidator>(() =>
-            new AssetRuleActionValidator(Core.Catalog.CatalogManagement.FileManager.Instance, CatalogManager.Instance, Core.Pricing.Module.Instance, LabelRepository.Instance),
+            new AssetRuleActionValidator(
+                Core.Catalog.CatalogManagement.FileManager.Instance,
+                CatalogManager.Instance,
+                Module.Instance,
+                LabelRepository.Instance,
+                AssetUserRuleManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static IAssetRuleActionValidator Instance => LazyInstance.Value;
@@ -30,13 +39,15 @@ namespace ApiLogic.Api.Validators
         private readonly ITagManager _tagManager;
         private readonly IPPVModuleManager _ppvModuleManager;
         private readonly ILabelRepository _labelRepository;
+        private readonly IAssetUserRuleManager _assetUserRuleManager;
 
-        public AssetRuleActionValidator(IMediaFileTypeManager mediaFileTypeManager, ITagManager tagManager, IPPVModuleManager ppvModuleManager, ILabelRepository labelRepository)
+        public AssetRuleActionValidator(IMediaFileTypeManager mediaFileTypeManager, ITagManager tagManager, IPPVModuleManager ppvModuleManager, ILabelRepository labelRepository, IAssetUserRuleManager assetUserRuleManager)
         {
             _mediaFileTypeManager = mediaFileTypeManager;
             _tagManager = tagManager;
             _ppvModuleManager = ppvModuleManager;
             _labelRepository = labelRepository;
+            _assetUserRuleManager = assetUserRuleManager;
         }
 
         public Status Validate(int groupId, IEnumerable<AssetRuleAction> actions)
@@ -45,7 +56,7 @@ namespace ApiLogic.Api.Validators
             var mediaFileTypes = mediaFileTypesResponse.GetOrThrow();
 
             var labelsResponse = _labelRepository.List(groupId);
-            var labels = labelsResponse.GetOrThrow().Where(x => x.EntityAttribute == ApiObjects.EntityAttribute.MediaFileLabels).Select(x => x.Value).ToHashSet();
+            var labels = labelsResponse.GetOrThrow().Where(x => x.EntityAttribute == EntityAttribute.MediaFileLabels).Select(x => x.Value).ToHashSet();
 
             foreach (var action in actions)
             {
@@ -64,6 +75,21 @@ namespace ApiLogic.Api.Validators
             {
                 case AssetLifeCycleBuisnessModuleTransitionAction c: return ValidateAssetLifeCycleBusinessModuleTransitionAction(groupId, c, mediaFileTypes);
                 case AssetLifeCycleTagTransitionAction c: return ValidateAssetLifeCycleTagTransitionAction(groupId, c);
+                case AssetRuleFilterAction c: return ValidateAction(groupId, c, mediaFileTypes, labels);
+                default: return Status.Ok;
+            }
+        }
+
+        private Status ValidateAction(int groupId, AssetRuleFilterAction action, List<MediaFileType> mediaFileTypes, HashSet<string> labels)
+        {
+            var status = ValidatePreActionCondition(groupId, action.PreActionCondition);
+            if (!status.IsOkStatusCode())
+            {
+                return status;
+            }
+
+            switch (action)
+            {
                 case FilterFileByVideoCodec c: return ValidateFilterFileByVideoCodec(c, mediaFileTypes);
                 case FilterFileByAudioCodec c: return ValidateFilterFileByAudioCodec(c, mediaFileTypes);
                 case FilterFileByFileType c: return ValidateFileTypeIds(c.FileTypeIds, mediaFileTypes);
@@ -71,6 +97,31 @@ namespace ApiLogic.Api.Validators
                 case FilterAssetByKsql c: return ValidateFilterAssetByKsql(c);
                 default: return Status.Ok;
             }
+        }
+
+        private Status ValidatePreActionCondition(int groupId, BasePreActionCondition preActionCondition)
+        {
+            if (preActionCondition == null)
+            {
+                return Status.Ok;
+            }
+
+            switch (preActionCondition)
+            {
+                case ShopPreActionCondition shopPreActionCondition:
+                    return ValidateShopPreActionCondition(groupId, shopPreActionCondition);
+                default:
+                    return Status.Ok;
+            }
+        }
+
+        private Status ValidateShopPreActionCondition(int groupId, ShopPreActionCondition condition)
+        {
+            var assetUserRuleResponse = _assetUserRuleManager.GetAssetUserRuleByRuleId(
+                groupId,
+                condition.ShopAssetUserRuleId);
+
+            return assetUserRuleResponse.Status;
         }
 
         private static Status AllExists<T>(IEnumerable<T> idsToCheck, HashSet<T> existingIds, eResponseStatus errorStatus)

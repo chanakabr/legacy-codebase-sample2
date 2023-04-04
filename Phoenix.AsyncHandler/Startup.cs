@@ -9,6 +9,7 @@ using ApiLogic.Pricing.Handlers;
 using ApiLogic.Repositories;
 using CachingProvider.LayeredCache;
 using Core.Api;
+using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
@@ -111,6 +112,7 @@ namespace Phoenix.AsyncHandler
                 .AddScoped<ITtlService, TtlService>()
                 .AddScoped<ILiveToVodAssetFileService, LiveToVodAssetFileService>()
                 .AddScoped<IMediaFileTypeManager, FileManager>()
+                .AddScoped<IAssetUserRuleManager, AssetUserRuleManager>()
                 .AddScoped<IPriceManager, PriceManager>()
                 .AddScoped<ILiveToVodPpvModuleParser, LiveToVodPpvModuleParser>()
                 .AddScoped<IPpvManager, PpvManager>()

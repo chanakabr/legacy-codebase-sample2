@@ -8,6 +8,11 @@ namespace WebAPI.Managers
     {
         void FilterAssetFiles(KalturaAsset asset, int groupId, string sessionCharacteristicKey);
         void FilterAssetFiles(IEnumerable<KalturaAsset> assets, int groupId, string sessionCharacteristicKey);
-        IEnumerable<KalturaPlaybackSource> GetFilteredAssetFiles(KalturaAssetType assetType, IEnumerable<KalturaPlaybackSource> mediaFiles, int groupId, string sessionCharacteristicKey);
+        IEnumerable<KalturaPlaybackSource> GetFilteredAssetFiles(
+            IEnumerable<KalturaPlaybackSource> mediaFiles,
+            int groupId,
+            long assetId,
+            KalturaAssetType assetType,
+            string sessionCharacteristicKey);
     }
 }

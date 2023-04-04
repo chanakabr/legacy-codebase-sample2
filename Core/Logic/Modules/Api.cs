@@ -1,4 +1,4 @@
-﻿using ApiLogic.Api.Managers;
+using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
@@ -1901,9 +1901,15 @@ namespace Core.Api
             return Core.Api.api.DeleteAssetRule(groupId, id);
         }
 
-        public static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId, SlimAsset slimAsset = null, ApiObjects.RuleActionType? ruleActionType = null)
+        public static GenericListResponse<AssetRule> GetAssetRules(
+            RuleConditionType assetRuleConditionType,
+            int groupId,
+            SlimAsset slimAsset = null,
+            RuleActionType? ruleActionType = null,
+            string nameContains = null,
+            AssetRuleOrderBy orderBy = AssetRuleOrderBy.None)
         {
-            return Core.Api.api.GetAssetRules(assetRuleConditionType, groupId, slimAsset, ruleActionType);
+            return api.GetAssetRules(assetRuleConditionType, groupId, slimAsset, ruleActionType, nameContains, orderBy);
         }
 
         public static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRuleRequest)

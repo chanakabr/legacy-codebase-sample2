@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using ApiObjects.Rules.PreActionCondition;
 
 namespace ApiObjects.Rules
 {
@@ -20,6 +21,14 @@ namespace ApiObjects.Rules
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class AssetRuleAction : RuleAction
     {
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public abstract class AssetRuleFilterAction : AssetRuleAction
+    {
+        [JsonProperty("PreActionCondition")]
+        public BasePreActionCondition PreActionCondition { get; set; }
     }
 
     [Serializable]

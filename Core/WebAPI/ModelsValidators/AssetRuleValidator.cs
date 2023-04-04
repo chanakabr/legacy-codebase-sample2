@@ -5,6 +5,7 @@ using WebAPI.Exceptions;
 using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using System.Linq;
+using WebAPI.Models.ConditionalAccess.FilterActions;
 
 namespace WebAPI.ModelsValidators
 {

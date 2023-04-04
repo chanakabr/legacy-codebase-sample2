@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using AssetRuleOrderBy = ApiObjects.AssetRuleOrderBy;
 using ConcurrencyRestrictionPolicy = phoenix.ConcurrencyRestrictionPolicy;
 using RuleActionType = ApiObjects.RuleActionType;
 using RuleConditionType = ApiObjects.RuleConditionType;
@@ -128,9 +129,13 @@ namespace GrpcAPI.Services
             {
                 var slimAsset = Mapper.Map<ApiObjects.Rules.SlimAsset>(request.SlimAsset);
                 var assetRuleCondition = request.RuleActionType == phoenix.RuleActionType.None ? (phoenix.RuleActionType?) null : request.RuleActionType;
-                var assetRules =
-                    Core.Api.Module.GetAssetRules((RuleConditionType) request.AssetRuleConditionType, request.GroupId,
-                        slimAsset, (RuleActionType?)assetRuleCondition);
+                var assetRules = Core.Api.Module.GetAssetRules(
+                        (RuleConditionType)request.AssetRuleConditionType,
+                        request.GroupId,
+                        slimAsset,
+                        (RuleActionType?)assetRuleCondition,
+                        request.NameContains,
+                        (AssetRuleOrderBy)request.OrderBy);
                 return new GetAssetRulesResponse()
                 {
                     Status = Mapper.Map<Status>(assetRules.Status),
