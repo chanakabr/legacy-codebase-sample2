@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
@@ -13,6 +14,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using ApiLogic.Api.Managers.Rule;
 using System.Threading;
@@ -30,6 +32,8 @@ namespace Core.Api.Managers
             RuleConditionType? ruleConditionType = null,
             bool returnConfigError = false);
         long GetShopAssetUserRuleId(int groupId, long? userId);
+        bool IsAssetPartOfShopRule(Topic shopMeta, AssetShopCondition condition, IEnumerable<Metas> metas, IEnumerable<Tags> tags);
+        GenericResponse<AssetUserRule> GetCachedAssetUserRuleByRuleId(int groupId, long ruleId);
     }
 
     public class AssetUserRuleManager : IAssetUserRuleManager
@@ -41,7 +45,7 @@ namespace Core.Api.Managers
 
         public static IAssetUserRuleManager Instance => lazy.Value;
 
-        private AssetUserRuleManager()
+        public AssetUserRuleManager()
         {
         }
 
@@ -60,7 +64,7 @@ namespace Core.Api.Managers
 
         public GenericListResponse<AssetUserRule> GetAssetUserRuleList(
             int groupId, 
-            long? userId, 
+            long? userId,
             bool shouldGetGroupRulesFirst = false, 
             RuleActionType? ruleActionType = null,
             RuleConditionType? ruleConditionType = null,
@@ -130,36 +134,16 @@ namespace Core.Api.Managers
                 {
                     response.SetStatus(eResponseStatus.OK, ASSET_USER_RULE_NOT_FOUND);
                     return response;
-                }                
-
-                Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
-                Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
-
-                foreach (long assetUserRuleId in assetUserRuleIds)
-                {
-                    string assetUserRuleKey = LayeredCacheKeys.GetAssetUserRuleKey(assetUserRuleId);
-                    keysToOriginalValueMap.Add(assetUserRuleKey, assetUserRuleId.ToString());
-                    invalidationKeysMap.Add(assetUserRuleKey, new List<string>() { LayeredCacheKeys.GetAssetUserRuleInvalidationKey(groupId, assetUserRuleId) });
                 }
 
-                Dictionary<string, AssetUserRule> fullAssetUserRules = null;
-
                 // try to get full AssetUserRules from cache            
-                if (LayeredCache.Instance.GetValues<AssetUserRule>(keysToOriginalValueMap,
-                                                                   ref fullAssetUserRules,
-                                                                   GetAssetUserRulesCB,
-                                                                   new Dictionary<string, object>() { { "ruleIds", keysToOriginalValueMap.Values.ToList() } },
-                                                                   groupId,
-                                                                   LayeredCacheConfigNames.GET_ASSET_USER_RULE,
-                                                                   invalidationKeysMap))
+                if (TryGetCachedAssetUserRulesByIds(groupId, assetUserRuleIds, out var fullAssetUserRules)
+                    && fullAssetUserRules?.Count > 0)
                 {
-                    if (fullAssetUserRules != null && fullAssetUserRules.Count > 0)
-                    {   
-                        response.Objects = fullAssetUserRules.Values
-                            .Where(x => (!ruleActionType.HasValue || x.Actions.Any(_ => _.Type == ruleActionType))
-                                        && (!ruleConditionType.HasValue || x.Conditions.Count(_ => _.Type == ruleConditionType) == 1))
-                            .ToList();
-                    }
+                    response.Objects = fullAssetUserRules
+                        .Where(x => (!ruleActionType.HasValue || x.Actions.Any(_ => _.Type == ruleActionType))
+                            && (!ruleConditionType.HasValue || x.Conditions.Count(_ => _.Type == ruleConditionType) == 1))
+                        .ToList();
                 }
 
                 response.Status.Code = (int)eResponseStatus.OK;              
@@ -180,6 +164,58 @@ namespace Core.Api.Managers
             }
 
             return response;
+        }
+
+        public GenericResponse<AssetUserRule> GetCachedAssetUserRuleByRuleId(int groupId, long ruleId)
+        {
+            if (TryGetCachedAssetUserRulesByIds(groupId, new[] { ruleId }, out var rules)
+                && rules?.Count == 1)
+            {
+                return new GenericResponse<AssetUserRule>(Status.Ok, rules.Single());
+            }
+
+            return new GenericResponse<AssetUserRule>(eResponseStatus.AssetUserRuleDoesNotExists, ASSET_USER_RULE_DOES_NOT_EXIST);
+        }
+
+        private static bool TryGetCachedAssetUserRulesByIds(
+            int groupId,
+            ICollection<long> assetUserRuleIds,
+            out IReadOnlyCollection<AssetUserRule> rules)
+        {
+            rules = null;
+            var keysToOriginalValueMap = new Dictionary<string, string>();
+            var invalidationKeysMap = new Dictionary<string, List<string>>();
+
+            foreach (var assetUserRuleId in assetUserRuleIds)
+            {
+                var assetUserRuleKey = LayeredCacheKeys.GetAssetUserRuleKey(assetUserRuleId);
+                keysToOriginalValueMap.Add(assetUserRuleKey, assetUserRuleId.ToString());
+                invalidationKeysMap.Add(
+                    assetUserRuleKey,
+                    new List<string> { LayeredCacheKeys.GetAssetUserRuleInvalidationKey(groupId, assetUserRuleId) });
+            }
+
+            Dictionary<string, AssetUserRule> fullAssetUserRules = null;
+
+            if (!LayeredCache.Instance.GetValues(keysToOriginalValueMap,
+                ref fullAssetUserRules,
+                GetAssetUserRulesCB,
+                new Dictionary<string, object>() { { "ruleIds", keysToOriginalValueMap.Values.ToList() } },
+                groupId,
+                LayeredCacheConfigNames.GET_ASSET_USER_RULE,
+                invalidationKeysMap))
+            {
+                log.ErrorFormat(
+                    "TryGetCachedAssetUserRulesByIds - Failed get data from cache groupId={0}, assetUserRuleIds={1}",
+                    groupId,
+                    string.Join(",", assetUserRuleIds));
+
+                return false;
+            }
+
+            rules = fullAssetUserRules.Values;
+
+            return true;
         }
 
         internal static GenericResponse<AssetUserRule> AddAssetUserRule(int groupId, AssetUserRule assetUserRuleToAdd)
@@ -580,7 +616,7 @@ namespace Core.Api.Managers
             if (assetUserRulesToUser != null && assetUserRulesToUser.HasObjects())
             {
                 // check if asset allowed to user
-                List<AssetUserRule> mediaAssetUserRulesToUser = AssetUserRuleManager.GetMediaAssetUserRulesToUser(groupId, userId, asset.Id, 
+                List<AssetUserRule> mediaAssetUserRulesToUser = GetMediaAssetUserRulesToUser(groupId, userId, asset.Id,
                     assetUserRulesToUser, asset);
                 if (mediaAssetUserRulesToUser != null && mediaAssetUserRulesToUser.Count == 0)
                 {
@@ -815,6 +851,10 @@ namespace Core.Api.Managers
 
                             if (groupId.HasValue && mediaId.HasValue && mediaAssetUserRules != null && mediaAssetUserRules.Count > 0)
                             {
+                                var shopMetaResponse = ShopMarkerService.Instance.GetShopMarkerTopic(groupId.Value);
+                                var shopMeta = shopMetaResponse.IsOkStatusCode()
+                                    ? shopMetaResponse.Object
+                                    : null;
                                 // find all asset ids that match the tag + tag value ==> if so save the rule id
                                 //build search for each tag and tag values
                                 Parallel.ForEach(mediaAssetUserRules, (rule) =>
@@ -825,7 +865,8 @@ namespace Core.Api.Managers
 
                                         if (condition.Type == RuleConditionType.AssetShop && asset != null)
                                         {
-                                            if (IsAssetPartOfShopRule(groupId.Value, (AssetShopCondition)condition, asset))
+                                            if (shopMeta != null
+                                                && Instance.IsAssetPartOfShopRule(shopMeta, (AssetShopCondition)condition, asset.Metas, asset.Tags))
                                             {
                                                 ruleIds.Add(rule.Id);
                                             }
@@ -858,44 +899,36 @@ namespace Core.Api.Managers
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
 
-        private static bool IsAssetPartOfShopRule(int groupId, AssetShopCondition condition, MediaAsset asset)
+        public bool IsAssetPartOfShopRule(Topic shopMeta, AssetShopCondition condition, IEnumerable<Metas> metas, IEnumerable<Tags> tags)
         {
-            bool isAssetPartOfShopRule = false;
-
             try
             {
-                var shopMetaResponse = ShopMarkerService.Instance.GetShopMarkerTopic(groupId);
-                if (shopMetaResponse.IsOkStatusCode())
+                var values = condition.Values;
+
+                if (values.Count > 0)
                 {
-                    var values = condition.Values;
+                    List<string> assetValues = new List<string>();
 
-                    if (values.Count > 0)
+                    if (shopMeta.Type == MetaType.Tag)
                     {
-                        List<string> assetValues = new List<string>();
+                        var tagValues = tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == shopMeta.SystemName.ToLower());
 
-                        if (shopMetaResponse.Object.Type == MetaType.Tag)
+                        if (tagValues != null && tagValues.m_lValues?.Count > 0)
                         {
-                            var tagValues = asset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == shopMetaResponse.Object.SystemName.ToLower());
-
-                            if (tagValues != null && tagValues.m_lValues?.Count > 0)
-                            {
-                                assetValues.AddRange(tagValues.m_lValues);
-                            }
+                            assetValues.AddRange(tagValues.m_lValues);
                         }
-                        else
-                        {
-                            var assetMeta = asset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == shopMetaResponse.Object.SystemName.ToLower());
-
-                            if (assetMeta != null)
-                            {
-                                assetValues.Add(assetMeta.m_sValue);
-                            }
-                        }
-
-                        var intersect = assetValues.Intersect(values, StringComparer.OrdinalIgnoreCase).ToList();
-
-                        isAssetPartOfShopRule = intersect?.Count > 0;
                     }
+                    else
+                    {
+                        var assetMeta = metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == shopMeta.SystemName.ToLower());
+
+                        if (assetMeta != null)
+                        {
+                            assetValues.Add(assetMeta.m_sValue);
+                        }
+                    }
+
+                    return assetValues.Intersect(values, StringComparer.OrdinalIgnoreCase).Any();
                 }
             }
             catch (Exception ex)
@@ -903,7 +936,7 @@ namespace Core.Api.Managers
 
             }
 
-            return isAssetPartOfShopRule;
+            return false;
         }
 
         #endregion

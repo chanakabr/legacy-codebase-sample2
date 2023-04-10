@@ -14,7 +14,7 @@ namespace ApiLogic.Api.Managers.Rule
     {
         bool MatchRules(FilterFileRule.Target file, IEnumerable<AssetRuleAction> ruleActions);
     }
-    
+
     public class FilterFileRule : IFilterFileRule
     {
         private static readonly Lazy<FilterFileRule> Lazy =
@@ -50,7 +50,7 @@ namespace ApiLogic.Api.Managers.Rule
                 default: throw new NotImplementedException("unknown filter file action");
             }
         }
-        
+
         public class Target
         {
             private static readonly IReadOnlyCollection<string> EmptyLabels = new List<string>(0);

@@ -15,6 +15,13 @@ namespace TVinciShared
             return this;
         }
 
+        public KsqlBuilder NotEqual<T>(string field, T value)
+        {
+            Op(field, "!=", value);
+
+            return this;
+        }
+
         public KsqlBuilder In(string field, IEnumerable<long> values)
         {
             Op(field, ":", string.Join(",", values));

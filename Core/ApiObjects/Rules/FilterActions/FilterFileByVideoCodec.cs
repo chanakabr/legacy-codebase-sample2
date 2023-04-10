@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace ApiObjects.Rules.FilterActions
 {
-    public abstract class FilterFileByVideoCodec : AssetRuleAction
+    public abstract class FilterFileByVideoCodec : AssetRuleFilterAction
     {
         [JsonProperty("VideoCodecs")]
         public List<string> VideoCodecs { get; set; }

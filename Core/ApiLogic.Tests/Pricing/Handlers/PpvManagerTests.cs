@@ -4,19 +4,18 @@ using System.Collections.Generic;
 using ApiLogic.Pricing.Handlers;
 using ApiObjects;
 using ApiObjects.Base;
-using ApiObjects.Pricing;
 using ApiObjects.Pricing.Dto;
 using ApiObjects.Response;
 using AutoFixture;
 using CachingProvider.LayeredCache;
 using Core.Api;
+using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
 using DAL;
 using Moq;
 using NUnit.Framework;
-using Status = ApiObjects.Response.Status;
 
 namespace ApiLogic.Tests.Pricing.Handlers
 {
@@ -36,9 +35,16 @@ namespace ApiLogic.Tests.Pricing.Handlers
             layeredCacheMock.Setup(deleteTestCase.ppvToDelete, true, true);
             repositoryMock.Setup(x => x.DeletePPV(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<long>()))
                                    .Returns(deleteTestCase.DeletePpv);
-            PpvManager manager = new PpvManager(repositoryMock.Object, layeredCacheMock.Object, Mock.Of<IPriceDetailsManager>(), 
-                Mock.Of<IDiscountDetailsManager>(), Mock.Of<IUsageModuleManager>(), 
-                Mock.Of<IPricingModule>(), virtualAssetManagerMock.Object, Mock.Of<IMediaFileTypeManager>());
+            PpvManager manager = new PpvManager(
+                repositoryMock.Object,
+                layeredCacheMock.Object,
+                Mock.Of<IPriceDetailsManager>(),
+                Mock.Of<IDiscountDetailsManager>(),
+                Mock.Of<IUsageModuleManager>(),
+                Mock.Of<IPricingModule>(),
+                virtualAssetManagerMock.Object,
+                Mock.Of<IMediaFileTypeManager>(),
+                Mock.Of<IAssetUserRuleManager>());
             var response = manager.Delete(fixture.Create<ContextData>(), deleteTestCase.ExpectedId);
 
             Assert.That(response.Code, Is.EqualTo((int)deleteTestCase.ResponseStatus));
@@ -103,6 +109,7 @@ namespace ApiLogic.Tests.Pricing.Handlers
             var pricingModuleMock  = new Mock<IPricingModule>();
             var virtualAssetManagerMock = new Mock<IVirtualAssetManager>();
             var mediaFileTypeManagerMock = new Mock<IMediaFileTypeManager>();
+            var assetUserRuleManagerMock = new Mock<IAssetUserRuleManager>();
             
             mediaFileTypeManagerMock.Setup(x => x.GetMediaFileTypes(It.IsAny<int>()))
                 .Returns(insertTestCase.MediaFileTypeResponse);
@@ -112,10 +119,18 @@ namespace ApiLogic.Tests.Pricing.Handlers
             priceDetailsManagerMock.Setup(x => x.GetPriceDetailsById(It.IsAny<int>(), It.IsAny<long>())).Returns(insertTestCase.PriceCode);
             usageModuleManagerMock.Setup(x => x.GetUsageModuleById(It.IsAny<int>(), It.IsAny<long>())).Returns(insertTestCase.UsageModuleResponse);
             pricingModuleMock.Setup(x => x.GetCouponsGroup(It.IsAny<int>(), It.IsAny<long>())).Returns(insertTestCase.CouponsGroupResponse);
-            
+
             repositoryMock.Setup(x => x.InsertPPV(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<PpvDTO>())).Returns(insertTestCase.InsertId);
-            PpvManager manager = new PpvManager(repositoryMock.Object,  Mock.Of<ILayeredCache>(), priceDetailsManagerMock.Object,
-                discountDetailsManagerMock.Object, usageModuleManagerMock.Object, pricingModuleMock.Object, virtualAssetManagerMock.Object, mediaFileTypeManagerMock.Object);
+            PpvManager manager = new PpvManager(
+                repositoryMock.Object,
+                Mock.Of<ILayeredCache>(),
+                priceDetailsManagerMock.Object,
+                discountDetailsManagerMock.Object,
+                usageModuleManagerMock.Object,
+                pricingModuleMock.Object,
+                virtualAssetManagerMock.Object,
+                mediaFileTypeManagerMock.Object,
+                assetUserRuleManagerMock.Object);
             var response = manager.Add(fixture.Create<ContextData>(), insertTestCase.PpvToAdd);
 
             Assert.That(response.Status.Code, Is.EqualTo((int)insertTestCase.ResponseStatus));
@@ -218,7 +233,7 @@ namespace ApiLogic.Tests.Pricing.Handlers
         }
         
         [TestCaseSource(nameof(UpdateCases))]
-         public void CheckUpdate(UpdateTestCase updateTestCase)
+        public void CheckUpdate(UpdateTestCase updateTestCase)
         {
             Fixture fixture = new Fixture();
 
@@ -232,6 +247,7 @@ namespace ApiLogic.Tests.Pricing.Handlers
             var pricingModuleMock  = new Mock<IPricingModule>();
             var virtualAssetManagerMock = new Mock<IVirtualAssetManager>();
             var mediaFileTypeManagerMock = new Mock<IMediaFileTypeManager>();
+            var assetUserRuleManagerMock = new Mock<IAssetUserRuleManager>();
             
             mediaFileTypeManagerMock.Setup(x => x.GetMediaFileTypes(It.IsAny<int>()))
                 .Returns(updateTestCase.MediaFileTypeResponse);
@@ -245,8 +261,16 @@ namespace ApiLogic.Tests.Pricing.Handlers
             repositoryMock.Setup(x => x.UpdatePPV(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<int>(),It.IsAny<PpvDTO>())).Returns((int)updateTestCase.UpdatedRow);
             repositoryMock.Setup(x => x.UpdatePPVDescriptions(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<int>(),It.IsAny<LanguageContainer[]>())).Returns((int)updateTestCase.UpdatedRow);
             repositoryMock.Setup(x => x.UpdatePPVFileTypes(It.IsAny<int>(), It.IsAny<int>(),It.IsAny< List<int>>())).Returns((int)updateTestCase.UpdatedRow);
-            PpvManager manager = new PpvManager(repositoryMock.Object, layeredCacheMock.Object, priceDetailsManagerMock.Object,  discountDetailsManagerMock.Object, 
-                usageModuleManagerMock.Object, pricingModuleMock.Object, virtualAssetManagerMock.Object, mediaFileTypeManagerMock.Object);
+            PpvManager manager = new PpvManager(
+                repositoryMock.Object,
+                layeredCacheMock.Object,
+                priceDetailsManagerMock.Object,
+                discountDetailsManagerMock.Object,
+                usageModuleManagerMock.Object,
+                pricingModuleMock.Object,
+                virtualAssetManagerMock.Object,
+                mediaFileTypeManagerMock.Object,
+                assetUserRuleManagerMock.Object);
             var response = manager.Update(updateTestCase.Id, fixture.Create<ContextData>(), updateTestCase.PPvToInsert);
 
             Assert.That(response.Status.Code, Is.EqualTo((int)updateTestCase.ResponseStatus));

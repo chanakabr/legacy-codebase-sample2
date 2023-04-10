@@ -13,10 +13,12 @@ namespace ApiLogic.Api.Managers.Rule
     public interface IFilterRuleStorage
     {
         IReadOnlyCollection<FilterAssetByKsql> GetFilterAssetRules(FilterRuleCondition condition);
-        IReadOnlyCollection<AssetRuleAction> GetFilterFileRulesForPlayback(FilterRuleCondition condition);
-        IReadOnlyCollection<AssetRuleAction> GetFilterFileRulesForDiscovery(FilterRuleCondition condition);
+
+        IReadOnlyCollection<AssetRuleFilterAction> GetAssetFilterRulesForPlayback(FilterFileRuleCondition condition);
+
+        IReadOnlyCollection<AssetRuleFilterAction> GetAssetFilterRulesForDiscovery(FilterFileRuleCondition condition);
     }
-    
+
     public class FilterRuleCondition
     {
         public string SessionCharacteristicsId { get; }
@@ -28,34 +30,66 @@ namespace ApiLogic.Api.Managers.Rule
             GroupId = groupId;
         }
     }
-    
+
+    public class FilterFileRuleCondition : FilterRuleCondition
+    {
+        public Lazy<FilterMediaFileAsset> Asset { get; }
+
+        public PreActionConditionContext Context { get; }
+
+        public FilterFileRuleCondition(
+            int groupId,
+            string sessionCharacteristicsId,
+            Lazy<FilterMediaFileAsset> asset,
+            PreActionConditionContext context) : base(groupId, sessionCharacteristicsId)
+        {
+            Asset = asset;
+            Context = context;
+        }
+    }
+
     public class FilterRuleStorage : IFilterRuleStorage
     {
-        private static readonly IReadOnlyCollection<AssetRuleAction> Empty = new List<AssetRuleAction>(0);
+        private static readonly IReadOnlyCollection<AssetRuleFilterAction> Empty = new List<AssetRuleFilterAction>(0);
 
         private static readonly Lazy<FilterRuleStorage> Lazy = new Lazy<FilterRuleStorage>(
-            () => new FilterRuleStorage(AssetRuleManager.Instance,
+            () => new FilterRuleStorage(
+                AssetRuleManager.Instance,
+                PreActionConditionMatcher.Instance,
                 new Lazy<ISessionCharacteristicManager>(() => SessionCharacteristicManager.Instance)),
             LazyThreadSafetyMode.PublicationOnly);
+
         public static IFilterRuleStorage Instance => Lazy.Value;
 
         private readonly IAssetRuleManager _assetRuleManager;
+        private readonly IPreActionConditionMatcher _preActionConditionMatcher;
         private readonly Lazy<ISessionCharacteristicManager> _sessionCharacteristicManager;
 
-        public FilterRuleStorage(IAssetRuleManager assetRuleManager, Lazy<ISessionCharacteristicManager> sessionCharacteristicManager)
+        public FilterRuleStorage(
+            IAssetRuleManager assetRuleManager,
+            IPreActionConditionMatcher preActionConditionMatcher,
+            Lazy<ISessionCharacteristicManager> sessionCharacteristicManager)
         {
             _assetRuleManager = assetRuleManager;
+            _preActionConditionMatcher = preActionConditionMatcher;
             _sessionCharacteristicManager = sessionCharacteristicManager;
         }
-        
+
         public IReadOnlyCollection<FilterAssetByKsql> GetFilterAssetRules(FilterRuleCondition condition) =>
             GetRulesActions(condition).OfType<FilterAssetByKsql>().ToList();
-        public IReadOnlyCollection<AssetRuleAction> GetFilterFileRulesForPlayback(FilterRuleCondition condition) =>
-            GetRulesActions(condition).Where(r => r is IFilterFileInPlayback).ToList();
-        public IReadOnlyCollection<AssetRuleAction> GetFilterFileRulesForDiscovery(FilterRuleCondition condition) =>
-            GetRulesActions(condition).Where(r => r is IFilterFileInDiscovery).ToList();
-        
-        private IEnumerable<AssetRuleAction> GetRulesActions(FilterRuleCondition condition)
+        public IReadOnlyCollection<AssetRuleFilterAction> GetAssetFilterRulesForPlayback(FilterFileRuleCondition condition)
+            => GetRulesActions(condition)
+                .Where(r => r is IFilterFileInPlayback)
+                .Where(a => _preActionConditionMatcher.IsMatched(condition.Context, a, condition.Asset))
+                .ToList();
+
+        public IReadOnlyCollection<AssetRuleFilterAction> GetAssetFilterRulesForDiscovery(FilterFileRuleCondition condition)
+            => GetRulesActions(condition)
+                .Where(r => r is IFilterFileInDiscovery)
+                .Where(a => _preActionConditionMatcher.IsMatched(condition.Context, a, condition.Asset))
+                .ToList();
+
+        private IEnumerable<AssetRuleFilterAction> GetRulesActions(FilterRuleCondition condition)
         {
             var assetRules = _assetRuleManager
                 .GetAssetRules(RuleConditionType.UserSessionProfile, condition.GroupId)
@@ -73,7 +107,7 @@ namespace ApiLogic.Api.Managers.Rule
 
             return assetRules
                 .Where(ar => MatchConditions(ar, sessionCharacteristics.UserSessionProfileIds))
-                .SelectMany(ar => ar.Actions);
+                .SelectMany(ar => ar.Actions.OfType<AssetRuleFilterAction>());
         }
 
         private static bool MatchConditions(AssetRule assetRule, IReadOnlyCollection<long> userSessionProfileIds)
@@ -99,7 +133,9 @@ namespace ApiLogic.Api.Managers.Rule
                 {
                     case UserSessionProfileCondition c: return ConditionsEvaluator.Evaluate(this, c);
                     case OrCondition c: return ConditionsEvaluator.Evaluate(this, c);
-                    default: throw new NotImplementedException($"Evaluation for condition type {condition.Type} was not implemented in UserSessionProfileConditionScope");
+                    default:
+                        throw new NotImplementedException(
+                            $"Evaluation for condition type {condition.Type} was not implemented in UserSessionProfileConditionScope");
                 }
             }
         }

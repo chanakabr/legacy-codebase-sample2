@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace ApiObjects.Rules.FilterActions
 {
-    public abstract class FilterFileByLabel : AssetRuleAction
+    public abstract class FilterFileByLabel : AssetRuleFilterAction
     {
         [JsonProperty("Labels")]
         public List<string> Labels { get; set; }

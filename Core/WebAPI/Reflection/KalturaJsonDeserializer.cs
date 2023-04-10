@@ -39,6 +39,7 @@ using WebAPI.Models.AssetSelection;
 using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
+using WebAPI.Models.ConditionalAccess.FilterActions;
 using WebAPI.Models.Upload;
 using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.DMS;
@@ -47,7 +48,6 @@ using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
 using WebAPI.Models;
 using WebAPI.Models.Users.UserSessionProfile;
-using WebAPI.Models.ConditionalAccess.FilterActions;
 using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
@@ -372,6 +372,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBasePermissionFilter":
                     return new KalturaBasePermissionFilter(parameters, true);
+                    
+                case "KalturaBasePreActionCondition":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBasePromotion":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -1681,6 +1684,9 @@ namespace WebAPI.Reflection
                 case "KalturaNetworkActionStatus":
                     return new KalturaNetworkActionStatus(parameters, true);
                     
+                case "KalturaNoShopPreActionCondition":
+                    return new KalturaNoShopPreActionCondition(parameters, true);
+                    
                 case "KalturaNotCondition":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -2334,6 +2340,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSessionInfo":
                     return new KalturaSessionInfo(parameters, true);
+                    
+                case "KalturaShopPreActionCondition":
+                    return new KalturaShopPreActionCondition(parameters, true);
                     
                 case "KalturaSingleSegmentValue":
                     return new KalturaSingleSegmentValue(parameters, true);
@@ -9915,6 +9924,20 @@ namespace WebAPI.Models.API
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute NameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetRuleFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaAssetRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -9964,6 +9987,11 @@ namespace WebAPI.Models.API
                 {
                     AssetRuleIdEqualSchemaProperty.Validate("assetRuleIdEqual", parameters["assetRuleIdEqual"]);
                     AssetRuleIdEqual = (Int64) Convert.ChangeType(parameters["assetRuleIdEqual"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("nameContains") && parameters["nameContains"] != null)
+                {
+                    NameContainsSchemaProperty.Validate("nameContains", parameters["nameContains"]);
+                    NameContains = (String) Convert.ChangeType(parameters["nameContains"], typeof(String));
                 }
             }
         }
@@ -39882,6 +39910,99 @@ namespace WebAPI.Models.Partner
     }
 }
 
+namespace WebAPI.Models.ConditionalAccess.FilterActions
+{
+    public partial class KalturaBasePreActionCondition
+    {
+        public KalturaBasePreActionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+        }
+    }
+    public partial class KalturaFilterAction
+    {
+        private static RuntimeSchemePropertyAttribute PreActionConditionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("preActionCondition") && parameters["preActionCondition"] != null)
+                {
+                    PreActionConditionSchemaProperty.Validate("preActionCondition", parameters["preActionCondition"]);
+                    if (parameters["preActionCondition"] is JObject)
+                    {
+                        PreActionCondition = (KalturaBasePreActionCondition) Deserializer.deserialize(typeof(KalturaBasePreActionCondition), ((JObject) parameters["preActionCondition"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["preActionCondition"] is IDictionary)
+                    {
+                        PreActionCondition = (KalturaBasePreActionCondition) Deserializer.deserialize(typeof(KalturaBasePreActionCondition), (Dictionary<string, object>) parameters["preActionCondition"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaNoShopPreActionCondition
+    {
+        public KalturaNoShopPreActionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+        }
+    }
+    public partial class KalturaShopPreActionCondition
+    {
+        private static RuntimeSchemePropertyAttribute ShopAssetUserRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaShopPreActionCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaShopPreActionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "shopAssetUserRuleId");
+
+               if (!parameters.ContainsKey("shopAssetUserRuleId") || string.IsNullOrWhiteSpace(parameters["shopAssetUserRuleId"]?.ToString()))
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "shopAssetUserRuleId");
+
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("shopAssetUserRuleId") && parameters["shopAssetUserRuleId"] != null)
+                {
+                    ShopAssetUserRuleIdSchemaProperty.Validate("shopAssetUserRuleId", parameters["shopAssetUserRuleId"]);
+                    ShopAssetUserRuleId = (Int32) Convert.ChangeType(parameters["shopAssetUserRuleId"], typeof(Int32));
+                }
+            }
+        }
+    }
+}
+
 namespace WebAPI.Models.Upload
 {
     public partial class KalturaBulkUpload
@@ -43826,16 +43947,6 @@ namespace WebAPI.Models.Users.UserSessionProfile
                     }
                 }
             }
-        }
-    }
-}
-
-namespace WebAPI.Models.ConditionalAccess.FilterActions
-{
-    public partial class KalturaFilterAction
-    {
-        public KalturaFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
-        {
         }
     }
 }

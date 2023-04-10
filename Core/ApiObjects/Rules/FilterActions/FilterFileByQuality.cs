@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace ApiObjects.Rules.FilterActions
 {
-    public abstract class FilterFileByQuality : AssetRuleAction
+    public abstract class FilterFileByQuality : AssetRuleFilterAction
     {
         [JsonProperty("Qualities")]
         public List<MediaFileTypeQuality> Qualities { get; set; }
