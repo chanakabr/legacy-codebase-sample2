@@ -1651,7 +1651,10 @@ namespace Core.ConditionalAccess
                     renewDetails.RecurringData.IsCouponGiftCard = false;
                     renewDetails.RecurringData.IsCouponHasEndlessRecurring = false;
                 }
-
+                if (!ConditionalAccessDAL.AddRenewToSumOfRenews(subscriptionPurchase.purchaseId))
+                {
+                    log.ErrorFormat("Error to Insert RenewToSumOfRenews to db, purchaseId:{0}.", subscriptionPurchase.purchaseId);
+                }
                 renewDetails.RecurringData.TotalNumOfRenews++;
 
                 if (renewDetails.RecurringData.LeftCouponRecurring > 0)

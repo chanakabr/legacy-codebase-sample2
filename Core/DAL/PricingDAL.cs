@@ -297,7 +297,7 @@ namespace DAL
                 return false;
             }
         }
-
+        
         public static bool GetGroupHasSubWithAds(int groupId)
         {
             try

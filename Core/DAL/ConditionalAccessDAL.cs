@@ -89,6 +89,105 @@ namespace DAL
             return sCoGuid;
         }
 
+        public bool DeletePpvPurchasesThatOutOfRetentionPeriod(long groupId, DateTime endDate)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_PpvPurchasesThatOutOfRetentionPeriod");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@endDate", endDate);
+                var result = sp.ExecuteReturnValue<int>();
+                log.Debug($"groupId: {groupId} - {result} ppv purchases have been deleted oldest then {endDate}");
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while delete ppv purchases that out of retention period, groupId: {groupId}", ex);
+                return false;
+            }
+        }
+        
+        public bool DeleteSubscriptionsPurchasesThatOutOfRetentionPeriod(long groupId, DateTime endDate)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_SubscriptionsPurchasesThatOutOfRetentionPeriod");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@endDate", endDate);
+                var result = sp.ExecuteReturnValue<int>();
+                log.Debug($"groupId: {groupId} - {result} subscriptions purchases have been deleted oldest then {endDate}");
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while delete subscriptions purchases that out of retention period, groupId: {groupId}", ex);
+                return false;
+            }
+        }
+        
+        public bool DeleteSubscriptionsBillingTransactionsThatOutOfRetentionPeriod(long groupId, DateTime endDate)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_SubscriptionsBillingTransactionsThatOutOfRetentionPeriod");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@endDate", endDate);
+                var result = sp.ExecuteReturnValue<int>();
+                log.Debug($"groupId: {groupId} - {result} subscriptions purchases have been deleted oldest then {endDate}");
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while delete subscriptions billing transactions that out of retention period, groupId: {groupId}", ex);
+                return false;
+            }
+        }
+        public bool DeleteCollectionPurchasesThatOutOfRetentionPeriod(long groupId, DateTime endDate)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_CollectionPurchasesThatOutOfRetentionPeriod");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@endDate", endDate);
+                var result = sp.ExecuteReturnValue<int>();
+                log.Debug($"groupId: {groupId} - {result} Collection purchases have been deleted oldest then {endDate}");
+                return result  > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while delete collection purchases that out of retention period, groupId: {groupId}", ex);
+                return false;
+            }
+        }
+        
+        public bool DeletePagoPurchasesThatOutOfRetentionPeriod(long groupId, DateTime endDate)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_PagoPurchasesThatOutOfRetentionPeriod");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@endDate", endDate);
+                var result = sp.ExecuteReturnValue<int>();
+                log.Debug($"groupId: {groupId} - {result} Pago purchases have been deleted oldest then {endDate}");
+
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while delete pago purchases that out of retention period, groupId: {groupId}", ex);
+                return false;
+            }
+        }
+        
         public static bool InsertPPVPurchase(int nGroupID, string sSubCode, int nMediaFileID, string sSiteGUID, double dPrice, string sCurrency, int nNumOfUses, string sCustomData, int transactionID,
                                              string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int maxNumOfUses, int nIsActive, int nStatus, DateTime? dtEndDate, int domainId)
         {
@@ -903,6 +1002,15 @@ namespace DAL
             }
 
             sp.ExecuteNonQuery();
+        }
+        
+        public static bool AddRenewToSumOfRenews(long purchaseId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Add_RenewToNumOfRenew");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@SubscriptionPurchaseId", purchaseId);
+            var result = sp.ExecuteReturnValue<int>();
+            return result > 0;
         }
 
         public static void Update_SubscriptionPurchaseRenewalSiteGuid(int nGroupID, string billingGuid, int nPurchaseID, string siteGuid, string sConnKey)
