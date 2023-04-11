@@ -1873,6 +1873,9 @@ namespace WebAPI.Reflection
                 case "KalturaPersistedFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
+                case "KalturaPersonalActivityCleanupConfiguration":
+                    return new KalturaPersonalActivityCleanupConfiguration(parameters, true);
+                    
                 case "KalturaPersonalAsset":
                     return new KalturaPersonalAsset(parameters, true);
                     
@@ -39693,6 +39696,37 @@ namespace WebAPI.Models.Partner
                     {
                         UnifiedBillingCycles = OTTObjectBuilder.buildList(typeof(KalturaUnifiedBillingCycle), parameters["unifiedBillingCycles"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaPersonalActivityCleanupConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute RetentionPeriodDaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalActivityCleanupConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaPersonalActivityCleanupConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("retentionPeriodDays") && parameters["retentionPeriodDays"] != null)
+                {
+                    RetentionPeriodDaysSchemaProperty.Validate("retentionPeriodDays", parameters["retentionPeriodDays"]);
+                    RetentionPeriodDays = (Int64) Convert.ChangeType(parameters["retentionPeriodDays"], typeof(Int64));
                 }
             }
         }

@@ -6377,6 +6377,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPersonalActivityCleanupConfiguration":
+                    switch(property.Name)
+                    {
+                        case "RetentionPeriodDays":
+                            return "retentionPeriodDays";
+                    }
+                    break;
+                    
                 case "KalturaPersonalAsset":
                     switch(property.Name)
                     {
@@ -12477,6 +12485,20 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("permissionItem", "list", WebAPI.Managers.eKSValidation.All);
                             return PermissionItemController.List((KalturaPermissionItemFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "personalactivitycleanup":
+                    switch(action)
+                    {
+                        case "getpartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("personalActivityCleanup", "getPartnerConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return PersonalActivityCleanupController.GetPartnerConfiguration();
+                            
+                        case "updatepartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("personalActivityCleanup", "updatePartnerConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return PersonalActivityCleanupController.UpdatePartnerConfiguration((KalturaPersonalActivityCleanupConfiguration) methodParams[0]);
                             
                     }
                     break;
@@ -21427,6 +21449,23 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "personalactivitycleanup":
+                    switch(action)
+                    {
+                        case "getpartnerconfiguration":
+                            return ret;
+                            
+                        case "updatepartnerconfiguration":
+                            ret.Add("personalActivityCleanupConfiguration", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPersonalActivityCleanupConfiguration),
                             });
                             return ret;
                             
