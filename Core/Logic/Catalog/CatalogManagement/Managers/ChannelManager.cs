@@ -430,7 +430,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (epgIds.Any())
                     {
-                        x.And(y => y.EpgType().AnyEpgIds(mediaIds));
+                        x.And(y => y.EpgType().AnyEpgIds(epgIds));
                     }
                 }).Build();
         }
