@@ -857,7 +857,7 @@ namespace Core.Pricing
                 }
 
                 response.Status = new Status((int)eResponseStatus.OK, "OK");
-                if (filter.ObjectIds == null && filter.ObjectIds.Any())
+                if (filter.ObjectIds == null || !filter.ObjectIds.Any())
                 {
                     return response;
                 }
