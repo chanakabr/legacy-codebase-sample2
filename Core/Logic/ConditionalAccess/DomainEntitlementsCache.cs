@@ -4,6 +4,9 @@ using Core.Pricing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using APILogic;
+using MoreLinq;
 
 namespace Core.ConditionalAccess
 {
@@ -39,6 +42,11 @@ namespace Core.ConditionalAccess
             public PPVEntitlements()
             {
                 EntitlementsDictionary = new Dictionary<string,EntitlementObject>();
+            }
+            public PPVEntitlements(PPVEntitlements other)
+            {
+                EntitlementsDictionary = other.EntitlementsDictionary?.ToDictionary(x => x.Key,
+                    x => Extensions.Clone(x.Value)); 
             }
         }
 

@@ -2,11 +2,14 @@
 using ApiObjects.Pricing;
 using Core.GroupManagers;
 using System;
+using System.Transactions;
+using APILogic;
+using Google.Protobuf;
 
 namespace Core.Pricing
 {
     [Serializable]
-    public class DiscountModule : PriceCode
+    public class DiscountModule : PriceCode, IDeepCloneable<DiscountModule>
     {
         public DiscountModule(): base()
         {
@@ -16,6 +19,16 @@ namespace Core.Pricing
             m_dEndDate = new DateTime(2099, 1, 1);
         }
 
+        public DiscountModule(DiscountModule other) : base(other)
+        {
+            m_dPercent = other.m_dPercent;
+            m_eTheRelationType = other.m_eTheRelationType;
+            m_dStartDate = other.m_dStartDate;
+            m_dEndDate = other.m_dEndDate;
+            m_oWhenAlgo = Extensions.Clone(other.m_oWhenAlgo);
+            alias = other.alias;
+        }
+        
         public bool Initialize(string sC, Price p, LanguageContainer[] sD, Int32 nPriceCodeID, double dDiscountPercent,
             RelationTypes eTheRelationType , DateTime dStartDate , DateTime dEndDate , WhenAlgo whenAlgo)
         {
@@ -71,5 +84,9 @@ namespace Core.Pricing
         public DateTime m_dEndDate;
         public WhenAlgo m_oWhenAlgo;
         public string alias;
+        public DiscountModule Clone()
+        {
+            return new DiscountModule(this);
+        }
     }
 }

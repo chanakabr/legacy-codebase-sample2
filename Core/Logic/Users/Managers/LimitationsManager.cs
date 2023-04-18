@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using APILogic;
+using Google.Protobuf;
 
 namespace Core.Users
 {
@@ -11,7 +13,7 @@ namespace Core.Users
     /// Device limitation manager for Domain obj and DeviceContainer obj.
     /// </summary>
     [JsonObject(Id = "LimitationsManager")]
-    public class LimitationsManager
+    public class LimitationsManager : IDeepCloneable<LimitationsManager>
     {
         public const int NO_LIMITATION_VALUE = -1;
 
@@ -25,6 +27,11 @@ namespace Core.Users
         private int concurrency;
         private int quantity;
         private DateTime nextActionFreqDate;
+
+        public LimitationsManager Clone()
+        {
+            return new LimitationsManager(this);
+        }
 
         public override string ToString()
         {
@@ -104,9 +111,25 @@ namespace Core.Users
 
         public string Description { get; set; }
 
+        public LimitationsManager(LimitationsManager other) {
+            Concurrency = other.Concurrency;
+            Quantity = other.Quantity;
+            Frequency = other.Frequency;
+            NextActionFreqDate = other.NextActionFreqDate;
+            lDeviceFamilyLimitations = Extensions.Clone(other.lDeviceFamilyLimitations);
+            domianLimitID = other.domianLimitID;
+            DomainLimitName = other.DomainLimitName;
+            npvrQuotaInSecs = other.npvrQuotaInSecs;
+            nUserLimit = other.nUserLimit;
+            UserFrequency = other.UserFrequency;
+            UserFrequencyDescrition = other.UserFrequencyDescrition;
+            FrequencyDescription = other.FrequencyDescription;
+            Description = other.Description;
+        }
+        
         public void SetConcurrency(int nConcurrencyDomainLevel, int nConcurrencyGroupLevel)
         {
-            this.concurrency = nConcurrencyDomainLevel > 0 ? nConcurrencyDomainLevel : nConcurrencyGroupLevel;
+            concurrency = nConcurrencyDomainLevel > 0 ? nConcurrencyDomainLevel : nConcurrencyGroupLevel;
         }
         
         private int GetActualConcurrency(int concurrencyGroupLevel, int concurrencyDomainLevel)
@@ -116,7 +139,7 @@ namespace Core.Users
 
         public LimitationsManager(int concurrencyGroupLevel, int concurrencyDomainLevel, int quantity, int frequency, DateTime nextActionFreqDate)
         {
-            this.concurrency = GetActualConcurrency(concurrencyGroupLevel, concurrencyDomainLevel);
+            concurrency = GetActualConcurrency(concurrencyGroupLevel, concurrencyDomainLevel);
             this.quantity = quantity;
             this.frequency = frequency;
             this.nextActionFreqDate = nextActionFreqDate;
@@ -135,23 +158,23 @@ namespace Core.Users
             this.concurrency = concurrency;
             this.quantity = quantity;
             this.frequency = frequency;
-            this.nextActionFreqDate = Utils.FICTIVE_DATE;
+            nextActionFreqDate = Utils.FICTIVE_DATE;
         }
 
         public LimitationsManager(int concurrencyGroupLevel, int concurrencyDomainLevel, int quantity, int frequency)
         {
-            this.concurrency = GetActualConcurrency(concurrencyGroupLevel, concurrencyDomainLevel);
+            concurrency = GetActualConcurrency(concurrencyGroupLevel, concurrencyDomainLevel);
             this.quantity = quantity;
             this.frequency = frequency;
-            this.nextActionFreqDate = Utils.FICTIVE_DATE;
+            nextActionFreqDate = Utils.FICTIVE_DATE;
         }
 
         public LimitationsManager()
         {
-            this.concurrency = 0;
-            this.quantity = 0;
-            this.frequency = 0;
-            this.nextActionFreqDate = Utils.FICTIVE_DATE;
+            concurrency = 0;
+            quantity = 0;
+            frequency = 0;
+            nextActionFreqDate = Utils.FICTIVE_DATE;
         }
 
         public string CreateAssociatedDeviceFamiliesFromLimitation() 

@@ -6,12 +6,14 @@ using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
+using Google.Protobuf;
 
 namespace Core.Pricing
 {
     [Serializable]
-    public class CouponsGroup
+    public class CouponsGroup : IDeepCloneable<CouponsGroup>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -28,6 +30,22 @@ namespace Core.Pricing
             m_sGroupCode = string.Empty;
         }
 
+        public CouponsGroup(CouponsGroup other) {
+            m_oDiscountCode = other.m_oDiscountCode != null ? new DiscountModule(other.m_oDiscountCode) : other.m_oDiscountCode;
+            m_sDiscountCode = other.m_sDiscountCode;
+            m_sDescription = other.m_sDescription?.Select(x => new LanguageContainer(x)).ToArray();
+            m_dStartDate = other.m_dStartDate;
+            m_dEndDate = other.m_dEndDate;
+            m_nMaxUseCountForCoupon = other.m_nMaxUseCountForCoupon;
+            m_sGroupCode = other.m_sGroupCode;
+            m_sGroupName = other.m_sGroupName;
+            m_nFinancialEntityID = other.m_nFinancialEntityID;
+            m_nMaxRecurringUsesCountForCoupon = other.m_nMaxRecurringUsesCountForCoupon;
+            alias = other.alias;
+            couponGroupType = other.couponGroupType;
+            maxDomainUses = other.maxDomainUses;
+        }
+        
         public bool Initialize(string sGroupName , string sGroupCode , DiscountModule oDiscountCode, LanguageContainer[] sDescription,
             DateTime dStartDate, DateTime dEndDate, Int32 nMaxUseCountForCoupon, Int32 nFinancilaEntityID, Int32 nMaxRecurringUsesCountForCoupon, int maxDomainUses,
              string discountCode, CouponGroupType couponType = CouponGroupType.Coupon)
@@ -41,9 +59,9 @@ namespace Core.Pricing
             m_sGroupName = sGroupName;
             m_nFinancialEntityID = nFinancilaEntityID;
             m_nMaxRecurringUsesCountForCoupon = nMaxRecurringUsesCountForCoupon;
-            this.couponGroupType = couponType;
+            couponGroupType = couponType;
             this.maxDomainUses = maxDomainUses;
-            this.m_sDiscountCode = discountCode;
+            m_sDiscountCode = discountCode;
             return true;
         }
 
@@ -112,7 +130,7 @@ namespace Core.Pricing
 
         internal bool Initialize(CouponsGroup couponGroup)
         {
-            return this.Initialize(couponGroup.m_sGroupName, couponGroup.m_sGroupCode, couponGroup.m_oDiscountCode, couponGroup.m_sDescription,
+            return Initialize(couponGroup.m_sGroupName, couponGroup.m_sGroupCode, couponGroup.m_oDiscountCode, couponGroup.m_sDescription,
             couponGroup.m_dStartDate, couponGroup.m_dEndDate, couponGroup.m_nMaxUseCountForCoupon, couponGroup.m_nFinancialEntityID, couponGroup.m_nMaxRecurringUsesCountForCoupon, couponGroup.maxDomainUses,
             couponGroup.m_sDiscountCode, couponGroup.couponGroupType);            
         }
@@ -186,6 +204,10 @@ namespace Core.Pricing
             return new Tuple<CouponsGroup, bool>(couponsGroup, result);
         }
 
+        public CouponsGroup Clone()
+        {
+            return new CouponsGroup(this);
+        }
     }
 
     public static class CouponGroupExtensions

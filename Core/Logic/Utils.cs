@@ -31,7 +31,7 @@ namespace APILogic
         private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         public const string CompressedFileExtension = ".gz";
-
+        
         public static int GetIntSafeVal(DataRow dr, string sField)
         {
             try

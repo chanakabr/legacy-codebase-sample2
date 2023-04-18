@@ -628,8 +628,8 @@ namespace ApiLogic.Pricing.Handlers
                 var key = GetPagoIdsCacheKey(partnerId);
                 if (!LayeredCache.Instance.Get(key, ref result,
                     GetGroupPagoIds, new Dictionary<string, object>() { { "partnerId", partnerId } },
-                (int)partnerId, LayeredCacheConfigNames.GET_GROUP_PROGRAM_ASSET_GROUP_OFFERS, new List<string>()
-                { LayeredCacheKeys.GetPagoIdsInvalidationKey(partnerId) }))
+                (int)partnerId, LayeredCacheConfigNames.GET_GROUP_PROGRAM_ASSET_GROUP_OFFERS, new List<string>
+                        { LayeredCacheKeys.GetPagoIdsInvalidationKey(partnerId) }))
                 {
                     log.ErrorFormat($"GetProgramAssetGroupOfferIds - Failed get data from cache. partnerId: {partnerId}");
                     return response;
@@ -673,7 +673,7 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             Dictionary<long, bool> res = _repository.GetAllPagoIds((int)partnerId.Value);
-            return Tuple.Create(res, res?.Count > 0);
+            return Tuple.Create(res, true);
         }
 
         public List<ProgramAssetGroupOffer> GetProgramAssetGroupOffers(long partnerId, List<long> programAssetGroupOfferIds, bool getAlsoUnactive = false, string nameContains = null)

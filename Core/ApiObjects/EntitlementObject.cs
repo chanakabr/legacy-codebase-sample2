@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Google.Protobuf;
 
 namespace ApiObjects
 {
     [Serializable]
-    public class EntitlementObject
+    public class EntitlementObject : IDeepCloneable<EntitlementObject>
     {
         public int ID;
         public string subscriptionCode;
@@ -38,5 +39,25 @@ namespace ApiObjects
         }
 
         public EntitlementObject() { }
+
+        public EntitlementObject(EntitlementObject other)
+        {
+            ID = other.ID;
+            subscriptionCode = other.subscriptionCode;
+            relPP = other.relPP;
+            waiver = other.waiver;
+            purchasedBySiteGuid = other.purchasedBySiteGuid;
+            purchasedAsMediaFileID = other.purchasedAsMediaFileID;
+            ppvCode = other.ppvCode;
+            createDate = other.createDate;
+            startDate = other.startDate;
+            endDate = other.endDate;
+            numOfUses = other.numOfUses;
+            isPending = other.isPending;
+        }
+        public EntitlementObject Clone()
+        {
+            return new EntitlementObject(this);
+        }
     }
 }

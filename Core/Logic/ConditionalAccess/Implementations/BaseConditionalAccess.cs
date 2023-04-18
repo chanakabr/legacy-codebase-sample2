@@ -47,6 +47,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
+using APILogic;
 using KalturaRequestContext;
 using Tvinci.Core.DAL;
 using TVinciShared;
@@ -2906,7 +2907,7 @@ namespace Core.ConditionalAccess
                     if (price != null && AppUsageModule.m_ext_discount_id > 0)
                     {
                         DiscountModule externalDisountByCountryAndCurrency = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, renewDetails.CountryCode, renewDetails.PreviousPurchaseCurrencyCode);
-                        externalDisount = externalDisountByCountryAndCurrency != null ? ObjectCopier.Clone(externalDisountByCountryAndCurrency) : Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
+                        externalDisount = externalDisountByCountryAndCurrency != null ? new DiscountModule(externalDisountByCountryAndCurrency) : Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
                     }
                 }
                 else
@@ -2921,7 +2922,7 @@ namespace Core.ConditionalAccess
                     return isSuccess;
                 }
 
-                PriceCode clonedPrice = TVinciShared.ObjectCopier.Clone<PriceCode>(price);
+                PriceCode clonedPrice = Extensions.Clone(price);
                 if (externalDisount != null)
                 {
                     Price priceAfterDiscount = Utils.Instance.GetPriceAfterDiscount(clonedPrice.m_oPrise, externalDisount, 1);
@@ -7123,10 +7124,10 @@ namespace Core.ConditionalAccess
                                 }
                                 else
                                 {
-                                    ppvModules[j].PPVModule.m_oPriceCode = TVinciShared.ObjectCopier.Clone<PriceCode>(priceCodeWithCurrency);
+                                    ppvModules[j].PPVModule.m_oPriceCode = Extensions.Clone(priceCodeWithCurrency);
                                     if (shouldUpdateDiscountModule)
                                     {
-                                        ppvModules[j].PPVModule.m_oDiscountModule = TVinciShared.ObjectCopier.Clone<DiscountModule>(discountModuleWithCurrency);
+                                        ppvModules[j].PPVModule.m_oDiscountModule = Extensions.Clone(discountModuleWithCurrency);
                                     }
                                 }
                             }

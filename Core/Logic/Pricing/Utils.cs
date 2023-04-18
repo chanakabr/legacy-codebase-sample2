@@ -604,7 +604,7 @@ namespace Core.Pricing
 
             // look ig this coupon group id exsits in coupon list 
             SubscriptionCouponGroup couponGroups = null;
-            couponGroups = TVinciShared.ObjectCopier.Clone<SubscriptionCouponGroup>(sgList.Where(x => x.m_sGroupCode == couponGroupId.ToString()).FirstOrDefault());
+            couponGroups = new SubscriptionCouponGroup(sgList?.FirstOrDefault(x => x.m_sGroupCode == couponGroupId.ToString()));
             if (couponGroups == null)
             {
                 //eResponseStatus.InvalidCouponGroup

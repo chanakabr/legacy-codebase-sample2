@@ -7,15 +7,18 @@ using System.Linq;
 using System.Text;
 using Phx.Lib.Log;
 using System.Reflection;
+using APILogic;
 using ApiLogic.Repositories;
 using ApiLogic.Users.Services;
 using CachingProvider.LayeredCache;
+using Google.Protobuf;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Users
 {
     [Serializable]
     [JsonObject(Id = "Device")]
-    public class Device : IEquatable<Device>
+    public class Device : IEquatable<Device>, IDeepCloneable<Device>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -120,6 +123,32 @@ namespace Core.Users
 
         }
 
+        public Device(Device other) {
+            m_id = other.m_id;
+            m_deviceUDID = other.m_deviceUDID;
+            m_deviceBrand = other.m_deviceBrand;
+            m_deviceFamily = other.m_deviceFamily;
+            m_deviceFamilyID = other.m_deviceFamilyID;
+            m_domainID = other.m_domainID;
+            m_deviceName = other.m_deviceName;
+            m_groupID = other.m_groupID;
+            m_deviceBrandID = other.m_deviceBrandID;
+            m_pin = other.m_pin;
+            m_activationDate = other.m_activationDate;
+            m_updateDate = other.m_updateDate;
+            m_state = other.m_state;
+            m_sStreamType = other.m_sStreamType;
+            m_sProfile = other.m_sProfile;
+            LicenseData = other.LicenseData;
+            ExternalId = other.ExternalId;
+            MacAddress = other.MacAddress;
+            DynamicData = Extensions.Clone(other.DynamicData);
+            Model = other.Model;
+            LastActivityTime = other.LastActivityTime;
+            Manufacturer = other.Manufacturer;
+            ManufacturerId = other.ManufacturerId;
+        }
+        
         private void PopulateDeviceStreamTypeAndProfile()
         {
             // 4.12.14. Used only by Vodafone. It is used when VodafoneConditionalAccess calculates NPVR Licensed Link against ALU.
@@ -231,7 +260,7 @@ namespace Core.Users
         {
             bool res = false;
 
-            log.Debug($"SetDeviceInfo: DomainDevice: {JsonConvert.SerializeObject(device)}, device: {this.ToString()} " +
+            log.Debug($"SetDeviceInfo: DomainDevice: {JsonConvert.SerializeObject(device)}, device: {ToString()} " +
                 $"m_state: {m_state}");
 
             if (m_state >= DeviceState.Pending)
@@ -293,7 +322,7 @@ namespace Core.Users
                 DynamicData = DeviceDal.DeserializeDynamicData(ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]));
                 Model = ODBCWrapper.Utils.GetSafeStr(dr["model"]);
                 ManufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dr["manufacturer_id"]);
-                if (this.ManufacturerId.HasValue && this.ManufacturerId.Value > 0)
+                if (ManufacturerId.HasValue && ManufacturerId.Value > 0)
                 {
                     var deviceReferenceData = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.GetByManufacturerId(m_groupID, ManufacturerId.Value);
                     Manufacturer = deviceReferenceData?.Name;
@@ -369,6 +398,11 @@ namespace Core.Users
         public bool Equals(Device other)
         {
             return m_deviceFamilyID == other.m_deviceFamilyID && m_deviceUDID.Equals(other.m_deviceUDID);
+        }
+
+        public Device Clone()
+        {
+            return new Device(this);
         }
 
         public override string ToString()

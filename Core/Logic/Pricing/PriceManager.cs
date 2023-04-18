@@ -18,6 +18,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using APILogic;
 using ApiObjects.Base;
 using TVinciShared;
 
@@ -503,7 +504,7 @@ namespace Core.Pricing
                     isValidCurrencyCode = true;
                 }
 
-                price = ObjectCopier.Clone(priceDetailsResponse.Object.Prices[0]);
+                price = Extensions.Clone(priceDetailsResponse.Object.Prices[0]);
 
                 // Get price code according to country and currency (if exists on the request)
                 if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode ||
@@ -520,12 +521,12 @@ namespace Core.Pricing
                         return price;
                     }
 
-                    priceCode = ObjectCopier.Clone(priceCodeWithCurrency);
+                    priceCode = Extensions.Clone(priceCodeWithCurrency);
                 }
 
                 if (priceCode != null)
                 {
-                    price = ObjectCopier.Clone(priceCode.m_oPrise);
+                    price = Extensions.Clone(priceCode.m_oPrise);
                 }
             }
 

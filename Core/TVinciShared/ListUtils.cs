@@ -87,9 +87,24 @@ namespace TVinciShared
             return false;
         }
 
-        #if NET48
+        public static void AddRange<T>(this Dictionary<string, T> current, Dictionary<string, T> other)
+            where T : class
+        {
+            if (other != null)
+            {
+                foreach (var item in other)
+                {
+                    if (!current.ContainsKey(item.Key))
+                    {
+                        current.Add(item.Key, item.Value);
+                    }
+                }
+            }
+        }
+
+#if NET48
         public static TValue GetValueOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) => dict.TryGetValue(key, out var value) ? value : default(TValue);
-        #endif
+#endif
 
         /// <summary>
         /// Indicates collection emptiness.

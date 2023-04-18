@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Google.Protobuf;
 
 namespace Core.Pricing
 {
     [Serializable]
-    public class UsageModule
+    public class UsageModule : IDeepCloneable<UsageModule>
     {
         public UsageModule()
         {
@@ -28,6 +29,26 @@ namespace Core.Pricing
             m_bWaiver = false;
             m_nWaiverPeriod = 0;
             m_bIsOfflinePlayBack = false;
+        }
+        
+        public UsageModule(UsageModule other) {
+            m_nObjectID = other.m_nObjectID;
+            m_sVirtualName = other.m_sVirtualName;
+            m_nMaxNumberOfViews = other.m_nMaxNumberOfViews;
+            m_tsViewLifeCycle = other.m_tsViewLifeCycle;
+            m_tsMaxUsageModuleLifeCycle = other.m_tsMaxUsageModuleLifeCycle;
+            m_ext_discount_id = other.m_ext_discount_id;
+            m_internal_discount_id = other.m_internal_discount_id;
+            m_pricing_id = other.m_pricing_id;
+            m_coupon_id = other.m_coupon_id;
+            m_type = other.m_type;
+            m_subscription_only = other.m_subscription_only;
+            m_is_renew = other.m_is_renew;
+            m_num_of_rec_periods = other.m_num_of_rec_periods;
+            m_device_limit_id = other.m_device_limit_id;
+            m_bWaiver = other.m_bWaiver;
+            m_nWaiverPeriod = other.m_nWaiverPeriod;
+            m_bIsOfflinePlayBack = other.m_bIsOfflinePlayBack;
         }
 
         public void Initialize(Int32 nMaxNumberOfViews, Int32 tsViewLifeCycle, Int32 tsMaxUsageModuleLifeCycle, Int32 nObjectID, string sVirtualName, 
@@ -91,6 +112,10 @@ namespace Core.Pricing
 
         public bool m_bIsOfflinePlayBack;
 
+        public UsageModule Clone()
+        {
+            return new UsageModule(this);
+        }
     }
 
     public class UsageModulesResponse
