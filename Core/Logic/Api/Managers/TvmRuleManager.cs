@@ -520,7 +520,7 @@ namespace APILogic.Api.Managers
 
         private static Tuple<DataTable, bool> Get_GeoBlockPerMedia(Dictionary<string, object> funcParams)
         {
-            bool res = false;
+            var res = false;
             DataTable dt = null;
             try
             {
@@ -532,7 +532,7 @@ namespace APILogic.Api.Managers
                     if (groupId.HasValue && mediaId.HasValue)
                     {
                         dt = DAL.ApiDAL.Get_GeoBlockRuleForMediaAndCountries(groupId.Value, mediaId.Value);
-                        res = dt != null && dt.Rows != null && dt.Rows.Count > 0;
+                        res = dt != null && dt.Rows != null;
                     }
                 }
 

@@ -15,6 +15,7 @@ using EventBus.Abstraction;
 using System.ServiceModel.Channels;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace CachingProvider.LayeredCache
 {
@@ -288,12 +289,12 @@ namespace CachingProvider.LayeredCache
                                         }
                                         else
                                         {
-                                            log.DebugFormat("GetValues<T> - key: {0} in results is null", key);
+                                            log.LogTrace($"GetValues<T> - key: {key} in results is null");
                                         }
                                     }
                                     else
                                     {
-                                        log.ErrorFormat("GetValues<T> - key: {0} isn't contained in results", key);
+                                        log.LogTrace($"GetValues<T> - key: {key} isn't contained in results");
                                     }
                                 }
                             }
@@ -881,7 +882,7 @@ namespace CachingProvider.LayeredCache
 
                     if (!result)
                     {
-                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key: {0}, with MethodName: {1}, and funcParameters: {2}.",
+                        log.DebugFormat("Failed fillingObjectFromDbMethod for key: {0}, with MethodName: {1}, and funcParameters: {2}.",
                                         key,
                                         fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
                                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys) : "No_Func_Parameters");

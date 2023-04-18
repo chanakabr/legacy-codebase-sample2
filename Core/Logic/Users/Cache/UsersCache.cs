@@ -193,12 +193,20 @@ namespace Core.Users
                     int? groupId = funcParams["groupId"] as int?;
                     int? userId = funcParams["userId"] as int?;
                     user = new User();
-                    res = groupId.HasValue && userId.HasValue && user.Initialize(userId.Value, groupId.Value, true);
-                    if (res) // encrypt username before put to cache
+
+                    if (userId.HasValue && userId.Value == 0)
                     {
-                        var dataEncryptor = UserDataEncryptor.Instance();
-                        var encryptionType = dataEncryptor.GetUsernameEncryptionType(groupId.Value);
-                        user.m_oBasicData.m_sUserName = dataEncryptor.EncryptUsername(groupId.Value, encryptionType, user.m_oBasicData.m_sUserName);
+                        res = true; //BEO-10474
+                    }
+                    else
+                    {
+                        res = groupId.HasValue && userId.HasValue && user.Initialize(userId.Value, groupId.Value, true);
+                        if (res) // encrypt username before put to cache
+                        {
+                            var dataEncryptor = UserDataEncryptor.Instance();
+                            var encryptionType = dataEncryptor.GetUsernameEncryptionType(groupId.Value);
+                            user.m_oBasicData.m_sUserName = dataEncryptor.EncryptUsername(groupId.Value, encryptionType, user.m_oBasicData.m_sUserName);
+                        }
                     }
                 }
             }
@@ -206,7 +214,7 @@ namespace Core.Users
             {
                 log.Error(string.Format("GetUser failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-
+            
             return new Tuple<User, bool>(user, res);
         }
 

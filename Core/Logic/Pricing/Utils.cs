@@ -316,10 +316,11 @@ namespace Core.Pricing
                         string currencyCode = funcParams["currencyCode"].ToString();
                         if (groupId.HasValue && discountCodeId.HasValue && !string.IsNullOrEmpty(countryCode) && !string.IsNullOrEmpty(currencyCode))
                         {
-                            discountModule = GetDiscountModuleByCountryAndCurrency(discountCodeId.Value, countryCode, currencyCode);
-                            if (discountModule != null)
+                            var _discountModule = GetDiscountModuleByCountryAndCurrency(discountCodeId.Value, countryCode, currencyCode);
+                            if (_discountModule.Success)
                             {
                                 res = true;
+                                discountModule = _discountModule.Module;
                             }
                         }
                     }
@@ -333,7 +334,7 @@ namespace Core.Pricing
             return new Tuple<DiscountModule, bool>(discountModule, res);
         }
 
-        private static DiscountModule GetDiscountModuleByCountryAndCurrency(int discountCodeId, string countryCode, string currencyCode)
+        private static (DiscountModule Module, bool Success) GetDiscountModuleByCountryAndCurrency(int discountCodeId, string countryCode, string currencyCode)
         {
             DiscountModule discountModule = null;
             try
@@ -377,9 +378,10 @@ namespace Core.Pricing
             {
                 log.Error(string.Format("Failed GetDiscountModuleByCountryAndCurrency, discountCodeId: {0}, countryCode: {1}, currencyCode: {2}",
                             discountCodeId, countryCode, !string.IsNullOrEmpty(currencyCode) ? currencyCode : string.Empty), ex);
+                return (discountModule, false);
             }
 
-            return discountModule;
+            return (discountModule, true);
         }
 
         internal static Tuple<APILogic.ConditionalAccess.AdsControlData, bool> GetGetGroupAdsControl(Dictionary<string, object> funcParams)
