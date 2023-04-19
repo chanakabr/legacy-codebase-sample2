@@ -87,8 +87,7 @@ namespace Core.Users
             
             UdidToDeviceFamilyIdMapping = new Dictionary<string, int>();
             DeviceFamiliesMapping = new Dictionary<int, DeviceContainer>();
-            m_deviceFamilies = APILogic.Extensions.Clone(other.m_deviceFamilies);
-
+            m_deviceFamilies = APILogic.Extensions.Clone(other.m_deviceFamilies) ?? new List<DeviceContainer>();
             foreach (var deviceFamily in m_deviceFamilies)
             {
                 DeviceFamiliesMapping.Add(deviceFamily.m_deviceFamilyID, deviceFamily);
