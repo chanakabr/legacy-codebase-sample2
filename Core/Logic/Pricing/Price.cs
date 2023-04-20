@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Google.Protobuf;
 
 namespace Core.Pricing
 {
@@ -13,7 +14,7 @@ namespace Core.Pricing
     }
 
     [Serializable]
-    public class Price : IPrice
+    public class Price : IPrice, IDeepCloneable<Price>
     {
         private static readonly Lazy<Price> lazy = new Lazy<Price>(() => new Price(), LazyThreadSafetyMode.PublicationOnly);
         public static Price Instance { get { return lazy.Value; } }
@@ -59,6 +60,11 @@ namespace Core.Pricing
         public bool IsFree()
         {
             return m_dPrice == 0.0;
+        }
+
+        public Price Clone()
+        {
+            return new Price(this);
         }
     }
 

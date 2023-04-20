@@ -1124,6 +1124,16 @@ namespace ApiObjects
         Dtt_and_ott = 3,
         Vrm_export = 4
     }
+
+    public enum AssetRuleOrderBy
+    {
+        [ProtoEnum(Name = "AssetRuleOrderBy_None")]
+        None = 0,
+        [ProtoEnum(Name = "AssetRuleOrderBy_Name_Asc")]
+        NameAsc = 1,
+        [ProtoEnum(Name = "AssetRuleOrderBy_Name_Desc")]
+        NameDesc = 2
+    }
     
     public enum RuleActionType
     {

@@ -31,7 +31,7 @@ namespace Core.Catalog
 
             var newEpgV3IndexName = $"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3";
             log.Info($"EPG v3 creating new index with name:{newEpgV3IndexName}");
-            AddEmptyIndex(newEpgV3IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
+            AddEmptyEpgV3Index(newEpgV3IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
             log.Info($"EPG v3 adding mapping to new index with name:{newEpgV3IndexName}");
             AddEpgMappings(newEpgV3IndexName, EpgFeatureVersion.V3);
 
@@ -129,7 +129,7 @@ namespace Core.Catalog
                 if (_elasticSearchApi.IndexExists(epgV2IndexName))
                 {
                     var backupEpgV2IndexName = $"backup_{epgV2IndexName}";
-                    AddEmptyIndex(backupEpgV2IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
+                    AddEmptyEpgV2Index(backupEpgV2IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
                     AddEpgMappings(backupEpgV2IndexName, EpgFeatureVersion.V2);
 
                     var isBackupReindexSuccess = _elasticSearchApi.Reindex(epgV2IndexName, backupEpgV2IndexName, batchSize: batchSize);
@@ -157,7 +157,7 @@ namespace Core.Catalog
                 #endregion
 
                 var epgDate = dateIndexNamePair.Key;
-                AddEmptyIndex(epgV2IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
+                AddEmptyEpgV2Index(epgV2IndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
                 AddEpgMappings(epgV2IndexName, EpgFeatureVersion.V2);
                 log.Info($"created epg v2 index:[{epgV2IndexName}]");
 
@@ -178,7 +178,7 @@ namespace Core.Catalog
                 filterCompositeType.AddChild(ttlGtZero);
 
                 var generalFilter = new QueryFilter() { FilterSettings = filterCompositeType };
-                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter, _elasticSearchApi);
+                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter);
 
                 reindexV3ToV2Filter.Filter = generalFilter;
                 reindexV3ToV2Filter.ReturnFields.Clear();
@@ -234,7 +234,7 @@ namespace Core.Catalog
         {
             log.Info($"Backing up EPGv3 indices");
             var backupEpgV3Index = $"backup_{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
-            AddEmptyIndex(backupEpgV3Index, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
+            AddEmptyEpgV3Index(backupEpgV3Index, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
             AddEpgMappings(backupEpgV3Index, EpgFeatureVersion.V3);
 
             var reindexV3ToV2Filter = new FilteredQuery(true);
@@ -275,7 +275,7 @@ namespace Core.Catalog
             var filterCompositeType = new FilterCompositeType(CutWith.AND);
             filterCompositeType.AddChild(ttlGtZero);
             var generalFilter = new QueryFilter() { FilterSettings = filterCompositeType };
-            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter, _elasticSearchApi);
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, generalFilter);
 
             log.Info($"starting reindex from:{epgAlias} to:{epgV1IndexName}");
 
@@ -393,7 +393,7 @@ namespace Core.Catalog
                         }
                     }
 
-                    AddEmptyIndex(currentEpgIndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
+                    AddEmptyEpgV2Index(currentEpgIndexName, REFRESH_INTERVAL_FOR_EMPTY_EPG_V2_INDEX);
                     AddEpgMappings(currentEpgIndexName, EpgFeatureVersion.V2);
 
                     var isBackupReindexSuccess = _elasticSearchApi.Reindex(partnerEpgOriginalIndexForRollback.Name, currentEpgIndexName, batchSize: batchSize);
@@ -453,7 +453,7 @@ namespace Core.Catalog
 
                 log.Info($"Backing up EPGv3 indices ({currentEpgIndicesNames})");
                 var backupEpgV3Index = $"backup_{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
-                AddEmptyIndex(backupEpgV3Index, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
+                AddEmptyEpgV2Index(backupEpgV3Index, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX);
                 AddEpgMappings(backupEpgV3Index, EpgFeatureVersion.V3);
                 var epgV3Index = partnerCurrentEpgV3OrEpgV2Indices.FirstOrDefault(x => x.Name.Contains("v3"));
                 var backupReindexResult = _elasticSearchApi.Reindex(epgV3Index.Name, backupEpgV3Index, batchSize: batchSize);

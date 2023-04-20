@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TVinciShared;
 using Phx.Lib.Appconfig;
+using System.Runtime.Serialization;
 
 /// <summary>
 /// Finds the Method By Reflection
@@ -128,21 +129,8 @@ public partial class MethodFinder
                     }
                     catch (Exception ex)
                     {
-                        logger.Error("", ex);
-                        //XmlSerializer serializer = new XmlSerializer(TargetType);
-                        //using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(DeserializationTarget)))
-                        //{
-                        //    Product = serializer.Deserialize(ms);
-                        //    //using (XmlWriter xw = XmlWriter.Create(ms))
-                        //    //{
+                        logger.Debug($"Deserializing type {TargetType.Name} failed on first try using memory stream. Attempting dictionary deserialization.", ex);
 
-                        //    //    Product = CreateObjectInstance(TargetType);
-
-
-                        //    //}
-                        //}                        
-                        ////System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(TargetType);                                                
-                        
                         // special edge case with user dnymaic data - the Parse method does not handle "arrays" properly
                         if (TargetType.Name.ToLower() == "userdynamicdata")
                         {
@@ -156,15 +144,6 @@ public partial class MethodFinder
 
                             Parse(dict, Product);
                         }
-                        //DeserializationTarget = serializer.Serialize(parsedDictionary);
-
-                        //using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(DeserializationTarget)))
-                        //{
-                        //    DataContractJsonSerializer ser = new DataContractJsonSerializer(TargetType);
-                        //    Product = ser.ReadObject(ms);
-                        //}
-
-                        //Product = typeof(JavaScriptSerializer).GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(serializer, new object[] { DeserializationTarget });
                     }
                 }
             } while (false);

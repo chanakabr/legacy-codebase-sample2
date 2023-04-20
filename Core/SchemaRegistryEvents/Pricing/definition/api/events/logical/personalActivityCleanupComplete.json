@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/events/logical/personalActivityCleanupComplete",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PersonalActivityCleanupComplete",
+  "type": "object",
+  "description": "Indicates that the referenced KTP Service complete cleanup process. The message includes completion status (fail/success).",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/logical/gdpr/personalActivityCleanupComplete"
+    }
+  ]
+}

@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
                 {
                     getListFunc = () =>
                        CollectionManager.Instance.GetCollectionsData(contextData, string.Empty, pager.GetRealPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual, 
-                       inactiveAssets, orderBy, assetUserRuleIds);
+                       inactiveAssets, orderBy, assetUserRuleIds, filter.NameContains);
                     result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                 }
 

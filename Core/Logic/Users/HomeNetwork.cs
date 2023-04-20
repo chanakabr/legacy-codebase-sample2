@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using Google.Protobuf;
 
 namespace Core.Users
 {
     [DataContract]
     [Serializable]
     [JsonObject(Id = "HomeNetwork")]
-    public class HomeNetwork : IEquatable<HomeNetwork>
+    public class HomeNetwork : IEquatable<HomeNetwork>, IDeepCloneable<HomeNetwork>
     {
         [DataMember]
         public string Name;
@@ -34,17 +35,29 @@ namespace Core.Users
 
         public HomeNetwork(string name, string uID, string desc, DateTime createDate, bool isActive)
         {
-            this.Name = name;
-            this.UID = uID;
-            this.Description = desc;
-            this.CreateDate = createDate;
-            this.IsActive = isActive;
+            Name = name;
+            UID = uID;
+            Description = desc;
+            CreateDate = createDate;
+            IsActive = isActive;
         }
 
-
+        public HomeNetwork(HomeNetwork other) {
+            Name = other.Name;
+            UID = other.UID;
+            Description = other.Description;
+            CreateDate = other.CreateDate;
+            IsActive = other.IsActive;
+        }
+        
         public bool Equals(HomeNetwork other)
         {
             return UID.Equals(other.UID);
+        }
+
+        public HomeNetwork Clone()
+        {
+            return new HomeNetwork(this);
         }
 
         public override string ToString()

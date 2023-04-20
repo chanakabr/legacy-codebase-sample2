@@ -1073,7 +1073,12 @@ namespace WebAPI.Controllers
 
                 if (response.Sources?.Count > 0)
                 {
-                    response.Sources = _mediaFileFilter.GetFilteredAssetFiles(assetType, response.Sources, ks.GroupId, KSUtils.ExtractKSPayload(ks).SessionCharacteristicKey).ToList();
+                    response.Sources = _mediaFileFilter.GetFilteredAssetFiles(
+                        response.Sources,
+                        ks.GroupId,
+                        long.Parse(assetId),
+                        assetType,
+                        KSUtils.ExtractKSPayload(ks).SessionCharacteristicKey).ToList();
                     if (response.Sources == null || response.Sources.Count == 0)
                     {
                         response.Messages.Add(new KalturaAccessControlMessage
@@ -1569,7 +1574,12 @@ namespace WebAPI.Controllers
 
                 if (response.Sources?.Count > 0)
                 {
-                    response.Sources = _mediaFileFilter.GetFilteredAssetFiles(assetType, response.Sources, ks.GroupId, KSUtils.ExtractKSPayload(ks).SessionCharacteristicKey).ToList();
+                    response.Sources = _mediaFileFilter.GetFilteredAssetFiles(
+                        response.Sources,
+                        ks.GroupId,
+                        long.Parse(assetId),
+                        assetType,
+                        KSUtils.ExtractKSPayload(ks).SessionCharacteristicKey).ToList();
                     if (response.Sources == null || response.Sources.Count == 0)
                     {
                         response.Messages.Add(new KalturaAccessControlMessage

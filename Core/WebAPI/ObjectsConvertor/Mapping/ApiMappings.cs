@@ -1,4 +1,4 @@
-﻿using APILogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.BulkExport;
@@ -29,6 +29,8 @@ using WebAPI.ObjectsConvertor.Mapping.Utils;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using WebAPI.ModelsValidators;
 using ApiObjects.BulkUpload;
+using ApiObjects.Rules.PreActionCondition;
+using WebAPI.Models.ConditionalAccess.FilterActions;
 using WebAPI.Models.Domains;
 
 namespace WebAPI.ObjectsConvertor.Mapping
@@ -1115,6 +1117,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                }
            });
 
+            cfg.CreateMap<KalturaAssetRuleOrderBy, AssetRuleOrderBy>()
+                .ConvertUsing(orderBy =>
+                {
+                    switch (orderBy)
+                    {
+                        case KalturaAssetRuleOrderBy.NONE: return AssetRuleOrderBy.None;
+                        case KalturaAssetRuleOrderBy.NAME_ASC: return AssetRuleOrderBy.NameAsc;
+                        case KalturaAssetRuleOrderBy.NAME_DESC: return AssetRuleOrderBy.NameDesc;
+                        default: throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown AssetRuleOrderBy value : {0}", orderBy.ToString()));
+                    }
+                });
+
             cfg.CreateMap<RuleActionType, KalturaRuleActionType>()
                 .ConvertUsing(ruleActionType =>
                 {
@@ -1152,6 +1166,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
+            cfg.CreateMap<KalturaBasePreActionCondition, BasePreActionCondition>();
+
+            cfg.CreateMap<KalturaShopPreActionCondition, ShopPreActionCondition>()
+                .IncludeBase<KalturaBasePreActionCondition, BasePreActionCondition>()
+                .ForMember(dest => dest.ShopAssetUserRuleId, opt => opt.MapFrom(src => src.ShopAssetUserRuleId));
+
+            cfg.CreateMap<KalturaNoShopPreActionCondition, NoShopPreActionCondition>()
+                .IncludeBase<KalturaBasePreActionCondition, BasePreActionCondition>();
+
+            cfg.CreateMap<BasePreActionCondition, KalturaBasePreActionCondition>();
+
+            cfg.CreateMap<ShopPreActionCondition, KalturaShopPreActionCondition>()
+                .IncludeBase<BasePreActionCondition, KalturaBasePreActionCondition>()
+                .ForMember(dest => dest.ShopAssetUserRuleId, opt => opt.MapFrom(src => src.ShopAssetUserRuleId));
+
+            cfg.CreateMap<NoShopPreActionCondition, KalturaNoShopPreActionCondition>()
+                .IncludeBase<BasePreActionCondition, KalturaBasePreActionCondition>();
+
             cfg.CreateMap<KalturaRuleAction, RuleAction>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
@@ -1171,6 +1203,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaRuleAction, AssetUserRuleAction>()
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaAssetRuleAction, AssetRuleAction>()
+                .IncludeBase<KalturaRuleAction, RuleAction>();
+
+            cfg.CreateMap<KalturaAssetRuleAction, AssetRuleFilterAction>()
+                .IncludeBase<KalturaRuleAction, RuleAction>();
+
+            cfg.CreateMap<AssetRuleAction, KalturaAssetRuleAction>()
+                .IncludeBase<RuleAction, KalturaRuleAction>();
+
+            cfg.CreateMap<KalturaFilterAction, AssetRuleFilterAction>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.PreActionCondition, opt => opt.MapFrom(src => src.PreActionCondition));
+
+            cfg.CreateMap<AssetRuleFilterAction, KalturaFilterAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.PreActionCondition, opt => opt.MapFrom(src => src.PreActionCondition));
+
+            cfg.CreateMap<AssetRuleFilterAction, KalturaAssetRuleAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>();
 
             cfg.CreateMap<AssetUserRuleAction, KalturaRuleAction>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
@@ -1223,12 +1275,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<AssetUserRuleFilterAction, KalturaAssetUserRuleFilterAction>()
                 .IncludeBase<AssetUserRuleAction, KalturaAssetUserRuleAction>()
                 .ForMember(dest => dest.ApplyOnChannel, opt => opt.MapFrom(src => src.ApplyOnChannel));
-
-            cfg.CreateMap<KalturaAssetRuleAction, AssetRuleAction>()
-               .IncludeBase<KalturaRuleAction, RuleAction>();
-
-            cfg.CreateMap<AssetRuleAction, KalturaAssetRuleAction>()
-                .IncludeBase<RuleAction, KalturaRuleAction>();
 
             cfg.CreateMap<KalturaAllowPlaybackAction, AllowPlaybackAction>()
                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>();
@@ -1327,11 +1373,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PpvIds, opt => opt.MapFrom(src => string.Join(",", src.Transitions.PpvIds)));
 
             cfg.CreateMap<KalturaFilterFileByVideoCodecAction, FilterFileByVideoCodec>()
-                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .IncludeBase<KalturaFilterAction, AssetRuleFilterAction>()
                 .ForMember(dest => dest.VideoCodecs, opt => opt.ResolveUsing(src => src.GetVideoCodecs()));
 
             cfg.CreateMap<FilterFileByVideoCodec, KalturaFilterFileByVideoCodecAction>()
-                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .IncludeBase<AssetRuleFilterAction, KalturaFilterAction>()
                 .ForMember(dest => dest.VideoCodecIn, opt => opt.MapFrom(src => string.Join(",", src.VideoCodecs)));
 
             cfg.CreateMap<KalturaFilterFileByVideoCodecInDiscoveryAction, FilterFileByVideoCodecInDiscovery>()
@@ -1347,11 +1393,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<FilterFileByVideoCodec, KalturaFilterFileByVideoCodecAction>();
 
             cfg.CreateMap<KalturaFilterFileByStreamerTypeAction, FilterFileByStreamerType>()
-                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .IncludeBase<KalturaFilterAction, AssetRuleFilterAction>()
                 .ForMember(dest => dest.StreamerTypes, opt => opt.ResolveUsing(src => src.GetStreamerTypes()));
 
             cfg.CreateMap<FilterFileByStreamerType, KalturaFilterFileByStreamerTypeAction>()
-                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .IncludeBase<AssetRuleFilterAction, KalturaFilterAction>()
                 .ForMember(dest => dest.StreamerTypeIn, opt => opt.ResolveUsing(src => GetStreamerTypes(src.StreamerTypes)));
 
             cfg.CreateMap<KalturaFilterFileByStreamerTypeInDiscovery, FilterFileByStreamerTypeInDiscovery>()
@@ -1367,11 +1413,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<FilterFileByStreamerType, KalturaFilterFileByStreamerTypeAction>();
 
             cfg.CreateMap<KalturaFilterFileByQualityAction, FilterFileByQuality>()
-                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .IncludeBase<KalturaFilterAction, AssetRuleFilterAction>()
                 .ForMember(dest => dest.Qualities, opt => opt.ResolveUsing(src => src.GetQualities()));
 
             cfg.CreateMap<FilterFileByQuality, KalturaFilterFileByQualityAction>()
-                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .IncludeBase<AssetRuleFilterAction, KalturaFilterAction>()
                 .ForMember(dest => dest.QualityIn, opt => opt.ResolveUsing(src => GetQualities(src.Qualities)));
 
             cfg.CreateMap<KalturaFilterFileByQualityInDiscoveryAction, FilterFileByQualityInDiscovery>()
@@ -1387,11 +1433,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<FilterFileByQuality, KalturaFilterFileByQualityAction>();
 
             cfg.CreateMap<KalturaFilterFileByLabelAction, FilterFileByLabel>()
-                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .IncludeBase<KalturaFilterAction, AssetRuleFilterAction>()
                 .ForMember(dest => dest.Labels, opt => opt.ResolveUsing(src => src.GetLabels()));
 
             cfg.CreateMap<FilterFileByLabel, KalturaFilterFileByLabelAction>()
-                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .IncludeBase<AssetRuleFilterAction, KalturaFilterAction>()
                 .ForMember(dest => dest.LabelIn, opt => opt.MapFrom(src => string.Join(",", src.Labels)));
 
             cfg.CreateMap<KalturaFilterFileByLabelInDiscoveryAction, FilterFileByLabelInDiscovery>()
@@ -1427,11 +1473,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<FilterFileByFileTypeForAssetType, KalturaFilterFileByFileTypeIdForAssetTypeAction>();
 
             cfg.CreateMap<KalturaFilterFileByFileTypeIdAction, FilterFileByFileType>()
-                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .IncludeBase<KalturaFilterAction, AssetRuleFilterAction>()
                 .ForMember(dest => dest.FileTypeIds, opt => opt.ResolveUsing(src => src.GetFileTypesIds()));
 
             cfg.CreateMap<FilterFileByFileType, KalturaFilterFileByFileTypeIdAction>()
-                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .IncludeBase<AssetRuleFilterAction, KalturaFilterAction>()
                 .ForMember(dest => dest.FileTypeIdIn, opt => opt.MapFrom(src => string.Join(",", src.FileTypeIds)));
 
             cfg.CreateMap<KalturaFilterFileByFileTypeIdInDiscoveryAction, FilterFileByFileTypeInDiscovery>()
@@ -1447,11 +1493,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<FilterFileByFileType, KalturaFilterFileByFileTypeIdAction>();
 
             cfg.CreateMap<KalturaFilterFileByAudioCodecAction, FilterFileByAudioCodec>()
-                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .IncludeBase<KalturaFilterAction, AssetRuleFilterAction>()
                 .ForMember(dest => dest.AudioCodecs, opt => opt.ResolveUsing(src => src.GetAudioCodecs()));
 
             cfg.CreateMap<FilterFileByAudioCodec, KalturaFilterFileByAudioCodecAction>()
-                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .IncludeBase<AssetRuleFilterAction, KalturaFilterAction>()
                 .ForMember(dest => dest.AudioCodecIn, opt => opt.MapFrom(src => string.Join(",", src.AudioCodecs)));
 
             cfg.CreateMap<KalturaFilterFileByAudioCodecInDiscoveryAction, FilterFileByAudioCodecInDiscovery>()
@@ -1467,15 +1513,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<FilterFileByAudioCodec, KalturaFilterFileByAudioCodecAction>();
 
             cfg.CreateMap<KalturaFilterAssetByKsqlAction, FilterAssetByKsql>()
-                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .IncludeBase<KalturaFilterAction, AssetRuleFilterAction>()
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
 
             cfg.CreateMap<FilterAssetByKsql, KalturaFilterAssetByKsqlAction>()
-                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .IncludeBase<AssetRuleFilterAction, KalturaFilterAction>()
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
 
             cfg.CreateMap<KalturaFilterFileByDynamicDataAction, FilterFileByDynamicData>()
-                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .IncludeBase<KalturaFilterAction, AssetRuleFilterAction>()
                 .ForMember(dest => dest.Key, opt => opt.ResolveUsing(src => src.Key))
                 .ForMember(dest => dest.Values, opt => opt.ResolveUsing(src => src.GetValues()));
 
@@ -1486,7 +1532,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<KalturaFilterFileByDynamicDataAction, FilterFileByDynamicData>();
 
             cfg.CreateMap<FilterFileByDynamicData, KalturaFilterFileByDynamicDataAction>()
-                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .IncludeBase<AssetRuleFilterAction, KalturaFilterAction>()
                 .ForMember(dest => dest.Key, opt => opt.ResolveUsing(src => src.Key))
                 .ForMember(dest => dest.Values, opt => opt.MapFrom(src => string.Join(",", src.Values)));
 

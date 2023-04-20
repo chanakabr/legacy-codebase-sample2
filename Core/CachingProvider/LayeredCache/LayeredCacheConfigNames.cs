@@ -83,6 +83,7 @@
         public const string DLM_LAYERED_CACHE_CONFIG_NAME = "GetDlm";
         public const string GROUP_FEATURES_LAYERED_CACHE_CONFIG_NAME = "GetGroupFeatureStatus";
         public const string GET_DOMAIN_BUNDLES_LAYERED_CACHE_CONFIG_NAME = "GetDomainBundles";
+        public const string GET_PPV_FOR_FILE = "GetPPVModuleForMediaFile";
         public const string PPV_MODULES_CACHE_CONFIG_NAME = "PPVModules";
         public const string PPV_MODULE_CACHE_CONFIG_NAME = "PPVModule";
         public const string GET_BUSINESS_MODULE_RULE = "GetBusinessModuleRule";

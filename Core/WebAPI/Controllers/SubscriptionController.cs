@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
                     {
                         getListFunc = () =>
                             SubscriptionManager.Instance.GetSubscriptionsData(groupId, new HashSet<long>(subscriptionsIds.Select(t => (long)t).ToList()),
-                                        udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual, 
+                                        udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual,
                                         false, subscriptionTypeIn);
 
                         result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
                 {
                     getListFunc = () =>
                         SubscriptionManager.Instance.GetSubscriptionsData(groupId, new HashSet<long>(filter.getSubscriptionIdIn()),
-                                    udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual, 
+                                    udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.GetRealPageIndex(), pager.PageSize, filter.CouponGroupIdEqual,
                                     false, subscriptionTypeIn);
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
@@ -121,7 +121,7 @@ namespace WebAPI.Controllers
 
                     getListFunc = () =>
                       SubscriptionManager.Instance.GetSubscriptionsData(groupId, udid, language, coreFilter.OrderBy, pager.GetRealPageIndex(), pager.PageSize, 
-                        filter.CouponGroupIdEqual, inactiveAssets, filter.PreviewModuleIdEqual, filter.PricePlanIdEqual, filter.ChannelIdEqual, subscriptionTypeIn);
+                        filter.CouponGroupIdEqual, inactiveAssets, filter.PreviewModuleIdEqual, filter.PricePlanIdEqual, filter.ChannelIdEqual, subscriptionTypeIn, filter.NameContains);
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }

@@ -10,17 +10,20 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using APILogic;
+using Google.Protobuf;
+using TVinciShared;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Pricing
 {
     [Serializable]
-    public class Subscription : PPVModule
+    public class Subscription : PPVModule, IDeepCloneable<Subscription>
     {
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        
         #region Member
+
         //The codes which identify which medias are relevant to the subscription (int Tvinci it is the channels)
         public BundleCodeContainer[] m_sCodes;
         public DateTime m_dStartDate;
@@ -42,19 +45,20 @@ namespace Core.Pricing
         public UserType[] m_UserTypes;
         public PreviewModule m_oPreviewModule;
         public int m_nDomainLimitationModule;
-        
+
         [JsonProperty(PropertyName = "m_lServices",
-                   TypeNameHandling = TypeNameHandling.Auto,
-                   ItemTypeNameHandling = TypeNameHandling.Auto,
-                   ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
+            TypeNameHandling = TypeNameHandling.Auto,
+            ItemTypeNameHandling = TypeNameHandling.Auto,
+            ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public ServiceObject[] m_lServices;
-        
+
         public int m_GracePeriodMinutes;
         public bool BlockCancellation;
         public DateTime? PreSaleDate;
 
-        public List<KeyValuePair> SubscriptionSetIdsToPriority; // N/A or AddOn  ==> contains set ids that this subscription belongs to <set_id, priority>
-                                                                // Base ==> as above with only one set_id
+        public List<KeyValuePair>
+            SubscriptionSetIdsToPriority; // N/A or AddOn  ==> contains set ids that this subscription belongs to <set_id, priority>
+        // Base ==> as above with only one set_id
 
         public List<SubscriptionCouponGroup> CouponsGroups;
         public List<KeyValuePair<VerificationPaymentGateway, string>> ExternalProductCodes;
@@ -64,6 +68,7 @@ namespace Core.Pricing
         #endregion
 
         #region Ctr
+
         public Subscription()
             : base()
         {
@@ -74,9 +79,43 @@ namespace Core.Pricing
             CouponsGroups = new List<SubscriptionCouponGroup>();
             ExternalProductCodes = new List<KeyValuePair<VerificationPaymentGateway, string>>();
         }
+    
+        public Subscription(Subscription other) : base(other)
+        {
+            m_sCodes = Extensions.Clone(other.m_sCodes);
+            m_dStartDate = other.m_dStartDate;
+            m_dEndDate = other.m_dEndDate;
+            m_sFileTypes = other.m_sFileTypes?.ToArray();
+            m_bIsRecurring = other.m_bIsRecurring;
+            m_nNumberOfRecPeriods = other.m_nNumberOfRecPeriods;
+            m_oSubscriptionPriceCode = Extensions.Clone(other.m_oSubscriptionPriceCode);
+            m_oExtDisountModule = Extensions.Clone(other.m_oExtDisountModule);
+            m_sName = other.m_sName?.ToArray();
+            m_oSubscriptionUsageModule = Extensions.Clone(other.m_oSubscriptionUsageModule);
+            m_fictivicMediaID = other.m_fictivicMediaID;
+            m_Priority = other.m_Priority;
+            m_ProductCode = other.m_ProductCode;
+            m_SubscriptionCode = other.m_SubscriptionCode;
+            m_MultiSubscriptionUsageModule = Extensions.Clone(other.m_MultiSubscriptionUsageModule);
+            n_GeoCommerceID = other.n_GeoCommerceID;
+            m_bIsInfiniteRecurring = other.m_bIsInfiniteRecurring;
+            m_UserTypes = Extensions.Clone(other.m_UserTypes);
+            m_oPreviewModule = Extensions.Clone(other.m_oPreviewModule);
+            m_nDomainLimitationModule = other.m_nDomainLimitationModule;
+            m_lServices = Extensions.Clone(other.m_lServices);
+            m_GracePeriodMinutes = other.m_GracePeriodMinutes;
+            BlockCancellation = other.BlockCancellation;
+            PreSaleDate = other.PreSaleDate;
+            SubscriptionSetIdsToPriority = Extensions.Clone(other.SubscriptionSetIdsToPriority);
+            CouponsGroups = Extensions.Clone(other.CouponsGroups);
+            ExternalProductCodes = other.ExternalProductCodes != null ? new List<KeyValuePair<VerificationPaymentGateway, string>>(other.ExternalProductCodes) : other.ExternalProductCodes;
+            Type = other.Type;
+        }
+        
         #endregion
 
         #region Methods
+
         /// <summary>
         /// Get Fictivic Media ID
         /// </summary>
@@ -86,7 +125,6 @@ namespace Core.Pricing
         {
             if (!CatalogManager.Instance.DoesGroupUsesTemplates(groupID))
             {
-
                 int fictivicGroupID = 0;
                 int fictivicMediaID = 0;
                 string paramName = string.Empty;
@@ -96,7 +134,8 @@ namespace Core.Pricing
                 {
                     selectQuery = new ODBCWrapper.DataSetSelectQuery();
                     selectQuery.SetConnectionKey("pricing_connection");
-                    selectQuery += "select FICTIVIC_MEDIA_META_NAME, FICTIVIC_GROUP_ID from groups_parameters with (nolock) ";
+                    selectQuery +=
+                        "select FICTIVIC_MEDIA_META_NAME, FICTIVIC_GROUP_ID from groups_parameters with (nolock) ";
                     selectQuery += " where ";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
                     if (selectQuery.Execute("query", true) != null)
@@ -104,8 +143,10 @@ namespace Core.Pricing
                         int count = selectQuery.Table("query").DefaultView.Count;
                         if (count > 0)
                         {
-                            paramName = selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_MEDIA_META_NAME"].ToString();
-                            fictivicGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_GROUP_ID"].ToString());
+                            paramName = selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_MEDIA_META_NAME"]
+                                .ToString();
+                            fictivicGroupID = int.Parse(selectQuery.Table("query").DefaultView[0]
+                                .Row["FICTIVIC_GROUP_ID"].ToString());
                         }
                     }
 
@@ -123,11 +164,12 @@ namespace Core.Pricing
                             int count = mediaSelectQuery.Table("query").DefaultView.Count;
                             if (count > 0)
                             {
-                                fictivicMediaID = int.Parse(mediaSelectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                                fictivicMediaID = int.Parse(mediaSelectQuery.Table("query").DefaultView[0].Row["id"]
+                                    .ToString());
                             }
                         }
-
                     }
+
                     m_fictivicMediaID = fictivicMediaID;
                 }
                 finally
@@ -136,6 +178,7 @@ namespace Core.Pricing
                     {
                         selectQuery.Finish();
                     }
+
                     if (mediaSelectQuery != null)
                     {
                         mediaSelectQuery.Finish();
@@ -147,30 +190,37 @@ namespace Core.Pricing
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
             string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName,
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName,
+            PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName,
             int nGeoCommerceID = 0, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
-            Initialize(0, oPriceCode, oUsageModule, oDiscountModule, oCouponsGroup, sDescriptions, sSubscriptionCode, sCodes, dStart, dEnd,
-                        sFileTypes, bIsRecurring, nNumOfRecPeriods, sName, subPriceCode, oSubUsageModule, sObjectVirtualName, 0, dlmID, adsPolicy, adsParam);
+            Initialize(0, oPriceCode, oUsageModule, oDiscountModule, oCouponsGroup, sDescriptions, sSubscriptionCode,
+                sCodes, dStart, dEnd,
+                sFileTypes, bIsRecurring, nNumOfRecPeriods, sName, subPriceCode, oSubUsageModule, sObjectVirtualName, 0,
+                dlmID, adsPolicy, adsParam);
         }
 
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
-            DiscountModule oDiscountModule, DiscountModule extDisountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
+            DiscountModule oDiscountModule, DiscountModule extDisountModule, CouponsGroup oCouponsGroup,
+            LanguageContainer[] sDescriptions,
             string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName,
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName,
+            PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName,
             int nGeoCommerceID = 0, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             Initialize(0, oPriceCode, oUsageModule,
-            oDiscountModule, oCouponsGroup, sDescriptions,
-            sSubscriptionCode, sCodes, dStart, dEnd,
-            sFileTypes, bIsRecurring, nNumOfRecPeriods, sName, subPriceCode, oSubUsageModule, sObjectVirtualName, nGeoCommerceID, dlmID, adsPolicy, adsParam);
+                oDiscountModule, oCouponsGroup, sDescriptions,
+                sSubscriptionCode, sCodes, dStart, dEnd,
+                sFileTypes, bIsRecurring, nNumOfRecPeriods, sName, subPriceCode, oSubUsageModule, sObjectVirtualName,
+                nGeoCommerceID, dlmID, adsPolicy, adsParam);
             m_oExtDisountModule = extDisountModule;
         }
 
         public void Initialize(Int32 nGroupID, PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
             string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName,
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName,
+            PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName,
             int nGeoCommerceID = 0, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             base.Initialize(oPriceCode, oUsageModule, oDiscountModule, oCouponsGroup, sDescriptions,
@@ -192,15 +242,16 @@ namespace Core.Pricing
             m_nDomainLimitationModule = dlmID;
             AdsPolicy = adsPolicy;
             AdsParam = adsParam;
-
         }
 
         public void Initialize(string sPriceCode, string sUsageModuleCode,
             string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
             string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, string subPriceCode,
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName,
+            string subPriceCode,
             string sSubUsageModule, string sObjectVirtualName,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, int nGeoCommerceID = 0, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, int nGeoCommerceID = 0,
+            int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
@@ -236,6 +287,7 @@ namespace Core.Pricing
             {
                 m_Priority = long.Parse(priority);
             }
+
             GetFictivicMediaID(nGroupID, int.Parse(sSubscriptionCode));
 
             if (subPriceCode.Length > 0)
@@ -243,7 +295,8 @@ namespace Core.Pricing
                 BasePricing p = null;
                 Utils.GetBaseImpl(ref p, nGroupID);
                 if (p != null)
-                    m_oSubscriptionPriceCode = p.GetPriceCodeData(subPriceCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                    m_oSubscriptionPriceCode =
+                        p.GetPriceCodeData(subPriceCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                 else
                     m_oSubscriptionPriceCode = null;
             }
@@ -254,14 +307,20 @@ namespace Core.Pricing
         }
 
         public void Initialize(string sPriceCode, string sUsageModuleCode,
-           string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
-           string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-           Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, string subPriceCode,
-           string sSubUsageModule, string sObjectVirtualName,
-           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode, string sExtDiscount, UserType[] userTypes, ServiceObject[] services,
-            long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0, AdsPolicy? adsPolicy = null, string adsParam = null,
-             List<SubscriptionCouponGroup> couponsGroup = null, Dictionary<long, int> subscriptionSetIdsToPriority = null, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes = null
-            , SubscriptionType type = SubscriptionType.NotApplicable, bool blockCancellation = false, DateTime? preSaleDate = null)
+            string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
+            string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName,
+            string subPriceCode,
+            string sSubUsageModule, string sObjectVirtualName,
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode,
+            string sExtDiscount, UserType[] userTypes, ServiceObject[] services,
+            long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0,
+            AdsPolicy? adsPolicy = null, string adsParam = null,
+            List<SubscriptionCouponGroup> couponsGroup = null,
+            Dictionary<long, int> subscriptionSetIdsToPriority = null,
+            List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes = null
+            , SubscriptionType type = SubscriptionType.NotApplicable, bool blockCancellation = false,
+            DateTime? preSaleDate = null)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
@@ -280,7 +339,7 @@ namespace Core.Pricing
             else
                 m_oSubscriptionUsageModule = null;
 
-            this.m_GracePeriodMinutes = gracePeriodMinutes;
+            m_GracePeriodMinutes = gracePeriodMinutes;
             m_SubscriptionCode = sSubscriptionCode;
             m_ProductCode = sProductCode;
             m_sCodes = sCodes;
@@ -295,6 +354,7 @@ namespace Core.Pricing
             {
                 m_Priority = long.Parse(priority);
             }
+
             GetFictivicMediaID(nGroupID, int.Parse(sSubscriptionCode));
 
             n_GeoCommerceID = nGeoCommerceID;
@@ -305,7 +365,9 @@ namespace Core.Pricing
                 Utils.GetBaseImpl(ref p, nGroupID);
                 if (p != null)
                 {
-                    m_oSubscriptionPriceCode = (new PricingCacheWrapper(p)).GetPriceCodeData(subPriceCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                    m_oSubscriptionPriceCode =
+                        (new PricingCacheWrapper(p)).GetPriceCodeData(subPriceCode, sCountryCd, sLANGUAGE_CODE,
+                            sDEVICE_NAME);
                 }
                 else
                     m_oSubscriptionPriceCode = null;
@@ -335,16 +397,17 @@ namespace Core.Pricing
             m_lServices = services;
             AdsPolicy = adsPolicy;
             AdsParam = adsParam;
-            this.CouponsGroups = couponsGroup;
+            CouponsGroups = couponsGroup;
             SubscriptionSetIdsToPriority = new List<KeyValuePair>();
             if (subscriptionSetIdsToPriority != null && subscriptionSetIdsToPriority.Count > 0)
             {
-                SubscriptionSetIdsToPriority = subscriptionSetIdsToPriority.Select(x => new KeyValuePair(x.Key.ToString(), x.Value.ToString())).ToList();
+                SubscriptionSetIdsToPriority = subscriptionSetIdsToPriority
+                    .Select(x => new KeyValuePair(x.Key.ToString(), x.Value.ToString())).ToList();
             }
 
             if (externalProductCodes != null)
             {
-                this.ExternalProductCodes = externalProductCodes;
+                ExternalProductCodes = externalProductCodes;
             }
 
             Type = type;
@@ -354,7 +417,6 @@ namespace Core.Pricing
 
         private void InitializeMultiUsageModule(int nGroupID, string sSubscriptionCode)
         {
-
             BaseUsageModule um = null;
             Utils.GetBaseImpl(ref um, nGroupID);
 
@@ -392,7 +454,8 @@ namespace Core.Pricing
                     {
                         m_bIsRecurring = true;
                     }
-                    this.m_nNumberOfRecPeriods = periodnum;
+
+                    m_nNumberOfRecPeriods = periodnum;
                 }
             }
             else
@@ -413,14 +476,20 @@ namespace Core.Pricing
                     res.m_sName = dt.Rows[0]["Name"].ToString();
                 if (dt.Rows[0]["FULL_LIFE_CYCLE_ID"] != DBNull.Value && dt.Rows[0]["FULL_LIFE_CYCLE_ID"] != null)
                     res.m_tsFullLifeCycle = Int32.Parse(dt.Rows[0]["FULL_LIFE_CYCLE_ID"].ToString());
-                if (dt.Rows[0]["NON_RENEWING_PERIOD_ID"] != DBNull.Value && dt.Rows[0]["NON_RENEWING_PERIOD_ID"] != null)
+                if (dt.Rows[0]["NON_RENEWING_PERIOD_ID"] != DBNull.Value &&
+                    dt.Rows[0]["NON_RENEWING_PERIOD_ID"] != null)
                     res.m_tsNonRenewPeriod = Int32.Parse(dt.Rows[0]["NON_RENEWING_PERIOD_ID"].ToString());
             }
 
             return res;
-
         }
+
         #endregion
+
+        public Subscription Clone()
+        {
+            return new Subscription(this);
+        }
 
         public override string ToString()
         {
@@ -435,11 +504,12 @@ namespace Core.Pricing
             Dictionary<long, int> result = new Dictionary<long, int>();
             try
             {
-                foreach (KeyValuePair keyValuePair in this.SubscriptionSetIdsToPriority)
+                foreach (KeyValuePair keyValuePair in SubscriptionSetIdsToPriority)
                 {
                     long setId = 0;
                     int priority = 0;
-                    if (long.TryParse(keyValuePair.key, out setId) && setId > 0 && int.TryParse(keyValuePair.value, out priority) && priority > 0)
+                    if (long.TryParse(keyValuePair.key, out setId) && setId > 0 &&
+                        int.TryParse(keyValuePair.value, out priority) && priority > 0)
                     {
                         result[setId] = priority;
                     }
@@ -448,7 +518,9 @@ namespace Core.Pricing
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetSubscriptionSetIdsToPriority for subscription with id: {0}", this.m_ProductCode), ex);
+                log.Error(
+                    string.Format("Failed GetSubscriptionSetIdsToPriority for subscription with id: {0}",
+                        m_ProductCode), ex);
             }
 
             return result;
@@ -458,15 +530,15 @@ namespace Core.Pricing
         {
             List<SubscriptionCouponGroup> res = new List<SubscriptionCouponGroup>();
 
-            if (this.CouponsGroups?.Count > 0)
+            if (CouponsGroups?.Count > 0)
             {
-                res = this.CouponsGroups.Where(x => (couponGroupCode == null || x.m_sGroupCode.Equals(couponGroupCode))
-                                            && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
-                                            && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow)).ToList();
+                res = CouponsGroups.Where(x => (couponGroupCode == null || x.m_sGroupCode.Equals(couponGroupCode))
+                                                    && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
+                                                    && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow))
+                    .ToList();
             }
 
             return res;
         }
-
     }
 }

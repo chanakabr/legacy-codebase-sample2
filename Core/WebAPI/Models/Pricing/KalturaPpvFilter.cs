@@ -50,12 +50,21 @@ namespace WebAPI.Models.Pricing
         public bool? AlsoInactive { get; set; }
 
         /// <summary>
+        /// A string that is included in the ppv name
+        /// </summary>
+        [DataMember(Name = "nameContains")]
+        [JsonProperty("nameContains")]
+        [XmlElement(ElementName = "nameContains")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(IsNullable = true, MinLength = 1, MaxLength = 50, RequiresPermission = (int)RequestType.READ)]
+        public string NameContains { get; set; }
+
+        /// <summary>
         /// comma-separated list of KalturaPpv.assetUserRuleId values.  Matching KalturaPpv objects will be returned by the filter.
         /// </summary>
         [DataMember(Name = "assetUserRuleIdIn")]
         [JsonProperty("assetUserRuleIdIn")]
         [XmlElement(ElementName = "assetUserRuleIdIn", IsNullable = true)]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(RequiresPermission = (int)RequestType.READ, IsNullable = true, DynamicMinInt = 1)]
         public string AssetUserRuleIdIn { get; set; }
 

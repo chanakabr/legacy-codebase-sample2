@@ -32,5 +32,6 @@ namespace ApiObjects.Pricing.Dto
         public long Id { get; set; }
         public bool IsActive { get; set; }
         public long? AssetUserRuleId { get; set; }
+        public string Name { get; set; }
     }
 }

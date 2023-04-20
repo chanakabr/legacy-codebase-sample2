@@ -1,11 +1,14 @@
 ﻿using ApiObjects;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using APILogic;
+using Google.Protobuf;
 
 namespace Core.Pricing
 {
     [Serializable]
-    public class PriceCode
+    public class PriceCode : IDeepCloneable<PriceCode>
     {
         public string m_sCode;
         public Price m_oPrise;
@@ -26,6 +29,13 @@ namespace Core.Pricing
             m_nObjectID = objectID;
         }
 
+        public PriceCode(PriceCode other) {
+            m_sCode = other.m_sCode;
+            m_oPrise = Extensions.Clone(other.m_oPrise);
+            m_nObjectID = other.m_nObjectID;
+            m_sDescription = Extensions.Clone(other.m_sDescription);
+        }
+        
         public bool Initialize(string sC, Price p, LanguageContainer[] sD, Int32 nPriceCodeID)
         {
             m_sCode = sC;
@@ -33,6 +43,11 @@ namespace Core.Pricing
             m_sDescription = sD;
             m_nObjectID = nPriceCodeID;
             return true;
+        }
+
+        public PriceCode Clone()
+        {
+            return new PriceCode(this);
         }
 
         public override string ToString()

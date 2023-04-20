@@ -32,7 +32,13 @@ namespace Core.Api.Managers
 {
     public interface IAssetRuleManager
     {
-        GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null, RuleActionType? ruleActionType = null);
+        GenericListResponse<AssetRule> GetAssetRules(
+            RuleConditionType assetRuleConditionType,
+            int groupId = 0,
+            SlimAsset slimAsset = null,
+            RuleActionType? ruleActionType = null,
+            string nameContains = null,
+            AssetRuleOrderBy orderBy = AssetRuleOrderBy.None);
     }
 
     public class AssetRuleManager : IAssetRuleManager
@@ -583,7 +589,13 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        public GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null, RuleActionType? ruleActionType = null)
+        public GenericListResponse<AssetRule> GetAssetRules(
+            RuleConditionType assetRuleConditionType,
+            int groupId = 0,
+            SlimAsset slimAsset = null,
+            RuleActionType? ruleActionType = null,
+            string nameContains = null,
+            AssetRuleOrderBy orderBy = AssetRuleOrderBy.None)
         {
             GenericListResponse<AssetRule> response = new GenericListResponse<AssetRule>();
 
@@ -591,7 +603,12 @@ namespace Core.Api.Managers
             {
                 List<AssetRule> allAssetRules = new List<AssetRule>();
 
-                string allAssetRulesKey = LayeredCacheKeys.GetAllAssetRulesKey(groupId, (int)assetRuleConditionType, ruleActionType.HasValue ? (int)ruleActionType.Value : (int?)null);
+                string allAssetRulesKey = LayeredCacheKeys.GetAllAssetRulesKey(
+                    groupId,
+                    (int)assetRuleConditionType,
+                    ruleActionType.HasValue ? (int)ruleActionType.Value : (int?)null,
+                    nameContains,
+                    orderBy.ToString());
                 string allAssetRulesInvalidationKey = groupId != 0 ?
                     LayeredCacheKeys.GetAllAssetRulesGroupInvalidationKey(groupId)
                         : LayeredCacheKeys.GetAllAssetRulesInvalidationKey();
@@ -604,6 +621,8 @@ namespace Core.Api.Managers
                                                             { "assetRuleConditionType", assetRuleConditionType },
                                                             { "groupId", groupId },
                                                             { "ruleActionType", ruleActionType },
+                                                            { "nameContains", nameContains },
+                                                            { "orderBy", orderBy }
                                                         },
                                                         groupId,
                                                         LayeredCacheConfigNames.GET_ALL_ASSET_RULES,
@@ -987,11 +1006,17 @@ namespace Core.Api.Managers
             {
                 if (funcParams != null)
                 {
-                    if (funcParams.ContainsKey("assetRuleConditionType") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("ruleActionType"))
+                    if (funcParams.ContainsKey("assetRuleConditionType")
+                        && funcParams.ContainsKey("groupId")
+                        && funcParams.ContainsKey("ruleActionType")
+                        && funcParams.ContainsKey("nameContains")
+                        && funcParams.ContainsKey("orderBy"))
                     {
                         RuleConditionType? assetRuleConditionType = funcParams["assetRuleConditionType"] as RuleConditionType?;
                         int? groupId = funcParams["groupId"] as int?;
                         RuleActionType? ruleActionType = funcParams["ruleActionType"] as RuleActionType?;
+                        var nameContains = funcParams["nameContains"] as string;
+                        var orderBy = funcParams["orderBy"] as AssetRuleOrderBy?;
 
                         if (assetRuleConditionType.HasValue && groupId.HasValue)
                         {
@@ -1017,17 +1042,33 @@ namespace Core.Api.Managers
                                 }
 
                                 allAssetRules = _repository.GetAssetRules(allAssetRulesDB.Select(x => x.Id));
-
                                 if (allAssetRules != null && allAssetRules.Any())
                                 {
+                                    var result = allAssetRules.AsEnumerable();
                                     if (assetRuleConditionType.HasValue)
                                     {
-                                        allAssetRules = allAssetRules.Where(ar => ar.IsConditionExists(assetRuleConditionType.Value)).ToList();
+                                        result = result.Where(ar => ar.IsConditionExists(assetRuleConditionType.Value));
                                     }
+
                                     if (ruleActionType.HasValue)
                                     {
-                                        allAssetRules = allAssetRules.Where(ar => ar.IsActionExists(ruleActionType.Value)).ToList();
+                                        result = result.Where(ar => ar.IsActionExists(ruleActionType.Value));
                                     }
+
+                                    if (!string.IsNullOrEmpty(nameContains))
+                                    {
+                                        result = result
+                                            .Where(x => x.Name.IndexOf(nameContains, StringComparison.OrdinalIgnoreCase) >= 0);
+                                    }
+
+                                    if (orderBy.Value != AssetRuleOrderBy.None)
+                                    {
+                                        result = orderBy.Value == AssetRuleOrderBy.NameAsc
+                                            ? result.OrderBy(x => x.Name)
+                                            : result.OrderByDescending(x => x.Name);
+                                    }
+
+                                    allAssetRules = result.ToList();
                                 }
                             }
 

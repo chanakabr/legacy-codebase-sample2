@@ -17,7 +17,6 @@ using ApiLogic.IndexManager.Sorting;
 using Core.Api;
 using Core.Catalog.Searchers;
 using Core.GroupManagers;
-using ElasticSearch.Common;
 using ApiObjects;
 using ElasticSearch.Utils;
 using LinqToTwitter;
@@ -232,11 +231,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             if (this.SearchDefinitions.shouldSearchEpg)
             {
-                var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(GroupID);
-                if (epgFeatureVersion == EpgFeatureVersion.V3)
-                {
-                    Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(GroupID, filterPart, new ElasticSearchApi(ApplicationConfiguration.Current));
-                }
+                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(GroupID, filterPart);
             }
 
             int pageSize = this.PageSize;

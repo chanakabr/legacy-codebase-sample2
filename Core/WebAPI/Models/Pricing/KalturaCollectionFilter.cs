@@ -57,6 +57,15 @@ namespace WebAPI.Models.Pricing
         [SchemeProperty(RequiresPermission = (int)RequestType.READ, IsNullable = true, DynamicMinInt = 1)]
         public string AssetUserRuleIdIn { get; set; }
 
+        /// <summary>
+        /// A string that is included in the collection name
+        /// </summary>
+        [DataMember(Name = "nameContains")]
+        [JsonProperty("nameContains")]
+        [XmlElement(ElementName = "nameContains")]
+        [SchemeProperty(IsNullable = true, MinLength = 1, MaxLength = 50, RequiresPermission = (int)RequestType.READ)]
+        public string NameContains { get; set; }
+
         public override KalturaCollectionOrderBy GetDefaultOrderByValue()
         {
             return KalturaCollectionOrderBy.NONE;

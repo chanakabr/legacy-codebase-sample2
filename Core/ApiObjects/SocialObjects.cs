@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml.Serialization;
 using ApiObjects.Response;
 using ApiObjects.Social;
+using Google.Protobuf;
 using ProtoBuf;
 
 namespace ApiObjects
@@ -95,7 +96,7 @@ namespace ApiObjects
 
     [Serializable]
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic,SkipConstructor = true)]
-    public class KeyValuePair
+    public class KeyValuePair : IDeepCloneable<KeyValuePair>
     {
         public string key { get; set; }
         public string value { get; set; }
@@ -112,6 +113,13 @@ namespace ApiObjects
             value = v;
         }
 
+        public KeyValuePair(KeyValuePair other)
+        {
+            key = other.key;
+            value = other.value;
+        }
+
+        
         public static KeyValuePair GetKVPFromList(string sKey, List<KeyValuePair> lKVP)
         {
             KeyValuePair oRes = null;
@@ -129,6 +137,11 @@ namespace ApiObjects
             }
 
             return oRes;
+        }
+
+        public KeyValuePair Clone()
+        {
+            return new KeyValuePair(this);
         }
     }
 

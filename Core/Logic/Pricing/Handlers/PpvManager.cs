@@ -1,20 +1,21 @@
-﻿using ApiObjects;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Pricing.Dto;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Api;
+using Core.Api.Managers;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
 using DAL;
 using Phx.Lib.Log;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -22,8 +23,18 @@ namespace ApiLogic.Pricing.Handlers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
-        private static readonly Lazy<PpvManager> lazy = new Lazy<PpvManager>(() => new PpvManager(PricingDAL.Instance, LayeredCache.Instance, PriceDetailsManager.Instance,
-            DiscountDetailsManager.Instance, UsageModuleManager.Instance, Core.Pricing.Module.Instance, api.Instance, Core.Catalog.CatalogManagement.FileManager.Instance), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<PpvManager> lazy = new Lazy<PpvManager>(
+            () => new PpvManager(
+                PricingDAL.Instance,
+                LayeredCache.Instance,
+                PriceDetailsManager.Instance,
+                DiscountDetailsManager.Instance,
+                UsageModuleManager.Instance,
+                Core.Pricing.Module.Instance,
+                api.Instance,
+                Core.Catalog.CatalogManagement.FileManager.Instance,
+                AssetUserRuleManager.Instance),
+            LazyThreadSafetyMode.PublicationOnly);
         public static PpvManager Instance => lazy.Value;
         private readonly IPriceDetailsManager _priceDetailsManager;
         private readonly IDiscountDetailsManager _discountDetailsManager;
@@ -33,10 +44,19 @@ namespace ApiLogic.Pricing.Handlers
         private readonly IUsageModuleManager _usageModuleManager;
         private readonly IVirtualAssetManager _virtualAssetManager;
         private readonly IMediaFileTypeManager _fileManager;
+        private readonly IAssetUserRuleManager _assetUserRuleManager;
 
 
-        public PpvManager(IPpvManagerRepository ppvManagerRepository, ILayeredCache layeredCache, IPriceDetailsManager priceDetailsManager,
-        IDiscountDetailsManager discountDetailsManager, IUsageModuleManager usageModuleManager, IPricingModule pricingModule, IVirtualAssetManager virtualAssetManager, IMediaFileTypeManager fileManager)
+        public PpvManager(
+            IPpvManagerRepository ppvManagerRepository,
+            ILayeredCache layeredCache,
+            IPriceDetailsManager priceDetailsManager,
+            IDiscountDetailsManager discountDetailsManager,
+            IUsageModuleManager usageModuleManager,
+            IPricingModule pricingModule,
+            IVirtualAssetManager virtualAssetManager,
+            IMediaFileTypeManager fileManager,
+            IAssetUserRuleManager assetUserRuleManager)
         {
             _repository = ppvManagerRepository;
             _layeredCache = layeredCache;
@@ -46,6 +66,7 @@ namespace ApiLogic.Pricing.Handlers
             _pricingModule = pricingModule;
             _virtualAssetManager = virtualAssetManager;
             _fileManager = fileManager;
+            _assetUserRuleManager = assetUserRuleManager;
         }
 
         public GenericResponse<PpvModuleInternal> Update(int id, ContextData contextData,
@@ -180,7 +201,7 @@ namespace ApiLogic.Pricing.Handlers
             bool isShopUser = false;
             if (ppvToInsert.AssetUserRuleId > 0)
             {
-                var assetRuleResponse = Core.Api.Managers.AssetUserRuleManager.Instance.GetAssetUserRuleByRuleId(contextData.GroupId, ppvToInsert.AssetUserRuleId.Value);
+                var assetRuleResponse = _assetUserRuleManager.GetAssetUserRuleByRuleId(contextData.GroupId, ppvToInsert.AssetUserRuleId.Value);
                 if (!assetRuleResponse.IsOkStatusCode())
                 {
                     response.SetStatus(assetRuleResponse.Status);
@@ -188,7 +209,7 @@ namespace ApiLogic.Pricing.Handlers
                 }
             }
 
-            var shopId = Core.Api.Managers.AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
+            var shopId = _assetUserRuleManager.GetShopAssetUserRuleId(contextData.GroupId, contextData.UserId);
             if (shopId > 0)
             {
                 isShopUser = true;
@@ -296,8 +317,8 @@ namespace ApiLogic.Pricing.Handlers
         }
         
         public GenericListResponse<PPVModule> GetPPVModules(ContextData contextData, List<long> ppvModuleIds = null, 
-            bool shouldShrink = false, int? couponGroupIdEqual = null, bool alsoInactive = false, PPVOrderBy orderBy = PPVOrderBy.NameAsc, 
-            int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, List<long> assetUserRuleIds = null)
+            bool shouldShrink = false, int? couponGroupIdEqual = null, bool alsoInactive = false, PPVOrderBy orderBy = PPVOrderBy.NameAsc,
+            int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, List<long> assetUserRuleIds = null, string nameContains = null)
         {
             var response = new GenericListResponse<PPVModule>();
 
@@ -321,19 +342,24 @@ namespace ApiLogic.Pricing.Handlers
                 return response;
             }
 
+            var tempPpvs = allPpvs.AsEnumerable();
             if (ppvModuleIds != null && ppvModuleIds.Count > 0)
             {
-                allPpvs = allPpvs.Where(p => ppvModuleIds.Contains(p.Id)).ToList();
+                tempPpvs = tempPpvs.Where(p => ppvModuleIds.Contains(p.Id));
             }
 
             if (!alsoInactive)
             {
-                allPpvs = allPpvs.Where(p => p.IsActive).ToList();
+                tempPpvs = tempPpvs.Where(p => p.IsActive);
             }
 
+            if (!string.IsNullOrEmpty(nameContains))
+            {
+                tempPpvs = tempPpvs.Where(p => !string.IsNullOrEmpty(p.Name) && p.Name.IndexOf(nameContains, StringComparison.OrdinalIgnoreCase) > -1);
+            }
             if (couponGroupIdEqual.HasValue)
             {
-                allPpvs = allPpvs.Where(ppv => ppv.CouponsGroupCode == couponGroupIdEqual.Value).ToList();
+                tempPpvs = tempPpvs.Where(ppv => ppv.CouponsGroupCode == couponGroupIdEqual.Value);
             }
 
             // get assetUserRuleId to filter ppvs by the same shop
@@ -356,27 +382,27 @@ namespace ApiLogic.Pricing.Handlers
 
             if (assetUserRuleIds?.Count > 0)
             {
-                allPpvs = allPpvs.Where(x => x.AssetUserRuleId.HasValue && assetUserRuleIds.Contains(x.AssetUserRuleId.Value)).ToList();
+                tempPpvs = tempPpvs.Where(x => x.AssetUserRuleId.HasValue && assetUserRuleIds.Contains(x.AssetUserRuleId.Value));
 
             }
 
             switch (orderBy)
             {
                 case PPVOrderBy.NameAsc:
-                    allPpvs = allPpvs.OrderBy(ppv => ppv.Name).ToList();
+                    tempPpvs = tempPpvs.OrderBy(ppv => ppv.Name);
                     break;
                 case PPVOrderBy.NameDesc:
-                    allPpvs = allPpvs.OrderByDescending(ppv => ppv.Name).ToList();
+                    tempPpvs = tempPpvs.OrderByDescending(ppv => ppv.Name);
                     break;
                 case PPVOrderBy.UpdateDataAsc:
-                    allPpvs = allPpvs.OrderBy(ppv => ppv.UpdateDate).ToList();
+                    tempPpvs = tempPpvs.OrderBy(ppv => ppv.UpdateDate);
                     break;
                 case PPVOrderBy.UpdateDataDesc:
-                    allPpvs = allPpvs.OrderByDescending(ppv => ppv.UpdateDate).ToList();
+                    tempPpvs = tempPpvs.OrderByDescending(ppv => ppv.UpdateDate);
                     break;
             }
                 
-            response.TotalItems = allPpvs.Count;
+            response.TotalItems = tempPpvs.Count();
 
             if (!shouldIgnorePaging)
             {
@@ -384,11 +410,11 @@ namespace ApiLogic.Pricing.Handlers
                 int rangeToGetFromList = (startIndexOnList + pageSize) > allPpvs.Count ? (allPpvs.Count - startIndexOnList) > 0 ? (allPpvs.Count - startIndexOnList) : 0 : pageSize;
                 if (rangeToGetFromList > 0)
                 {
-                    allPpvs = allPpvs.Skip(startIndexOnList).Take(rangeToGetFromList).ToList();
+                    tempPpvs = tempPpvs.Skip(startIndexOnList).Take(rangeToGetFromList);
                 }
             }
 
-            var ppvWithData = GetPpvsData(allPpvs, shouldShrink, groupId);
+            var ppvWithData = GetPpvsData(tempPpvs.ToList(), shouldShrink, groupId);
             response.Objects = ppvWithData;
             response.SetStatus(eResponseStatus.OK);
             return response;
@@ -462,7 +488,7 @@ namespace ApiLogic.Pricing.Handlers
                     ppvModule = BuildPPVModuleFromDTO(groupId.Value, ppvDto, shouldShrink);
                 }
             }
-            
+
             return new Tuple<PPVModule, bool>(ppvModule, true);
         }
 

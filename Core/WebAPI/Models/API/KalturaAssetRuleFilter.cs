@@ -11,7 +11,9 @@ namespace WebAPI.Models.API
 {
     public enum KalturaAssetRuleOrderBy
     {
-        NONE
+        NONE,
+        NAME_ASC,
+        NAME_DESC
     }
 
     /// <summary>
@@ -55,6 +57,16 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "assetRuleIdEqual", IsNullable = true)]
         [SchemeProperty(MinLong = 1)]
         public long? AssetRuleIdEqual { get; set; }
+
+        /// <summary>
+        /// Name
+        /// </summary>
+        [DataMember(Name = "nameContains")]
+        [JsonProperty("nameContains")]
+        [XmlElement(ElementName = "nameContains", IsNullable = true)]
+        [SchemeProperty(MinLength = 1, IsNullable = true, MaxLength = 50)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string NameContains { get; set; }
 
         protected override void Init()
         {

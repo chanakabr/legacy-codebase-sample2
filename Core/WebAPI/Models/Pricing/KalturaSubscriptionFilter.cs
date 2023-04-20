@@ -94,6 +94,15 @@ namespace WebAPI.Models.Pricing
         [SchemeProperty(IsNullable = true, DynamicType = typeof(KalturaSubscriptionDependencyType), MinLength = 1)]
         public string DependencyTypeIn { get; set; }
 
+        /// <summary>
+        /// A string that is included in the subscription name
+        /// </summary>
+        [DataMember(Name = "nameContains")]
+        [JsonProperty("nameContains")]
+        [XmlElement(ElementName = "nameContains")]
+        [SchemeProperty(IsNullable = true, MinLength = 1, MaxLength = 50, RequiresPermission = (int)RequestType.READ)]
+        public string NameContains { get; set; }
+
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {
             return KalturaSubscriptionOrderBy.START_DATE_ASC;

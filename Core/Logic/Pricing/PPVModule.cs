@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using APILogic;
 
 namespace Core.Pricing
 {
@@ -24,7 +25,7 @@ namespace Core.Pricing
         public bool m_bFirstDeviceLimitation;
         public string alias;
         public string ExternalId { get; set; }
-        public ApiObjects.AdsPolicy? AdsPolicy { get; set; }
+        public AdsPolicy? AdsPolicy { get; set; }
         public string AdsParam { get; set; }
         public bool? IsActive;
         public DateTime? CreateDate;
@@ -58,6 +59,28 @@ namespace Core.Pricing
 
         }
 
+        public PPVModule(PPVModule other) {
+            m_oPriceCode = Extensions.Clone(other.m_oPriceCode);
+            m_oUsageModule = Extensions.Clone(other.m_oUsageModule);
+            m_oDiscountModule = Extensions.Clone(other.m_oDiscountModule);
+            m_oCouponsGroup = Extensions.Clone(other.m_oCouponsGroup);
+            m_sDescription = Extensions.Clone(other.m_sDescription);
+            m_sObjectCode = other.m_sObjectCode;
+            m_sObjectVirtualName = other.m_sObjectVirtualName;
+            m_bSubscriptionOnly = other.m_bSubscriptionOnly;
+            m_relatedFileTypes = other.m_relatedFileTypes?.ToList();
+            m_Product_Code = other.m_Product_Code;
+            m_bFirstDeviceLimitation = other.m_bFirstDeviceLimitation;
+            alias = other.alias;
+            ExternalId = other.ExternalId;
+            AdsParam = other.AdsParam;
+            IsActive = other.IsActive;
+            CreateDate = other.CreateDate;
+            UpdateDate = other.UpdateDate;
+            VirtualAssetId = other.VirtualAssetId;
+            AssetUserRuleId = other.AssetUserRuleId;
+        }
+        
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
             string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName, List<int> fileTypes, bool bFirstDeviceLimitation, 

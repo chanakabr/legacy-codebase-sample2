@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace CachingProvider.LayeredCache
 {
@@ -261,6 +262,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("AliasMappingFields_groupId_{0}", groupId);
         }
 
+        public static string GetPPVsforFileKey(int fileId)
+        {
+            return $"file_to_ppvs_{fileId}";
+        }
+
         public static Dictionary<string, string> GetRemindersKeysMap(int groupId, List<long> reminderIds)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
@@ -501,14 +507,32 @@ namespace CachingProvider.LayeredCache
             return string.Format("discountCodes_groupId_{0}", groupId);
         }
 
-        public static string GetAllAssetRulesKey(int groupId, int conditionType, int? actionType)
+        public static string GetAllAssetRulesKey(
+            int groupId,
+            int conditionType,
+            int? actionType,
+            string nameContains,
+            string orderBy)
         {
+            var sb = new StringBuilder()
+                .AppendFormat("all_asset_rules_groupId_{0}_conditionType_{1}", groupId, conditionType);
+
             if (actionType.HasValue)
             {
-                return string.Format("all_asset_rules_groupId_{0}_conditionType_{1}_actionType_{2}", groupId, conditionType, actionType.Value);
+                sb.AppendFormat("_actionType_{0}", actionType.Value);
             }
 
-            return string.Format("all_asset_rules_groupId_{0}_conditionType_{1}", groupId, conditionType);
+            if (!string.IsNullOrEmpty(nameContains))
+            {
+                sb.AppendFormat("_nameContains_{0}", nameContains);
+            }
+
+            if (!string.IsNullOrEmpty(orderBy))
+            {
+                sb.AppendFormat("_orderBy_{0}", orderBy);
+            }
+
+            return sb.ToString();
         }
 
         public static string GetAllAssetRulesFromDBKey()
@@ -1285,11 +1309,11 @@ namespace CachingProvider.LayeredCache
 
         public static string GetPagoIdsInvalidationKey(long groupId)
         {
-            return string.Format("invalidationKeyPagoIds_groupId_{0}", groupId);
+            return $"invalidationKeyPagoIds_groupId_{groupId}";
         }
         public static string GetPagoInvalidationKey(long groupId, long pagoId)
         {
-            return string.Format("invalidationKey_Pago_groupId_{0}_Id_{1}", groupId, pagoId);
+            return $"invalidationKey_Pago_groupId_{groupId}_Id_{pagoId}";
         }
 
         public static string GetCollectionsIdsInvalidationKey(int groupId)

@@ -27,7 +27,7 @@ namespace Core.Pricing
 
         SubscriptionsResponse GetSubscriptions(int groupId, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize,
             bool shouldIgnorePaging, bool getAlsoInActive, int? couponGroupIdEqual = null, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, 
-            long? channelIdEqual = null, HashSet<SubscriptionType> subscriptionTypes = null);
+            long? channelIdEqual = null, HashSet<SubscriptionType> subscriptionTypes = null, string nameContains = null);
 
         CouponsGroupResponse GetCouponsGroup(int groupId, long id);
 
@@ -857,7 +857,7 @@ namespace Core.Pricing
                 }
 
                 response.Status = new Status((int)eResponseStatus.OK, "OK");
-                if (filter.ObjectIds == null && filter.ObjectIds.Any())
+                if (filter.ObjectIds == null || !filter.ObjectIds.Any())
                 {
                     return response;
                 }
@@ -1004,10 +1004,11 @@ namespace Core.Pricing
         }
 
         public SubscriptionsResponse GetSubscriptions(int groupId, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize, bool shouldIgnorePaging, 
-            bool getAlsoInActive, int? couponGroupIdEqual = null, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, long? channelIdEqual = null, HashSet<SubscriptionType> subscriptionTypes = null)
+            bool getAlsoInActive, int? couponGroupIdEqual = null, long? previewModuleIdEqual = null, long? pricePlanIdEqual = null, 
+            long? channelIdEqual = null, HashSet<SubscriptionType> subscriptionTypes = null, string nameContains = null)
         {
             // get group's subscriptionIds
-            var groupSubscriptions = PricingCache.Instance.GetGroupSubscriptionsItems(groupId, getAlsoInActive);
+            var groupSubscriptions = PricingCache.Instance.GetGroupSubscriptionsItems(groupId, getAlsoInActive, nameContains);
 
             if (groupSubscriptions == null)
             {

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace ApiObjects.Rules.FilterActions
 {
-    public abstract class FilterFileByDynamicData : AssetRuleAction
+    public abstract class FilterFileByDynamicData : AssetRuleFilterAction
     {
         [JsonProperty("Key")]
         public string Key { get; set; }

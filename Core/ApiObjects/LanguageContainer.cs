@@ -3,12 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
+using Google.Protobuf;
 
 namespace ApiObjects
 {
     [Serializable]
     [DataContract]
-    public class LanguageContainer : IEquatable<LanguageContainer>
+    public class LanguageContainer : IEquatable<LanguageContainer>, IDeepCloneable<LanguageContainer>
     {
         [DataMember]
         [JsonProperty("LanguageCode")]
@@ -24,30 +25,36 @@ namespace ApiObjects
 
         public LanguageContainer()
         {
-            this.m_sLanguageCode3 = string.Empty;
-            this.m_sValue = string.Empty;
-            this.IsDefault = false;
+            m_sLanguageCode3 = string.Empty;
+            m_sValue = string.Empty;
+            IsDefault = false;
         }
 
         public LanguageContainer(string languageCode, string value)
         {
-            this.m_sLanguageCode3 = languageCode;
-            this.m_sValue = value;
-            this.IsDefault = false;
+            m_sLanguageCode3 = languageCode;
+            m_sValue = value;
+            IsDefault = false;
         }
 
         public LanguageContainer(string languageCode, string value, bool isDefault)
         {
-            this.m_sLanguageCode3 = languageCode;
-            this.m_sValue = value;
-            this.IsDefault = isDefault;
+            m_sLanguageCode3 = languageCode;
+            m_sValue = value;
+            IsDefault = isDefault;
+        }
+        
+        public LanguageContainer(LanguageContainer other) {
+            m_sLanguageCode3 = other.m_sLanguageCode3;
+            m_sValue = other.m_sValue;
+            IsDefault = other.IsDefault;
         }
 
         public void Initialize(string languageCode, string value)
         {
-            this.m_sLanguageCode3 = languageCode;
-            this.m_sValue = value;
-            this.IsDefault = false;
+            m_sLanguageCode3 = languageCode;
+            m_sValue = value;
+            IsDefault = false;
         }
 
         public bool Equals(LanguageContainer other)
@@ -58,6 +65,11 @@ namespace ApiObjects
             return m_sLanguageCode3.Equals(other.m_sLanguageCode3) &&
                 m_sValue.Equals(other.m_sValue) &&
                 IsDefault == other.IsDefault;
+        }
+
+        public LanguageContainer Clone()
+        {
+            return new LanguageContainer(this);
         }
 
         /// <summary>

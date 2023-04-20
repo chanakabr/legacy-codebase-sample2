@@ -3,12 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Google.Protobuf;
 
 namespace ApiObjects.Pricing
 {
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class ServiceObject
+    public class ServiceObject : IDeepCloneable<ServiceObject>
     {
         public long ID;
         public string Name;
@@ -21,6 +22,16 @@ namespace ApiObjects.Pricing
         {
             ID = id;
             Name = name;
+        }
+        
+        public ServiceObject(ServiceObject other) {
+            ID = other.ID;
+            Name = other.Name;
+        }
+
+        public ServiceObject Clone()
+        {
+            return new ServiceObject(this);
         }
     }
 

@@ -17,6 +17,7 @@ using CouchbaseManager.Exceptions;
 using Phx.Lib.Appconfig;
 using CouchbaseManager.Models;
 using Polly;
+using Microsoft.Extensions.Logging;
 
 namespace CouchbaseManager
 {
@@ -362,7 +363,7 @@ namespace CouchbaseManager
             {
                 // 1 - not found
                 if (result.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
-                    log.DebugFormat("Could not find key on couchbase: {0}", key);
+                    log.LogTrace($"Could not find key on couchbase: {key}");
                 else
                 {
                     log.ErrorFormat("Error while executing action on CB. Key = {0}, Status code = {1}; Status = {2}, Message = {3}, EX = {4}",
@@ -2088,11 +2089,11 @@ namespace CouchbaseManager
                     {
                         if (item.Value.Status == Couchbase.IO.ResponseStatus.KeyNotFound || item.Value.Status == Couchbase.IO.ResponseStatus.OperationTimeout)
                         {
-                            log.DebugFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+                            log.LogTrace($"Couchbase manager: failed to get key {item.Key}, status {item.Value.Status}");
                         }
                         else
                         {
-                            log.DebugFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
+                            log.LogTrace($"Couchbase manager: failed to get key {item.Key}, status {item.Value.Status}, message {item.Value.Message}");
 
                             // Throw exception if there is one
                             if (item.Value.Exception != null)
@@ -2106,7 +2107,7 @@ namespace CouchbaseManager
                     }
                     else
                     {
-                        log.DebugFormat("Couchbase manager: GetValues success - get key {0}, status {1}", item.Key, item.Value.Status);
+                        log.LogTrace($"Couchbase manager: GetValues success - get key {item.Key}, status {item.Value.Status}");
                     }
                 }
                 

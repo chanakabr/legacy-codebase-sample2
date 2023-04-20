@@ -1923,7 +1923,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
-        private static List<Metas> GetMetaList(SerializableDictionary<string, KalturaValue> metasDictionary)
+        public static List<Metas> GetMetaList(SerializableDictionary<string, KalturaValue> metasDictionary)
         {
             List<Metas> metas = new List<Metas>();
 
@@ -1986,7 +1986,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return metas;
         }
 
-        private static List<Tags> GetTagsList(SerializableDictionary<string, KalturaMultilingualStringValueArray> tagsDictionary)
+        public static List<Tags> GetTagsList(SerializableDictionary<string, KalturaMultilingualStringValueArray> tagsDictionary)
         {
             List<Tags> tags = new List<Tags>();
 

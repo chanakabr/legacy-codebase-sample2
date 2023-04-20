@@ -6,6 +6,7 @@ import "eBusinessModule.proto";
 import "ConcurrencyRestrictionPolicy.proto";
 import "MediaConcurrencyRule.proto";
 import "RuleActionType.proto";
+import "AssetRuleOrderBy.proto";
 import "ruleCondition.proto";
 option csharp_namespace = "phoenix";
 option go_package = "./models";
@@ -32,6 +33,8 @@ message GetAssetRulesRequest{
   int32 groupId = 2;
   SlimAsset slimAsset = 3;
   RuleActionType ruleActionType = 4;
+  string nameContains = 5;
+  AssetRuleOrderBy orderBy = 6;
 }
 
 message GetAssetRulesResponse{

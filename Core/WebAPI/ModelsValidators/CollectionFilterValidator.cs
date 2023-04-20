@@ -7,9 +7,17 @@ namespace WebAPI.ModelsValidators
     {
         public static void Validate(this KalturaCollectionFilter model)
         {
-            if (model.MediaFileIdEqual.HasValue && !string.IsNullOrEmpty(model.CollectionIdIn))
+            if (model.MediaFileIdEqual.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaCollectionFilter.collectionIdIn", "KalturaCollectionFilter.mediaFileIdEqual");
+                if (!string.IsNullOrEmpty(model.CollectionIdIn))
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaCollectionFilter.collectionIdIn", "KalturaCollectionFilter.mediaFileIdEqual");
+                if (!string.IsNullOrEmpty(model.NameContains))
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaCollectionFilter.nameContains", "KalturaCollectionFilter.mediaFileIdEqual");
+            }
+            else if (!string.IsNullOrEmpty(model.CollectionIdIn) && !string.IsNullOrEmpty(model.NameContains))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaCollectionFilter.nameContains", "KalturaCollectionFilter.collectionIdIn");
+
             }
         }
     }

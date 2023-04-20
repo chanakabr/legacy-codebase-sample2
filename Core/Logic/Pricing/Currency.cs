@@ -7,32 +7,32 @@ namespace Core.Pricing
     {
         public Currency()
         {
-            this.m_sCurrencyCD2 = string.Empty;
-            this.m_sCurrencyCD3 = string.Empty;
-            this.m_nCurrencyID = 0;
-            this.m_sCurrencySign = string.Empty;
-            this.m_sCurrencyName = string.Empty;
-            this.m_bIsDefault = false;
+            m_sCurrencyCD2 = string.Empty;
+            m_sCurrencyCD3 = string.Empty;
+            m_nCurrencyID = 0;
+            m_sCurrencySign = string.Empty;
+            m_sCurrencyName = string.Empty;
+            m_bIsDefault = false;
         } 
 
         public Currency(int id, string name, string code, string sign, bool isDefault)
         {
-            this.m_nCurrencyID = id;
-            this.m_sCurrencyName = name;
-            this.m_sCurrencyCD2 = code;
-            this.m_sCurrencySign = sign;
-            this.m_sCurrencyCD3 = string.Empty;
-            this.m_bIsDefault = isDefault;
+            m_nCurrencyID = id;
+            m_sCurrencyName = name;
+            m_sCurrencyCD2 = code;
+            m_sCurrencySign = sign;
+            m_sCurrencyCD3 = string.Empty;
+            m_bIsDefault = isDefault;
         }
 
         public Currency(Currency currency)
         {
-            this.m_nCurrencyID = currency.m_nCurrencyID;
-            this.m_sCurrencyName = currency.m_sCurrencyName;
-            this.m_sCurrencyCD2 = currency.m_sCurrencyCD2;
-            this.m_sCurrencySign = currency.m_sCurrencySign;
-            this.m_sCurrencyCD3 = currency.m_sCurrencyCD3;
-            this.m_bIsDefault = currency.m_bIsDefault;
+            m_nCurrencyID = currency.m_nCurrencyID;
+            m_sCurrencyName = currency.m_sCurrencyName;
+            m_sCurrencyCD2 = currency.m_sCurrencyCD2;
+            m_sCurrencySign = currency.m_sCurrencySign;
+            m_sCurrencyCD3 = currency.m_sCurrencyCD3;
+            m_bIsDefault = currency.m_bIsDefault;
         }
 
         public void InitializeById(Int32 nID)

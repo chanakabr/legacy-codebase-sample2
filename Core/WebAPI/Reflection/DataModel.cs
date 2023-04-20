@@ -48,6 +48,7 @@ using WebAPI.Models.AssetSelection;
 using WebAPI.Models.Catalog.Ordering;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
+using WebAPI.Models.ConditionalAccess.FilterActions;
 using WebAPI.Models.Upload;
 using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.DMS;
@@ -56,11 +57,11 @@ using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
 using WebAPI.Models;
 using WebAPI.Models.Users.UserSessionProfile;
-using WebAPI.Models.ConditionalAccess.FilterActions;
 using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
+using WebAPI.Models.Catalog.Lineup;
 using WebAPI.Models.Catalog.GroupRepresentatives;
 using WebAPI.Models.LiveToVod;
 using WebAPI.Models.Api;
@@ -753,6 +754,8 @@ namespace WebAPI.Reflection
                             return "assetRuleIdEqual";
                         case "ConditionsContainType":
                             return "conditionsContainType";
+                        case "NameContains":
+                            return "nameContains";
                     }
                     break;
                     
@@ -2123,6 +2126,8 @@ namespace WebAPI.Reflection
                             return "couponGroupIdEqual";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
+                        case "NameContains":
+                            return "nameContains";
                     }
                     break;
                     
@@ -3726,6 +3731,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaFilterAction":
+                    switch(property.Name)
+                    {
+                        case "PreActionCondition":
+                            return "preActionCondition";
+                    }
+                    break;
+                    
                 case "KalturaFilterAssetByKsqlAction":
                     switch(property.Name)
                     {
@@ -5003,6 +5016,22 @@ namespace WebAPI.Reflection
                     {
                         case "Enabled":
                             return "enabled";
+                    }
+                    break;
+                    
+                case "KalturaLineupRegionalChannelFilter":
+                    switch(property.Name)
+                    {
+                        case "KSql":
+                            return "kSql";
+                        case "LcnGreaterThanOrEqual":
+                            return "lcnGreaterThanOrEqual";
+                        case "LcnLessThanOrEqual":
+                            return "lcnLessThanOrEqual";
+                        case "ParentRegionIncluded":
+                            return "parentRegionIncluded";
+                        case "RegionIdEqual":
+                            return "regionIdEqual";
                     }
                     break;
                     
@@ -6348,6 +6377,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPersonalActivityCleanupConfiguration":
+                    switch(property.Name)
+                    {
+                        case "RetentionPeriodDays":
+                            return "retentionPeriodDays";
+                    }
+                    break;
+                    
                 case "KalturaPersonalAsset":
                     switch(property.Name)
                     {
@@ -6671,6 +6708,8 @@ namespace WebAPI.Reflection
                             return "couponGroupIdEqual";
                         case "IdIn":
                             return "idIn";
+                        case "NameContains":
+                            return "nameContains";
                     }
                     break;
                     
@@ -7047,6 +7086,8 @@ namespace WebAPI.Reflection
                     {
                         case "AlsoInactive":
                             return "alsoInactive";
+                        case "NameContains":
+                            return "nameContains";
                     }
                     break;
                     
@@ -8018,6 +8059,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaShopPreActionCondition":
+                    switch(property.Name)
+                    {
+                        case "ShopAssetUserRuleId":
+                            return "shopAssetUserRuleId";
+                    }
+                    break;
+                    
                 case "KalturaSingleSegmentValue":
                     switch(property.Name)
                     {
@@ -8549,6 +8598,8 @@ namespace WebAPI.Reflection
                             return "kSql";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
+                        case "NameContains":
+                            return "nameContains";
                         case "PreviewModuleIdEqual":
                             return "previewModuleIdEqual";
                         case "PricePlanIdEqual":
@@ -11549,6 +11600,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("lineup", "get", WebAPI.Managers.eKSValidation.All);
                             return LineupController.Get((Nullable<int>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
+                        case "list":
+                            RolesManager.ValidateActionPermitted("lineup", "list", WebAPI.Managers.eKSValidation.All);
+                            return LineupController.List((KalturaLineupRegionalChannelFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
                         case "sendupdatednotification":
                             RolesManager.ValidateActionPermitted("lineup", "sendUpdatedNotification", WebAPI.Managers.eKSValidation.All);
                             return LineupController.SendUpdatedNotification((string) methodParams[0]);
@@ -12430,6 +12485,20 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("permissionItem", "list", WebAPI.Managers.eKSValidation.All);
                             return PermissionItemController.List((KalturaPermissionItemFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "personalactivitycleanup":
+                    switch(action)
+                    {
+                        case "getpartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("personalActivityCleanup", "getPartnerConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return PersonalActivityCleanupController.GetPartnerConfiguration();
+                            
+                        case "updatepartnerconfiguration":
+                            RolesManager.ValidateActionPermitted("personalActivityCleanup", "updatePartnerConfiguration", WebAPI.Managers.eKSValidation.All);
+                            return PersonalActivityCleanupController.UpdatePartnerConfiguration((KalturaPersonalActivityCleanupConfiguration) methodParams[0]);
                             
                     }
                     break;
@@ -19492,6 +19561,21 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLineupRegionalChannelFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
                         case "sendupdatednotification":
                             ret.Add("regionIds", new MethodParam(){
                                 NewName = newParamName,
@@ -21365,6 +21449,23 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "personalactivitycleanup":
+                    switch(action)
+                    {
+                        case "getpartnerconfiguration":
+                            return ret;
+                            
+                        case "updatepartnerconfiguration":
+                            ret.Add("personalActivityCleanupConfiguration", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPersonalActivityCleanupConfiguration),
                             });
                             return ret;
                             

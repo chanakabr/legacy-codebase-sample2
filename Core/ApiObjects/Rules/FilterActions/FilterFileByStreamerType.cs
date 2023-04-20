@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 namespace ApiObjects.Rules.FilterActions
 {
     [Serializable]
-    public abstract class FilterFileByStreamerType : AssetRuleAction
+    public abstract class FilterFileByStreamerType : AssetRuleFilterAction
     {
         [JsonProperty("StreamerTypes")]
         public List<StreamerType> StreamerTypes { get; set; }

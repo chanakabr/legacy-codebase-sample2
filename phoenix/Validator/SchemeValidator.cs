@@ -46,7 +46,8 @@ namespace Validator.Managers.Scheme
             "MatchOr",
             "MatchAnd",
             "NotContains",
-            "Empty"
+            "Empty",
+            "Contains"
         };
 
         private static readonly HashSet<eResponseStatus> mismatchEnums = new HashSet<eResponseStatus>() {

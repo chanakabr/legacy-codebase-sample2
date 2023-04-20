@@ -9,6 +9,7 @@ using ApiLogic.Pricing.Handlers;
 using ApiLogic.Repositories;
 using CachingProvider.LayeredCache;
 using Core.Api;
+using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
@@ -41,6 +42,7 @@ using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Extensions.RecordingFailed;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
 using Phoenix.Generated.Api.Events.Logical.IndexRecording;
+using Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup;
 using Phoenix.Generated.Api.Events.Logical.RebuildRecordingsIndex;
 using Phoenix.Generated.Tasks.Recurring.EpgV3Cleanup;
 using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
@@ -106,11 +108,13 @@ namespace Phoenix.AsyncHandler
                 .AddScoped<ILiveToVodAssetManager, LiveToVodAssetManager>()
                 .AddScoped<ILiveToVodAssetRepository, LiveToVodAssetRepository>()
                 .AddScoped<ILiveToVodAssetCrudMessagePublisher, LiveToVodAssetCrudMessagePublisher>()
+                .AddScoped<IPersonalActivityCleanupCompletePublisher, PersonalActivityCleanupCompletePublisher>()
                 .AddScoped<ILiveToVodImageService, LiveToVodImageService>()
                 .AddScoped<IImageManager, Core.Catalog.CatalogManagement.ImageManager>()
                 .AddScoped<ITtlService, TtlService>()
                 .AddScoped<ILiveToVodAssetFileService, LiveToVodAssetFileService>()
                 .AddScoped<IMediaFileTypeManager, FileManager>()
+                .AddScoped<IAssetUserRuleManager, AssetUserRuleManager>()
                 .AddScoped<IPriceManager, PriceManager>()
                 .AddScoped<ILiveToVodPpvModuleParser, LiveToVodPpvModuleParser>()
                 .AddScoped<IPpvManager, PpvManager>()
@@ -166,6 +170,7 @@ namespace Phoenix.AsyncHandler
             services.AddKafkaHandler<EntitlementLogicalHandler, AppstoreNotification>("appstore-notification", AppstoreNotification.GetTopic());
             services.AddKafkaHandler<LiveToVodAssetHandler, ProgramAsset>("live-to-vod-asset", ProgramAsset.GetTopic());
             services.AddKafkaHandler<RecordingFailedHandler, RecordingFailed>("recording-failed", RecordingFailed.GetTopic());
+            services.AddKafkaHandler<PersonalActivityCleanupHandler, PersonalActivityCleanup>("personal-activity-cleanup", PersonalActivityCleanup.GetTopic());
             return services;
         }
         

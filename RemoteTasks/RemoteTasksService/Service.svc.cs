@@ -79,6 +79,15 @@ namespace RemoteTasksService
                 log.Debug($"Info - Request: {request.task} should be handled by taskHandlerName: {taskHandlerName}.");
 
                 var taskHandlerType = Type.GetType($"{taskHandlerName}.TaskHandler, {taskHandlerName}");
+
+                if (taskHandlerType == null)
+                {
+                    response.status = "failure";
+                    response.reason = $"TaskHandler '{taskHandlerName}' failed to load";
+                    Metrics.Track(taskHandlerName, response, groupId);
+                    return response;
+                }
+
                 var taskHandler = (ITaskHandler)Activator.CreateInstance(taskHandlerType);
 
                 response.retval = taskHandler.HandleTask(request.data);
@@ -88,7 +97,7 @@ namespace RemoteTasksService
             }
             catch (Exception ex)
             {
-                log.Error("Error - Add Task Request Failed", ex);
+                log.Error($"Error - Add Task {taskHandlerName} Request Failed", ex);
                 response.status = "failure";
                 response.reason = ex.Message;
             }

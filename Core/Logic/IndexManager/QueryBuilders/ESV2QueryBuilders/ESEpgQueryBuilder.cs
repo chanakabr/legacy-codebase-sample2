@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiObjects;
 using ApiObjects.SearchObjects;
+using Core.Catalog.Searchers;
+using Core.GroupManagers;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 
@@ -10,6 +13,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 {
     public class ESEpgQueryBuilder
     {
+        private readonly int _partnerId;
 
         protected static readonly List<string> DEFAULT_RETURN_FIELDS = new List<string>(8) { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"epg_id\"", "\"name\", \"cache_date\"" };
         public static readonly string AND_CONDITION = "AND";
@@ -22,8 +26,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
         public bool bAnalyzeWildcards { get; set; }
         public List<string> ReturnFields { get; protected set; }
         
-        public ESEpgQueryBuilder()
+        public ESEpgQueryBuilder(int partnerId)
         {
+            _partnerId = partnerId;
             ReturnFields = DEFAULT_RETURN_FIELDS;
         }
 
@@ -115,10 +120,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 filteredQuery.Query = mainBooleanQuery;
                 filteredQuery.Filter = CreateFilterForSearchQueryString();
 
+                Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, filteredQuery.Filter);
 
                 filteredQuery.PageSize = m_oEpgSearchObj.m_nPageSize;
                 filteredQuery.PageIndex = m_oEpgSearchObj.m_nPageIndex;
-
 
                 if (!string.IsNullOrEmpty(m_oEpgSearchObj.m_sOrderBy))
                 {
@@ -154,6 +159,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         FilteredQuery prevProgrammes = CreateFilteredQueryForCurrentRequest(true, i, startDate);
                         FilteredQuery nextProgrammes = CreateFilteredQueryForCurrentRequest(false, i, startDate);
+                        Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, prevProgrammes.Filter);
+                        Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, nextProgrammes.Filter);
+
                         res.Add(prevProgrammes.ToString());
                         res.Add(nextProgrammes.ToString());
 
@@ -221,13 +229,14 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         filter.FilterSettings = new EpgChannelsFilterCompositeType(filterComposite, new List<long>(1) { m_oEpgSearchObj.m_oEpgChannelIDs[i] });
                         fq.Filter = filter;
+                        Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, fq.Filter);
+
                         res.Add(fq.ToString());
                     }
                 }
             }
 
             return res;
-
         }
 
         private FilteredQuery CreateFilteredQueryForCurrentRequest(bool isPrev, int index, string startDate)
@@ -365,6 +374,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             filteredQuery.PageSize = m_oEpgSearchObj.m_nPageSize;
             filteredQuery.PageIndex = m_oEpgSearchObj.m_nPageIndex;
+
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, filteredQuery.Filter);
 
             return filteredQuery;
         }

@@ -4,15 +4,18 @@ using System.Linq;
 using System.Text;
 using ApiObjects;
 using System.Data;
+using APILogic;
 using DAL;
 using ApiObjects.Pricing;
+using Google.Protobuf;
 
 namespace Core.Pricing
 {
     [Serializable]
-    public class Collection : PPVModule
+    public class Collection : PPVModule, IDeepCloneable<Collection>
     {
         #region Member
+
         //The codes which identify which medias are relevant to the subscription (int Tvinci it is the channels)
         public BundleCodeContainer[] m_sCodes;
         public DateTime? m_dStartDate;
@@ -32,15 +35,35 @@ namespace Core.Pricing
         #endregion
 
         #region Ctr
+
         public Collection()
             : base()
         {
             m_sName = null;
             m_oCollectionUsageModule = null;
         }
+        
+        public Collection(Collection other) : base(other)
+        {
+            m_sCodes = Extensions.Clone(other.m_sCodes);
+            m_dStartDate = other.m_dStartDate;
+            m_dEndDate = other.m_dEndDate;
+            m_sFileTypes = other.m_sFileTypes?.ToArray();
+            m_oCollectionPriceCode = Extensions.Clone(other.m_oCollectionPriceCode);
+            m_oExtDisountModule = Extensions.Clone(other.m_oExtDisountModule);
+            m_sName = other.m_sName?.ToArray();
+            m_oCollectionUsageModule = Extensions.Clone(other.m_oCollectionUsageModule);
+            m_fictivicMediaID = other.m_fictivicMediaID;
+            m_ProductCode = other.m_ProductCode;
+            m_CollectionCode = other.m_CollectionCode;
+            CouponsGroups = Extensions.Clone(other.CouponsGroups);
+            ExternalProductCodes = other.ExternalProductCodes != null ? new List<KeyValuePair<VerificationPaymentGateway, string>>(other.ExternalProductCodes) : other.ExternalProductCodes;
+        }
+
         #endregion
 
         #region Methods
+
         /// <summary>
         /// Get Fictivic Media ID
         /// </summary>
@@ -57,7 +80,8 @@ namespace Core.Pricing
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("pricing_connection");
-                selectQuery += "select FICTIVIC_MEDIA_META_NAME, FICTIVIC_GROUP_ID from groups_parameters with (nolock)";
+                selectQuery +=
+                    "select FICTIVIC_MEDIA_META_NAME, FICTIVIC_GROUP_ID from groups_parameters with (nolock)";
                 selectQuery += " where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
                 if (selectQuery.Execute("query", true) != null)
@@ -65,8 +89,10 @@ namespace Core.Pricing
                     int count = selectQuery.Table("query").DefaultView.Count;
                     if (count > 0)
                     {
-                        paramName = selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_MEDIA_META_NAME"].ToString();
-                        fictivicGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_GROUP_ID"].ToString());
+                        paramName = selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_MEDIA_META_NAME"]
+                            .ToString();
+                        fictivicGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_GROUP_ID"]
+                            .ToString());
                     }
                 }
 
@@ -84,10 +110,12 @@ namespace Core.Pricing
                         int count = mediaSelectQuery.Table("query").DefaultView.Count;
                         if (count > 0)
                         {
-                            fictivicMediaID = int.Parse(mediaSelectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                            fictivicMediaID =
+                                int.Parse(mediaSelectQuery.Table("query").DefaultView[0].Row["id"].ToString());
                         }
                     }
                 }
+
                 m_fictivicMediaID = fictivicMediaID;
             }
             finally
@@ -96,6 +124,7 @@ namespace Core.Pricing
                 {
                     selectQuery.Finish();
                 }
+
                 if (mediaSelectQuery != null)
                 {
                     mediaSelectQuery.Finish();
@@ -106,30 +135,34 @@ namespace Core.Pricing
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
             string sCollectionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, LanguageContainer[] sName, PriceCode colPriceCode, UsageModule oColUsageModule, string sObjectVirtualName)
+            Int32[] sFileTypes, LanguageContainer[] sName, PriceCode colPriceCode, UsageModule oColUsageModule,
+            string sObjectVirtualName)
         {
             Initialize(0, oPriceCode, oUsageModule,
-            oDiscountModule, oCouponsGroup, sDescriptions,
-            sCollectionCode, sCodes, dStart, dEnd,
-            sFileTypes, sName, colPriceCode, oColUsageModule, sObjectVirtualName);
+                oDiscountModule, oCouponsGroup, sDescriptions,
+                sCollectionCode, sCodes, dStart, dEnd,
+                sFileTypes, sName, colPriceCode, oColUsageModule, sObjectVirtualName);
         }
 
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
-            DiscountModule oDiscountModule, DiscountModule extDisountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
+            DiscountModule oDiscountModule, DiscountModule extDisountModule, CouponsGroup oCouponsGroup,
+            LanguageContainer[] sDescriptions,
             string sCollectionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode colPriceCode, UsageModule oColUsageModule, string sObjectVirtualName)
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName,
+            PriceCode colPriceCode, UsageModule oColUsageModule, string sObjectVirtualName)
         {
             Initialize(0, oPriceCode, oUsageModule,
-            oDiscountModule, oCouponsGroup, sDescriptions,
-            sCollectionCode, sCodes, dStart, dEnd,
-            sFileTypes, sName, colPriceCode, oColUsageModule, sObjectVirtualName);
+                oDiscountModule, oCouponsGroup, sDescriptions,
+                sCollectionCode, sCodes, dStart, dEnd,
+                sFileTypes, sName, colPriceCode, oColUsageModule, sObjectVirtualName);
             m_oExtDisountModule = extDisountModule;
         }
 
         public void Initialize(Int32 nGroupID, PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
             string sCollectionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, LanguageContainer[] sName, PriceCode colPriceCode, UsageModule oColUsageModule, string sObjectVirtualName)
+            Int32[] sFileTypes, LanguageContainer[] sName, PriceCode colPriceCode, UsageModule oColUsageModule,
+            string sObjectVirtualName)
         {
             base.Initialize(oPriceCode, oUsageModule, oDiscountModule, oCouponsGroup, sDescriptions,
                 sCollectionCode, false, sObjectVirtualName, null, false);
@@ -150,8 +183,10 @@ namespace Core.Pricing
             string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
             string sCollectionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
             Int32[] sFileTypes, LanguageContainer[] sName, string colPriceCode,
-            string sColUsageModule, string sObjectVirtualName, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
-            string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes, List<SubscriptionCouponGroup> couponsGroups)
+            string sColUsageModule, string sObjectVirtualName, string sCountryCd, string sLANGUAGE_CODE,
+            string sDEVICE_NAME,
+            string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes,
+            List<SubscriptionCouponGroup> couponsGroups)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sCollectionCode, false, sObjectVirtualName,
@@ -196,11 +231,11 @@ namespace Core.Pricing
         }
 
         public void Initialize(string sPriceCode, string sUsageModuleCode,
-           string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
-           string sCollectionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-           Int32[] sFileTypes, LanguageContainer[] sName, string colPriceCode,
-           string sColUsageModule, string sObjectVirtualName,
-           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sProductCode, string sExtDiscount)
+            string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
+            string sCollectionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
+            Int32[] sFileTypes, LanguageContainer[] sName, string colPriceCode,
+            string sColUsageModule, string sObjectVirtualName,
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sProductCode, string sExtDiscount)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sCollectionCode, false, sObjectVirtualName,
@@ -254,6 +289,11 @@ namespace Core.Pricing
                 m_oExtDisountModule = null;
         }
 
+        public Collection Clone()
+        {
+            return new Collection(this);
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("Collection. ");
@@ -264,7 +304,5 @@ namespace Core.Pricing
         }
 
         #endregion
-
     }
 }
-

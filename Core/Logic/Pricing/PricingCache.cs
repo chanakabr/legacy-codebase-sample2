@@ -14,7 +14,7 @@ namespace Core.Pricing
     public interface IPricingCache
     {
         bool TryGetGroupPricePlans(string key, out List<UsageModule> pricePlans);
-        List<SubscriptionItemDTO> GetGroupSubscriptionsItems(int groupId, bool getAlsoInActive);
+        List<SubscriptionItemDTO> GetGroupSubscriptionsItems(int groupId, bool getAlsoInActive, string nameContains);
         List<Subscription> GetSubscriptions(int groupId, List<long> subscriptionIds);
         bool InvalidateSubscription(int groupId, int subId = 0);
         bool InvalidateSubscriptions(int groupId, List<int> subIds = null);
@@ -373,7 +373,7 @@ namespace Core.Pricing
             return result;
         }
 
-        public static List<long> GetCollectionsIds(int groupId, bool inactiveAssets, HashSet<long> assetUserRuleIds)
+        public static List<long> GetCollectionsIds(int groupId, bool inactiveAssets, HashSet<long> assetUserRuleIds, string nameContains)
         {
             var response = new List<long>();
             
@@ -386,6 +386,11 @@ namespace Core.Pricing
                     foreach (var item in result)
                     {
                         if (!inactiveAssets && !item.IsActive)
+                        {
+                            continue;
+                        }
+
+                        if (!string.IsNullOrEmpty(nameContains) && !string.IsNullOrEmpty(item.Name) && item.Name.IndexOf(nameContains, StringComparison.OrdinalIgnoreCase) == -1)
                         {
                             continue;
                         }
@@ -453,7 +458,7 @@ namespace Core.Pricing
             return result;
         }
 
-        public List<SubscriptionItemDTO> GetGroupSubscriptionsItems(int groupId, bool getAlsoInActive)
+        public List<SubscriptionItemDTO> GetGroupSubscriptionsItems(int groupId, bool getAlsoInActive, string nameContains)
         {
             var response = new List<SubscriptionItemDTO>();
             try
@@ -469,9 +474,20 @@ namespace Core.Pricing
                     return response;
                 }
 
-                if (!getAlsoInActive && response?.Count > 0)
+                if (response != null)
                 {
-                    response = response.Where(x => x.IsActive).ToList();
+                    var tempResult = response.AsEnumerable();
+                    if (!getAlsoInActive && tempResult.Any())
+                    {
+                        tempResult = tempResult.Where(x => x.IsActive);
+                    }
+
+                    if (!string.IsNullOrEmpty(nameContains) && tempResult.Any())
+                    {
+                        tempResult = tempResult.Where(x => x.Name.IndexOf(nameContains, StringComparison.OrdinalIgnoreCase) > -1);
+                    }
+
+                    response = tempResult.ToList();
                 }
             }
             catch (Exception ex)
@@ -489,7 +505,7 @@ namespace Core.Pricing
 
         public static string GetGroupCollectionsItemsCacheKey(int groupId)
         {
-            return $"GroupCollectionsItems_{groupId}";
+            return $"GroupCollectionsItems_V2_{groupId}";
         }
 
         public static Tuple<Dictionary<long, bool>, bool> GetGroupCollectionIds(Dictionary<string, object> funcParams)

@@ -88,5 +88,11 @@ namespace ApiObjects.Response
         {
             return this.Status != null ? this.Status.Code + " - " + this.Status.Message : string.Empty;
         }
+
+        public T GetOrThrow(Exception customException = null)
+        {
+            if (IsOkStatusCode()) return Object;
+            throw customException ?? new KalturaException(Status.Message, Status.Code);
+        }
     }
 }

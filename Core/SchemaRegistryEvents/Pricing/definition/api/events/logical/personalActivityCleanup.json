@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/events/logical/personalActivityCleanup",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PersonalActivityCleanup",
+  "type": "object",
+  "description": "Indicates that its time to cleanup old personal data activity records for partner in question.",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/logical/gdpr/personalActivityCleanup"
+    }
+  ]
+}

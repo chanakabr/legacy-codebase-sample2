@@ -86,6 +86,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     0,
                     30,
                     true,
+                    null,
                     null))
                 .Returns(new GenericListResponse<PPVModule>());
 
@@ -115,6 +116,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     0,
                     30,
                     true,
+                    null,
                     null))
                 .Returns(new GenericListResponse<PPVModule>(Status.Ok, Enumerable.Empty<PPVModule>().ToList()));
 
@@ -144,6 +146,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     0,
                     30,
                     true,
+                    null,
                     null))
                 .Returns(new GenericListResponse<PPVModule>(
                     Status.Ok,

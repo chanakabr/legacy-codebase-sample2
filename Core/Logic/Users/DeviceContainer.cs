@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using APILogic;
+using Google.Protobuf;
 
 namespace Core.Users
 {   
     [Serializable]
     [JsonObject(Id = "DeviceContainer")]
-    public class DeviceContainer
+    public class DeviceContainer : IDeepCloneable<DeviceContainer>
     {
         [XmlIgnore]
         [JsonProperty()]
@@ -33,6 +35,20 @@ namespace Core.Users
 
         public DeviceContainer()
         {
+        }
+
+        public DeviceContainer(DeviceContainer other) {
+            m_DeviceInstances = Extensions.Clone(other.DeviceInstances);
+            m_deviceFamilyName = other.m_deviceFamilyName;
+            m_deviceFamilyID = other.m_deviceFamilyID;
+            m_deviceLimit = other.m_deviceLimit;
+            m_deviceConcurrentLimit = other.m_deviceConcurrentLimit;
+            m_oLimitationsManager = Extensions.Clone(other.m_oLimitationsManager);
+        }
+
+        public DeviceContainer Clone()
+        {
+            return new DeviceContainer(this);
         }
 
         public override string ToString()

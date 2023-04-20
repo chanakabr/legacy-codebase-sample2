@@ -1351,6 +1351,14 @@ namespace Core.ConditionalAccess
                                         {
                                             log.ErrorFormat("Error to Insert RecurringRenewDetails to CB, purchaseId:{0}.", purchaseID);
                                         }
+
+                                        if (!couponFullDiscount && !isGiftCard)
+                                        {
+                                            if (!ConditionalAccessDAL.AddRenewToSumOfRenews(purchaseID))
+                                            {
+                                                log.ErrorFormat("Error to Insert RenewToSumOfRenews to db, purchaseId:{0}.", purchaseID);
+                                            }
+                                        }
                                     }
 
                                     return response;

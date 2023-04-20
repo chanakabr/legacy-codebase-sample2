@@ -6906,13 +6906,13 @@ namespace Core.Catalog
                     cacheKey.AppendFormat($"_l={langId}"); //BEO-11556
                     cacheKey.AppendFormat("_p={0}|{1}", unifiedSearchDefinitions.pageIndex, unifiedSearchDefinitions.pageSize);
                     cacheKey.Append(BuildOrderCacheKeyPart(unifiedSearchDefinitions));
-                    
+
                     if (unifiedSearchDefinitions.groupBy != null && unifiedSearchDefinitions.groupBy.Any())
                     {
                         var groupByKey = string.Join(",", unifiedSearchDefinitions.groupBy.Select(_ => $"{_.Key}|{_.Type}|{_.Value}"));
                         cacheKey.AppendFormat("_gb={0}", groupByKey);
                     }
-                    
+
                     if (assetTypes != null && assetTypes.Count > 0)
                     {
                         cacheKey.AppendFormat("_t={0}", string.Join("|", assetTypes.OrderBy(at => at)));
@@ -7658,7 +7658,7 @@ namespace Core.Catalog
                     }
                     else if (searchKey.ValueType == typeof(int) || searchKey.ValueType == typeof(long))
                     {
-                        if (leaf.value != DBNull.Value && leaf.value != null && 
+                        if (leaf.value != DBNull.Value && leaf.value != null &&
                             Convert.ToString(leaf.value) != string.Empty)
                         {
                             leaf.value = Convert.ToInt64(leaf.value);
@@ -7673,7 +7673,7 @@ namespace Core.Catalog
                             definitions.numericEpgMetas.Add(searchKey.Field);
                         }
                         leaf.valueType = typeof(long);
-                        leaf.shouldLowercase = false;   
+                        leaf.shouldLowercase = false;
                     }
                     else
                     {
@@ -8559,8 +8559,8 @@ namespace Core.Catalog
                 .CurrentRequestDaysOffset.Value;
 
             #region Regions and associations
-            
-            if (!definitions.isAllowedToViewInactiveAssets)
+
+            if (!definitions.isAllowedToViewInactiveAssets && !definitions.IgnoreSearchRegions)
             {
                 CatalogLogic.SetSearchRegions(request.m_nGroupID, doesGroupUsesTemplates, request.domainId, request.m_sSiteGuid, out var regionIds, out var linearMediaTypes);
 
@@ -9417,7 +9417,7 @@ namespace Core.Catalog
                         searchDefinitions.pageSize = elasticSearchPageSize;
                         searchDefinitions.shouldReturnExtendedSearchResult =
                             searchDefinitions.extraReturnFields?.Count > 0;
-                        
+
                         searchDefinitions.EpgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
 
                         if (elasticSearchPageSize > 0)

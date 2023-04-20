@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using CachingProvider.LayeredCache;
 
 namespace Core.Pricing
 {
@@ -31,54 +32,73 @@ namespace Core.Pricing
 
         #region Public methods with cache support
 
-        public override MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int[] nMediaFileIDs)
+        public Tuple<Dictionary<string, MediaFilePPVContainer>, bool> GetPPVsForMediaFileIdsDB(Dictionary<string, object> funcParams)
         {
-            if (nMediaFileIDs != null && nMediaFileIDs.Length > 0)
-            {
-                Dictionary<int, int> mediaFilesToIndexMapping = new Dictionary<int, int>();
-                List<int> uncachedMediaFilesPPVModules = new List<int>();
-                SortedSet<SortedMediaFilePPVContainer> set = new SortedSet<SortedMediaFilePPVContainer>();
-                for (int i = 0; i < nMediaFileIDs.Length; i++)
-                {
-                    if (nMediaFileIDs[i] < 1 || mediaFilesToIndexMapping.ContainsKey(nMediaFileIDs[i]))
-                        continue;
-                    string cacheKey = GetPPVModuleListForMediaFilesCacheKey(nMediaFileIDs[i], true);
-                    MediaFilePPVContainer temp = null;
-                    if (PricingCache.TryGetMediaFilePPVContainer(cacheKey, out temp) && temp != null)
-                    {
-                        set.Add(new SortedMediaFilePPVContainer(temp, i));
-                    }
-                    else
-                    {
-                        uncachedMediaFilesPPVModules.Add(nMediaFileIDs[i]);
-                        mediaFilesToIndexMapping.Add(nMediaFileIDs[i], i);
-                    }
-                } // for
+            Dictionary<string, MediaFilePPVContainer> fileMap = new Dictionary<string, MediaFilePPVContainer>();
+            int[] fileIds = null;
 
-                if (uncachedMediaFilesPPVModules.Count > 0)
+            if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+            {
+                fileIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(int.Parse).ToArray();
+            }
+            else if (funcParams.ContainsKey("fileIds") && funcParams["fileIds"] != null)
+            {
+                fileIds = ((List<string>)funcParams["fileIds"]).Select(int.Parse).ToArray();
+            }
+
+            if (fileIds?.Length > 0)
+            {
+                var mfpc = originalBasePPVModule.Get_PPVModuleForMediaFiles(fileIds);
+
+                if (mfpc != null)
                 {
-                    // fetch uncached data from the correct instance of BasePPVModule
-                    MediaFilePPVContainer[] arrOfUncachedData = originalBasePPVModule.Get_PPVModuleForMediaFiles(uncachedMediaFilesPPVModules.ToArray());                     
-                    if (arrOfUncachedData != null && arrOfUncachedData.Length > 0)
+                    foreach (var item in mfpc)
                     {
-                        for (int i = 0; i < arrOfUncachedData.Length; i++)
-                        {
-                            if (arrOfUncachedData[i] != null && arrOfUncachedData[i].m_nMediaFileID > 0
-                                && mediaFilesToIndexMapping.ContainsKey(arrOfUncachedData[i].m_nMediaFileID))
-                            {
-                                string cacheKey = GetPPVModuleListForMediaFilesCacheKey(arrOfUncachedData[i].m_nMediaFileID, true);
-                                if (!PricingCache.TryAddMediaFilePPVContainer(cacheKey, arrOfUncachedData[i]))
-                                {
-                                    PricingCache.LogCachingError("Failed to insert entry into cache. ", cacheKey, arrOfUncachedData[i],
-                                        "GetPPVModuleListForMediaFilesWithExpiry", PPV_CACHE_WRAPPER_LOG_FILE);
-                                }
-                                set.Add(new SortedMediaFilePPVContainer(arrOfUncachedData[i], mediaFilesToIndexMapping[arrOfUncachedData[i].m_nMediaFileID]));
-                            }
-                        } // for
+                        fileMap.Add(LayeredCacheKeys.GetPPVsforFileKey(item.m_nMediaFileID), item);
                     }
                 }
+            }
 
-                return set.Select((item) => item.MediaFilePPVContainerObj).ToArray<MediaFilePPVContainer>();
+            return Tuple.Create(fileMap, true);
+        }
+
+        public override MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int[] nMediaFileIDs)
+        {
+            if (nMediaFileIDs.Any())
+            {
+                var groupId = m_nGroupID > 0 ?  m_nGroupID : originalBasePPVModule.GroupID;
+                var mediaFileIds = nMediaFileIDs.ToHashSet();
+                var cacheKeys = new Dictionary<string, string>();
+                foreach (var mediaFileId in mediaFileIds)
+                {
+                    if (mediaFileId < 1) continue;
+                    cacheKeys.Add(LayeredCacheKeys.GetPPVsforFileKey(mediaFileId), mediaFileId.ToString());
+                }
+
+                var results = new Dictionary<string, MediaFilePPVContainer>();
+
+                var parameters = new Dictionary<string, object>() {
+                                                        { "groupId", groupId },
+                                                        { "fileIds", cacheKeys.Values.ToList() }
+                                                   };
+
+                if (LayeredCache.Instance.GetValues(cacheKeys, ref results,
+                        GetPPVsForMediaFileIdsDB, parameters,
+                        groupId,
+                        LayeredCacheConfigNames.GET_PPV_FOR_FILE) &&
+                    results != null)
+                {
+                    var mediaFilesContainer = new MediaFilePPVContainer[results.Values.Count];
+                    var i = 0;
+                    foreach (var mediaFileContainer in results.Values)
+                    {
+                        var validForPurchase = mediaFileContainer.m_oPPVModules?.Where(y => y.IsValidForPurchase).ToArray();
+                        mediaFilesContainer[i] = new MediaFilePPVContainer
+                            { m_oPPVModules = validForPurchase, m_nMediaFileID = mediaFileContainer.m_nMediaFileID, m_sProductCode = mediaFileContainer.m_sProductCode };
+                        i++;
+                    }
+                    return mediaFilesContainer;
+                }
             }
 
             return null;

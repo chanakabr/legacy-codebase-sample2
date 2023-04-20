@@ -15,7 +15,7 @@
     
   <ItemGroup>
     <PackageReference Include="ott.client.cloudfront-invalidator.grpc" Version="0.0.1" />
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.4" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.5" />
   </ItemGroup>
 
   <ItemGroup>

@@ -553,7 +553,7 @@ namespace ApiLogic.Pricing.Handlers
             return new Status(eResponseStatus.OK);
         }
 
-        public GenericListResponse<ProgramAssetGroupOffer> List(ContextData contextData, List<long> programAssetGroupOfferIds, bool inactiveAssets,
+        public GenericListResponse<ProgramAssetGroupOffer> List(ContextData contextData, List<long> programAssetGroupOfferIds, bool inactiveAssets, string nameContains,
             ProgramAssetGroupOfferOrderBy orderBy, CorePager corePager)
         {
             GenericListResponse<ProgramAssetGroupOffer> response = new GenericListResponse<ProgramAssetGroupOffer>();
@@ -576,7 +576,7 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             // getting all pagos
-            response.Objects = GetProgramAssetGroupOffers(contextData.GroupId, programAssetGroupOfferIds, inactiveAssets);
+            response.Objects = GetProgramAssetGroupOffers(contextData.GroupId, programAssetGroupOfferIds, inactiveAssets, nameContains);
             if (response.Objects != null)
             {
                 totalResults = response.Objects.Count;
@@ -628,8 +628,8 @@ namespace ApiLogic.Pricing.Handlers
                 var key = GetPagoIdsCacheKey(partnerId);
                 if (!LayeredCache.Instance.Get(key, ref result,
                     GetGroupPagoIds, new Dictionary<string, object>() { { "partnerId", partnerId } },
-                (int)partnerId, LayeredCacheConfigNames.GET_GROUP_PROGRAM_ASSET_GROUP_OFFERS, new List<string>()
-                { LayeredCacheKeys.GetPagoIdsInvalidationKey(partnerId) }))
+                (int)partnerId, LayeredCacheConfigNames.GET_GROUP_PROGRAM_ASSET_GROUP_OFFERS, new List<string>
+                        { LayeredCacheKeys.GetPagoIdsInvalidationKey(partnerId) }))
                 {
                     log.ErrorFormat($"GetProgramAssetGroupOfferIds - Failed get data from cache. partnerId: {partnerId}");
                     return response;
@@ -673,16 +673,16 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             Dictionary<long, bool> res = _repository.GetAllPagoIds((int)partnerId.Value);
-            return Tuple.Create(res, res?.Count > 0);
+            return Tuple.Create(res, true);
         }
 
-        public List<ProgramAssetGroupOffer> GetProgramAssetGroupOffers(long partnerId, List<long> programAssetGroupOfferIds, bool getAlsoUnactive = false)
+        public List<ProgramAssetGroupOffer> GetProgramAssetGroupOffers(long partnerId, List<long> programAssetGroupOfferIds, bool getAlsoUnactive = false, string nameContains = null)
         {
-            List<ProgramAssetGroupOffer> pagos = new List<ProgramAssetGroupOffer>();
+            List<ProgramAssetGroupOffer> result = new List<ProgramAssetGroupOffer>();
 
             if (programAssetGroupOfferIds == null || programAssetGroupOfferIds.Count == 0)
             {
-                return pagos;
+                return result;
             }
 
             Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
@@ -709,17 +709,28 @@ namespace ApiLogic.Pricing.Handlers
                                                 invalidationKeysMap))
             {
                 log.Warn($"Failed getting ProgramAssetGroupOffers from LayeredCache, partnerId: {partnerId}, pagoIds: {string.Join(",", programAssetGroupOfferIds)}");
-                return pagos;
+                return result;
             }
 
-            pagos = pagosMap == null ? new List<ProgramAssetGroupOffer>() : pagosMap.Values.ToList();
 
-            if (!getAlsoUnactive && pagos?.Count > 0)
+            if (pagosMap == null)
             {
-                pagos = pagos.Where((item) => item.IsActive.HasValue && item.IsActive.Value).ToList();
+                return result;
+            }
+            var tempPagos = pagosMap.Values.AsEnumerable();
+
+            if (!getAlsoUnactive)
+            {
+                tempPagos = tempPagos.Where((item) => item.IsActive.HasValue && item.IsActive.Value);
             }
 
-            return pagos;
+            if (!string.IsNullOrEmpty(nameContains))
+            {
+                tempPagos = tempPagos.Where(item => item.Name.Any() && item.Name.Values.First().IndexOf(nameContains, StringComparison.OrdinalIgnoreCase) > -1);
+            }
+
+            result = tempPagos.ToList();
+            return result;
         }
 
         private Tuple<Dictionary<string, ProgramAssetGroupOffer>, bool> GetProgramAssetGroupOffers(Dictionary<string, object> funcParams)

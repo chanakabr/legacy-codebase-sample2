@@ -38,7 +38,7 @@ namespace Phoenix.Generated.Api.Events.Logical.appstoreNotification
         /// Google/Apple
         /// </summary>
         [JsonProperty("extraInformation", NullValueHandling = NullValueHandling.Ignore)]
-        public System.Collections.Generic.Dictionary<string, string> ExtraInformation { get; set; }
+        public Dictionary<string, string> ExtraInformation { get; set; }
 
         /// <summary>
         /// Event source type - either from Google or Apple

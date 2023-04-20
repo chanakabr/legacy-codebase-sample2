@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using APILogic;
 using ApiLogic.Users;
 using ApiObjects.Response;
 
@@ -321,7 +322,7 @@ namespace Core.Users.Cache
                 }
                 else
                 {
-                    domain = TVinciShared.ObjectCopier.Clone<Domain>(domainToGet);
+                    domain = Extensions.Clone(domainToGet);
                     DomainFactory.InitializeDLM(domain);
                 }
             }
@@ -595,7 +596,7 @@ namespace Core.Users.Cache
                     LayeredCacheConfigNames.DLM_LAYERED_CACHE_CONFIG_NAME,
                     new List<string> { LayeredCacheKeys.GetDlmInvalidationKey(groupId, dlmId) }))
             {
-                return TVinciShared.ObjectCopier.Clone(dlmToGet.Value);
+                return Extensions.Clone(dlmToGet.Value);
             }
 
             if (dlmToGet == null) throw new Exception($"Can't get DLM from cache. groupId:[{groupId}]. dlmId:[{dlmId}]");

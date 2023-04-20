@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using APILogic;
+using Google.Protobuf;
 
 namespace Core.Pricing
 {
 
     [Serializable]
-    public class PrePaidModule
+    public class PrePaidModule : IDeepCloneable<PrePaidModule>
     {
 
         //The price code for the pre paid module
@@ -23,6 +25,11 @@ namespace Core.Pricing
         public string m_Title;
         //Is the pre paid with fixed credit amount or chargeable
         public bool m_isFixedCredit;
+
+        public PrePaidModule Clone()
+        {
+            return new PrePaidModule(this);
+        }
 
         public override string ToString()
         {
@@ -44,6 +51,18 @@ namespace Core.Pricing
             m_CreditValue = new PriceCode();
         }
 
+        public PrePaidModule(PrePaidModule other) {
+            m_PriceCode = Extensions.Clone(other.m_PriceCode);
+            m_CreditValue = Extensions.Clone(other.m_CreditValue);
+            m_UsageModule = Extensions.Clone(other.m_UsageModule);
+            m_DiscountModule = Extensions.Clone(other.m_DiscountModule);
+            m_CouponsGroup = Extensions.Clone(other.m_CouponsGroup);
+            m_Description = Extensions.Clone(other.m_Description);
+            m_ObjectCode = other.m_ObjectCode;
+            m_Title = other.m_Title;
+            m_isFixedCredit = other.m_isFixedCredit;
+        }
+        
         public void Initialize(string sPriceCode, string sCreditCode, string sUsageModuleCode,
             string sDiscountModuleCode, string sCouponGroupCode, Int32 nGroupID,
             int nPrePaidCode, bool bIsFixedPrice, string sTitle,
