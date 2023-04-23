@@ -31,7 +31,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "amount")]
         [JsonProperty("amount")]
         [XmlElement(ElementName = "amount", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MaxFloat = 99999999)] //BEO-12570
         public double? Amount { get; set; }
 
         /// <summary>

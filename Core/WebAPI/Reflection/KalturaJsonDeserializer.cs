@@ -29790,12 +29790,31 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaDiscount
     {
+        private static RuntimeSchemePropertyAttribute PercentageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscount")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxFloat = 100,
+            MinFloat = 0,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaDiscount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("percentage") && parameters["percentage"] != null)
                 {
+                    PercentageSchemaProperty.Validate("percentage", parameters["percentage"]);
                     Percentage = (Double) Convert.ChangeType(parameters["percentage"], typeof(Double));
                 }
             }
@@ -31196,6 +31215,7 @@ namespace WebAPI.Models.Pricing
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
+            MaxFloat = 100000000,
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,

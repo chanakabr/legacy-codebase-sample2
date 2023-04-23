@@ -783,7 +783,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.m_dPrice, opt => opt.MapFrom(src => src.Amount))
                .ForMember(dest => dest.m_oCurrency, opt => opt.MapFrom(src => ConvertPriceCurrency(src)))
                .ForMember(dest => dest.countryId, opt => opt.MapFrom(src => src.CountryId != 0 ? (long?)src.CountryId : null))
-               .ForMember(dest => dest.Percentage, opt => opt.MapFrom(src => src.Percentage))
+               .ForMember(dest => dest.Percentage, opt => opt.MapFrom(src => src.Percentage ?? 0))
                ;
 
             #region AssetFilePpv
