@@ -91,7 +91,7 @@ namespace Core.Pricing
                 selectQuery.SetConnectionKey(PRICING_CONNECTION);
                 selectQuery += "select * from price_codes_locales with (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE_CODE_ID", "=", nPriceCodeID);
-                selectQuery += " and (COUNTRY_CODE is null or COUNTRY_CODE='' or ";
+                selectQuery += " and (COUNTRY_CODE is null or COUNTRY_CODE='' or COUNTRY_CODE='--' or ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
                 selectQuery += ") and (LANGUAGE_CODE is null or LANGUAGE_CODE='' or ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
