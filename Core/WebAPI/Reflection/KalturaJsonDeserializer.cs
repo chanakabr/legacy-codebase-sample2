@@ -31470,7 +31470,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -33823,7 +33823,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -33834,8 +33834,8 @@ namespace WebAPI.Models.Pricing
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
             ReadOnly = false,
-            InsertOnly = true,
-            WriteOnly = false,
+            InsertOnly = false,
+            WriteOnly = true,
             RequiresPermission = 0,
             IsNullable = false,
             ValidationState = WebAPI.Managers.eKSValidation.All,
@@ -33848,10 +33848,10 @@ namespace WebAPI.Models.Pricing
         private static RuntimeSchemePropertyAttribute MaxViewsNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
             ReadOnly = false,
-            InsertOnly = true,
-            WriteOnly = false,
+            InsertOnly = false,
+            WriteOnly = true,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -33866,7 +33866,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -33881,7 +33881,7 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -33896,7 +33896,49 @@ namespace WebAPI.Models.Pricing
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute WaiverPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IsWaiverEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IsOfflinePlaybackSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -33962,26 +34004,32 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("waiverPeriod") && parameters["waiverPeriod"] != null)
                 {
+                    WaiverPeriodSchemaProperty.Validate("waiverPeriod", parameters["waiverPeriod"]);
                     WaiverPeriod = (Int32) Convert.ChangeType(parameters["waiverPeriod"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("waiver_period") && parameters["waiver_period"] != null && isOldVersion)
                 {
+                    WaiverPeriodSchemaProperty.Validate("waiver_period", parameters["waiver_period"]);
                     WaiverPeriod = (Int32) Convert.ChangeType(parameters["waiver_period"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("isWaiverEnabled") && parameters["isWaiverEnabled"] != null)
                 {
+                    IsWaiverEnabledSchemaProperty.Validate("isWaiverEnabled", parameters["isWaiverEnabled"]);
                     IsWaiverEnabled = (Boolean) Convert.ChangeType(parameters["isWaiverEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_waiver_enabled") && parameters["is_waiver_enabled"] != null && isOldVersion)
                 {
+                    IsWaiverEnabledSchemaProperty.Validate("is_waiver_enabled", parameters["is_waiver_enabled"]);
                     IsWaiverEnabled = (Boolean) Convert.ChangeType(parameters["is_waiver_enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("isOfflinePlayback") && parameters["isOfflinePlayback"] != null)
                 {
+                    IsOfflinePlaybackSchemaProperty.Validate("isOfflinePlayback", parameters["isOfflinePlayback"]);
                     IsOfflinePlayback = (Boolean) Convert.ChangeType(parameters["isOfflinePlayback"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("is_offline_playback") && parameters["is_offline_playback"] != null && isOldVersion)
                 {
+                    IsOfflinePlaybackSchemaProperty.Validate("is_offline_playback", parameters["is_offline_playback"]);
                     IsOfflinePlayback = (Boolean) Convert.ChangeType(parameters["is_offline_playback"], typeof(Boolean));
                 }
             }

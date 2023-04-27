@@ -38,7 +38,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("priceId")]
         [XmlElement(ElementName = "priceId")]
         [OldStandardProperty("price_id")]
-        [SchemeProperty(ReadOnly = true)]
+        [SchemeProperty(ReadOnly = true, IsNullable = true)]
         [Deprecated("4.5.0.0")]
         public int? PriceId { get; set; }
 
