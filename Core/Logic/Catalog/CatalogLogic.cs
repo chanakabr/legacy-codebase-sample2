@@ -8332,87 +8332,32 @@ namespace Core.Catalog
                 {
                     throw new KalturaException(parseStatus.Message, parseStatus.Code);
                 }
-                else
-                {
-                    initialTree = filterTree;
-                    CatalogLogic.UpdateNodeTreeFields(request, ref initialTree, definitions, group, groupId);
-                }
+
+                initialTree = filterTree;
+                UpdateNodeTreeFields(request, ref initialTree, definitions, group, groupId);
 
                 #region Asset Types
 
-                definitions.shouldSearchEpg = false;
-                definitions.shouldSearchMedia = false;
-                var shouldUseSearchEndDate =
-                    request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
-
-                // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
-                // In non-opc accounts,
-                // this 0 probably came when TVM/CRUD decided this channel is for all types, but forgot to delete it when the others join in (424, 425 etc.).
-                // in opc accounts it just means EPG
-                // IN ANY CASE
-                // we don't want to search for asset_type = 0, because the assets are not indexed with it! EPGs are just indexed in their index
-                // and media will never have 0 media type
-                bool hasZeroMediaType = definitions.mediaTypes != null ? definitions.mediaTypes.Remove(0) : false;
-                bool hasMinusTwentySixMediaType =
-                    definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE);
-
-                var indexesModel = filterTreeValidator.ValidateTree(initialTree, definitions.mediaTypes);
-                // Special case - if no type was specified or "All" is contained, search all types
-                if ((!doesGroupUsesTemplates && hasZeroMediaType && definitions.mediaTypes.Count == 0) ||
-                    (!hasZeroMediaType && (definitions.mediaTypes == null || definitions.mediaTypes.Count == 0)))
+                var searchOptionsContext = new ChannelSearchOptionsContext
                 {
-                    definitions.shouldSearchEpg = indexesModel?.ShouldSearchEpg ?? true;
-                    definitions.shouldSearchMedia = indexesModel?.ShouldSearchMedia ?? true;
-                    definitions.shouldUseSearchEndDate = shouldUseSearchEndDate;
-                }
-                else
-                {
-                    if (doesGroupUsesTemplates)
-                    {
-                        var programAssetStructId =
-                            catalogGroupCache.GetRealAssetStructId(0, out bool hasProgramStructMediaType);
-                        if (hasProgramStructMediaType)
-                        {
-                            hasProgramStructMediaType = definitions.mediaTypes.Remove((int) programAssetStructId);
-                        }
+                    CatalogGroupCache = catalogGroupCache,
+                    InitialTree = initialTree,
+                    ShouldUseSearchEndDate = request.GetShouldUseSearchEndDate()
+                        && !request.isAllowedToViewInactiveAssets,
+                    MediaTypes = definitions.mediaTypes
+                };
 
-                        // in OPC accounts, 0 media type means EPG
-                        if (hasZeroMediaType || hasProgramStructMediaType)
-                        {
-                            definitions.shouldSearchEpg = true;
-                            definitions.shouldUseSearchEndDate = shouldUseSearchEndDate;
-                        }
+                var searchOptionsResult =
+                    ChannelSearchOptionsService.Instance.ResolveKsqlChannelSearchOptions(searchOptionsContext);
 
-                        definitions.shouldSearchEpg = indexesModel?.ShouldSearchEpg ?? definitions.shouldSearchEpg;
-                        definitions.shouldSearchMedia =
-                            indexesModel?.ShouldSearchMedia ?? definitions.shouldSearchMedia;
-                    }
-                    else
-                    {
-                        // in non-OPC accounts, -26 media type means EPG
-                        if (hasMinusTwentySixMediaType)
-                        {
-                            definitions.shouldSearchEpg = true;
-                            definitions.shouldUseSearchEndDate = shouldUseSearchEndDate;
-                        }
-                    }
-                }
+                definitions.shouldSearchEpg = searchOptionsResult.ShouldSearchEpg;
+                definitions.shouldSearchMedia = searchOptionsResult.ShouldSearchMedia;
+                definitions.shouldUseSearchEndDate = searchOptionsResult.ShouldUseSearchEndDate;
+                definitions.mediaTypes = searchOptionsResult.MediaTypes.ToList();
 
-                // If there are items left in media types after removing 0, we are searching for media
-                if (definitions.mediaTypes.Count > 0)
-                {
-                    definitions.shouldSearchMedia = true;
-                }
-
-                HashSet<int> mediaTypes = null;
-                if (doesGroupUsesTemplates)
-                {
-                    mediaTypes = new HashSet<int>(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int) x));
-                }
-                else
-                {
-                    mediaTypes = new HashSet<int>(group.GetMediaTypes());
-                }
+                var mediaTypes = doesGroupUsesTemplates
+                    ? new HashSet<int>(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int) x))
+                    : new HashSet<int>(group.GetMediaTypes());
 
                 // Validate that the media types in the "assetTypes" list exist in the group's list of media types
                 foreach (var mediaType in definitions.mediaTypes)
