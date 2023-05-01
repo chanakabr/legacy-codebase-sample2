@@ -17543,6 +17543,34 @@ namespace WebAPI.Models.Notification
 {
     public partial class KalturaAnnouncement
     {
+        private static RuntimeSchemePropertyAttribute EnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncement")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute StartTimeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncement")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncement")
         {
             ReadOnly = true,
@@ -17563,7 +17591,7 @@ namespace WebAPI.Models.Notification
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -17601,14 +17629,17 @@ namespace WebAPI.Models.Notification
                 }
                 if (parameters.ContainsKey("enabled") && parameters["enabled"] != null)
                 {
+                    EnabledSchemaProperty.Validate("enabled", parameters["enabled"]);
                     Enabled = (Boolean) Convert.ChangeType(parameters["enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("startTime") && parameters["startTime"] != null)
                 {
+                    StartTimeSchemaProperty.Validate("startTime", parameters["startTime"]);
                     StartTime = (Int64) Convert.ChangeType(parameters["startTime"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("start_time") && parameters["start_time"] != null && isOldVersion)
                 {
+                    StartTimeSchemaProperty.Validate("start_time", parameters["start_time"]);
                     StartTime = (Int64) Convert.ChangeType(parameters["start_time"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("timezone") && parameters["timezone"] != null)
@@ -17683,12 +17714,29 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaAnnouncementFilter
     {
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncementFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaAnnouncementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
+                    IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }

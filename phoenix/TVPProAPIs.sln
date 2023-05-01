@@ -367,6 +367,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Phoenix.Grpc", "Phoenix.Grp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SegmentationGrpcClientWrapper", "..\Core\SegmentationGrpcClientWrapper\SegmentationGrpcClientWrapper.csproj", "{7CCA6674-D1AB-4681-8673-4208681D421D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "definition", "definition", "{DE289223-380A-4698-9278-9B662B0CCCE4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "announcement", "announcement", "{E0325A31-EA8D-4AEF-BC94-8395F7A47795}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{C31B3EF7-6B85-4D56-8DB5-922C08B63001}"
+	ProjectSection(SolutionItems) = preProject
+		definition\announcement\api\api.json = definition\announcement\api\api.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -1253,9 +1262,11 @@ Global
 		{D6213813-EC61-4801-B02F-D43D917563EE} = {14DD0967-5952-417C-89AB-0D30A216122B}
 		{AD379E5E-3228-45DE-A9A4-1570B7BE1776} = {D4F0DEB9-8276-4C51-9AA1-335E8BE2E329}
 		{7CCA6674-D1AB-4681-8673-4208681D421D} = {D4F0DEB9-8276-4C51-9AA1-335E8BE2E329}
+		{E0325A31-EA8D-4AEF-BC94-8395F7A47795} = {DE289223-380A-4698-9278-9B662B0CCCE4}
+		{C31B3EF7-6B85-4D56-8DB5-922C08B63001} = {E0325A31-EA8D-4AEF-BC94-8395F7A47795}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal

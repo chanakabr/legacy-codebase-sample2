@@ -11,11 +11,10 @@ namespace WebAPI.Models.Notification
     /// <summary>
     /// List of message announcements from DB.
     /// </summary>
-    [DataContract(Name = "KalturaAssetsPositionsResponse", Namespace = "")]
-    [XmlRoot("KalturaMessageAnnouncementListResponse")]
+    [DataContract(Name = "KalturaAnnouncementListResponse", Namespace = "")]
+    [XmlRoot("KalturaAnnouncementListResponse")]
     [Serializable]
-    [Obsolete]
-    public partial class KalturaMessageAnnouncementListResponse : KalturaListResponse
+    public partial class KalturaAnnouncementListResponse : KalturaListResponse
     {
         /// <summary>
         /// Announcements

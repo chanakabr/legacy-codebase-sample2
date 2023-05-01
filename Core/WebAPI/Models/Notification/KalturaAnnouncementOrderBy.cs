@@ -4,14 +4,11 @@ using System;
 namespace WebAPI.Models.Notification
 {
     /// <summary>
-    /// Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3
+    /// order announcements
     /// </summary>
     [Serializable]
-    public enum KalturaAnnouncementRecipientsType
+    public enum KalturaAnnouncementOrderBy
     {
-        All = 0,
-        LoggedIn = 1,
-        Guests = 2,
-        Other = 3
+        NONE = 0
     }
 }
