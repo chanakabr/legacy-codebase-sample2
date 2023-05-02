@@ -232,14 +232,6 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                         ppvResult.Status);
                     continue;
                 }
-                
-                _fileManager.DoFreeItemIndexUpdateIfNeeded(
-                    (int)partnerId,
-                    (int)assetId,
-                    previousPpv?.StartDate,
-                    ppvResult.Object.StartDate,
-                    previousPpv?.EndDate,
-                    ppvResult.Object.EndDate);
             }
         }
 

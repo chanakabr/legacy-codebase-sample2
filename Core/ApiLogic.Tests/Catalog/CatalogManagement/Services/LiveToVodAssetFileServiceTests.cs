@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiLogic.Catalog.CatalogManagement.Services;
-using ApiLogic.Pricing.Handlers;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using Core.Catalog;
@@ -68,7 +67,6 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                 new AssetFile { Id = 1, TypeId = 1 }
             };
 
-            _mediaFileTypeManagerMock.Setup(x => x.DoFreeItemIndexUpdateIfNeeded(1, 1, null, null, null, null));
             _priceManagerMock.Setup(x => x.AddAssetFilePPV(
                     It.IsAny<ContextData>(),
                     It.Is<AssetFilePpv>(x =>
@@ -137,7 +135,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             var assetFiles = new List<AssetFile>
             {
-                new AssetFile { Id = 1, TypeId = 1 }
+                new AssetFile { Id = 1, TypeId = 1, AssetId = 1 }
             };
 
             _priceManagerMock.Setup(x => x.GetAssetFilePPVList(It.IsAny<ContextData>(), 1, 0))
@@ -147,7 +145,6 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     It.Is<AssetFilePpv>(x =>
                         x.AssetFileId == 1 && x.PpvModuleId == 1 && !x.StartDate.HasValue && !x.EndDate.HasValue)))
                 .Returns(new GenericResponse<AssetFilePpv>(Status.Ok, new AssetFilePpv()));
-            _mediaFileTypeManagerMock.Setup(x => x.DoFreeItemIndexUpdateIfNeeded(1, 1, null, null, null, null));
 
             var service =
                 new LiveToVodAssetFileService(_mediaFileTypeManagerMock.Object, _priceManagerMock.Object, _logger);
@@ -184,8 +181,6 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                         x.EndDate == ppvEndDate)))
                 .Returns(new GenericResponse<AssetFilePpv>(Status.Ok,
                     new AssetFilePpv { StartDate = ppvStartDate, EndDate = ppvEndDate }));
-            _mediaFileTypeManagerMock.Setup(x =>
-                x.DoFreeItemIndexUpdateIfNeeded(1, 1, null, ppvStartDate, null, ppvEndDate));
 
             var service =
                 new LiveToVodAssetFileService(_mediaFileTypeManagerMock.Object, _priceManagerMock.Object, _logger);
