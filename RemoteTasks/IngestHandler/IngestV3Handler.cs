@@ -235,7 +235,7 @@ namespace IngestHandler
 
             if (_bulkUpload.Results.Any(r => r.Errors?.Any() == true))
             {
-                _bulkUpload.AddError(eResponseStatus.Error, "errors while trying to create multilingual translations, see results for details");
+                _bulkUpload.AddError(eResponseStatus.Error, "errors while trying to parse/map epg objects, see results for details");
 
                 // set errors on all other items that are not errors of same date so that status can be finalized as failed
                 foreach (var r in _bulkUpload.Results.Where(r => r.Status != BulkUploadResultStatus.Error))
