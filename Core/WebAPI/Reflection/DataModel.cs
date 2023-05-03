@@ -1904,6 +1904,8 @@ namespace WebAPI.Reflection
                 case "KalturaChannelExternalFilter":
                     switch(property.Name)
                     {
+                        case "Alias":
+                            return "alias";
                         case "FreeText":
                             return "freeText";
                         case "IdEqual":

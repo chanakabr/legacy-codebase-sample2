@@ -24174,7 +24174,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -24218,6 +24218,10 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("freeText") && parameters["freeText"] != null)
                 {
                     FreeText = (String) Convert.ChangeType(parameters["freeText"], typeof(String));
+                }
+                if (parameters.ContainsKey("alias") && parameters["alias"] != null)
+                {
+                    Alias = (String) Convert.ChangeType(parameters["alias"], typeof(String));
                 }
             }
         }

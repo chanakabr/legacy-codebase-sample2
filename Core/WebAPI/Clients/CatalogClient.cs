@@ -2510,7 +2510,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetExternalChannelAssets
-            (ContextData contextData, string channelId, int pageIndex, int? pageSize, string deviceType, string utcOffset, string freeParam)
+            (ContextData contextData, string channelId, int pageIndex, int? pageSize, string deviceType, string utcOffset, string freeParam, string alias)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2526,6 +2526,7 @@ namespace WebAPI.Clients
                 deviceType = deviceType,
                 domainId = (int)(contextData.DomainId ?? 0),
                 internalChannelID = channelId,
+                externalChannelID = alias,
                 m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
