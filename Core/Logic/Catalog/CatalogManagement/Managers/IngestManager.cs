@@ -102,7 +102,7 @@ namespace Core.Catalog.CatalogManagement
                             ingestResponse.AssetsStatus[i].InternalAssetId = (int)mediaAsset.Id;
                             ingestResponse.AssetsStatus[i].ExternalAssetId = mediaAsset.CoGuid;
 
-                            if (currTags.Count == 0)
+                            if (currTags == null || currTags.Count == 0)
                             {
                                 assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
                             }
