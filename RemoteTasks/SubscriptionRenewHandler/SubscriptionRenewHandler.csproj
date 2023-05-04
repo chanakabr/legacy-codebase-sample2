@@ -3,7 +3,7 @@
     <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="OTT.Lib.Metrics" Version="1.2.0" />
+    <PackageReference Include="OTT.Lib.Metrics" Version="1.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />

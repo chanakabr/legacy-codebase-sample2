@@ -47,7 +47,7 @@
   <ItemGroup>
     <PackageReference Include="Grpc.HealthCheck" Version="2.45.0" />
     <PackageReference Include="OTT.Lib.GRPC" Version="0.2.0" />
-    <PackageReference Include="OTT.Lib.Metrics" Version="1.2.0" />
+    <PackageReference Include="OTT.Lib.Metrics" Version="1.3.0" />
     <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.5" />
     <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
     <PackageReference Include="protobuf-net" Version="3.1.17" />

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using KalturaRequestContext;
+using Microsoft.Extensions.DependencyInjection;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Tests
@@ -58,6 +59,14 @@ namespace WebAPI.Tests
         }
     }
 
+    public class ServiceScopeFactoryMock : IServiceScopeFactory
+    {
+        public IServiceScope CreateScope()
+        {
+            throw new NotImplementedException();
+        }
+    } 
+
     public class Utils
     {
         public static void SetUp()
@@ -66,6 +75,7 @@ namespace WebAPI.Tests
             Fixture fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(IServiceProvider), typeof(ServiceProviderMock)));
             fixture.Customizations.Add(new TypeRelay(typeof(ISession), typeof(SessionMock)));
+            fixture.Customizations.Add(new TypeRelay(typeof(IServiceScopeFactory), typeof(ServiceScopeFactoryMock)));
             var httpContext = fixture.Create<DefaultHttpContext>();
             httpContext.Items[RequestContextConstants.REQUEST_VERSION] = version;
             var httpContextAccessor = new Mock<IHttpContextAccessor>();
