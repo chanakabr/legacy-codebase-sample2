@@ -15,6 +15,10 @@ namespace ElasticSearch.Utils
         bool IsBucketsReorderingRequired(
             IReadOnlyCollection<IEsOrderByField> esOrderByFields,
             GroupByDefinition distinctGroup);
+        bool ShouldReorderMissedKeyBucket(
+            IReadOnlyCollection<IEsOrderByField> esOrderByFields,
+            GroupByDefinition distinctGroup,
+            GroupingOption groupingOption);
         string GetSorting(IEnumerable<IEsOrderByField> orderByFields, bool functionScoreSort = false);
         IEnumerable<string> BuildExtraReturnFields(IEnumerable<IEsOrderByField> orderByFields);
         SortDescriptor<NestBaseAsset> GetSortingV7(IEnumerable<IEsOrderByField> orderByFields, bool functionScoreSort = false);

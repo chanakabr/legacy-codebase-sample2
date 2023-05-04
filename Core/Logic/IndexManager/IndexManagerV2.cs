@@ -2274,7 +2274,7 @@ namespace Core.Catalog
             if (httpStatus != ElasticSearchApi.STATUS_OK) throw new Exception("Elasticsearch responded with not OK status");
 
             // handle response
-            var elasticAggregation = groupBySearch.HandleQueryResponse(search, pageSize, fromIndex, queryBuilder, responseBody);
+            var elasticAggregation = groupBySearch.HandleQueryResponse(search, queryBuilder, responseBody);
             var topHitsMapping = MapTopHits(elasticAggregation, search);
             var aggregationsResult = ConvertAggregationsResponse(elasticAggregation, new List<string> { search.groupBy.Single().Key }, topHitsMapping, search);
 
@@ -7271,7 +7271,7 @@ namespace Core.Catalog
             if (aggregationsResult.Aggregations[currentGroupBy].buckets.Any(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()))
             {
                 totalItems += aggregationsResult.Aggregations[currentGroupBy].buckets
-                    .Where(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()).First().doc_count;
+                    .First(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()).doc_count;
             }
 
             var result = new AggregationsResult()
@@ -7281,6 +7281,7 @@ namespace Core.Catalog
                 totalItems = totalItems
             };
 
+            AggregationResult missingKeysBucket = null;
             foreach (var bucket in esAggregation.buckets)
             {
                 var bucketResult = new AggregationResult()
@@ -7322,7 +7323,20 @@ namespace Core.Catalog
                     }
                 }
 
+                // when groupingOption is "Include" then "missed keys" bucket should be the last in result
+                if (definitions.GroupByOption == GroupingOption.Include
+                    && bucketResult.value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                {
+                    missingKeysBucket = bucketResult;
+                    continue;
+                }
+
                 result.results.Add(bucketResult);
+            }
+
+            if (missingKeysBucket != null)
+            {
+                result.results.Add(missingKeysBucket);
             }
 
             return result;

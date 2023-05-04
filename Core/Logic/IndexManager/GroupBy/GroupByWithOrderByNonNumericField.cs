@@ -52,7 +52,7 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
             unifiedSearchDefinitions.pageSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
         }
 
-        public ESAggregationsResult HandleQueryResponse(UnifiedSearchDefinitions search, int pageSize, int fromIndex, ESUnifiedQueryBuilder queryBuilder, string responseBody)
+        public ESAggregationsResult HandleQueryResponse(UnifiedSearchDefinitions search, ESUnifiedQueryBuilder queryBuilder, string responseBody)
         {
             var esOrderByFields = _sortingAdapter.ResolveOrdering(search);
             var esOrderByField = esOrderByFields.Single(); // if group by is set, then only primary sorting can be set.
@@ -65,9 +65,7 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
 
             var groupBy = search.groupBy.Single(); // key - original field name; value - field name how it's stored in ES
             var buckets = GetOrderedBuckets(elasticAggregation, groupBy, esOrderByField);
-            var from = Math.Min(fromIndex, buckets.Count);
-            var count = Math.Min(pageSize, buckets.Count - from);
-            elasticAggregation.Aggregations[groupBy.Key].buckets = buckets.GetRange(from, count);
+            elasticAggregation.Aggregations[groupBy.Key].buckets = buckets;
 
             return elasticAggregation;
         }

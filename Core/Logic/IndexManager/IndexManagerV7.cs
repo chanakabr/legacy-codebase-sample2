@@ -1286,11 +1286,17 @@ namespace Core.Catalog
             };
 
             string cardinalityKey = $"{currentGroupBy.Key}_count";
-            var cardanilityAggregation = aggregationsResult.ValueCount(cardinalityKey);
-
-            if (cardanilityAggregation != null)
+            var cardinalityAggregation = aggregationsResult.ValueCount(cardinalityKey);
+            if (cardinalityAggregation != null)
             {
-                result.totalItems = cardanilityAggregation.Value.HasValue ? Convert.ToInt32(cardanilityAggregation.Value.Value) : 0;
+                result.totalItems = cardinalityAggregation.Value.HasValue ? Convert.ToInt32(cardinalityAggregation.Value.Value) : 0;
+            }
+
+            if (aggregationsResult.ContainsKey(currentGroupBy.Key))
+            {
+                var missedKeysBucket = aggregationsResult.Terms(currentGroupBy.Key).Buckets
+                    .FirstOrDefault(x => x.Key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString());
+                result.totalItems += Convert.ToInt32(missedKeysBucket?.DocCount);
             }
 
             // if there is only one group by and it is a distinct request, we need to reorder the buckets
@@ -1305,10 +1311,11 @@ namespace Core.Catalog
             if (aggregationsResult.ContainsKey(currentGroupBy.Key))
             {
                 var currentAggregation = aggregationsResult.Terms(currentGroupBy.Key);
+                AggregationResult missingKeysBucket = null;
 
-                foreach (KeyedBucket<string> bucket in currentAggregation.Buckets)
+                foreach (var bucket in currentAggregation.Buckets)
                 {
-                    var bucketResult = new AggregationResult()
+                    var bucketResult = new AggregationResult
                     {
                         value = bucket.Key,
                         count = Convert.ToInt32(bucket.DocCount),
@@ -1326,8 +1333,23 @@ namespace Core.Catalog
                             bucketResult.subs.Add(sub);
                         }
                     }
+
                     AddTopHitsToBucketResult(topHitsMapping, bucket, bucketResult, definitions);
+
+                    // when groupingOption is "Include" then "missed keys" bucket should be the last in result
+                    if (definitions.GroupByOption == GroupingOption.Include
+                        && bucketResult.value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                    {
+                        missingKeysBucket = bucketResult;
+                        continue;
+                    }
+
                     result.results.Add(bucketResult);
+                }
+
+                if (missingKeysBucket != null)
+                {
+                    result.results.Add(missingKeysBucket);
                 }
             }
 
@@ -1419,10 +1441,8 @@ namespace Core.Catalog
                 }
             }
 
-            var pagedBuckets = orderedBuckets.Page(definitions.pageSize, definitions.pageIndex, out var _);
-
             // replace the original list with the ordered list
-            result.results = pagedBuckets.ToList();
+            result.results = orderedBuckets.ToList();
         }
 
         private void AddTopHitsToBucketResult(
@@ -1552,8 +1572,13 @@ namespace Core.Catalog
 
                     orderedResults = tempResults.ToArray();
                 }
-                
-                searchResultsList = orderedResults.Page(definitions.pageSize, definitions.pageIndex, out var illegalRequest).ToList();
+
+                // should not apply paging if we need to reorder buckets according to assets order
+                var esOrderByFields = _sortingAdapter.ResolveOrdering(definitions);
+                searchResultsList =
+                    _esSortingService.IsBucketsReorderingRequired(esOrderByFields, definitions.distinctGroup)
+                        ? orderedResults.ToList()
+                        : orderedResults.Page(definitions.pageSize, definitions.pageIndex, out _).ToList();
             }
 
             return searchResultsList;
