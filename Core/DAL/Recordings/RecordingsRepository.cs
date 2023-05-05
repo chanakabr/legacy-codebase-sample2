@@ -46,7 +46,6 @@ namespace DAL.Recordings
 
         HouseholdRecording GetHouseholdRecordingById(int partnerId, long householdRecordingId, long householdId,
             string status);
-
         List<HouseholdRecording> GetHhRecordingsByHhIdAndRecordingStatuses(int partnerId, long householdId,
             List<string> recordingStatuses);
 

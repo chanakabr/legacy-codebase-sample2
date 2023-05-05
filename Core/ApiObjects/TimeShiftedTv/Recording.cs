@@ -44,13 +44,20 @@ namespace ApiObjects.TimeShiftedTv
 
         public string UserId { get; set; }
 
-        public int? StartPadding { get; set; }
-        public int? EndPadding { get; set; }
+        public bool IsStartPaddingDefault { get; set;}
+        public bool IsEndPaddingDefault { get; set;}
+
+        public int? EndPadding { get; set;}
+
+        public int? StartPadding { get; set;}
+
+        public int? UserEndPadding => !IsEndPaddingDefault ? EndPadding : null;
+        public int? UserStartPadding => !IsStartPaddingDefault ? StartPadding : null;
+
         public long? RecordedProgramId { get; set; }
         public DateTime? AbsoluteStartTime { get; set; }
         public DateTime? AbsoluteEndTime { get; set; }
         public long? Duration { get; set; }
-
 
         public Recording()
         {
@@ -85,6 +92,8 @@ namespace ApiObjects.TimeShiftedTv
             this.AbsoluteEndTime = record.AbsoluteEndTime;
             this.AbsoluteStartTime = record.AbsoluteStartTime;
             this.Duration = record.Duration;
+            this.IsStartPaddingDefault = record.IsStartPaddingDefault;
+            this.IsEndPaddingDefault = record.IsEndPaddingDefault;
         }
 
         public override string ToString()
