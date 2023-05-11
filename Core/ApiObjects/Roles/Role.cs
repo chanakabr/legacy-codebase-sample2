@@ -31,6 +31,7 @@ namespace ApiObjects.Roles
         User = 0,
         Partner = 1,
         Profile = 2,
-        System = 3
+        System = 3,
+        PermissionEmbedded = 4
     }
 }

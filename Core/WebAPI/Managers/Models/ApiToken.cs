@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using TVinciShared;
 using WebAPI.Models.General;
 
@@ -50,12 +50,32 @@ namespace WebAPI.Managers.Models
         [JsonProperty("DomainId")]
         public int DomainId { get; set; }
 
+        [Obsolete]
         [JsonProperty("IsBypassCacheEligible")]
         public bool IsBypassCacheEligible { get; set; }
-        
+
+        [JsonProperty("BypassCacheEligibility")]
+        public BypassCacheEligibility? BypassCacheEligibility
+        {
+            get
+            {
+                if (_bypassCacheEligibility.HasValue)
+                {
+                    return _bypassCacheEligibility;
+                }
+
+                return IsBypassCacheEligible
+                    ? Models.BypassCacheEligibility.RestrictedByHeader
+                    : _bypassCacheEligibility;
+            }
+            set => _bypassCacheEligibility = value;
+        }
+
         [JsonIgnore]
         public KS KsObject { get; set; }
-        
+
+        private BypassCacheEligibility? _bypassCacheEligibility;
+
         private ApiToken(){} // is used for json deserialization
 
         public ApiToken(string userId, int groupId, KS.KSData payload, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration, Dictionary<string, string> privileges = null)
@@ -123,7 +143,7 @@ namespace WebAPI.Managers.Models
             UserSegments = token.UserSegments;
             UserRoles = token.UserRoles;
             SessionCharacteristicKey = token.SessionCharacteristicKey;
-            IsBypassCacheEligible = token.IsBypassCacheEligible;
+            BypassCacheEligibility = token.BypassCacheEligibility;
 
             // set refresh token expiration
             if (groupConfig.IsRefreshTokenExtendable)
@@ -186,7 +206,7 @@ namespace WebAPI.Managers.Models
             UserRoles = payload.UserRoles;
             SessionCharacteristicKey = payload.SessionCharacteristicKey;
             DomainId = payload.DomainId;
-            IsBypassCacheEligible = payload.IsBypassCacheEligible;
+            BypassCacheEligibility = payload.BypassCacheEligibility;
         }
     }
 }

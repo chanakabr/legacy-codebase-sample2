@@ -1,6 +1,7 @@
 ﻿using ApiObjects.Roles;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
@@ -92,19 +93,6 @@ namespace WebAPI.Models.API
         {
             return Id.HasValue ? (long)Id : 0;
         }
-
-        internal void Validate()
-        {
-            if (Profile == KalturaUserRoleProfile.SYSTEM)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "profile", "KalturaUserRoleProfile.SYSTEM");
-            }
-            if (Profile == KalturaUserRoleProfile.USER)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "profile", "KalturaUserRoleProfile.USER");
-            }
-        }
-
     }
 
     public enum KalturaUserRoleProfile
@@ -112,7 +100,8 @@ namespace WebAPI.Models.API
         USER,
         PARTNER,
         PROFILE,
-        SYSTEM
+        SYSTEM,
+        PERMISSION_EMBEDDED
     }
 
 }

@@ -3747,7 +3747,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static RoleProfileType? ConvertRoleProfileType(KalturaUserRoleProfile? profile)
         {
-            RoleProfileType? res = null;
+            RoleProfileType? res;
             switch (profile)
             {
                 case KalturaUserRoleProfile.SYSTEM:
@@ -3759,7 +3759,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaUserRoleProfile.PARTNER:
                     res = RoleProfileType.Partner;
                     break;
-                case KalturaUserRoleProfile.PROFILE:
+                case KalturaUserRoleProfile.PERMISSION_EMBEDDED:
+                    res = RoleProfileType.PermissionEmbedded;
+                    break;
                 default:
                     res = RoleProfileType.Profile;
                     break;
@@ -3783,7 +3785,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case RoleProfileType.Partner:
                     res = KalturaUserRoleProfile.PARTNER;
                     break;
-                case RoleProfileType.Profile:
+                case RoleProfileType.PermissionEmbedded:
+                    res = KalturaUserRoleProfile.PERMISSION_EMBEDDED;
+                    break;
                 default:
                     res = KalturaUserRoleProfile.PROFILE;
                     break;
