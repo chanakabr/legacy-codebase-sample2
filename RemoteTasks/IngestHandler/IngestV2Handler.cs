@@ -32,6 +32,7 @@ using Phx.Lib.Log;
 using Synchronizer;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using Utils = Core.Catalog.Utils;
 
 namespace IngestHandler
 {
@@ -400,8 +401,8 @@ namespace IngestHandler
 
             epgItem.ExternalOfferIds = parsedProg.ParseExternalOfferIds(langCode, defaultLangCode, bulkUploadResultItem);
 
-            var suppressesIndexes = CatalogPartnerConfigManager.Instance.GetMediaSuppressedIndexes(prog.GroupId)?.Object;
-            epgItem.Suppressed = IndexManagerCommonHelpers.GetSuppressedIndex(epgItem, suppressesIndexes);
+            Utils.ExtractSuppressedValue(_catalogManagerAdapter.GetCatalogGroupCache(_eventData.GroupId), epgItem);
+
             PrepareEpgItemImages(parsedProg.icon, epgItem);
 
             return epgItem;

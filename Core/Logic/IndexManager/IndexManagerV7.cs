@@ -444,7 +444,7 @@ namespace Core.Catalog
                 var linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
 
                 var createdAliases = new HashSet<string>();
-                _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
+                _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, epg => { Utils.ExtractSuppressedValue(GetCatalogGroupCache(), epg); });
 
                 var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
                 var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
@@ -4007,7 +4007,7 @@ namespace Core.Catalog
             }
 
             var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
-            _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
+            _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, epg => { Utils.ExtractSuppressedValue(GetCatalogGroupCache(), epg); });
 
             List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
             Dictionary<string, LinearChannelSettings> linearChannelSettings = _catalogCache.GetLinearChannelSettings(_partnerId, epgChannelIds);

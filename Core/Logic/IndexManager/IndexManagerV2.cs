@@ -642,7 +642,7 @@ namespace Core.Catalog
             if (epgObjects == null || epgObjects.Count == 0) { return result; }
             try
             {
-                _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
+                _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, epg => { Utils.ExtractSuppressedValue(GetCatalogGroupCache(), epg); });
                 var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
                 if (epgFeatureVersion == EpgFeatureVersion.V3)
                 {
@@ -6577,7 +6577,7 @@ namespace Core.Catalog
             }
 
 
-            _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
+            _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, epg => { Utils.ExtractSuppressedValue(GetCatalogGroupCache(), epg); });
             var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
             if (epgFeatureVersion == EpgFeatureVersion.V3 && !isRecording)
             {
