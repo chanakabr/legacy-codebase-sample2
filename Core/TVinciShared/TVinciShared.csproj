@@ -9,6 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="DeepCloner" Version="0.10.2" />
+		<PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
 		<PackageReference Include="SharpZipLib" Version="1.1.0" />
 		<PackageReference Include="System.ServiceModel.Duplex" Version="4.8.1" />
