@@ -17,6 +17,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Phx.Lib.Appconfig.Types;
 
 namespace DAL
 {
@@ -3092,10 +3093,13 @@ namespace DAL
                             };
 
                             // add permissions for role if exists
-                            if (rolesPermissions != null && rolesPermissions.ContainsKey(role.Id) && rolesPermissions[role.Id] != null)
+                            if (rolesPermissions != null && rolesPermissions.ContainsKey(role.Id) &&
+                                rolesPermissions[role.Id] != null)
                             {
                                 role.Permissions = rolesPermissions[role.Id].Values.ToList();
                             }
+                            else//BEO-14066, no role permissions
+                                role.Permissions = new List<Permission>();
 
                             // add role
                             roles.Add(role);
