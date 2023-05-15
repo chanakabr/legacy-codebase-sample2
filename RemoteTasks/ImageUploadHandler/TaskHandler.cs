@@ -14,6 +14,7 @@ namespace ImageUploadHandler
     public class TaskHandler : ITaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         private const string RECOVERY_MESSAGE_BUCKET = "scheduled_tasks";
 
@@ -113,13 +114,10 @@ namespace ImageUploadHandler
             {
                 contentType = contentType ?? "application/x-www-form-urlencoded";
                 using (var postData = new StringContent(parameters, Encoding.UTF8, contentType))
-                using (var httpClient = HttpClientUtil.GetHttpClientFromFactory())
+                using (var response = httpClient.PostAsync(uri, postData).ExecuteAndWait())
                 {
-                    using (var response = httpClient.PostAsync(uri, postData).ExecuteAndWait())
-                    {
-                        response.EnsureSuccessStatusCode();
-                        responseFromServer = response.Content.ReadAsStringAsync().ExecuteAndWait();
-                    }
+                    response.EnsureSuccessStatusCode();
+                    responseFromServer = response.Content.ReadAsStringAsync().ExecuteAndWait();
                 }
             }
             catch (Exception ex)
