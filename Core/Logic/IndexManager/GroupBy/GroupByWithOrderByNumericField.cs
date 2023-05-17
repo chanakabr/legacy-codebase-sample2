@@ -1,8 +1,14 @@
 ﻿using System;
-using System.Linq;
+using System.Threading;
 using ApiLogic.IndexManager.QueryBuilders;
+using ApiLogic.IndexManager.Sorting;
+using ApiObjects.CanaryDeployment.Elasticsearch;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
+using ElasticSearch.Utils;
+using Phx.Lib.Appconfig;
+
+
 
 namespace ApiLogic.Catalog.IndexManager.GroupBy
 {
@@ -24,23 +30,41 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
     /// </summary>
     internal class GroupByWithOrderByNumericField : IGroupBySearch
     {
+        private readonly ISortingAdapter _sortingAdapter;
+        private readonly IEsSortingService _esSortingService;
+
+        private static readonly Lazy<IGroupBySearch> LazyInstance = new Lazy<IGroupBySearch>(
+            () => new GroupByWithOrderByNumericField(SortingAdapter.Instance, EsSortingService.Instance(ElasticsearchVersion.ES_2_3)),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        public static IGroupBySearch Instance => LazyInstance.Value;
+
+        public GroupByWithOrderByNumericField(ISortingAdapter sortingAdapter, IEsSortingService esSortingService)
+        {
+            _sortingAdapter = sortingAdapter;
+            _esSortingService = esSortingService;
+        }
+
         public void SetQueryPaging(UnifiedSearchDefinitions unifiedSearchDefinitions, ESUnifiedQueryBuilder queryBuilder)
         {
             queryBuilder.PageIndex = 0;
             queryBuilder.PageSize = 0;
             queryBuilder.From = 0;
             unifiedSearchDefinitions.topHitsCount = 1;
+            // We need to put "missing keys" bucket at the end of result list, but if ordering is ASC, then the bucket will come first.
+            // Therefore we need to return all buckets to apply paging correctly
+            var ordering = _sortingAdapter.ResolveOrdering(queryBuilder.SearchDefinitions);
+            if (_esSortingService.ShouldReorderMissedKeyBucket(ordering, unifiedSearchDefinitions.distinctGroup, unifiedSearchDefinitions.GroupByOption))
+            {
+                unifiedSearchDefinitions.pageIndex = 0;
+                unifiedSearchDefinitions.pageSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
+            }
         }
 
-        public ESAggregationsResult HandleQueryResponse(UnifiedSearchDefinitions search, int pageSize, int fromIndex, ESUnifiedQueryBuilder queryBuilder, string responseBody)
+        public ESAggregationsResult HandleQueryResponse(UnifiedSearchDefinitions search, ESUnifiedQueryBuilder queryBuilder, string responseBody)
         {
             var elasticAggregation = ESAggregationsResult.FullParse(responseBody, queryBuilder.Aggregations);
             if (elasticAggregation.Aggregations == null) throw new Exception("Unable to parse Elasticsearch response");
-
-            var groupBy = search.groupBy.Single();
-            var buckets = elasticAggregation.Aggregations[groupBy.Key].buckets;
-
-            buckets.RemoveRange(0, Math.Min(fromIndex, buckets.Count));
 
             return elasticAggregation;
         }

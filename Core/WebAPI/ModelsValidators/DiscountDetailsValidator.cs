@@ -7,7 +7,7 @@ namespace WebAPI.ModelsValidators
 {
     public static class DiscountDetailsValidator
     {
-       public static void ValidateForAdd(this KalturaDiscountDetails model)
+        public static void ValidateForAdd(this KalturaDiscountDetails model)
         {
             if (string.IsNullOrWhiteSpace(model.name))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
@@ -32,8 +32,6 @@ namespace WebAPI.ModelsValidators
             {
                 model.WhenAlgoType = (int) ApiObjects.Pricing.WhenAlgoType.N_FIRST_TIMES;
             }
-
-            
 
             model.ValidateMultiCurrencyDiscount();
         }

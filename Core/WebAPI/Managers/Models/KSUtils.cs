@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using TVinciShared;
-using WebAPI.Utils;
 
 namespace WebAPI.Managers.Models
 {
@@ -16,9 +15,7 @@ namespace WebAPI.Managers.Models
         public const string PAYLOAD_SESSION_CHARACTERISTIC_KEY = "sck";
         public const string PAYLOAD_SIGNATURE = "sig";
         public const string PAYLOAD_DOMAINID = "hh";
-        public const string PAYLOAD_IS_BYPASS_CACHE_ELIGIBLE = "bce";
-
-        private const string ONE = "1";
+        public const string PAYLOAD_BYPASS_CACHE_ELIGIBILITY = "bce";
 
         public static string PrepareKSPayload(KS.KSData pl)
         {
@@ -54,9 +51,10 @@ namespace WebAPI.Managers.Models
                 ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_SIGNATURE, pl.Signature));
             }
 
-            if (pl.IsBypassCacheEligible)
+            if (pl.BypassCacheEligibility.HasValue)
             {
-                ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_IS_BYPASS_CACHE_ELIGIBLE, ONE));
+                ksDataList.Add(
+                    new KeyValuePair<string, string>(PAYLOAD_BYPASS_CACHE_ELIGIBILITY, ((int)pl.BypassCacheEligibility.Value).ToString()));
             }
 
             return KS.preparePayloadData(ksDataList);
@@ -115,7 +113,13 @@ namespace WebAPI.Managers.Models
                 signature = pl[PAYLOAD_SIGNATURE];
             }
 
-            var isBypassCacheEligible = pl.ContainsKey(PAYLOAD_IS_BYPASS_CACHE_ELIGIBLE);
+            BypassCacheEligibility? bypassCacheEligibility = null;
+            if (pl.TryGetValue(PAYLOAD_BYPASS_CACHE_ELIGIBILITY, out var rawEligibilityValue)
+                && Enum.TryParse(rawEligibilityValue, out BypassCacheEligibility eligibilityValue)
+                && Enum.IsDefined(typeof(BypassCacheEligibility), eligibilityValue))
+            {
+                bypassCacheEligibility = eligibilityValue;
+            }
 
             return new KS.KSData(
                 udid,
@@ -125,7 +129,7 @@ namespace WebAPI.Managers.Models
                 userRoles,
                 sessionCharacteristicKey,
                 domainId,
-                isBypassCacheEligible,
+                bypassCacheEligibility,
                 signature);
         }
 

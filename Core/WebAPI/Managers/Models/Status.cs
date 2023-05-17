@@ -298,5 +298,6 @@ namespace WebAPI.Managers.Models
         ArgumentMinPropertiesCrossed = 500093,
         ArgumentMaxPropertiesCrossed = 500094,
         MultipleArgumentsConflictsEachOther = 500095,
+        RateLimitExceeded = 500096,
     }
 }

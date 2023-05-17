@@ -525,21 +525,14 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        internal static List<AssetFile> GetAssetFilesById(int groupId, long id, bool shouldAddBaseUrl = true)
+        internal static AssetFile GetAssetFileById(int groupId, long id, bool shouldAddBaseUrl = true)
         {
-            List<AssetFile> files = new List<AssetFile>();
-            GenericResponse<AssetFile> result = new GenericResponse<AssetFile>();
+            var ds = CatalogDAL.GetMediaFile(groupId, id);
+            var result = CreateAssetFileResponseFromDataSet(groupId, ds, shouldAddBaseUrl);
 
-            DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
-            result = CreateAssetFileResponseFromDataSet(groupId, ds, shouldAddBaseUrl);
-
-            if (result == null || (result != null && result.Status != null && result.Status.Code != (int)eResponseStatus.OK))
-            {
-                return files;
-            }
-
-            files.Add(result.Object);
-            return files;
+            return result?.IsOkStatusCode() == false
+                ? null
+                : result.Object;
         }
 
         internal static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId, bool shouldAddBaseUrl = true)
@@ -973,14 +966,9 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<AssetFile> response = new GenericListResponse<AssetFile>();
             try
             {
-                if (id > 0)
-                {
-                    response.Objects = GetAssetFilesById(groupId, id, false);
-                }
-                else
-                {
-                    response.Objects = GetAssetFilesByAssetId(groupId, assetId, false);
-                }
+                response.Objects = id > 0
+                    ? new List<AssetFile> { GetAssetFileById(groupId, id, false) }
+                    : GetAssetFilesByAssetId(groupId, assetId, false);
 
                 if (response.Objects != null)
                 {

@@ -8,7 +8,7 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
 {
     public class GroupByWithSpecificOrder : IGroupBySearch
     {
-        public ESAggregationsResult HandleQueryResponse(UnifiedSearchDefinitions search, int pageSize, int fromIndex, ESUnifiedQueryBuilder queryBuilder, string responseBody)
+        public ESAggregationsResult HandleQueryResponse(UnifiedSearchDefinitions search, ESUnifiedQueryBuilder queryBuilder, string responseBody)
         {
             var elasticAggregation = ESAggregationsResult.FullParse(responseBody, queryBuilder.Aggregations);
             if (elasticAggregation.Aggregations == null) throw new Exception("Unable to parse Elasticsearch response");
@@ -16,9 +16,16 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
             var groupBy = search.groupBy.Single();
             var buckets = elasticAggregation.Aggregations[groupBy.Key].buckets;
 
+            ESAggregationBucket missingKeysBucket = null;
             var assetIdToBucket = search.specificOrder.ToDictionary(x => x, x => (ESAggregationBucket)null);
             foreach (var bucket in buckets)
             {
+                if (search.GroupByOption == GroupingOption.Include &&
+                    bucket.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                {
+                    missingKeysBucket = bucket;
+                }
+
                 var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits?.hits;
                 if (hits?.Count == 1)
                 {
@@ -27,12 +34,13 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
                 }
             }
 
-            var pagedBuckets = assetIdToBucket.Values
-                .Where(x => x != null)
-                .Skip(fromIndex)
-                .Take(pageSize)
-                .ToList();
-            elasticAggregation.Aggregations[groupBy.Key].buckets = pagedBuckets;
+            var filteredBuckets = assetIdToBucket.Values.Where(x => x != null).ToList();
+            if (missingKeysBucket != null)
+            {
+                filteredBuckets.Add(missingKeysBucket);
+            }
+
+            elasticAggregation.Aggregations[groupBy.Key].buckets = filteredBuckets;
 
             return elasticAggregation;
         }

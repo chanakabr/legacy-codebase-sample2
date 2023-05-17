@@ -55,23 +55,7 @@ namespace WebAPI.Models.Catalog
                 int value;
                 if (int.TryParse(stringValue, out value))
                 {
-                    if (value == 0)
-                    {
-                        containsEpg = true;
-                    }
-                    else
-                    {
-                        containsMedia = true;
-                    }
-
-                    if (containsEpg && containsMedia)
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSearchExternalFilter.typeIn can't contain both EPG and Media");
-                    }
-                    else
-                    {
-                        values.Add(value);
-                    }
+                    values.Add(value);
                 }
                 else
                 {
@@ -82,20 +66,12 @@ namespace WebAPI.Models.Catalog
             return values;
         }
 
-        internal List<string> convertQueryToList()
-        {
-            return Utils.Utils.ParseCommaSeparatedValues<List<string>, string>(Query, "KalturaSearchExternalFilter.query");
-        }
-
         // Search for assets via external service (e.g. external recommendation engine). 
         //Search can return multi asset types. Support on-demand, per asset enrichment. Maximum number of returned assets – 100, using paging
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             var typeIn = getTypeIn();
-            
-            return typeIn.Contains(0)
-                ? ClientsManager.CatalogClient().GetEPGByExternalIds(contextData, pager.GetRealPageIndex(), pager.PageSize, convertQueryToList())
-                : ClientsManager.CatalogClient().GetSearchMediaExternal(contextData, pager.GetRealPageIndex(), pager.PageSize, Query, typeIn, UtcOffsetEqual);
+            return ClientsManager.CatalogClient().GetSearchMediaExternal(contextData, pager.GetRealPageIndex(), pager.PageSize, Query, typeIn, UtcOffsetEqual);
         }
     }
 }

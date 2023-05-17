@@ -368,34 +368,37 @@ namespace Core.Api
             }
         }
 
-        internal static ApiObjects.Response.Status DeleteRole(int groupId, long id)
+        internal static Status DeleteRole(int groupId, long id)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
             try
             {
                 var role = ApiDAL.GetRoles(groupId, new List<long>() { id }).FirstOrDefault();
                 if (role == null)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.RoleDoesNotExists, eResponseStatus.RoleDoesNotExists.ToString());
+                    return new Status((int)eResponseStatus.RoleDoesNotExists, eResponseStatus.RoleDoesNotExists.ToString());
                 }
-                else if (DAL.ApiDAL.DeleteRole(groupId, id))
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                    if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
+                if (role.Profile == RoleProfileType.PermissionEmbedded)
+                {
+                    return new Status((int)eResponseStatus.EmbeddedPermissionRoleModificationNotAllowed, eResponseStatus.EmbeddedPermissionRoleModificationNotAllowed.ToString());
+                }
+
+                if (ApiDAL.DeleteRole(groupId, id))
+                {
+                    if (!RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
                     {
                         log.DebugFormat("Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {0}", groupId);
                     }
+
+                    return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.ErrorFormat("Error while delete role. group id = {0}, ex = {1}", groupId, ex);
             }
 
-            return response;
+            return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
         }
 
         public static bool InitializeGroupNPlayer(ref ApiObjects.InitializationObject initObj)

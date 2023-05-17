@@ -206,7 +206,7 @@ namespace ApiObjects.Response
         CanOnlyCancelRecordingBeforeRecordingEnd = 3092,
         CanOnlyDeleteRecordingAfterRecordingEnd = 3093,
         RecordingExceededConcurrency = 3094,
-        
+
         #endregion
 
         #region Catalog 4000 - 4999
@@ -423,6 +423,7 @@ namespace ApiObjects.Response
         DynamicSegmentConditionsExceeded = 5093,
         NameMustBeUnique = 5094,
         EntityIsNotAssociatedWithShop = 5095,
+        EmbeddedPermissionRoleModificationNotAllowed = 5096,
 
         #endregion
 

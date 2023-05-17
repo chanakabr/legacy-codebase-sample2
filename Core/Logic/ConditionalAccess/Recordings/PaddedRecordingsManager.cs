@@ -213,13 +213,6 @@ namespace Core.Recordings
                     var record =
                         RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, program,
                             householdRecording);
-
-                    if (record != null && record.Id > 0)
-                    {
-                        record.StartPadding = householdRecording.IsStartPaddingDefault ? null : record.StartPadding;
-                        record.EndPadding = householdRecording.IsEndPaddingDefault ? null : record.EndPadding;
-                    }
-
                     domainRecordingIdToRecordingMap.Add(householdRecording.Id, record);
                 }
             }

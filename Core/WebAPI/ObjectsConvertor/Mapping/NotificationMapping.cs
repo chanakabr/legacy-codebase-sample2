@@ -12,6 +12,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
+using WebAPI.ObjectsConvertor.Extensions;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.ObjectsConvertor.Mapping

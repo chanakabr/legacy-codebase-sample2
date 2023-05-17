@@ -17,6 +17,8 @@ namespace WebAPI.Utils
 {
     public class Utils
     {
+        private static readonly HashSet<string> defaultResponseProfileProperties = new HashSet<string> {"error"};
+
         internal static int GetLanguageId(int groupId, string language)
         {
             // get all group languages
@@ -38,7 +40,7 @@ namespace WebAPI.Utils
             else
                 return 0;
         }
-        
+
         public static string GetClientIP()
         {
             if (HttpContext.Current.Items[RequestContextConstants.USER_IP] != null)
@@ -61,7 +63,7 @@ namespace WebAPI.Utils
 
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
 
-            // Azur 
+            // Azur
             // when header contains :, it can be of two: either it has a port, or it is an IPv6.
             if (ip.Contains(':'))
             {
@@ -84,7 +86,7 @@ namespace WebAPI.Utils
         {
             return Guid.NewGuid().ToString("N");
         }
-        
+
         internal static string GetLanguageFromRequest()
         {
             if (HttpContext.Current.Items[RequestContextConstants.REQUEST_LANGUAGE] == null)
@@ -168,7 +170,7 @@ namespace WebAPI.Utils
             else
             {
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                
+
                 return Mapper.Map<List<Language>>(groupManager.GetGroup(groupId.Value).GetLangauges());
             }
 
@@ -190,7 +192,7 @@ namespace WebAPI.Utils
         internal static WebAPI.Models.General.KalturaBaseResponseProfile GetResponseProfileFromRequest()
         {
             KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestContextConstants.REQUEST_RESPONSE_PROFILE];
-                        
+
             return responseProfile != null ? responseProfile as WebAPI.Models.General.KalturaBaseResponseProfile : null;
         }
 
@@ -198,7 +200,7 @@ namespace WebAPI.Utils
         {
             string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];
             string xKProxyProto = HttpContext.Current.Request.Headers["X-KProxy-Proto"];
-            
+
             string baseUrl = string.Format("{0}://{1}{2}", (!string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https") ||
                 (!string.IsNullOrEmpty(xKProxyProto) && xKProxyProto == "https") ?
                 "https" : HttpContext.Current.Request.GetUrl().Scheme, ExtractHost(), HttpContext.Current.Request.GetApplicationPath().TrimEnd('/'));
@@ -209,7 +211,7 @@ namespace WebAPI.Utils
         {
             string originalUriValue = null;
 #if NETCOREAPP3_1
-            originalUriValue = HttpContext.Current.Request.Headers.TryGetOriginalUriValue();      
+            originalUriValue = HttpContext.Current.Request.Headers.TryGetOriginalUriValue();
 #elif NET45_OR_GREATER
             originalUriValue = HttpContext.Current.Request.Headers[HeadersExtensions.ServiceUrlHeaderName];
 #endif
@@ -229,7 +231,7 @@ namespace WebAPI.Utils
 
             return ks.UserId.ParseUserId();
         }
-        
+
         public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)
         {
             return APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS)
@@ -341,7 +343,11 @@ namespace WebAPI.Utils
 
                 if (!string.IsNullOrEmpty(onDemandResponseProfile.RetrievedProperties))
                 {
-                    return onDemandResponseProfile.RetrievedProperties.Split(',').Select(p => p.Trim());
+                    var properties = onDemandResponseProfile.RetrievedProperties.Split(',').Select(p => p.Trim());
+                    var result = new HashSet<string>(defaultResponseProfileProperties);
+                    result.UnionWith(properties);
+
+                    return result;
                 }
             }
 

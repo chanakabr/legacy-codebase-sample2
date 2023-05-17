@@ -1,0 +1,147 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "appToken",
+    "version": "6.7.0.0",
+    "contact": {
+      "email": "platformdev@kaltura.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "phoenix.service.consul:{port}/{base_path}",
+      "description": "dns endpoint for appToken service instances",
+      "variables": {
+        "base_path": {
+          "default": "api_v3"
+        },
+        "port": {
+          "enum": [
+            "8080",
+            "8081"
+          ],
+          "default": "8080"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "KalturaAppToken": {
+        "type": "object",
+        "description": "Application token",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id of the application token",
+                "readOnly": true
+              },
+              "expiry": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Expiry time of current token (unix timestamp in seconds)",
+                "nullable": true
+              },
+              "partnerId": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Partner identifier",
+                "nullable": true,
+                "readOnly": true
+              },
+              "sessionDuration": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Expiry duration of KS (Kaltura Session) that created using the current token (in seconds)",
+                "nullable": true
+              },
+              "hashType": {
+                "type": "object",
+                "description": "The hash type of the token",
+                "nullable": true,
+                "$ref": "#/components/schemas/KalturaAppTokenHashType"
+              },
+              "sessionPrivileges": {
+                "type": "string",
+                "description": "Comma separated privileges to be applied on KS (Kaltura Session) that created using the current token",
+                "x-requires-permission": "WRITE"
+              },
+              "sessionType": {
+                "type": "object",
+                "description": "Type of KS (Kaltura Session) that created using the current token",
+                "nullable": true,
+                "$ref": "ott-schema-registry/models/api/rest/kalturaSessionType",
+                "x-requires-permission": "WRITE",
+                "x-deprecated-version": "4.5.0.0"
+              },
+              "status": {
+                "type": "object",
+                "description": "Application token status",
+                "readOnly": true,
+                "$ref": "#/components/schemas/KalturaAppTokenStatus",
+                "x-deprecated-version": "4.5.0.0"
+              },
+              "token": {
+                "type": "string",
+                "description": "The application token",
+                "readOnly": true
+              },
+              "sessionUserId": {
+                "type": "string",
+                "description": "User id of KS (Kaltura Session) that created using the current token",
+                "x-requires-permission": "WRITE"
+              },
+              "createDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Create date",
+                "readOnly": true
+              },
+              "updateDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Update date",
+                "readOnly": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.General"
+      },
+      "KalturaAppTokenHashType": {
+        "type": "string",
+        "description": "Application token hash type",
+        "enum": [
+          "SHA1",
+          "SHA256",
+          "SHA512",
+          "MD5"
+        ],
+        "x-namespace": "WebAPI.Models.General"
+      },
+      "KalturaAppTokenStatus": {
+        "type": "string",
+        "description": "Application token status",
+        "deprecated": true,
+        "enum": [
+          "DELETED",
+          "DISABLED",
+          "ACTIVE"
+        ],
+        "x-namespace": "WebAPI.Models.General"
+      }
+    },
+    "securitySchemes": {}
+  },
+  "security": [],
+  "paths": {}
+}

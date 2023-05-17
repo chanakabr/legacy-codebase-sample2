@@ -317,6 +317,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType USER_ALREADY_ATTACHED_TO_ASSET_USER_RULE = new ClientExceptionType(eResponseStatus.UserAlreadyAttachedToAssetUserRule, "", "User already attached to this AssetUserRule");
         public static ClientExceptionType ASSET_USER_RULES_OPERATIONS_DISABLE = new ClientExceptionType(eResponseStatus.AssetUserRulesOperationsDisable, "", "AssetUserRule operations are disabled for this partner");
         public static ClientExceptionType ROLE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RoleDoesNotExists, "", "Role Does Not Exists");
+        public static ClientExceptionType EMBEDDED_PERMISSION_ROLE_MODIFICATION_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.EmbeddedPermissionRoleModificationNotAllowed, "", "Embedded permission role modification is not allowed");
         public static ClientExceptionType FILE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.FileDoesNotExists, "File Does Not Exists", "The file does not exist in a given path");
         public static ClientExceptionType FILE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.FileAlreadyExists, "File Already Exists", "The file already exists in a given path");
         public static ClientExceptionType ERROR_SAVING_FILE = new ClientExceptionType(eResponseStatus.ErrorSavingFile, "Error While Saving File", "Error occurred while saving file to File Server");

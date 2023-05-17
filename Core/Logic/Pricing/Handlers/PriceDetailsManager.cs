@@ -237,7 +237,7 @@ namespace ApiLogic.Pricing.Handlers
         {
             // invalidation keys
             string invalidationKey = LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(groupId);
-            if (_layeredCache.SetInvalidationKey(invalidationKey))
+            if (!_layeredCache.SetInvalidationKey(invalidationKey))
             {
                 log.ErrorFormat("Failed to set invalidation key for group price codes. key = {0}", invalidationKey);
             }

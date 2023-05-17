@@ -48,6 +48,14 @@ namespace ElasticSearch.Utils
             => !string.IsNullOrEmpty(distinctGroup?.Key)
                 && (esOrderByFields.Count != 1 || !IsBucketsOrderingSupportedByEs(esOrderByFields.Single()));
 
+        public bool ShouldReorderMissedKeyBucket(
+            IReadOnlyCollection<IEsOrderByField> esOrderByFields,
+            GroupByDefinition distinctGroup,
+            GroupingOption groupingOption)
+            => !IsBucketsReorderingRequired(esOrderByFields, distinctGroup)
+                && !string.IsNullOrEmpty(distinctGroup?.Key)
+                && groupingOption == GroupingOption.Include;
+
         public SortDescriptor<NestBaseAsset> GetSortingV7(IEnumerable<IEsOrderByField> orderByFields, bool functionScoreSort = false)
         {
             var orderingsToInclude = AdjustOrderingFields(orderByFields, functionScoreSort);

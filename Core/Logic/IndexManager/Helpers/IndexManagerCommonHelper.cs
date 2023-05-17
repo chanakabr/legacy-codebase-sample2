@@ -165,7 +165,7 @@ namespace ApiLogic.IndexManager.Helpers
                 case OrderBy.ID:
                 case OrderBy.CREATE_DATE:
                 case OrderBy.START_DATE:
-                    return new GroupByWithOrderByNumericField();
+                    return GroupByWithOrderByNumericField.Instance;
                 case OrderBy.NAME:
                 case OrderBy.META:
                     return GroupByWithOrderByNonNumericField.Instance;

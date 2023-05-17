@@ -1,0 +1,227 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "announcement",
+    "version": "6.7.0.0",
+    "contact": {
+      "email": "platformdev@kaltura.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "phoenix.service.consul:{port}/{base_path}",
+      "description": "dns endpoint for announcement service instances",
+      "variables": {
+        "base_path": {
+          "default": "api_v3"
+        },
+        "port": {
+          "enum": [
+            "8080",
+            "8081"
+          ],
+          "default": "8080"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "KalturaAnnouncement": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Announcement name"
+              },
+              "message": {
+                "type": "string",
+                "description": "Announcement message"
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Announcement enabled",
+                "nullable": true
+              },
+              "startTime": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Announcement start time",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "start_time"
+                  }
+                ]
+              },
+              "timezone": {
+                "type": "string",
+                "description": "Announcement time zone"
+              },
+              "status": {
+                "type": "object",
+                "description": "Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3",
+                "readOnly": true,
+                "$ref": "ott-schema-registry/models/api/rest/kalturaAnnouncementStatus"
+              },
+              "recipients": {
+                "type": "object",
+                "description": "Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3",
+                "$ref": "#/components/schemas/KalturaAnnouncementRecipientsType"
+              },
+              "id": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Announcement id",
+                "nullable": true,
+                "readOnly": true
+              },
+              "imageUrl": {
+                "type": "string",
+                "description": "Announcement image URL, relevant for system announcements"
+              },
+              "includeMail": {
+                "type": "boolean",
+                "description": "Include Mail"
+              },
+              "mailTemplate": {
+                "type": "string",
+                "description": "Mail Template"
+              },
+              "mailSubject": {
+                "type": "string",
+                "description": "Mail Subject"
+              },
+              "includeSms": {
+                "type": "boolean",
+                "description": "Include SMS"
+              },
+              "includeIot": {
+                "type": "boolean",
+                "description": "Include IOT"
+              },
+              "includeUserInbox": {
+                "type": "boolean",
+                "description": "Should add to user inbox",
+                "nullable": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Notification"
+      },
+      "KalturaAnnouncementRecipientsType": {
+        "type": "string",
+        "description": "Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3",
+        "enum": [
+          "All",
+          "LoggedIn",
+          "Guests",
+          "Other"
+        ],
+        "x-namespace": "WebAPI.Models.Notification"
+      },
+      "KalturaAnnouncementFilter": {
+        "type": "object",
+        "description": "order announcements",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaFilter",
+            "x-template-instantiation": {
+              "KalturaT": "#/components/schemas/KalturaAnnouncementOrderBy"
+            }
+          },
+          {
+            "properties": {
+              "idIn": {
+                "type": "string",
+                "description": "A list of comma separated announcement ids.",
+                "nullable": true
+              },
+              "orderBy": {
+                "default": "NONE",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/KalturaAnnouncementOrderBy"
+                  }
+                ],
+                "x-override-default": true,
+                "x-get-default-orderby": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Notification"
+      },
+      "KalturaAnnouncementOrderBy": {
+        "type": "string",
+        "description": "order announcements",
+        "enum": [
+          "NONE"
+        ],
+        "x-namespace": "WebAPI.Models.Notification"
+      },
+      "KalturaAnnouncementListResponse": {
+        "type": "object",
+        "description": "List of message announcements from DB.",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaListResponse"
+          },
+          {
+            "properties": {
+              "objects": {
+                "type": "array",
+                "description": "Announcements",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaAnnouncement"
+                },
+                "x-generated-symbol": "Announcements"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Notification",
+        "x-data-contract": "KalturaAnnouncementListResponse",
+        "x-xml-root": "KalturaAnnouncementListResponse"
+      },
+      "KalturaMessageAnnouncementListResponse": {
+        "type": "object",
+        "description": "List of message announcements from DB.",
+        "deprecated": true,
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaListResponse"
+          },
+          {
+            "properties": {
+              "objects": {
+                "type": "array",
+                "description": "Announcements",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaAnnouncement"
+                },
+                "x-generated-symbol": "Announcements"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Notification",
+        "x-data-contract": "KalturaAssetsPositionsResponse",
+        "x-xml-root": "KalturaMessageAnnouncementListResponse"
+      }
+    },
+    "securitySchemes": {}
+  },
+  "security": [],
+  "paths": {}
+}

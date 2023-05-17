@@ -46,7 +46,7 @@ namespace WebAPI.Managers.Models
             public string SessionCharacteristicKey { get; }
             public int DomainId { get; set; }
             public string Signature { get; set; }
-            public bool IsBypassCacheEligible { get; set; }
+            public BypassCacheEligibility? BypassCacheEligibility { get; set; }
 
             public static KSData Empty { get; } = new KSData();
             
@@ -60,7 +60,7 @@ namespace WebAPI.Managers.Models
                 List<long> userRoles,
                 string sessionCharacteristicKey,
                 int domainId,
-                bool isBypassCacheEligible,
+                BypassCacheEligibility? bypassCacheEligibility,
                 string signature = "")
             {
                 UDID = udid;
@@ -71,7 +71,7 @@ namespace WebAPI.Managers.Models
                 UserRoles = userRoles;
                 SessionCharacteristicKey = sessionCharacteristicKey;
                 Signature = signature;
-                IsBypassCacheEligible = isBypassCacheEligible;
+                BypassCacheEligibility = bypassCacheEligibility;
             }
 
             public KSData(KSData payload, int createDate)
@@ -83,7 +83,7 @@ namespace WebAPI.Managers.Models
                 UserSegments = payload.UserSegments;
                 UserRoles = payload.UserRoles;
                 SessionCharacteristicKey = payload.SessionCharacteristicKey;
-                IsBypassCacheEligible = payload.IsBypassCacheEligible;
+                BypassCacheEligibility = payload.BypassCacheEligibility;
             }
 
             public KSData(ApiToken token, int createDate, string udid)
@@ -95,7 +95,7 @@ namespace WebAPI.Managers.Models
                 UserSegments = token.UserSegments;
                 UserRoles = token.UserRoles;
                 SessionCharacteristicKey = token.SessionCharacteristicKey;
-                IsBypassCacheEligible = token.IsBypassCacheEligible;
+                BypassCacheEligibility = token.BypassCacheEligibility;
             }
         }
 

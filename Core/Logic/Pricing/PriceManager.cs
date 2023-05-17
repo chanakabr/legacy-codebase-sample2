@@ -1,7 +1,14 @@
-﻿using ApiLogic.Api.Managers;
-using ApiLogic.Pricing.Handlers;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading;
+using APILogic;
+using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
+using ApiLogic.Pricing.Handlers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
@@ -12,15 +19,6 @@ using Core.Catalog.CatalogManagement;
 using Core.ConditionalAccess;
 using DAL;
 using Phx.Lib.Log;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using APILogic;
-using ApiObjects.Base;
-using TVinciShared;
 
 namespace Core.Pricing
 {
@@ -30,22 +28,33 @@ namespace Core.Pricing
         private const string ASSET_FILE_PPV_NOT_EXIST = "Asset file ppv doesn't exist";
 
         private static Lazy<IPriceManager> _lazy = new Lazy<IPriceManager>(
-            () => new PriceManager(),
+            () => new PriceManager(IndexManagerFactory.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static IPriceManager Instance => _lazy.Value;
+
+        private readonly IIndexManagerFactory _indexManagerFactory;
+
+        public PriceManager(IIndexManagerFactory indexManagerFactory)
+        {
+            _indexManagerFactory = indexManagerFactory;
+        }
 
         public GenericResponse<AssetFilePpv> AddAssetFilePPV(ContextData contextData, AssetFilePpv assetFilePpv)
         {
             GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
-                // Validate mediaFileId && ppvModuleId
-                Status status = ValidateAssetFilePPV(contextData, assetFilePpv.AssetFileId, assetFilePpv.PpvModuleId);
-                if (status != null && status.Code != (int)eResponseStatus.OK)
+                var status = ValidatePvvModuleExist(contextData, assetFilePpv.PpvModuleId);
+                if (!status.IsOkStatusCode())
                 {
-                    response.SetStatus(status.Code, status.Message);
-                    return response;
+                    return new GenericResponse<AssetFilePpv>(status);
+                }
+
+                var assetFileResponse = GetAssetFile(contextData.GroupId, assetFilePpv.AssetFileId);
+                if (!assetFileResponse.IsOkStatusCode())
+                {
+                    return new GenericResponse<AssetFilePpv>(assetFileResponse.Status);
                 }
 
                 // validate ppvModuleId && mediaFileId not already exist
@@ -79,6 +88,8 @@ namespace Core.Pricing
 
                 response.Status.Code = (int)eResponseStatus.OK;
                 response.Status.Message = eResponseStatus.OK.ToString();
+
+                InvalidateAsset(contextData.GroupId, assetFileResponse.Object.AssetId);
             }
             catch (Exception ex)
             {
@@ -89,13 +100,32 @@ namespace Core.Pricing
             return response;
         }
 
+        private void InvalidateAsset(int groupId, long assetId)
+        {
+            var indexingResult = _indexManagerFactory.GetIndexManager(groupId).UpsertMedia(assetId);
+            if (!indexingResult)
+            {
+                log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", assetId, groupId);
+            }
+        }
+
         public GenericResponse<AssetFilePpv> UpdateAssetFilePPV(ContextData contextData, AssetFilePpv request)
         {
             GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
-                // Validate mediaFileId && ppvModuleId
-                Status status = ValidateAssetFilePPV(contextData, request.AssetFileId, request.PpvModuleId);
+                var status = ValidatePvvModuleExist(contextData, request.PpvModuleId);
+                if (!status.IsOkStatusCode())
+                {
+                    return new GenericResponse<AssetFilePpv>(status);
+                }
+
+                var assetFileResponse = GetAssetFile(contextData.GroupId, request.AssetFileId);
+                if (!assetFileResponse.IsOkStatusCode())
+                {
+                    return new GenericResponse<AssetFilePpv>(assetFileResponse.Status);
+                }
+
                 if (status != null && status.Code != (int)eResponseStatus.OK)
                 {
                     response.SetStatus(status.Code, status.Message);
@@ -130,6 +160,8 @@ namespace Core.Pricing
                 response.Object = CreateAssetFilePPV(dt.Rows[0]);
                 response.Status.Code = (int)eResponseStatus.OK;
                 response.Status.Message = eResponseStatus.OK.ToString();
+
+                InvalidateAsset(contextData.GroupId, assetFileResponse.Object.AssetId);
             }
             catch (Exception ex)
             {
@@ -142,14 +174,19 @@ namespace Core.Pricing
 
         public Status DeleteAssetFilePPV(ContextData contextData, long mediaFileId, long ppvModuleId)
         {
-            Status status = new Status();
             try
             {
                 // Validate mediaFileId && ppvModuleId
-                status = ValidateAssetFilePPV(contextData, mediaFileId, ppvModuleId);
-                if (status != null && status.Code != (int)eResponseStatus.OK)
+                var validationStatus = ValidatePvvModuleExist(contextData, ppvModuleId);
+                if (!validationStatus.IsOkStatusCode())
                 {
-                    return status;
+                    return validationStatus;
+                }
+
+                var assetFileResponse = GetAssetFile(contextData.GroupId, mediaFileId);
+                if (!assetFileResponse.IsOkStatusCode())
+                {
+                    return assetFileResponse.Status;
                 }
 
                 int res = PricingDAL.DeleteAssetFilePPV(contextData.GroupId, mediaFileId, ppvModuleId);
@@ -157,14 +194,15 @@ namespace Core.Pricing
                 {
                     return new Status((int)eResponseStatus.Error, "failed to DeleteAssetFilePPV");
                 }
-                else if (res == -1)
+
+                if (res == -1)
                 {
                     return new Status((int)eResponseStatus.AssetFilePPVNotExist, ASSET_FILE_PPV_NOT_EXIST);
                 }
-                else
-                {
-                    status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
+
+                InvalidateAsset(contextData.GroupId, assetFileResponse.Object.AssetId);
+
+                return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -172,7 +210,7 @@ namespace Core.Pricing
                     contextData.GroupId, mediaFileId, ppvModuleId, ex);
             }
 
-            return status;
+            return Status.Error;
         }
 
         public GenericListResponse<AssetFilePpv> GetAssetFilePPVList(ContextData contextData, long assetId, long assetFileId)
@@ -209,16 +247,18 @@ namespace Core.Pricing
                 else if (assetFileId > 0)
                 {
                     // check assetFileId  exist
-                    assetFiles = FileManager.GetAssetFilesById(contextData.GroupId, assetFileId);
+                    var assetFile = FileManager.GetAssetFileById(contextData.GroupId, assetFileId);
 
                     // Get Asset Files
-                    if (assetFiles == null)
+                    if (assetFile == null)
                     {
                         log.ErrorFormat("Error while getting assetFiles. groupId: {0}, assetFileId {1}", contextData.GroupId,
                             assetFileId);
                         response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
+
+                    assetFiles = new List<AssetFile> { assetFile };
                 }
 
                 if (assetFiles.Count > 0)
@@ -379,25 +419,44 @@ namespace Core.Pricing
 
         private static Status ValidateAssetFilePPV(ContextData contextData, long mediaFileId, long ppvModuleId)
         {
-            // validate ppvModuleId Exists               
+            var validationStatus = ValidatePvvModuleExist(contextData, ppvModuleId);
+            if (!validationStatus.IsOkStatusCode())
+            {
+                return validationStatus;
+            }
+
+            // validate mediaFileId Exists
+            var assetFileResponse = GetAssetFile(contextData.GroupId, mediaFileId);
+
+            return assetFileResponse.Status;
+        }
+
+        private static Status ValidatePvvModuleExist(ContextData contextData, long ppvModuleId)
+        {
+            // validate ppvModuleId Exists
             var ppvById = PpvManager.Instance.GetPpvById(contextData, ppvModuleId);
             bool isExist = ppvById != null && ppvById.HasObject();
-            
+
             if (!isExist)
             {
                 log.Error($"Error. Unknown PPVModule: {ppvModuleId} for groupId: {contextData.GroupId}");
                 return new Status((int)eResponseStatus.UnKnownPPVModule, "The ppv module is unknown");
             }
 
-            // validate mediaFileId Exists
-            isExist = IsMediaFileIdExist(contextData.GroupId, mediaFileId);
-            if (!isExist)
+            return Status.Ok;
+        }
+
+        private static GenericResponse<AssetFile> GetAssetFile(int partnerId, long mediaFileId)
+        {
+            var assetFile = FileManager.GetAssetFileById(partnerId, mediaFileId);
+            if (assetFile == null)
             {
-                log.ErrorFormat("Error. Unknown mediaFileId: {0} for groupId: {1}", mediaFileId, contextData.GroupId);
-                return new Status((int)eResponseStatus.MediaFileDoesNotExist, "Media file does not exist");
+                log.ErrorFormat("Error. Unknown mediaFileId: {0} for groupId: {1}", mediaFileId, partnerId);
+
+                return new GenericResponse<AssetFile>(eResponseStatus.MediaFileDoesNotExist, "Media file does not exist");
             }
 
-            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return new GenericResponse<AssetFile>(Status.Ok, assetFile);
         }
 
         private static bool IsPPVModuleExist(int groupId, long ppvModuleId)
@@ -412,30 +471,12 @@ namespace Core.Pricing
             return false;
         }
 
-        private static bool IsMediaFileIdExist(int groupId, long mediaFileId)
-        {
-            // check mediaFileId  exist
-            List<AssetFile> assetFiles = FileManager.GetAssetFilesById(groupId, mediaFileId);
-
-            // Get Asset Files
-            if (assetFiles == null || assetFiles.Count == 0)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         private static bool IsAssetFilePpvExist(int groupId, long mediaFileId, long ppvModuleId)
         {
             // check ppvModuleId  exist
-            DataRow dr = PricingDAL.Get_PPVModuleForMediaFile((int)mediaFileId, ppvModuleId, groupId);
-            if (dr == null)
-            {
-                return false;
-            }
+            var dr = PricingDAL.Get_PPVModuleForMediaFile((int)mediaFileId, ppvModuleId, groupId);
 
-            return true;
+            return dr != null;
         }
 
         public static Price GetPagoFinalPrice(int groupId, long userId, ref PriceReason priceReason,
@@ -458,7 +499,7 @@ namespace Core.Pricing
             }
 
             DomainEntitlements domainEntitlements = null;
-            if (Core.ConditionalAccess.Utils.TryGetDomainEntitlementsFromCache(groupId, domainId, null,
+            if (ConditionalAccess.Utils.TryGetDomainEntitlementsFromCache(groupId, domainId, null,
                     ref domainEntitlements))
             {
                 if (domainEntitlements.PagoEntitlements != null &&
@@ -513,7 +554,7 @@ namespace Core.Pricing
                 {
                     country = APILogic.Utils.GetIP2CountryCode(groupId, ip);
                     PriceCode priceCodeWithCurrency =
-                        Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, (int)priceDetailsResponse.Object.Id,
+                        Module.GetPriceCodeDataByCountyAndCurrency(groupId, (int)priceDetailsResponse.Object.Id,
                             country, currency);
                     if (priceCodeWithCurrency == null)
                     {
@@ -588,7 +629,7 @@ namespace Core.Pricing
                     {
                         if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
                         {
-                            var discountModule = Pricing.Module.Instance.GetDiscountCodeDataByCountryAndCurrency(
+                            var discountModule = Module.Instance.GetDiscountCodeDataByCountryAndCurrency(
                                 groupId,
                                 (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId,
                                 countryCode, currencyCode);

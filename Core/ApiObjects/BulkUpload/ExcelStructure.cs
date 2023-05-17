@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace ApiObjects.BulkUpload
@@ -12,11 +13,10 @@ namespace ApiObjects.BulkUpload
 
         public ExcelStructure(Dictionary<string, ExcelColumn> excelColumns, List<string> overviewInstructions, Dictionary<ExcelColumnType, Color> columnsColors, Dictionary<string, object> mandatoryPropertyAndValueMap)
         {
-            if (excelColumns == null)
-            {
-                excelColumns = new Dictionary<string, ExcelColumn>();
-            }
-            ExcelColumns = excelColumns;
+            // AssetStruct metadata keys are case insensitive
+            ExcelColumns = excelColumns == null
+                ? new Dictionary<string, ExcelColumn>(StringComparer.OrdinalIgnoreCase)
+                : new Dictionary<string, ExcelColumn>(excelColumns, StringComparer.OrdinalIgnoreCase);
 
             if (overviewInstructions == null)
             {

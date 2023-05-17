@@ -28,6 +28,7 @@ namespace WebAPI.Managers
         private const string HOUSEHOLD_WILDCARD = "household*";
         private const string IS_PROPERTY_PERMITTED = "{0}_{1}_{2}_{3}";
         public const string EXTERNAL_EDITOR_ROLE_NAME = "ExternalEditor";
+        public const int PROVISIONING_SYSTEM_ROLE_ID = 18;
 
         #region Private Methods
 
@@ -347,13 +348,20 @@ namespace WebAPI.Managers
         }
 
         public static bool IsPartner(int groupId, List<long> roleIds)
+            => IsAnyRoleWithProfileType(groupId, roleIds, KalturaUserRoleProfile.PARTNER, KalturaUserRoleProfile.SYSTEM);
+
+        public static bool IsProvisioningSystemRole(IEnumerable<long> roleIds)
+            => roleIds?.Any(x => x == PROVISIONING_SYSTEM_ROLE_ID) == true;
+
+        private static bool IsAnyRoleWithProfileType(
+            int groupId,
+            List<long> roleIds,
+            params KalturaUserRoleProfile[] profileTypes)
         {
             var roles = ClientsManager.ApiClient().GetRoles(groupId, roleIds);
-            if (roles?.Count > 0)
-            {
-                return roles.Any(x => x.Profile != null && (x.Profile == KalturaUserRoleProfile.PARTNER || x.Profile == KalturaUserRoleProfile.SYSTEM));
-            }
-            return false;
+
+            return roles != null
+                && roles.Any(x => Array.Exists(profileTypes, p => p == x.Profile));
         }
 
         /// <summary>

@@ -267,6 +267,17 @@ namespace ApiLogic.Pricing.Handlers
 
                 subscriptionToInsert.ProrityInOrder = subscriptionToInsert.ProrityInOrder.HasValue ? subscriptionToInsert.ProrityInOrder : 1;
 
+                // BEO-12682 set default start and end dates for subscription
+                if (!subscriptionToInsert.StartDate.HasValue)
+                {
+                    subscriptionToInsert.StartDate = new DateTime(2000, 1, 1);
+                }
+
+                if (!subscriptionToInsert.EndDate.HasValue)
+                {
+                    subscriptionToInsert.EndDate = new DateTime(2099, 1, 1);
+                }
+
                 int id = _repository.AddSubscription(contextData.GroupId, contextData.UserId.Value, subscriptionToInsert, basePricePlanId, basePriceCodeId, isRecurring, extDiscountId);
                 if (id == 0)
                 {

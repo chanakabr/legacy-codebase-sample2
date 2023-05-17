@@ -33,6 +33,7 @@ using OTT.Lib.Kafka.Extensions;
 using Phx.Lib.Log;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using Utils = Core.Catalog.Utils;
 
 namespace IngestHandler
 {
@@ -73,6 +74,7 @@ namespace IngestHandler
         private long _bulkUploadId;
         private long _linearChannelId;
         private Dictionary<string, ImageType> _groupRatioNamesToImageTypes;
+        private int _partnerId;
 
         public IngestV3Handler(
             IIngestStagingRepository ingestStagingRepository,
@@ -184,6 +186,7 @@ namespace IngestHandler
         {
             _kmonEvt = Phx.Lib.Log.Events.eEvent.EVENT_WS;
             _partnerIdStr = partnerId.ToString();
+            _partnerId = partnerId;
             _bulkUploadId = bulkUploadId;
             _linearChannelId = linearChannelId;
             using var km = CreateKMonitor("InitHandlerProperties");
@@ -235,7 +238,7 @@ namespace IngestHandler
 
             if (_bulkUpload.Results.Any(r => r.Errors?.Any() == true))
             {
-                _bulkUpload.AddError(eResponseStatus.Error, "errors while trying to create multilingual translations, see results for details");
+                _bulkUpload.AddError(eResponseStatus.Error, "errors while trying to parse/map epg objects, see results for details");
 
                 // set errors on all other items that are not errors of same date so that status can be finalized as failed
                 foreach (var r in _bulkUpload.Results.Where(r => r.Status != BulkUploadResultStatus.Error))
@@ -487,6 +490,8 @@ namespace IngestHandler
             epgItem.regions = GetRegions(epgItem.LinearMediaId);
 
             epgItem.ExternalOfferIds = parsedProg.ParseExternalOfferIds(langCode, defaultLangCode, bulkUploadResultItem);
+
+            Utils.ExtractSuppressedValue(_catalogManagerAdapter.GetCatalogGroupCache(_partnerId), epgItem);
 
             PrepareEpgItemImages(parsedProg.icon, epgItem);
 

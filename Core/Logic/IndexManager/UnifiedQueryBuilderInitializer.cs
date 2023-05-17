@@ -2,6 +2,7 @@
 using System.Threading;
 using ApiLogic.IndexManager.Sorting;
 using ApiObjects.CanaryDeployment.Elasticsearch;
+using ApiObjects.SearchObjects;
 using ElasticSearch.Utils;
 using Phx.Lib.Appconfig;
 
@@ -66,7 +67,11 @@ namespace ApiLogic.IndexManager
                 }
             }
             // if there is group by
-            else if (_esSortingService.IsBucketsReorderingRequired(orderByFields, queryBuilder.SearchDefinitions.distinctGroup))
+            else if (_esSortingService.IsBucketsReorderingRequired(orderByFields, queryBuilder.SearchDefinitions.distinctGroup)
+                || _esSortingService.ShouldReorderMissedKeyBucket(
+                    orderByFields,
+                    queryBuilder.SearchDefinitions.distinctGroup,
+                    queryBuilder.SearchDefinitions.GroupByOption))
             {
                 queryBuilder.PageIndex = 0;
                 queryBuilder.PageSize = 0;

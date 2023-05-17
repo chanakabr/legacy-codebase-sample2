@@ -4,18 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using OTT.Lib.Kafka;
-using Phx.Lib.Appconfig;
-using Microsoft.Extensions.Logging;
+using OTT.Lib.Kafka.Extensions;
 
 namespace EventBus.Kafka
 {
-    public class EventBusConsumerKafka : IEventBusConsumer, IDisposable
+    public class EventBusConsumerKafka : IEventBusConsumer, IDisposable, IHealthCheck
     {
         private readonly IKafkaConsumer<string, string> _consumer;
         private readonly IEnumerable<string> _topics;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
+        private readonly KafkaConsumerOptions _options;
         private bool _disposed;
 
         public delegate void OnConsumeAction(Confluent.Kafka.ConsumeResult<string, string> consumeResult);
@@ -29,7 +30,8 @@ namespace EventBus.Kafka
             int maxConsumeWaitTimeMs,
             OnBatchConsumeAction onBatchConsume,
             IReadOnlyDictionary<string, string> additionalKafkaConfig,
-            IHostApplicationLifetime hostApplicationLifetime)
+            IHostApplicationLifetime hostApplicationLifetime,
+            KafkaConsumerOptions options = null)
         {
             _consumer = KafkaConsumerFactoryInstance.Instance.Acquire(additionalKafkaConfig)
                 .Get<string, string>(
@@ -44,6 +46,7 @@ namespace EventBus.Kafka
                     });
             _topics = topics;
             _hostApplicationLifetime = hostApplicationLifetime;
+            _options = options;
         }
 
         public EventBusConsumerKafka(
@@ -52,13 +55,15 @@ namespace EventBus.Kafka
             int maxConsumeMessages,
             int maxConsumeWaitTimeMs,
             OnBatchConsumeAction onBatchConsume,
-            IHostApplicationLifetime hostApplicationLifetime) 
-            : this(groupName, topics, maxConsumeMessages, maxConsumeWaitTimeMs, onBatchConsume, null, hostApplicationLifetime)
+            IHostApplicationLifetime hostApplicationLifetime,
+            KafkaConsumerOptions options = null) 
+            : this(groupName, topics, maxConsumeMessages, maxConsumeWaitTimeMs, onBatchConsume, null, hostApplicationLifetime, options)
         {
         }
 
         public EventBusConsumerKafka(string groupName, List<string> topics, OnConsumeAction onSingleMessageConsume,
-            IReadOnlyDictionary<string, string> additionalKafkaConfig, IHostApplicationLifetime hostApplicationLifetime)
+            IReadOnlyDictionary<string, string> additionalKafkaConfig, IHostApplicationLifetime hostApplicationLifetime,
+            KafkaConsumerOptions options = null)
         {
             _consumer = KafkaConsumerFactoryInstance.Instance.Acquire(additionalKafkaConfig)
                 .Get<string, string>(
@@ -71,11 +76,12 @@ namespace EventBus.Kafka
                     });
             _topics = topics;
             _hostApplicationLifetime = hostApplicationLifetime;
+            _options = options;
         }
 
         public EventBusConsumerKafka(string groupName, List<string> topics, OnConsumeAction onSingleMessageConsume,
-            IHostApplicationLifetime hostApplicationLifetime) : this(groupName, topics, onSingleMessageConsume, null,
-            hostApplicationLifetime)
+            IHostApplicationLifetime hostApplicationLifetime, KafkaConsumerOptions options = null) : this(groupName, topics, onSingleMessageConsume, null,
+            hostApplicationLifetime, options)
         {
         }
 
@@ -104,6 +110,11 @@ namespace EventBus.Kafka
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+        
+        public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return Task.FromResult(_consumer.CheckHealth(_options.HealthCheckMaxTimeWithoutProgress) ? HealthCheckResult.Healthy() : HealthCheckResult.Unhealthy());
         }
 
         protected virtual void Dispose(bool disposing)

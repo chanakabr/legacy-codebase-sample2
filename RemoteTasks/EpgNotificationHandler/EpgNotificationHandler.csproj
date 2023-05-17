@@ -25,7 +25,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="ott.client.epgcache.grpc" Version="0.1.33-regenerate-service" />
     <PackageReference Include="ott.client.iot.grpc" Version="1.0.0-pr-11-117" />
-    <PackageReference Include="prometheus-net" Version="4.1.1" />
+    <PackageReference Include="prometheus-net" Version="4.2.0" />
   </ItemGroup>
 
   <ItemGroup>

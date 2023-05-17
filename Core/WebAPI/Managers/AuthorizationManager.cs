@@ -172,7 +172,7 @@ namespace WebAPI.Managers
             // SessionCharacteristicKey is initialized only in Auth MS
             string sessionCharacteristicKey = null;
 
-            var isBypassCacheEligible = RolesManager.IsPartner(groupId, userRoles);
+            var bypassCacheEligibility = ResolveBypassCacheEligibility(groupId, userRoles);
 
             return new KS.KSData(
                 udid,
@@ -182,7 +182,7 @@ namespace WebAPI.Managers
                 userRoles,
                 sessionCharacteristicKey,
                 domainId,
-                isBypassCacheEligible);
+                bypassCacheEligibility);
         }
 
         private static KalturaLoginSession GenerateSessionByApiToken(ApiToken token, Group group)
@@ -269,6 +269,21 @@ namespace WebAPI.Managers
             }
 
             return groupConfig;
+        }
+
+        private static BypassCacheEligibility? ResolveBypassCacheEligibility(int groupId, List<long> roleIds)
+        {
+            if (RolesManager.IsProvisioningSystemRole(roleIds))
+            {
+                return BypassCacheEligibility.Allowed;
+            }
+
+            if (RolesManager.IsPartner(groupId, roleIds))
+            {
+                return BypassCacheEligibility.RestrictedByHeader;
+            }
+
+            return null;
         }
 
         private static void ValidateUser(int groupId, string userId)

@@ -19,6 +19,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.IndexManager.Sorting;
 using ApiObjects.CanaryDeployment.Elasticsearch;
 using ElasticSearch.Utils;
@@ -56,7 +58,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         private readonly IEsSortingService _esSortingService;
         private readonly ISortingAdapter _sortingAdapter;
         private readonly IUnifiedQueryBuilderInitializer _queryInitializer;
-
+        private readonly IChannelSearchOptionsService _channelSearchOptionsService;
         public ChannelQueryBuilder(ElasticsearchVersion version)
         {
             _watchRuleManager = WatchRuleManager.Instance;
@@ -65,6 +67,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             _esSortingService = EsSortingService.Instance(version);
             _sortingAdapter = SortingAdapter.Instance;
             _queryInitializer = UnifiedQueryBuilderInitializer.Instance(version);
+            _channelSearchOptionsService = ChannelSearchOptionsService.Instance;
         }
 
         public ChannelQueryBuilder(
@@ -157,41 +160,15 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         public UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel)
         {
-            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+            var definitions = new UnifiedSearchDefinitions
+            {
+                groupId = channel.m_nGroupID,
+                mediaTypes = channel.m_nMediaType.ToList()
+            };
 
-            definitions.groupId = channel.m_nGroupID;
             var group = _groupManager.GetGroup(definitions.groupId);
 
-            if (channel.m_nMediaType != null)
-            {
-                // Nothing = all
-                if (channel.m_nMediaType.Count == 0)
-                {
-                    definitions.shouldSearchEpg = true;
-                    definitions.shouldSearchMedia = true;
-                }
-                else
-                {
-                    if (channel.m_nMediaType.Contains(Channel.EPG_ASSET_TYPE))
-                    {
-                        definitions.shouldSearchEpg = true;
-                    }
-
-                    // If there's anything besides EPG
-                    if (channel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
-                    {
-                        definitions.shouldSearchMedia = true;
-                    }
-                }
-            }
-
-            definitions.permittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
-            definitions.order = new OrderObj();
-
-            definitions.shouldUseStartDateForMedia = false;
-            definitions.shouldUseFinalEndDate = false;
-
-            BaseRequest dummyRequest = new BaseRequest()
+            var dummyRequest = new BaseRequest
             {
                 domainId = 0,
                 m_nGroupID = channel.m_nParentGroupID,
@@ -201,6 +178,50 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 m_sSiteGuid = string.Empty,
                 m_sUserIP = string.Empty
             };
+
+            if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
+            {
+                BooleanPhraseNode filterTree = null;
+                var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
+                if (parseStatus.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException(parseStatus.Message, parseStatus.Code);
+                }
+
+                definitions.filterPhrase = filterTree;
+                CatalogLogic.UpdateNodeTreeFields(dummyRequest,
+                    ref definitions.filterPhrase, definitions, group, channel.m_nParentGroupID, _catalogManager);
+
+                var searchOptionsContext = new ChannelSearchOptionsContext
+                {
+                    CatalogGroupCache = GetCatalogGroupCache(definitions.groupId),
+                    InitialTree = filterTree,
+                    MediaTypes = definitions.mediaTypes
+                };
+
+                var searchOptionsResult = _channelSearchOptionsService.ResolveKsqlChannelSearchOptions(searchOptionsContext);
+                definitions.shouldSearchEpg = searchOptionsResult.ShouldSearchEpg;
+                definitions.shouldSearchMedia = searchOptionsResult.ShouldSearchMedia;
+                definitions.mediaTypes = searchOptionsResult.MediaTypes.ToList();
+            }
+            else
+            {
+                definitions.shouldSearchMedia = true;
+                definitions.shouldSearchEpg = channel.m_nChannelTypeID == (int) ChannelType.Manual
+                    && channel.m_lChannelTags?.Any(x => x.m_sKey.Equals("epg_id")) == true;
+
+                // if it contains ONLY 0 - it means search all
+                if (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
+                {
+                    definitions.mediaTypes.Remove(0);
+                }
+            }
+
+            definitions.permittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
+            definitions.order = new OrderObj();
+
+            definitions.shouldUseStartDateForMedia = false;
+            definitions.shouldUseFinalEndDate = false;
 
             if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
@@ -226,24 +247,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                     definitions.assetUserRuleFilterPhrase = phrase;
                 }
-            }
-
-            if (!string.IsNullOrEmpty(channel.filterQuery))
-            {
-                BooleanPhraseNode filterTree = null;
-                ApiObjects.Response.Status parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
-
-                if (parseStatus.Code != (int)eResponseStatus.OK)
-                {
-                    throw new KalturaException(parseStatus.Message, parseStatus.Code);
-                }
-                else
-                {
-                    definitions.filterPhrase = filterTree;
-                }
-
-                CatalogLogic.UpdateNodeTreeFields(dummyRequest,
-                    ref definitions.filterPhrase, definitions, group, channel.m_nParentGroupID, _catalogManager);
             }
 
             return definitions;

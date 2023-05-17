@@ -19,8 +19,8 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "idEqual")]
         [JsonProperty("idEqual")]
         [XmlElement(ElementName = "idEqual")]
-        [SchemeProperty(MinInteger = 1)]
-        public int IdEqual { get; set; }
+        [SchemeProperty(MinInteger = 1, IsNullable = true)]
+        public int? IdEqual { get; set; }
         
         /// <summary>
         /// UtcOffsetEqual 
@@ -40,12 +40,21 @@ namespace WebAPI.Models.Catalog
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string FreeText { get; set; }
 
+        /// <summary>
+        /// Alias for External Channel Id.
+        /// </summary>
+        [DataMember(Name = "alias")]
+        [JsonProperty("alias")]
+        [XmlElement(ElementName = "alias", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string Alias { get; set; }
+
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             var deviceType = HttpContext.Current.Request.GetUserAgentString();
 
             return ClientsManager.CatalogClient().GetExternalChannelAssets
-                (contextData, IdEqual.ToString(), pager.GetRealPageIndex(), pager.PageSize, deviceType, UtcOffsetEqual.ToString(), FreeText);
+                (contextData, IdEqual.ToString(), pager.GetRealPageIndex(), pager.PageSize, deviceType, UtcOffsetEqual.ToString(), FreeText, Alias);
         }
     }
 }

@@ -8,6 +8,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
+using WebAPI.Validation;
 
 namespace WebAPI.Controllers
 {
@@ -117,7 +118,7 @@ namespace WebAPI.Controllers
         {
             KalturaUserRole response = null;
 
-            role.Validate();
+            UserRoleValidator.Instance.Validate(role);
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -154,7 +155,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RoleReadOnly)]
         static public KalturaUserRole Update(long id, KalturaUserRole role)
         {
-            role.Validate();
+            UserRoleValidator.Instance.Validate(role);
 
             if (id < 1)
             {

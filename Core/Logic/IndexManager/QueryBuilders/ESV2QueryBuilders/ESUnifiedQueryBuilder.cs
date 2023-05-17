@@ -341,7 +341,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                         if (this.GetAllDocuments && !ShouldPageGroups)
                         {
-                            size = -1;
+                            // related to sum_other_doc_count != 0 (ES doesn't include several buckets into result)
+                            // previously reproduced on ESv7
+                            size = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
                         }
                         else if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(SearchDefinitions.distinctGroup?.Key))
                         {

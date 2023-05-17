@@ -91,13 +91,13 @@ namespace WebAPI.Models.Catalog
         public string NameStartsWith { get; set; }
 
         /// <summary>
-        /// Comma separated channel ids 
+        /// Comma separated channel ids
         /// </summary>
         [DataMember(Name = "idIn")]
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = false)]
         public string IdIn { get; set; }
-       
+
         /// <summary>
         ///  comma-separated list of KalturaChannel.assetUserRuleId values.  Matching KalturaChannel objects will be returned by the filter.
         /// </summary>
@@ -151,7 +151,7 @@ namespace WebAPI.Models.Catalog
             {
                 inputCount++;
                 message.Add("KalturaChannelsFilter.assetUserRuleIdIn");
-                ValidateCheck(message, inputCount);       
+                ValidateCheck(message, inputCount);
             }
         }
 
@@ -184,10 +184,19 @@ namespace WebAPI.Models.Catalog
             }
             else if (IdEqual > 0)
             {
-                Func<GenericResponse<GroupsCacheManager.Channel>> getFunc = () =>
-                  ChannelManager.Instance.GetChannel(contextData, IdEqual, isAllowedToViewInactiveAssets, true);
-                var channel = ClientUtils.GetResponseFromWS<KalturaChannel, GroupsCacheManager.Channel>(getFunc);
-                return new KalturaChannelListResponse() { TotalCount = channel != null ? 1 : 0, Channels = new List<KalturaChannel>() { channel } };
+                getListFunc = () =>
+                {
+                    var channel =
+                        ChannelManager.Instance.GetChannel(contextData, IdEqual, isAllowedToViewInactiveAssets, true);
+                    var listResponse = new GenericListResponse<GroupsCacheManager.Channel>()
+                    {
+                        Objects = new List<GroupsCacheManager.Channel> {channel.Object},
+                        TotalItems = channel.Object != null ? 1 : 0
+                    };
+                    listResponse.SetStatus(channel.Status);
+
+                    return listResponse;
+                };
             }
             else if (!string.IsNullOrEmpty(NameEqual))
             {
@@ -196,7 +205,7 @@ namespace WebAPI.Models.Catalog
             }
             else if (!string.IsNullOrEmpty(IdIn))
             {
-                getListFunc = () => ChannelManager.Instance.GetChannelsListResponseByChannelIds(contextData, this.GetIdIn(), isAllowedToViewInactiveAssets, 
+                getListFunc = () => ChannelManager.Instance.GetChannelsListResponseByChannelIds(contextData, this.GetIdIn(), isAllowedToViewInactiveAssets,
                     null, true, this.GetAssetUserRuleIdIn());
             }
             else
@@ -234,7 +243,7 @@ namespace WebAPI.Models.Catalog
         public string Ksql { get; set; }
 
         /// <summary>
-        /// channel struct 
+        /// channel struct
         /// </summary>
         [DataMember(Name = "channelStructEqual")]
         [JsonProperty("channelStructEqual")]
@@ -251,7 +260,7 @@ namespace WebAPI.Models.Catalog
 
         internal override KalturaChannelListResponse GetChannels(ContextData contextData, bool isAllowedToViewInactiveAssets, KalturaFilterPager pager)
         {
-            KalturaChannelListResponse result = new KalturaChannelListResponse();             
+            KalturaChannelListResponse result = new KalturaChannelListResponse();
 
             AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { Filter = Ksql, UserId = contextData.UserId.Value, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets };
 

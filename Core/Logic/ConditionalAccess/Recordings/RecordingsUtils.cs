@@ -332,6 +332,8 @@ namespace Core.Recordings
             {
                 recording.Type = (RecordingType)Enum.Parse(typeof(RecordingType), householdRecording.RecordingType);
                 recording.ProtectedUntilDate = householdRecording.ProtectedUntilEpoch;
+                recording.IsStartPaddingDefault = householdRecording.IsStartPaddingDefault;
+                recording.IsEndPaddingDefault = householdRecording.IsEndPaddingDefault;
             }
 
             TstvRecordingStatus? recordingStatus = null;

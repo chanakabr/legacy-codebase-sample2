@@ -467,7 +467,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request, bool isAllowedToViewInactiveAssets,
                                                                             bool managementData = false, KalturaBaseResponseProfile responseProfile = null, bool isPersonalListSearch = false,
-                                                                            IReadOnlyDictionary<double, SearchPriorityGroup> priorityGroupsMapping = null, bool shouldUsePagination = true)
+                                                                            IReadOnlyDictionary<double, SearchPriorityGroup> priorityGroupsMapping = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             bool doesGroupUsesTemplates = Utils.Utils.DoesGroupUsesTemplates(groupId);
@@ -509,13 +509,10 @@ namespace WebAPI.Clients
                     result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, managementData, responseProfile);
                 }
 
-                if (shouldUsePagination)
-                {
-                    result.Objects = result.Objects?
-                        .Skip(request.m_nPageIndex * request.m_nPageSize)
-                        .Take(request.m_nPageSize)
-                        .ToList();
-                }
+                result.Objects = result.Objects?
+                    .Skip(request.m_nPageIndex * request.m_nPageSize)
+                    .Take(request.m_nPageSize)
+                    .ToList();
 
                 result.TotalCount = searchResponse.aggregationResults[0].totalItems;
             }
@@ -2510,7 +2507,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetExternalChannelAssets
-            (ContextData contextData, string channelId, int pageIndex, int? pageSize, string deviceType, string utcOffset, string freeParam)
+            (ContextData contextData, string channelId, int pageIndex, int? pageSize, string deviceType, string utcOffset, string freeParam, string alias)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2526,6 +2523,7 @@ namespace WebAPI.Clients
                 deviceType = deviceType,
                 domainId = (int)(contextData.DomainId ?? 0),
                 internalChannelID = channelId,
+                externalChannelID = alias,
                 m_nGroupID = contextData.GroupId,
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
@@ -2732,10 +2730,8 @@ namespace WebAPI.Clients
                 request.PriorityGroupsMappings = _searchPriorityGroupManager.ListSearchPriorityGroupMappings(contextData.GroupId);
             }
 
-            var shouldUsePagination = true;
             if (groupByValues != null && groupByValues.Count > 0)
             {
-                shouldUsePagination = false;
                 request.searchGroupBy = new SearchAggregationGroupBy()
                 {
                     groupBy = groupByValues,
@@ -2765,8 +2761,7 @@ namespace WebAPI.Clients
                 isAllowedToViewInactiveAssets,
                 false,
                 responseProfile,
-                priorityGroupsMapping: request.PriorityGroupsMappings,
-                shouldUsePagination: shouldUsePagination);
+                priorityGroupsMapping: request.PriorityGroupsMappings);
         }
 
         internal KalturaAssetListResponse GetChannelAssetsExcludeWatched(

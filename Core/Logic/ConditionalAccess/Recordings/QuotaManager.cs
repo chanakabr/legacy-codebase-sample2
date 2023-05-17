@@ -129,18 +129,13 @@ namespace Core.Recordings
                 {
                     var removalPolicy = GetDefaultPaddingRemovalPolicy(contextData, accountSettings, recording);
                     
-                    //BEO-13648
-                    var _record = PaddedRecordingsManager.Instance.GetRecordingById(groupId, recording.Id);
-                    var _startPadding = _record.PaddingBeforeMins;
-                    var _endPadding = _record.PaddingAfterMins;
-
                     if (!recording.AbsoluteStartTime.HasValue) //Not immediate (Padded)
                     {
                         if (!removalPolicy.removeStartPadding)
-                            seconds += Utils.ConvertMinutesToSeconds(_startPadding);
+                            seconds += Utils.ConvertMinutesToSeconds(recording.StartPadding);
                     
                         if (!removalPolicy.removeEndPadding)
-                            seconds += Utils.ConvertMinutesToSeconds(_endPadding);
+                            seconds += Utils.ConvertMinutesToSeconds(recording.EndPadding);
                     }
                     else //immediate
                     {
@@ -148,10 +143,10 @@ namespace Core.Recordings
                             recording.AbsoluteStartTime, recording.AbsoluteEndTime);
 
                         if (removalPolicy.removeStartPadding)
-                            seconds -= Utils.ConvertMinutesToSeconds(_startPadding); //In case of immediate start this value would be 0
+                            seconds -= Utils.ConvertMinutesToSeconds(recording.StartPadding); //In case of immediate start this value would be 0
                      
                         if (removalPolicy.removeEndPadding)
-                            seconds -= Utils.ConvertMinutesToSeconds(_endPadding); //In case of stop this value would be 0
+                            seconds -= Utils.ConvertMinutesToSeconds(recording.EndPadding); //In case of stop this value would be 0
                     }
                 }
                 else
@@ -163,10 +158,9 @@ namespace Core.Recordings
                     }
                     else
                     {
-                        //BEO-13648
-                        var _record = PaddedRecordingsManager.Instance.GetRecordingById(groupId, recording.Id);
-                        seconds += Utils.ConvertMinutesToSeconds(_record.PaddingBeforeMins);
-                        seconds += Utils.ConvertMinutesToSeconds(_record.PaddingAfterMins);
+                        //BEO-13648s
+                        seconds += Utils.ConvertMinutesToSeconds(recording.StartPadding);
+                        seconds += Utils.ConvertMinutesToSeconds(recording.EndPadding);
                     }
                 }
             }
