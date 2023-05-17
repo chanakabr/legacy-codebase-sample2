@@ -95,6 +95,7 @@ namespace ApiLogic.Api.Validators
                 case FilterFileByFileType c: return ValidateFileTypeIds(c.FileTypeIds, mediaFileTypes);
                 case FilterFileByLabel c: return ValidateFilterFileByLabel(c, labels);
                 case FilterAssetByKsql c: return ValidateFilterAssetByKsql(c);
+                case FilterFileByDynamicData c: return ValidateFilterFileByDynamicData(c, mediaFileTypes);
                 default: return Status.Ok;
             }
         }
@@ -154,7 +155,7 @@ namespace ApiLogic.Api.Validators
                     return new Status(eResponseStatus.Error, "tag doesn't exists");
                 }
             }
-            
+
             return Status.Ok;
         }
 
@@ -194,11 +195,18 @@ namespace ApiLogic.Api.Validators
         {
             return AllExists(action.Labels, labels, eResponseStatus.LabelDoesNotExist);
         }
-        
+
         private static Status ValidateFilterAssetByKsql(FilterAssetByKsql action)
         {
             BooleanPhraseNode n = null;
             return BooleanPhraseNode.ParseSearchExpression(action.Ksql, ref n);
+        }
+
+        private static Status ValidateFilterFileByDynamicData(FilterFileByDynamicData action,
+            List<MediaFileType> mediaFileTypes)
+        {
+            var keys = mediaFileTypes.SelectMany(mft => mft.DynamicDataKeys).Select(k => k.ToLower()).ToHashSet();
+            return AllExists(new[] {action.Key.ToLower()}, keys, eResponseStatus.DynamicDataKeyDoesNotExist);
         }
     }
 }

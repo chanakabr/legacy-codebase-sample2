@@ -68,12 +68,13 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add asset rule
         /// </summary>
-        /// <param name="assetRule">Asset rule</param>              
+        /// <param name="assetRule">Asset rule</param>
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.VideoCodecsDoesNotExist)]
         [Throws(eResponseStatus.AudioCodecsDoesNotExist)]
         [Throws(eResponseStatus.LabelDoesNotExist)]
+        [Throws(eResponseStatus.DynamicDataKeyDoesNotExist)]
         static public KalturaAssetRule Add(KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;
@@ -110,6 +111,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.VideoCodecsDoesNotExist)]
         [Throws(eResponseStatus.AudioCodecsDoesNotExist)]
         [Throws(eResponseStatus.LabelDoesNotExist)]
+        [Throws(eResponseStatus.DynamicDataKeyDoesNotExist)]
         static public KalturaAssetRule Update(long id, KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;
@@ -126,7 +128,7 @@ namespace WebAPI.Controllers
                 // before updating AssetRule fill properties in case they are empty so it will be possible to validate the new properties
                 FillEmpty(oldAssetRule, assetRule);
                 assetRule.Validate();
-                
+
                 response = ClientsManager.ApiClient().UpdateAssetRule(groupId, id, assetRule);
             }
             catch (ClientException ex)
@@ -162,7 +164,7 @@ namespace WebAPI.Controllers
 
             return response;
         }
-        
+
         /// <summary>
         /// Fill current AssetRule data members with givven assetRule only if they are empty\null
         /// </summary>
