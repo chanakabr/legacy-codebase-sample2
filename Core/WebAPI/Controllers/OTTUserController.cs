@@ -283,7 +283,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         [Throws(eResponseStatus.RoleDoesNotExists)]
         [SchemeArgument("password", MaxLength = 128)]
-        static public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
+        public static KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOttUserDynamicDataValidator.Validate(user.DynamicData);
 
@@ -299,7 +299,10 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(user.RoleIds))
                 {
                     var ks = KS.GetFromRequest();
-                    if (ks.GroupId != partnerId || !RolesManager.IsManagerAllowedAction(ks, user.GetRoleIds()))
+                    
+                    if (ks.GroupId != partnerId || 
+                        !RolesManager.IsManagerAllowedAction(ks, user.GetRoleIds()) || 
+                        !RolesManager.IsOperatorAllowedAction(ks, user.GetRoleIds()))
                     {
                         throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
                             Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),

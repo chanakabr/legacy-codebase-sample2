@@ -572,27 +572,35 @@ namespace WebAPI.Managers
         public static bool IsManagerAllowedAction(KS ks, List<long> roleIds)
         {
             // check role's hierarchy
-            bool isManager = GetRoleIds(ks).Any(ur => ur == PredefinedRoleId.MANAGER);
+            var isManager = GetRoleIds(ks).Any(ur => ur == PredefinedRoleId.MANAGER);
 
             if (isManager)
             {
-                // Get External editor Role Id. ( manager should be able to update it's role)
-                long? externalEditorRole = GetEERole(ks);
+                //BEO-13980 - Allow manager to create sis users & operator
+                var validRoleIdsForManager = PredefinedRoleId.GetManagerAllowedRoleIds();
+
+                // Get External editor Role Id. (manager should be able to update it's role)
+                var externalEditorRole = GetEERole(ks);
 
                 if (externalEditorRole.HasValue)
-                {
-                    if (roleIds.Any(x => x > PredefinedRoleId.MANAGER && x != externalEditorRole.Value))
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (roleIds.Any(x => x > PredefinedRoleId.MANAGER))
-                    {
-                        return false;
-                    }
-                }
+                    validRoleIdsForManager.Add(externalEditorRole.Value);
+                
+                return roleIds.All(x => validRoleIdsForManager.Contains(x));
+            }
+
+            return true;
+        }
+        
+        public static bool IsOperatorAllowedAction(KS ks, List<long> roleIds)
+        {
+            //BEO-13980 - Allow operator to create sis users
+            var isOperator = GetRoleIds(ks).Any(ur => ur == PredefinedRoleId.OPERATOR);
+
+            if (isOperator)
+            {
+                var shopManagerRoleIds = PredefinedRoleId.GetShopManagerRoleIds();
+                if (!roleIds.All(x => shopManagerRoleIds.Contains(x)))
+                    return false;
             }
 
             return true;
