@@ -958,9 +958,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
             string language = this.SearchDefinitions.langauge != null ? this.SearchDefinitions.langauge.Code : string.Empty;
             field = GetElasticsearchFieldName(language, field, leaf.fieldType, leaf.isLanguageSpecific);
 
-            if (valueType == typeof(long))
+            if (valueType == typeof(long) || valueType == typeof(int) || valueType == typeof(double))
             {
-                long longValue = (long)leaf.value;
+                long longValue = Convert.ToInt64(leaf.value);
                 result = queryContainerDescriptor.LongRange(range =>
                 {
                     range = range.Field(field);
