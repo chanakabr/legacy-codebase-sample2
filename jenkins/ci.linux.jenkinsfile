@@ -201,20 +201,13 @@ stage('Unified-CI'){
                 }
             }
             stage('Trigger Wrapper'){
-                def branch_name
-                if (ci.is_building_tag()){
-                    branch_name = "refs/tags/${BRANCH_NAME}"
-                }
-                else{
-                    branch_name = "refs/heads/${BRANCH_NAME}"
-                }
+                def branch_name = get_scm_branch()
                 checkout scm: [
                     $class: 'GitSCM',
                     userRemoteConfigs: [[credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend']],
                     branches: [[name: "${branch_name}"]]
                 ]
 
-                // git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
                 COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
                 echo "Commiter is == ${COMMITER}"
                 triggerWrapper()
@@ -323,7 +316,12 @@ def buildMsProject(projectFilePath, outputPath, component){
 
 //unified-report
 def report(){
-    git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
+    def branch_name = get_scm_branch()
+    checkout scm: [
+        $class: 'GitSCM',
+        userRemoteConfigs: [[credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend']],
+        branches: [[name: "${branch_name}"]]
+    ]
     def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
     echo "${committerEmail}"
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()
@@ -345,6 +343,17 @@ def triggerWrapper(){
                                                 string(name: 'Linux', value: "true"),
                                                 string(name: 'COMMITER', value: "${COMMITER}")
                                                 ], wait: false
+}
+
+def get_scm_branch(){
+    def scm_branch
+    if (ci.is_building_tag()){
+        scm_branch = "refs/tags/${BRANCH_NAME}"
+    }
+    else {
+        scm_branch = "refs/heads/${BRANCH_NAME}"
+    }
+    return scm_branch
 }
 
 
