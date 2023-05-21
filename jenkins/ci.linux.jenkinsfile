@@ -199,10 +199,24 @@ stage('Unified-CI'){
                                 ]
                         )
                 }
-                }
+            }
             stage('Trigger Wrapper'){
-                git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
+                def branch_name
+                if (ci.is_building_tag()){
+                    branch_name = "refs/tags/${BRANCH_NAME}"
+                }
+                else{
+                    branch_name = "refs/heads/${BRANCH_NAME}"
+                }
+                checkout scm: [
+                    $class: 'GitSCM',
+                    userRemoteConfigs: [[credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend']],
+                    branches: [[name: "${branch_name}"]]
+                ]
+
+                // git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
                 COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+                echo "Commiter is == ${COMMITER}"
                 triggerWrapper()
             }
             echo "Reporting job with result - ${currentBuild.currentResult}  (final)"
