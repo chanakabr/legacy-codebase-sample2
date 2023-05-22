@@ -97,14 +97,12 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             LineupRegionalChannelRequest request,
             ICollection<KeyValuePair<long, int>> linearChannelLcn)
         {
-            var pageSize = (request.PageIndex + 1) * request.PageSize;
             var orderDirection = request.OrderBy == LineupRegionalChannelOrderBy.NAME_ASC
                 ? OrderDir.ASC
                 : OrderDir.DESC;
             var order = new List<AssetOrder> { new AssetOrder { Field = OrderBy.NAME, Direction = orderDirection } };
 
             var builder = new UnifiedSearchRequestBuilder(_filterAsset)
-                .WithPageSize(pageSize)
                 .WithOrdering(order);
             // Get all linear channels after filter by LCN and by KSQL
             var searchResponse = SearchAssets(request.PartnerId, builder, userSearchContext, linearChannelLcn, request.Ksql);
