@@ -229,7 +229,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 result = new Dictionary<string, KalturaStringValue>();
                 foreach (var data in settings)
                 {
-                    if (!string.IsNullOrEmpty(data.key))
+                    if (!string.IsNullOrEmpty(data.key) && !result.ContainsKey(data.key))
                     {
                         result.Add(data.key, new KalturaStringValue() { value = data.value });
                     }
