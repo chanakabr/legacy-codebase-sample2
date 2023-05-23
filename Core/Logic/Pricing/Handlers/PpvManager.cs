@@ -691,7 +691,7 @@ namespace ApiLogic.Pricing.Handlers
             return Status.Ok;
         }
 
-        private void SetPpvInvalidation(int groupId, int id = 0)
+        public void SetPpvInvalidation(int groupId, int id = 0)
         {
             // invalidation keys
             var invalidationGroupKey = LayeredCacheKeys.GetPpvGroupInvalidationKey(groupId);

@@ -752,6 +752,7 @@ namespace Core.Pricing
                     }
                     else
                     {
+                        PpvManager.Instance.SetPpvInvalidation(m_nGroupID);
                         status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
