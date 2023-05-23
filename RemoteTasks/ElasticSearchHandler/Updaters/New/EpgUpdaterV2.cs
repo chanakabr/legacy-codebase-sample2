@@ -99,7 +99,10 @@ namespace ElasticSearchHandler.Updaters
                 case ApiObjects.eAction.Update:
                     {
                         // First we delete so we don't get this weird duplicate ID bug.
-                        result = DeleteEpg(Identifiers);
+                        if (GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId) == EpgFeatureVersion.V1)
+                        {
+                            result = DeleteEpg(Identifiers);
+                        }
 
                         // Only then we update normally
                         result &= UpdateEpg(Identifiers, UpdateEpgs);

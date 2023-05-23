@@ -6582,7 +6582,7 @@ namespace Core.Catalog
             if (epgFeatureVersion == EpgFeatureVersion.V3 && !isRecording)
             {
                 UpsertProgramsEpgV3(epgObjects);
-                return result;
+                return true;
             }
 
             List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
