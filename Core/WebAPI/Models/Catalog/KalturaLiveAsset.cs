@@ -2,7 +2,6 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
@@ -192,68 +191,5 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "channelType")]
         [XmlElement(ElementName = "channelType")]        
         public KalturaLinearChannelType? ChannelType { get; set; }
-
-        internal override void ValidateForInsert()
-        {
-            base.ValidateForInsert();
-
-            if (EnableCatchUpState == null)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableCatchUpState");
-            }
-
-            if (EnableCdvrState == null)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableCdvrState");
-            }
-
-            if (EnableRecordingPlaybackNonEntitledChannelState == null)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableRecordingPlaybackNonEntitledChannelState");
-            }
-
-            if (EnableStartOverState == null)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableStartOverState");
-            }
-
-            if (EnableTrickPlayState == null)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "enableTrickPlayState");
-            }
-
-            if (BufferCatchUp == null)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bufferCatchUpSetting");
-            }
-
-            if (BufferTrickPlay == null)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "bufferTrickPlaySetting");
-            }
-
-            if (string.IsNullOrEmpty(ExternalEpgIngestId))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalEpgIngestId");
-            }
-        }
-
-        internal override void ValidateForUpdate()
-        {
-            base.ValidateForUpdate();
-
-            if (ExternalEpgIngestId != null && ExternalEpgIngestId == string.Empty)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalEpgIngestId");
-            }                        
-        }
-    }
-
-    [Serializable]
-    public enum KalturaTimeShiftedTvState
-    {
-        INHERITED = 0,
-        ENABLED = 1,
-        DISABLED = 2
     }
 }

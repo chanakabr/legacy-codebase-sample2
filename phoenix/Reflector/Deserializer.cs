@@ -199,7 +199,6 @@ namespace Reflector
                 {
                     continue;
                 }
-
                 file.WriteLine("        private static RuntimeSchemePropertyAttribute " + property.Name + "SchemaProperty = new RuntimeSchemePropertyAttribute(\"" + type.Name + "\")");
                 file.WriteLine("        {");
                 schemePropertyProperties.ForEach(schemePropertyProperty => {
@@ -244,6 +243,10 @@ namespace Reflector
                             else if (schemePropertyProperty.PropertyType == typeof(eKSValidation))
                             {
                                 file.WriteLine("            " + schemePropertyProperty.Name + " = WebAPI.Managers.eKSValidation." + val.ToString() + ",");
+                            }
+                            else if (val.ToString() == "[]")
+                            {
+                                file.WriteLine("            " + schemePropertyProperty.Name + " = \"" + val + "\",");
                             }
                             else
                             {

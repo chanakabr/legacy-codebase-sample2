@@ -9,6 +9,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers

@@ -383,6 +383,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{78638E42-DD8
 		definition\appToken\api\api.json = definition\appToken\api\api.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "asset", "asset", "{E86DF650-E3C2-4467-9D18-AD4DF9B8FE30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{7C40D4E3-75AF-41EF-8CF3-9B2D621EE810}"
+	ProjectSection(SolutionItems) = preProject
+		definition\asset\api\api.json = definition\asset\api\api.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -1273,9 +1280,11 @@ Global
 		{C31B3EF7-6B85-4D56-8DB5-922C08B63001} = {E0325A31-EA8D-4AEF-BC94-8395F7A47795}
 		{CE3976FE-18CB-434C-8320-EBECA6D6FFBA} = {DE289223-380A-4698-9278-9B662B0CCCE4}
 		{78638E42-DD8E-47F1-BA8A-C8710E46C110} = {CE3976FE-18CB-434C-8320-EBECA6D6FFBA}
+		{E86DF650-E3C2-4467-9D18-AD4DF9B8FE30} = {DE289223-380A-4698-9278-9B662B0CCCE4}
+		{7C40D4E3-75AF-41EF-8CF3-9B2D621EE810} = {E86DF650-E3C2-4467-9D18-AD4DF9B8FE30}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
