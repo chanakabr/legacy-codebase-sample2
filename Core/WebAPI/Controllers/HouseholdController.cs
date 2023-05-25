@@ -3,6 +3,7 @@ using ApiObjects.Roles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using KalturaRequestContext;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
@@ -19,11 +20,11 @@ namespace WebAPI.Controllers
     public class HouseholdController : IKalturaController
     {
         /// <summary>
-        /// Returns the household model       
+        /// Returns the household model
         /// </summary>
         /// <param name="id">Household identifier</param>
-        /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, Household user failed = 1007</remarks>        
+        /// <remarks>Possible status codes:
+        /// Household does not exist = 1006, Household user failed = 1007</remarks>
         [Action("get")]
         [ApiAuthorize(eKSValidation.Expiration)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
@@ -57,11 +58,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns the household model       
-        /// </summary>        
+        /// Returns the household model
+        /// </summary>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
-        /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, Household user failed = 1007</remarks>        
+        /// <remarks>Possible status codes:
+        /// Household does not exist = 1006, Household user failed = 1007</remarks>
         [Action("getOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("get")]
@@ -104,8 +105,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve household information according to internal or external ID      
-        /// </summary>        
+        /// Retrieve household information according to internal or external ID
+        /// </summary>
         /// <param name="filter">Specify how to retrieve the household. Possible values: internal – internal ID ; external – external ID</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
         /// <remarks>Possible status codes:
@@ -169,8 +170,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Creates a household for the user      
-        /// </summary>        
+        /// Creates a household for the user
+        /// </summary>
         /// <param name="household">Household object</param>
         /// <remarks></remarks>
         [Action("add")]
@@ -221,12 +222,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Creates a household for the user      
-        /// </summary>        
+        /// Creates a household for the user
+        /// </summary>
         /// <param name="name">Name for the household</param>
         /// <param name="description">Description for the household</param>
         /// <param name="external_id">Unique external ID to identify the household</param>
-        /// <remarks>Possible status codes: 
+        /// <remarks>Possible status codes:
         /// User exists in other household = 1018, Household user failed = 1007</remarks>
         [Action("addOldStandard")]
         [OldStandardAction("add")]
@@ -265,12 +266,12 @@ namespace WebAPI.Controllers
         /// Set user billing account identifier (charge ID), for a specific household and a specific payment gateway
         /// </summary>
         /// <remarks>
-        /// Possible status codes:         
-        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External identifier required = 6016, Error saving payment gateway household = 6017, 
+        /// Possible status codes:
+        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External identifier required = 6016, Error saving payment gateway household = 6017,
         /// Charge id already set to household payment gateway = 6025
-        /// </remarks>        
+        /// </remarks>
         /// <param name="pg_id">External identifier for the payment gateway  </param>
-        /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
+        /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>
         [Action("setChargeID")]
         [ApiAuthorize]
         [Obsolete]
@@ -282,7 +283,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                // get domain id      
+                // get domain id
                 var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
@@ -302,8 +303,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes: Payment gateway not exist for group = 6008, External identifier is required = 6016, Charge id not set to household = 6026
-        /// </remarks>        
-        /// <param name="pg_id">External identifier for the payment gateway  </param>        
+        /// </remarks>
+        /// <param name="pg_id">External identifier for the payment gateway  </param>
         [Action("getChargeID")]
         [ApiAuthorize]
         [Obsolete]
@@ -315,7 +316,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                // get domain id       
+                // get domain id
                 var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
@@ -333,14 +334,14 @@ namespace WebAPI.Controllers
         /// Set user billing payment method identifier (payment method external id), for a specific household and a specific payment gateway
         /// </summary>
         /// <remarks>
-        /// Possible status codes:         
-        /// Payment gateway not set for household = 6007, Payment gateway not exist = 6008, Payment method not exist = 6049,  Error saving payment gateway household payment method = 6052, 
+        /// Possible status codes:
+        /// Payment gateway not set for household = 6007, Payment gateway not exist = 6008, Payment method not exist = 6049,  Error saving payment gateway household payment method = 6052,
         /// Payment method already set to household payment gateway = 6054, Payment gateway not support payment method = 6056
-        /// </remarks>        
+        /// </remarks>
         /// <param name="payment_gateway_id">External identifier for the payment gateway  </param>
-        /// <param name="payment_method_name"></param>      
-        /// <param name="payment_details"></param>      
-        /// <param name="payment_method_external_id"></param>        
+        /// <param name="payment_method_name"></param>
+        /// <param name="payment_details"></param>
+        /// <param name="payment_method_external_id"></param>
         [Action("setPaymentMethodExternalId")]
         [ApiAuthorize]
         [Obsolete]
@@ -367,7 +368,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                // get domain id      
+                // get domain id
                 var domainId = (int)HouseholdUtils.GetHouseholdIDByKS();
 
                 // call client
@@ -388,10 +389,10 @@ namespace WebAPI.Controllers
         /// Reset a household’s time limitation for removing user or device
         /// </summary>
         /// <remarks>
-        /// Possible status codes: 
-        /// </remarks>        
-        /// <param name="frequencyType">Possible values: devices – reset the device change frequency. 
-        /// users – reset the user add/remove frequency</param>        
+        /// Possible status codes:
+        /// </remarks>
+        /// <param name="frequencyType">Possible values: devices – reset the device change frequency.
+        /// users – reset the user add/remove frequency</param>
         [Action("resetFrequency")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -417,8 +418,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update the household name and description    
-        /// </summary>        
+        /// Update the household name and description
+        /// </summary>
         /// <param name="household">Household object</param>
         /// <remarks></remarks>
         [Action("update")]
@@ -457,8 +458,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update the household name and description    
-        /// </summary>        
+        /// Update the household name and description
+        /// </summary>
         /// <param name="name">Name for the household</param>
         /// <param name="description">Description for the household</param>
         /// <remarks></remarks>
@@ -501,8 +502,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
         /// </summary>
-        /// <param name="id">Household identifier</param>                
-        /// <remarks>Possible status codes: 
+        /// <param name="id">Household identifier</param>
+        /// <remarks>Possible status codes:
         ///</remarks>
         [Action("delete")]
         [ApiAuthorize]
@@ -521,8 +522,15 @@ namespace WebAPI.Controllers
 
                 if (!id.HasValue || id.Value == 0)
                 {
+                    var isPartnerRequest = RequestContextUtilsInstance.Get().IsPartnerRequest();
+                    if (isPartnerRequest)
+                    {
+                        throw new BadRequestException(BadRequestException.SERVICE_FORBIDDEN);
+                    }
+
                     household = HouseholdUtils.GetHouseholdFromRequest();
-                    id = (int)household.Id;
+
+                    id = (int?)household?.Id;
                 }
                 else
                 {
@@ -564,9 +572,9 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Fully delete a household per specified internal or external ID. Delete all of the household information, including users, devices, transactions and assets.
-        /// </summary>                
-        /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>        
-        /// <remarks>Possible status codes: 
+        /// </summary>
+        /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
+        /// <remarks>Possible status codes:
         ///</remarks>
         [Action("deleteByOperator")]
         [ApiAuthorize]
@@ -610,7 +618,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
-        /// </summary>                
+        /// </summary>
         /// <param name="roleId">roleId</param>
         /// <remarks>Possible status codes: Household already suspended = 1012
         ///</remarks>
@@ -640,8 +648,8 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Resumed a given household service to its previous service settings
-        /// </summary>                
-        /// <remarks>Possible status codes: 
+        /// </summary>
+        /// <remarks>Possible status codes:
         /// Household already active = 1013
         ///</remarks>
         [Action("resume")]
@@ -671,8 +679,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Purge a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
         /// </summary>
-        /// <param name="id">Household identifier</param>                
-        /// <remarks>Possible status codes: 
+        /// <param name="id">Household identifier</param>
+        /// <remarks>Possible status codes:
         ///</remarks>
         [Action("purge")]
         [ApiAuthorize]
@@ -736,17 +744,17 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
-        /// <remarks>Possible status codes: 
+        /// <remarks>Possible status codes:
         /// </remarks>
         [Action("list")]
         [ApiAuthorize]
         static public KalturaHouseholdListResponse List(KalturaHouseholdFilter filter, KalturaFilterPager pager = null)
         {
             KalturaHouseholdListResponse response = null;
-           
+
             if (pager == null)
                 pager = new KalturaFilterPager();
-            
+
             filter.Validate();
             var contextData = KS.GetContextData();
 
