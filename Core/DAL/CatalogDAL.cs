@@ -6521,6 +6521,7 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
+                categoryItems = null;
                 log.Error($"Error while getting categories. group id = {groupId}", ex);
             }
 

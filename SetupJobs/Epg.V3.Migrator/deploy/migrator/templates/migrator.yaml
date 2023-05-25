@@ -34,12 +34,21 @@ spec:
         image: {{ .Values.account }}.dkr.ecr.{{ .Values.region }}.amazonaws.com/{{ .Values.image }}
         imagePullPolicy: "Always"
         resources:
+          {{ if ne .Values.cluster_name "onebox" }}
           limits:
             cpu: 2
             memory: 2G
           requests:
             cpu: 2
             memory: 2G
+          {{ else }}
+          limits:
+            cpu: 0
+            memory: 0
+          requests:
+            cpu: 0
+            memory: 0
+          {{ end }}
         env:
           - name: TCM_URL
             value: {{ .Values.tcm_url | quote }}

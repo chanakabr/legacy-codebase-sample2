@@ -691,19 +691,18 @@ namespace ApiLogic.Pricing.Handlers
             return Status.Ok;
         }
 
-        private void SetPpvInvalidation(int groupId, int id = 0)
+        public void SetPpvInvalidation(int groupId, int id = 0)
         {
             // invalidation keys
-            string invalidationGroupKey = LayeredCacheKeys.GetPpvGroupInvalidationKey(groupId);
+            var invalidationGroupKey = LayeredCacheKeys.GetPpvGroupInvalidationKey(groupId);
             if (!_layeredCache.SetInvalidationKey(invalidationGroupKey))
-            {
-                log.ErrorFormat("Failed to set invalidation key for group ppv. key = {0}", invalidationGroupKey);
-            }
-            string invalidationIdKey = LayeredCacheKeys.GetPpvInvalidationKey(id);
+                log.Error($"Failed to set invalidation key for group ppv. key = {invalidationGroupKey}");
 
-            if (!_layeredCache.SetInvalidationKey(invalidationIdKey))
+            if (id != 0)
             {
-                log.ErrorFormat("Failed to set invalidation key for ppv. key = {0}", invalidationIdKey);
+                var invalidationIdKey = LayeredCacheKeys.GetPpvInvalidationKey(id);
+                if (!_layeredCache.SetInvalidationKey(invalidationIdKey))
+                    log.Error($"Failed to set invalidation key for ppv. key = {invalidationIdKey}");
             }
         }
     }

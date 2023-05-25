@@ -274,7 +274,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     && r.filterQuery == filterQuery
                     && r.orderingParameters.Single().Field == OrderBy.NAME
                     && r.orderingParameters.Single().Direction == OrderDir.DESC
-                    && r.m_nPageSize == 10)))
+                    && r.m_nPageSize == 10000)))
                 .Returns(new UnifiedSearchResponse { status = Status.Ok, searchResults = FakeSearchResultsByRegionWithFilterByLcn() });
             _assetManagerMock
                 .Setup(x => x.GetAssets(
@@ -337,7 +337,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
                     && r.filterQuery == filterQuery
                     && r.orderingParameters.Single().Field == OrderBy.NAME
                     && r.orderingParameters.Single().Direction == OrderDir.ASC
-                    && r.m_nPageSize == 9)))
+                    && r.m_nPageSize == 10000)))
                 .Returns(new UnifiedSearchResponse { status = Status.Ok, searchResults = FakeSearchResultsWithFilterByKsqlByRegion() });
             _assetManagerMock
                 .Setup(x => x.GetAssets(

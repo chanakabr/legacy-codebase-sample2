@@ -6582,7 +6582,7 @@ namespace Core.Catalog
             if (epgFeatureVersion == EpgFeatureVersion.V3 && !isRecording)
             {
                 UpsertProgramsEpgV3(epgObjects);
-                return result;
+                return true;
             }
 
             List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
@@ -7711,7 +7711,7 @@ namespace Core.Catalog
 
                 var shouldAddRouting = true;
                 var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion(_partnerId);
-                var transactionParentDocumentType = epgFeatureVersion == EpgFeatureVersion.V3 ? NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME : null;
+                var transactionParentDocumentType = (epgFeatureVersion == EpgFeatureVersion.V3 && isRecording == false) ? NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME : null;
                 string mappingString = _serializer.CreateEpgMapping(metas, tags, metasToPad, specificMappingAnalyzers, defaultMappingAnalyzers, specificType, shouldAddRouting, transactionParentDocumentType);
                 bool isMappingInsertSuccess = _elasticSearchApi.InsertMapping(indexName, specificType, mappingString.ToString());
 
@@ -7724,6 +7724,23 @@ namespace Core.Catalog
                     else
                     {
                         log.Error(string.Concat("Could not create mapping of type epg for language ", language.Name));
+                    }
+                }
+
+                if (isRecording)
+                {
+                    // insert a dummy transaction child typ to allow unified search to use "commited only" query addition
+                    var dummyTransactionChildMapping = "{\"_parent\":{\"type\":\""+NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME+"\"}}";
+                    isMappingInsertSuccess = _elasticSearchApi.InsertMapping(indexName, NamingHelper.EPG_V3_DUMMY_TRANSACTION_CHILD_DOCUMENT_TYPE_NAME, dummyTransactionChildMapping);
+                    if (!isMappingInsertSuccess)
+                    {
+                        log.Error("Could not create recording index mapping of type dummy transaction child doc");
+                    }
+                    // insert transaction type as dummy to allow unified search to use "commited only" query addition
+                    isMappingInsertSuccess = _elasticSearchApi.InsertMapping(indexName, NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME, "{\"properties\": {}}");
+                    if (!isMappingInsertSuccess)
+                    {
+                        log.Error("Could not create recording index mapping of type transaction doc");
                     }
                 }
             }

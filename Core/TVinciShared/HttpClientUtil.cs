@@ -94,6 +94,39 @@ namespace TVinciShared
 #endif
         }
 
+        public static HttpClient GetHttpClientFromFactory()
+        {
+            List<SslProtocols> enabledSslProtocols;
+            List<DecompressionMethods> enabledDecompressionMethod;
+            int maxConnectionsPerServer;
+            bool checkCertificateRevocationList;
+            System.TimeSpan timeout;
+
+            GetConfigurationValues(null, out enabledSslProtocols, out enabledDecompressionMethod, out maxConnectionsPerServer, out checkCertificateRevocationList, out timeout);
+
+#if NETCOREAPP3_1
+            throw new NotImplementedException("not intended for net core");
+#elif NETFRAMEWORK
+            HttpClientHandler httpHandler = new HttpClientHandler() { SslProtocols = new SslProtocols() };
+
+            foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
+            {
+                httpHandler.AutomaticDecompression = decompressionMethod | httpHandler.AutomaticDecompression;
+            }
+
+            httpHandler.MaxConnectionsPerServer = maxConnectionsPerServer;
+            httpHandler.CheckCertificateRevocationList = checkCertificateRevocationList;
+            if (!checkCertificateRevocationList)
+            {
+                httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
+            }
+
+            var httpClient = HttpClientFactory.Create(httpHandler);
+            httpClient.Timeout = timeout;
+            return httpClient;
+#endif
+        }
+
         private static void GetConfigurationValues(BaseHttpClientConfiguration specificConfiguration, out List<SslProtocols> enabledSslProtocols, out List<DecompressionMethods> enabledDecompressionMethod, out int maxConnectionsPerServer, out bool checkCertificateRevocationList, out System.TimeSpan timeout)
         {
             bool shouldTakeSpecificConfiguration = specificConfiguration != null;

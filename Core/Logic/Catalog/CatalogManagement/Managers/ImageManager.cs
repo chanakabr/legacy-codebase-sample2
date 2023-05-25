@@ -104,7 +104,7 @@ namespace Core.Catalog.CatalogManagement
             // check if image types exists for group
             string key = LayeredCacheKeys.GetGroupImageTypesKey(groupId);
 
-            // try to get from cache  
+            // try to get from cache
             List<ImageType> tempResult = null;
             bool cacheResult = LayeredCache.Instance.Get<List<ImageType>>(
                 key, ref tempResult, GetImageType, new Dictionary<string, object>() { { "groupId", groupId } },
@@ -186,7 +186,7 @@ namespace Core.Catalog.CatalogManagement
             // check if image types exists for group
             string key = LayeredCacheKeys.GetGroupRatiosKey(groupId);
 
-            // try to get from cache  
+            // try to get from cache
 
             bool cacheResult = LayeredCache.Instance.Get<List<Ratio>>(key, ref result, GetRatios, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GET_RATIOS_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupRatiosInvalidationKey(groupId) });
@@ -256,7 +256,7 @@ namespace Core.Catalog.CatalogManagement
             long imageId = id == 0 ? ODBCWrapper.Utils.GetLongSafeVal(row, "ID") : id;
             Dictionary<long, string> imageTypeIdToNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToNameMap(groupId);
             long ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID");
-            string ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(ImageTypeId) ? 
+            string ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(ImageTypeId) ?
                 imageTypeIdToNameMap[ImageTypeId] : string.Empty;
             if (imageId > 0)
             {
@@ -541,7 +541,7 @@ namespace Core.Catalog.CatalogManagement
             List<Image> result = null;
             string key = LayeredCacheKeys.GetGroupDefaultImagesKey(groupId);
 
-            // try to get from cache  
+            // try to get from cache
             bool cacheResult = LayeredCache.Instance.Get<List<Image>>(key, ref result, GetGroupDefaultImages, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GET_GROUP_DEFAULT_IMAGES_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDefaultImagesInvalidationKey(groupId) });
 
@@ -923,7 +923,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static GenericListResponse<Image> GetImagesByIds(int groupId, List<long> imageIds, bool? isDefault = null)
         {
-            // TODO: IRA - Do we care about the order? 
+            // TODO: IRA - Do we care about the order?
             GenericListResponse<Image> response = new GenericListResponse<Image>();
 
             DataTable dt = CatalogDAL.GetImages(groupId, imageIds);
@@ -992,10 +992,15 @@ namespace Core.Catalog.CatalogManagement
                 {
                     // isAllowedToViewInactiveAssets = true because only operator can add image
                     GenericResponse<Asset> asset = AssetManager.Instance.GetAsset(groupId, imageToAdd.ImageObjectId, eAssetTypes.MEDIA, true);
-                    if (asset.Status.Code != (int)eResponseStatus.OK)
+                    if (asset.Status.Code != (int)eResponseStatus.OK ||
+                        asset.Object?.IndexStatus == AssetIndexStatus.Deleted)
                     {
                         log.ErrorFormat("Asset not found. assetId = {0}, assetType = {1}", imageToAdd.ImageObjectId, imageToAdd.ImageObjectType);
-                        result.SetStatus(asset.Status.Code, "Asset not found");
+                        var status = asset.Status.Code != (int) eResponseStatus.OK
+                            ? asset.Status.Code
+                            : (int) eResponseStatus.AssetDoesNotExist;
+
+                        result.SetStatus(status, "Asset not found");
                         return result;
                     }
                 }
@@ -1142,11 +1147,11 @@ namespace Core.Catalog.CatalogManagement
                             var imageStream = new MemoryStream(imageBytes.Object);
                             double downloadedImageRatio;
 
-                            using (System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream)) 
+                            using (System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream))
                             {
                                 downloadedImageRatio = (double)downloadedImage.Width / downloadedImage.Height;
                             }
-                            
+
                             double imageDefinedRatio = (double)ratio.Width / ratio.Height;
                             double imageRatioPrecisionPrecentage = Math.Round((1 - Math.Abs((downloadedImageRatio - imageDefinedRatio) / imageDefinedRatio)) * 100);
                             if (ratio.PrecisionPrecentage > imageRatioPrecisionPrecentage)
@@ -1360,7 +1365,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         public static Dictionary<long, string> GetImageTypeIdToNameMap(int groupId)
         {
             Dictionary<long, string> result = null;
@@ -1377,7 +1382,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-        
+
         public static Dictionary<string, ApiObjects.Catalog.ImageType> GetImageTypesMapBySystemName(int groupId)
         {
             Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
@@ -1479,13 +1484,13 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<long, Image> epgPics = new Dictionary<long, Image>();
                 var ratioNamesToImageTypes = GetImageTypesMapBySystemName(groupId);
                 Dictionary<long, string> imageTypeIdToNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToNameMap(groupId);
-                
+
                 foreach (var pic in epgCB.pictures)
                 {
                     long imageTypeId = pic.ImageTypeId > 0 ? pic.ImageTypeId : ratioNamesToImageTypes.ContainsKey(pic.Ratio) ? ratioNamesToImageTypes[pic.Ratio].Id : 0;
-                    string imageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(imageTypeId) ? 
+                    string imageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(imageTypeId) ?
                         imageTypeIdToNameMap[imageTypeId] : string.Empty;
-                    
+
                     Image image = new Image()
                     {
                         Id = pic.PicID,
@@ -1514,7 +1519,7 @@ namespace Core.Catalog.CatalogManagement
 
                 Dictionary<ImageReferenceTable, Dictionary<long, long>> referncesIds;
                 DataTable imagesDT;
-                // Get images for updating image.Id 
+                // Get images for updating image.Id
                 // if not exist, create new row  and update id.
                 if (pics != null && pics.Keys.Count > 0)
                 {

@@ -250,15 +250,7 @@ namespace Core.Pricing
                     var assetFile = FileManager.GetAssetFileById(contextData.GroupId, assetFileId);
 
                     // Get Asset Files
-                    if (assetFile == null)
-                    {
-                        log.ErrorFormat("Error while getting assetFiles. groupId: {0}, assetFileId {1}", contextData.GroupId,
-                            assetFileId);
-                        response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        return response;
-                    }
-
-                    assetFiles = new List<AssetFile> { assetFile };
+                    assetFiles = assetFile == null ? new List<AssetFile>() : new List<AssetFile> { assetFile };
                 }
 
                 if (assetFiles.Count > 0)

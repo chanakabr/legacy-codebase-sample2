@@ -1299,6 +1299,13 @@ namespace Core.Catalog
                 result.totalItems += Convert.ToInt32(missedKeysBucket?.DocCount);
             }
 
+            var missingValueBucket = aggregationsResult.Terms(currentGroupBy.Key)
+                .Buckets.FirstOrDefault(x => x.Key == UnifiedSearchNestBuilder.TERMS_AGGREGATION_MISSING_VALUE.ToString());
+            if (missingValueBucket != null)
+            {
+                result.totalItems += Convert.ToInt32(missingValueBucket.DocCount.GetValueOrDefault());
+            }
+
             // if there is only one group by and it is a distinct request, we need to reorder the buckets
             // so we will create the aggregation result with the correct order
             var orderByFields = _sortingAdapter.ResolveOrdering(definitions);

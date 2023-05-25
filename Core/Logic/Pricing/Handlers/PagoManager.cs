@@ -673,7 +673,7 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             Dictionary<long, bool> res = _repository.GetAllPagoIds((int)partnerId.Value);
-            return Tuple.Create(res, true);
+            return Tuple.Create(res ?? new Dictionary<long, bool>(), true);
         }
 
         public List<ProgramAssetGroupOffer> GetProgramAssetGroupOffers(long partnerId, List<long> programAssetGroupOfferIds, bool getAlsoUnactive = false, string nameContains = null)
