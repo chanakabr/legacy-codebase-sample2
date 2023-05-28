@@ -394,7 +394,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assetComment", "assetCommen
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{341582FE-E44D-4A5A-902B-5E268E219013}"
 	ProjectSection(SolutionItems) = preProject
-		api.json = api.json
+		definition\assetComment\api\api.json = definition\assetComment\api\api.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assetFilePpv", "assetFilePpv", "{F5456743-749F-40C3-802C-77888FA34B26}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{4EAFB142-92BB-445A-9CA7-09FD57F29B5D}"
+	ProjectSection(SolutionItems) = preProject
+		definition\assetFilePpv\api\api.json = definition\assetFilePpv\api\api.json
 	EndProjectSection
 EndProject
 Global
@@ -1291,9 +1298,11 @@ Global
 		{7C40D4E3-75AF-41EF-8CF3-9B2D621EE810} = {E86DF650-E3C2-4467-9D18-AD4DF9B8FE30}
 		{55538C17-25C9-4702-8C1D-D0C2A7491B8E} = {DE289223-380A-4698-9278-9B662B0CCCE4}
 		{341582FE-E44D-4A5A-902B-5E268E219013} = {55538C17-25C9-4702-8C1D-D0C2A7491B8E}
+		{F5456743-749F-40C3-802C-77888FA34B26} = {DE289223-380A-4698-9278-9B662B0CCCE4}
+		{4EAFB142-92BB-445A-9CA7-09FD57F29B5D} = {F5456743-749F-40C3-802C-77888FA34B26}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
