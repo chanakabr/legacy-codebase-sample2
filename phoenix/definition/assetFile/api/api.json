@@ -1,0 +1,80 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "assetFile",
+    "version": "6.7.0.0",
+    "contact": {
+      "email": "platformdev@kaltura.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "phoenix.service.consul:{port}/{base_path}",
+      "description": "dns endpoint for assetFile service instances",
+      "variables": {
+        "base_path": {
+          "default": "api_v3"
+        },
+        "port": {
+          "enum": [
+            "8080",
+            "8081"
+          ],
+          "default": "8080"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "KalturaContextType": {
+        "type": "string",
+        "enum": [
+          "none",
+          "recording"
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaAssetFileContext": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "viewLifeCycle": {
+                "type": "string",
+                "description": "viewLifeCycle",
+                "readOnly": true
+              },
+              "fullLifeCycle": {
+                "type": "string",
+                "description": "fullLifeCycle",
+                "readOnly": true
+              },
+              "isOfflinePlayBack": {
+                "type": "boolean",
+                "description": "isOfflinePlayBack",
+                "readOnly": true
+              },
+              "isLivePlayBack": {
+                "type": "boolean",
+                "description": "Is Live PlayBack",
+                "readOnly": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      }
+    },
+    "securitySchemes": {}
+  },
+  "security": [],
+  "paths": {}
+}
