@@ -1,0 +1,363 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "assetHistory",
+    "version": "6.7.0.0",
+    "contact": {
+      "email": "platformdev@kaltura.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "phoenix.service.consul:{port}/{base_path}",
+      "description": "dns endpoint for assetHistory service instances",
+      "variables": {
+        "base_path": {
+          "default": "api_v3"
+        },
+        "port": {
+          "enum": [
+            "8080",
+            "8081"
+          ],
+          "default": "8080"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "KalturaAssetHistoryFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaFilter",
+            "x-template-instantiation": {
+              "KalturaT": "#/components/schemas/KalturaAssetHistoryOrderBy"
+            }
+          },
+          {
+            "properties": {
+              "filterTypes": {
+                "type": "array",
+                "description": "List of asset types to search within. The list is a string separated be comma.\\\nPossible values: 0 - EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).\\\nIf omitted - all types should be included.",
+                "deprecated": true,
+                "items": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaIntegerValue"
+                },
+                "x-old-standard": [
+                  {
+                    "oldName": "filter_types"
+                  }
+                ],
+                "x-generated-symbol": "filterTypes"
+              },
+              "typeIn": {
+                "type": "string",
+                "description": "Comma separated list of asset types to search within.\\\nPossible values: 0 - EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).\\\nIf omitted - all types should be included.",
+                "nullable": true
+              },
+              "assetIdIn": {
+                "type": "string",
+                "description": "Comma separated list of asset identifiers.",
+                "nullable": true
+              },
+              "statusEqual": {
+                "type": "object",
+                "description": "Which type of recently watched media to include in the result - those that finished watching, those that are in progress or both.\\\nIf omitted or specified filter = all - return all types.\\\nAllowed values: progress - return medias that are in-progress, done - return medias that finished watching.",
+                "nullable": true,
+                "$ref": "#/components/schemas/KalturaWatchStatus",
+                "x-old-standard": [
+                  {
+                    "oldName": "filter_status"
+                  }
+                ]
+              },
+              "daysLessThanOrEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "How many days back to return the watched media. If omitted, default to 7 days",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "days"
+                  }
+                ]
+              },
+              "with": {
+                "type": "array",
+                "description": "Additional data to return per asset, formatted as a comma-separated array. \\\nPossible values: stats - add the AssetStats model to each asset. files - add the AssetFile model to each asset. images - add the Image model to each asset.",
+                "deprecated": true,
+                "items": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaCatalogWithHolder"
+                },
+                "x-generated-symbol": "with"
+              },
+              "kSql": {
+                "type": "string",
+                "description": "KSQL expression",
+                "x-validation-exception": "FILTER_SUFFIX",
+                "x-generated-symbol": "Ksql"
+              },
+              "orderBy": {
+                "default": "NONE",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/KalturaAssetHistoryOrderBy"
+                  }
+                ],
+                "x-override-default": true,
+                "x-get-default-orderby": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetHistoryOrderBy": {
+        "type": "string",
+        "enum": [
+          "NONE"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaWatchStatus": {
+        "type": "string",
+        "enum": [
+          "progress",
+          "done",
+          "all"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaSeriesIdArguments": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "assetTypeIdIn": {
+                "type": "string",
+                "description": "Comma separated asset type IDs",
+                "nullable": true,
+                "minimum": 0,
+                "minLength": 1
+              },
+              "seriesId": {
+                "type": "string",
+                "description": "Series ID",
+                "minLength": 1
+              },
+              "seriesIdMetaName": {
+                "type": "string",
+                "description": "Series ID meta name.",
+                "nullable": true,
+                "minLength": 1
+              },
+              "seasonNumberMetaName": {
+                "type": "string",
+                "description": "Season number meta name",
+                "nullable": true,
+                "minLength": 1
+              },
+              "episodeNumberMetaName": {
+                "type": "string",
+                "description": "Episode number meta name",
+                "nullable": true,
+                "minLength": 1
+              }
+            }
+          }
+        ],
+        "required": [
+          "seriesId"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaNotWatchedReturnStrategy": {
+        "type": "string",
+        "enum": [
+          "RETURN_NO_NEXT_EPISODE",
+          "RETURN_FIRST_EPISODE"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaWatchedAllReturnStrategy": {
+        "type": "string",
+        "enum": [
+          "RETURN_NO_NEXT_EPISODE",
+          "RETURN_FIRST_EPISODE",
+          "RETURN_LAST_EPISODE"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetHistory": {
+        "type": "object",
+        "description": "Watch history asset info",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "assetId": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Asset identifier",
+                "readOnly": true
+              },
+              "assetType": {
+                "type": "object",
+                "description": "Asset identifier",
+                "readOnly": true,
+                "$ref": "ott-schema-registry/models/api/rest/kalturaAssetType"
+              },
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Position in seconds of the relevant asset",
+                "nullable": true,
+                "readOnly": true
+              },
+              "duration": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Duration in seconds of the relevant asset",
+                "nullable": true,
+                "readOnly": true
+              },
+              "watchedDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "The date when the media was last watched",
+                "nullable": true,
+                "readOnly": true,
+                "x-generated-symbol": "LastWatched"
+              },
+              "finishedWatching": {
+                "type": "boolean",
+                "description": "Boolean which specifies whether the user finished watching the movie or not",
+                "nullable": true,
+                "readOnly": true,
+                "x-generated-symbol": "IsFinishedWatching"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetHistoryListResponse": {
+        "type": "object",
+        "description": "Watch history asset wrapper",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaListResponse"
+          },
+          {
+            "properties": {
+              "objects": {
+                "type": "array",
+                "description": "WatchHistoryAssets Models",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaAssetHistory"
+                }
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaWatchHistoryAssetWrapper": {
+        "type": "object",
+        "description": "Watch history asset wrapper",
+        "deprecated": true,
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaListResponse"
+          },
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaIAssetable"
+          },
+          {
+            "properties": {
+              "objects": {
+                "type": "array",
+                "description": "WatchHistoryAssets Models",
+                "default": "[]",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaWatchHistoryAsset"
+                }
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaWatchHistoryAsset": {
+        "type": "object",
+        "description": "Watch history asset info",
+        "deprecated": true,
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "asset": {
+                "type": "object",
+                "description": "AssetInfo Model",
+                "nullable": true,
+                "$ref": "ott-schema-registry/models/api/rest/kalturaAssetInfo"
+              },
+              "position": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Position in seconds of the relevant asset",
+                "nullable": true
+              },
+              "duration": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Duration in seconds of the relevant asset",
+                "nullable": true
+              },
+              "watchedDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "The date when the media was last watched",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "watched_date"
+                  }
+                ],
+                "x-generated-symbol": "LastWatched"
+              },
+              "finishedWatching": {
+                "type": "boolean",
+                "description": "Boolean which specifies whether the user finished watching the movie or not",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "finished_watching"
+                  }
+                ],
+                "x-generated-symbol": "IsFinishedWatching"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      }
+    },
+    "securitySchemes": {}
+  },
+  "security": [],
+  "paths": {}
+}

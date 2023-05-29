@@ -21326,7 +21326,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -21340,7 +21340,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -21354,7 +21354,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -21368,7 +21368,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -21427,6 +21427,62 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetHistoryFilter
     {
+        private static RuntimeSchemePropertyAttribute TypeInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetHistoryFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute AssetIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetHistoryFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute StatusEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetHistoryFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute DaysLessThanOrEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetHistoryFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaAssetHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -21457,14 +21513,17 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("typeIn") && parameters["typeIn"] != null)
                 {
+                    TypeInSchemaProperty.Validate("typeIn", parameters["typeIn"]);
                     TypeIn = (String) Convert.ChangeType(parameters["typeIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("assetIdIn") && parameters["assetIdIn"] != null)
                 {
+                    AssetIdInSchemaProperty.Validate("assetIdIn", parameters["assetIdIn"]);
                     AssetIdIn = (String) Convert.ChangeType(parameters["assetIdIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("statusEqual") && parameters["statusEqual"] != null)
                 {
+                    StatusEqualSchemaProperty.Validate("statusEqual", parameters["statusEqual"]);
                     if(string.IsNullOrEmpty(parameters["statusEqual"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "statusEqual");
@@ -21479,6 +21538,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("filter_status") && parameters["filter_status"] != null && isOldVersion)
                 {
+                    StatusEqualSchemaProperty.Validate("filter_status", parameters["filter_status"]);
                     if(string.IsNullOrEmpty(parameters["filter_status"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "filter_status");
@@ -21493,10 +21553,12 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("daysLessThanOrEqual") && parameters["daysLessThanOrEqual"] != null)
                 {
+                    DaysLessThanOrEqualSchemaProperty.Validate("daysLessThanOrEqual", parameters["daysLessThanOrEqual"]);
                     DaysLessThanOrEqual = (Int32) Convert.ChangeType(parameters["daysLessThanOrEqual"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("days") && parameters["days"] != null && isOldVersion)
                 {
+                    DaysLessThanOrEqualSchemaProperty.Validate("days", parameters["days"]);
                     DaysLessThanOrEqual = (Int32) Convert.ChangeType(parameters["days"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("with") && parameters["with"] != null)
@@ -21551,6 +21613,76 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetInfo
     {
+        private static RuntimeSchemePropertyAttribute MetasSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetInfo")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute TagsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetInfo")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetInfo")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetInfo")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ExtraParamsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetInfo")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -21559,6 +21691,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("metas") && parameters["metas"] != null)
                 {
+                    MetasSchemaProperty.Validate("metas", parameters["metas"]);
                     if (parameters["metas"] is JObject)
                     {
                         Metas = OTTObjectBuilder.buildDictionary<KalturaValue>(typeof(KalturaValue), ((JObject) parameters["metas"]).ToObject<Dictionary<string, object>>());
@@ -21566,6 +21699,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("tags") && parameters["tags"] != null)
                 {
+                    TagsSchemaProperty.Validate("tags", parameters["tags"]);
                     if (parameters["tags"] is JObject)
                     {
                         Tags = OTTObjectBuilder.buildDictionary<KalturaMultilingualStringValueArray>(typeof(KalturaMultilingualStringValueArray), ((JObject) parameters["tags"]).ToObject<Dictionary<string, object>>());
@@ -21573,22 +21707,27 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("startDate") && parameters["startDate"] != null)
                 {
+                    StartDateSchemaProperty.Validate("startDate", parameters["startDate"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["startDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("start_date") && parameters["start_date"] != null && isOldVersion)
                 {
+                    StartDateSchemaProperty.Validate("start_date", parameters["start_date"]);
                     StartDate = (Int64) Convert.ChangeType(parameters["start_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("endDate") && parameters["endDate"] != null)
                 {
+                    EndDateSchemaProperty.Validate("endDate", parameters["endDate"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["endDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("end_date") && parameters["end_date"] != null && isOldVersion)
                 {
+                    EndDateSchemaProperty.Validate("end_date", parameters["end_date"]);
                     EndDate = (Int64) Convert.ChangeType(parameters["end_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("extraParams") && parameters["extraParams"] != null)
                 {
+                    ExtraParamsSchemaProperty.Validate("extraParams", parameters["extraParams"]);
                     if (parameters["extraParams"] is JObject)
                     {
                         ExtraParams = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["extraParams"]).ToObject<Dictionary<string, object>>());
@@ -21596,6 +21735,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("extra_params") && parameters["extra_params"] != null && isOldVersion)
                 {
+                    ExtraParamsSchemaProperty.Validate("extra_params", parameters["extra_params"]);
                     if (parameters["extra_params"] is JObject)
                     {
                         ExtraParams = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["extra_params"]).ToObject<Dictionary<string, object>>());
@@ -22629,7 +22769,35 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseAssetInfo")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute StatisticsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseAssetInfo")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -22650,6 +22818,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
+                    TypeSchemaProperty.Validate("type", parameters["type"]);
                     Type = (Int32) Convert.ChangeType(parameters["type"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
@@ -22695,6 +22864,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("stats") && parameters["stats"] != null)
                 {
+                    StatisticsSchemaProperty.Validate("stats", parameters["stats"]);
                     if (parameters["stats"] is JObject)
                     {
                         Statistics = (KalturaAssetStatistics) Deserializer.deserialize(typeof(KalturaAssetStatistics), ((JObject) parameters["stats"]).ToObject<Dictionary<string, object>>());
@@ -29364,6 +29534,76 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaWatchHistoryAsset
     {
+        private static RuntimeSchemePropertyAttribute AssetSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaWatchHistoryAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute PositionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaWatchHistoryAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute DurationSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaWatchHistoryAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute LastWatchedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaWatchHistoryAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IsFinishedWatchingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaWatchHistoryAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaWatchHistoryAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -29372,6 +29612,7 @@ namespace WebAPI.Models.Catalog
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("asset") && parameters["asset"] != null)
                 {
+                    AssetSchemaProperty.Validate("asset", parameters["asset"]);
                     if (parameters["asset"] is JObject)
                     {
                         Asset = (KalturaAssetInfo) Deserializer.deserialize(typeof(KalturaAssetInfo), ((JObject) parameters["asset"]).ToObject<Dictionary<string, object>>());
@@ -29383,26 +29624,32 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("position") && parameters["position"] != null)
                 {
+                    PositionSchemaProperty.Validate("position", parameters["position"]);
                     Position = (Int32) Convert.ChangeType(parameters["position"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("duration") && parameters["duration"] != null)
                 {
+                    DurationSchemaProperty.Validate("duration", parameters["duration"]);
                     Duration = (Int32) Convert.ChangeType(parameters["duration"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("watchedDate") && parameters["watchedDate"] != null)
                 {
+                    LastWatchedSchemaProperty.Validate("watchedDate", parameters["watchedDate"]);
                     LastWatched = (Int64) Convert.ChangeType(parameters["watchedDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("watched_date") && parameters["watched_date"] != null && isOldVersion)
                 {
+                    LastWatchedSchemaProperty.Validate("watched_date", parameters["watched_date"]);
                     LastWatched = (Int64) Convert.ChangeType(parameters["watched_date"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("finishedWatching") && parameters["finishedWatching"] != null)
                 {
+                    IsFinishedWatchingSchemaProperty.Validate("finishedWatching", parameters["finishedWatching"]);
                     IsFinishedWatching = (Boolean) Convert.ChangeType(parameters["finishedWatching"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("finished_watching") && parameters["finished_watching"] != null && isOldVersion)
                 {
+                    IsFinishedWatchingSchemaProperty.Validate("finished_watching", parameters["finished_watching"]);
                     IsFinishedWatching = (Boolean) Convert.ChangeType(parameters["finished_watching"], typeof(Boolean));
                 }
             }
@@ -29410,12 +29657,30 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaWatchHistoryAssetWrapper
     {
+        private static RuntimeSchemePropertyAttribute ObjectsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaWatchHistoryAssetWrapper")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            Default = "[]",
+            UniqueItems = false,
+        };
         public KalturaWatchHistoryAssetWrapper(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("objects") && parameters["objects"] != null)
                 {
+                    ObjectsSchemaProperty.Validate("objects", parameters["objects"]);
                     if (parameters["objects"] is JArray)
                     {
                         Objects = OTTObjectBuilder.buildList<KalturaWatchHistoryAsset>(typeof(KalturaWatchHistoryAsset), (JArray) parameters["objects"]);
