@@ -7,6 +7,7 @@ using Synchronizer;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Phx.Lib.Appconfig;
 using TVinciShared;
 
 namespace AdapterControllers
@@ -83,7 +84,7 @@ namespace AdapterControllers
             log.Debug($"Constructing GetDRMAdapterServiceClient Client with url:[{adapterUrl}]");
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
-            adapterClient.ConfigureServiceClient();
+            adapterClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.DrmAdapter);
 
             return adapterClient;
         }

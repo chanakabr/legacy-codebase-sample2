@@ -11,6 +11,7 @@ using System.Reflection;
 using ApiObjects;
 using CachingProvider.LayeredCache;
 using APILogic.SSOAdapaterService;
+using Phx.Lib.Appconfig;
 using TVinciShared;
 
 namespace APILogic.Users
@@ -69,7 +70,7 @@ namespace APILogic.Users
             _Logger.Debug($"Constructing SSOAdapterService Client with url:[{adapterUrl}]");
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
-            adapterClient.ConfigureServiceClient();
+            adapterClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.SsoAdapter);
 
             return adapterClient;
         }

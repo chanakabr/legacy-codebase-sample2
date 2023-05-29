@@ -13,6 +13,7 @@ using Synchronizer;
 using Core.Api;
 using Core;
 using APILogic.OSSAdapterService;
+using Phx.Lib.Appconfig;
 using TVinciShared;
 
 namespace ApiLogic
@@ -84,7 +85,7 @@ namespace ApiLogic
         {
             var behvaiour = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(behvaiour, adapterUrl);
-            adapterClient.ConfigureServiceClient();
+            adapterClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.OssAdapter);
             return adapterClient;
         }
         #endregion

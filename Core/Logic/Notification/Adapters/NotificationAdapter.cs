@@ -11,6 +11,7 @@ using System.ServiceModel;
 using TVinciShared;
 using ApiLogic.Notification;
 using System.Configuration;
+using Phx.Lib.Appconfig;
 
 namespace Core.Notification.Adapters
 {
@@ -21,7 +22,7 @@ namespace Core.Notification.Adapters
         public static ServiceClient GetAmazonSnsServiceClient(string url)
         {
             var client = new ServiceClient(ServiceClient.EndpointConfiguration.BasicHttpBinding_IService, url);
-            client.ConfigureServiceClient();
+            client.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.AmazonSnsAdapter);
             return client;
         }
 

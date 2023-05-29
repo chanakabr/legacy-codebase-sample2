@@ -21,7 +21,7 @@
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="ott.client.kronos.grpc" Version="1.9.0" />
     <PackageReference Include="ott.client.segmentation.grpc" Version="1.3.0" />
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.5" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.6" />
     <PackageReference Include="ott.client.iot.grpc" Version="1.0.0-pr-11-117" />
     <PackageReference Include="ott.client.offers.grpc" Version="0.1.2" />
     <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />

@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Phx.Lib.Appconfig;
+using Phx.Lib.Appconfig.Types;
 using TVinciShared;
 
 namespace AdapterControllers
@@ -55,7 +57,7 @@ namespace AdapterControllers
             log.Debug($"Constructing GetPlaybackAdapterServiceClient Client with url:[{adapterUrl}]");
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
-            adapterClient.ConfigureServiceClient();
+            adapterClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.PlaybackAdapter);
 
             return adapterClient;
         }

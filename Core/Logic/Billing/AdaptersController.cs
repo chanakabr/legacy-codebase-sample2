@@ -13,6 +13,7 @@ using Synchronizer;
 using TVinciShared;
 using PGWServiceClient = APILogic.PaymentGWAdapter.ServiceClient;
 using APILogic.PaymentGWAdapter;
+using Phx.Lib.Appconfig;
 
 namespace Core.Billing
 {
@@ -83,7 +84,7 @@ namespace Core.Billing
         {
             var behvaiour = PGWServiceClient.EndpointConfiguration.BasicHttpBinding;
             var adapterClient = new PGWServiceClient(behvaiour, adapterUrl);
-            adapterClient.ConfigureServiceClient();
+            adapterClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.PaymentGatewayAdapter);
             return adapterClient;
         }
 

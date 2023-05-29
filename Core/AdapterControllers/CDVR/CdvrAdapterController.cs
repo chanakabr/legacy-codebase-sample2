@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using TVinciShared;
 using ApiObjects.TimeShiftedTv;
 using System.Web;
-
+using Phx.Lib.Appconfig;
 
 
 namespace AdapterControllers.CDVR
@@ -90,7 +90,7 @@ namespace AdapterControllers.CDVR
             log.Debug($"Constructing GetCDVRAdapterServiceClient Client with url:[{adapterUrl}]");
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
-            adapterClient.ConfigureServiceClient();
+            adapterClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.CdvrAdapter);
 
             return adapterClient;
         }

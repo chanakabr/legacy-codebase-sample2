@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="ott.client.iot.grpc" Version="1.0.0-pr-11-117" />
-    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.5" />
+    <PackageReference Include="Phx.Lib.Appconfig" Version="1.5.6" />
     <PackageReference Include="Phx.Lib.Log" Version="1.2.4" />
   </ItemGroup>
 

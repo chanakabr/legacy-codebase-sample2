@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Phx.Lib.Appconfig;
 using TVinciShared;
 
 namespace AdapterControllers
@@ -62,7 +63,7 @@ namespace AdapterControllers
             log.Debug($"Constructing GetCDNAdapterServiceClient Client with url:[{adapterUrl}]");
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
-            adapterClient.ConfigureServiceClient();
+            adapterClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.CdnAdapter);
 
             return adapterClient;
         }

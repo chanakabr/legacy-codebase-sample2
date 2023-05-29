@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Web;
 using APILogic.AdyenPayAPI;
 using ApiObjects.Billing;
+using Phx.Lib.Appconfig;
 using TVinciShared;
 
 namespace Core.Billing
@@ -31,10 +32,10 @@ namespace Core.Billing
             var recurringPaymentEndpointConfig = RecurringPortTypeClient.EndpointConfiguration.RecurringHttpPort;
 
             _RecurringPaymentClient = new RecurringPortTypeClient(recurringPaymentEndpointConfig, recurringPaymentServiceUrl);
-            _RecurringPaymentClient.ConfigureServiceClient();
+            _RecurringPaymentClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.AdyenRecurringCreditCardAdapter);
 
             _PaymentClient = new PaymentPortTypeClient(paymentEndpointConfig, paymentServiceUrl);
-            _PaymentClient.ConfigureServiceClient();
+            _PaymentClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.AdyenCreditCardAdapter);
         }
 
 
