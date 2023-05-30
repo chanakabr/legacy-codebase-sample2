@@ -25,6 +25,7 @@ namespace Phoenix.AsyncHandler
         protected override HandleResult Create(ConsumeResult<string, Household> consumeResult)
         {
             var household = consumeResult.GetValue();
+            if (household.Source == Source.Phoenix) return Result.Ok;
             
             var groupId = (int)household.PartnerId;
             var domainId = (int)household.Id.Value;

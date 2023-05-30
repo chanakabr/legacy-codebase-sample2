@@ -38,6 +38,7 @@ using Phoenix.AsyncHandler.Kronos;
 using Phoenix.AsyncHandler.Pricing;
 using Phoenix.AsyncHandler.Recording;
 using Phoenix.Generated.Api.Events.Crud.Household;
+using Phoenix.Generated.Api.Events.Crud.OttUser;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Extensions.RecordingFailed;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
@@ -77,7 +78,7 @@ namespace Phoenix.AsyncHandler
                     services.AddKafkaConsumerFactory(KafkaConfig.Get());
                     services
                         .AddDependencies()
-                        .AddKafkaHandlersFromAssembly()
+                        .AddKafkaHandlers()
                         .AddMetricsAndHealthHttpServer();
                 }).ConfigureMappings()
                 .ConfigureEventNotificationsConfig();
@@ -162,12 +163,13 @@ namespace Phoenix.AsyncHandler
             return services;
         }
 
-        public static IServiceCollection AddKafkaHandlersFromAssembly(this IServiceCollection services)
+        public static IServiceCollection AddKafkaHandlers(this IServiceCollection services)
         {
             services.AddKafkaHandler<IndexRecordingHandler, IndexRecording>("Index-Recording", IndexRecording.GetTopic());
             services.AddKafkaHandler<RebuildRecordingsIndexHandler, RebuildRecordingsIndex>("rebuild-recordings-index", RebuildRecordingsIndex.GetTopic());
             services.AddKafkaHandler<HouseholdNpvrAccountHandler, Household>("household-npvr-account", Household.GetTopic());
             services.AddKafkaHandler<EntitlementLogicalHandler, AppstoreNotification>("appstore-notification", AppstoreNotification.GetTopic());
+            services.AddKafkaHandler<UserHandler, OttUser>("ottuser", OttUser.GetTopic());
             services.AddKafkaHandler<LiveToVodAssetHandler, ProgramAsset>("live-to-vod-asset", ProgramAsset.GetTopic());
             services.AddKafkaHandler<RecordingFailedHandler, RecordingFailed>("recording-failed", RecordingFailed.GetTopic());
             services.AddKafkaHandler<PersonalActivityCleanupHandler, PersonalActivityCleanup>("personal-activity-cleanup", PersonalActivityCleanup.GetTopic());
