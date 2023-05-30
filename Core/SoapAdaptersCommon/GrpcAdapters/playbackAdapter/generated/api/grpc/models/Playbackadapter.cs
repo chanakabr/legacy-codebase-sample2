@@ -37,97 +37,99 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             "clJlcXVlc3QSRQodYWRhcHRlclBsYXliYWNrQ29udGV4dE9wdGlvbnMYASAB",
             "KAsyHi5BZGFwdGVyUGxheWJhY2tDb250ZXh0T3B0aW9ucxJFCh1yZXF1ZXN0",
             "UGxheWJhY2tDb250ZXh0T3B0aW9ucxgCIAEoCzIeLlJlcXVlc3RQbGF5YmFj",
-            "a0NvbnRleHRPcHRpb25zIv0CCiZQbGF5YmFja0FkYXB0ZXJDb25jdXJyZW5j",
+            "a0NvbnRleHRPcHRpb25zItkDCiZQbGF5YmFja0FkYXB0ZXJDb25jdXJyZW5j",
             "eUNoZWNrUmVxdWVzdBImCg5QbGF5aW5nRGV2aWNlcxgBIAMoCzIOLlBsYXlp",
             "bmdEZXZpY2USGQoRRGV2aWNlRmFtaWxpZXNJZHMYAiADKAMSVQoPVXNlckR5",
             "bmFtaWNEYXRhGAMgAygLMjwuUGxheWJhY2tBZGFwdGVyQ29uY3VycmVuY3lD",
             "aGVja1JlcXVlc3QuVXNlckR5bmFtaWNEYXRhRW50cnkSTQoLQWRhcHRlckRh",
             "dGEYBCADKAsyOC5QbGF5YmFja0FkYXB0ZXJDb25jdXJyZW5jeUNoZWNrUmVx",
-            "dWVzdC5BZGFwdGVyRGF0YUVudHJ5GjYKFFVzZXJEeW5hbWljRGF0YUVudHJ5",
-            "EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEaMgoQQWRhcHRlckRh",
-            "dGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIloKJ1Bs",
-            "YXliYWNrQWRhcHRlckNvbmN1cnJlbmN5Q2hlY2tSZXNwb25zZRIVCg1BbGxv",
-            "d2VkVG9QbGF5GAEgASgIEhgKEENhbmNlbERldmljZVVkaWQYAiABKAkiNQoN",
-            "UGxheWluZ0RldmljZRIMCgRVZGlkGAEgASgJEhYKDkRldmljZUZhbWlseUlk",
-            "GAIgASgDIiYKCEtleVZhbHVlEgsKA0tleRgBIAEoCRINCgVWYWx1ZRgCIAEo",
-            "CSKJAgodUmVxdWVzdFBsYXliYWNrQ29udGV4dE9wdGlvbnMSHgoLQWRhcHRl",
-            "ckRhdGEYASADKAsyCS5LZXlWYWx1ZRIUCgxBc3NldEZpbGVJZHMYAiABKAkS",
-            "DwoHQXNzZXRJZBgDIAEoCRIkCglBc3NldFR5cGUYBCABKA4yES5BZGFwdGVy",
-            "QXNzZXRUeXBlEiwKB0NvbnRleHQYBSABKA4yGy5BZGFwdGVyUGxheWJhY2tD",
-            "b250ZXh0VHlwZRIVCg1NZWRpYVByb3RvY29sGAYgASgJEhQKDFN0cmVhbWVy",
-            "VHlwZRgHIAEoCRIgCgdVcmxUeXBlGAggASgOMg8uQWRhcHRlclVybFR5cGUi",
-            "NQoUQWNjZXNzQ29udHJvbE1lc3NhZ2USDAoEQ29kZRgBIAEoCRIPCgdNZXNz",
-            "YWdlGAIgASgJItgBChZBZGFwdGVyUGxheWJhY2tDb250ZXh0EhwKB0FjdGlv",
-            "bnMYASADKAsyCy5SdWxlQWN0aW9uEicKCE1lc3NhZ2VzGAIgAygLMhUuQWNj",
-            "ZXNzQ29udHJvbE1lc3NhZ2USNAoQUGxheWJhY2tDYXB0aW9ucxgDIAMoCzIa",
-            "LkNhcHRpb25QbGF5YmFja1BsdWdpbkRhdGESJAoHUGx1Z2lucxgEIAMoCzIT",
-            "LlBsYXliYWNrUGx1Z2luRGF0YRIbCgdTb3VyY2VzGAUgAygLMgouQXNzZXRG",
-            "aWxlIi4KDUFkYXB0ZXJTdGF0dXMSDAoEQ29kZRgBIAEoBRIPCgdNZXNzYWdl",
-            "GAIgASgJIpkFCglBc3NldEZpbGUSDgoGQWx0VXJsGAEgASgJEgsKA1VybBgC",
-            "IAEoCRIWCg5BZGRpdGlvbmFsRGF0YRgDIAEoCRIVCg1BbHRFeHRlcm5hbElk",
-            "GAQgASgJEhgKEEFsdFN0cmVhbWluZ0NvZGUYBSABKAkSJwofQWx0ZXJuYXRp",
-            "dmVDZG5BZGFwYXRlclByb2ZpbGVJZBgGIAEoAxIPCgdBc3NldElkGAcgASgF",
-            "EhYKDkNhdGFsb2dFbmREYXRlGAggASgDEhwKFENkbkFkYXBhdGVyUHJvZmls",
-            "ZUlkGAkgASgDEhAKCER1cmF0aW9uGAogASgDEg8KB0VuZERhdGUYCyABKAMS",
-            "EgoKRXh0ZXJuYWxJZBgMIAEoCRIXCg9FeHRlcm5hbFN0b3JlSWQYDSABKAkS",
-            "EAoIRmlsZVNpemUYDiABKAMSCgoCSWQYDyABKAUSGQoRSXNEZWZhdWx0TGFu",
-            "Z3VhZ2UYECABKAgSDgoGTGFiZWxzGBEgASgJEhAKCExhbmd1YWdlGBIgASgJ",
-            "EhAKCE9yZGVyTnVtGBMgASgFEh4KFk91dHB1dFByb3RlY2F0aW9uTGV2ZWwY",
-            "FCABKAkSEQoJU3RhcnREYXRlGBUgASgDEg4KBlN0YXR1cxgWIAEoCBIMCgRU",
-            "eXBlGBcgASgJEg4KBlR5cGVJZBgYIAEoBRIYChBCdXNpbmVzc01vZHVsZUlk",
-            "GBkgASgFEiwKEkJ1c2luZXNzTW9kdWxlVHlwZRgaIAEoDjIQLlRyYW5zYWN0",
-            "aW9uVHlwZRIYCgNEcm0YGyADKAsyCy5QbHVnaW5EYXRhEg4KBkZvcm1hdBgc",
-            "IAEoCRITCgtJc1Rva2VuaXplZBgdIAEoCBIRCglQcm90b2NvbHMYHiABKAki",
-            "PQoYQnVtcGVyUGxheWJhY2tQbHVnaW5EYXRhEhQKDFN0cmVhbWVyVHlwZRgB",
-            "IAEoCRILCgNVUkwYAiABKAkiWQoZQ2FwdGlvblBsYXliYWNrUGx1Z2luRGF0",
-            "YRIOCgZGb3JtYXQYASABKAkSDQoFTGFiZWwYAiABKAkSEAoITGFuZ3VhZ2UY",
-            "AyABKAkSCwoDVVJMGAQgASgJIn8KG0N1c3RvbURybVBsYXliYWNrUGx1Z2lu",
-            "RGF0YRIeCgtEeW5hbWljRGF0YRgBIAMoCzIJLktleVZhbHVlEhIKCkxpY2Vu",
-            "c2VVUkwYAiABKAkSHgoGU2NoZW1lGAMgASgOMg4uRHJtU2NoZW1lTmFtZRIM",
-            "CgREYXRhGAQgASgJImsKFURybVBsYXliYWNrUGx1Z2luRGF0YRIeCgtEeW5h",
-            "bWljRGF0YRgBIAMoCzIJLktleVZhbHVlEhIKCkxpY2Vuc2VVUkwYAiABKAkS",
-            "HgoGU2NoZW1lGAMgASgOMg4uRHJtU2NoZW1lTmFtZSKFAQoaRmFpclBsYXlQ",
-            "bGF5YmFja1BsdWdpbkRhdGESHgoLRHluYW1pY0RhdGEYASADKAsyCS5LZXlW",
-            "YWx1ZRISCgpMaWNlbnNlVVJMGAIgASgJEh4KBlNjaGVtZRgDIAEoDjIOLkRy",
-            "bVNjaGVtZU5hbWUSEwoLQ2VydGlmaWNhdGUYBCABKAkiawoXUGxheWJhY2tB",
-            "ZGFwdGVyUmVzcG9uc2USMAoPUGxheWJhY2tDb250ZXh0GAEgASgLMhcuQWRh",
-            "cHRlclBsYXliYWNrQ29udGV4dBIeCgZTdGF0dXMYAiABKAsyDi5BZGFwdGVy",
-            "U3RhdHVzIhQKElBsYXliYWNrUGx1Z2luRGF0YSIMCgpQbHVnaW5EYXRhIkAK",
-            "ClJ1bGVBY3Rpb24SEwoLRGVzY3JpcHRpb24YASABKAkSHQoEVHlwZRgCIAEo",
-            "DjIPLlJ1bGVBY3Rpb25UeXBlIucBCh1BZGFwdGVyUGxheWJhY2tDb250ZXh0",
-            "T3B0aW9ucxIeCgtBZGFwdGVyRGF0YRgBIAMoCzIJLktleVZhbHVlEhEKCUFk",
-            "YXB0ZXJJZBgCIAEoAxIKCgJJUBgDIAEoCRIRCglQYXJ0bmVySWQYBCABKAUS",
-            "MAoPUGxheWJhY2tDb250ZXh0GAUgASgLMhcuQWRhcHRlclBsYXliYWNrQ29u",
-            "dGV4dBIRCglTaWduYXR1cmUYBiABKAkSEQoJVGltZVN0YW1wGAcgASgDEgwK",
-            "BFVkaWQYCCABKAkSDgoGVXNlcklkGAkgASgJKlMKD1BsYXliYWNrTWV0aG9k",
-            "cxIWChJHZXRQbGF5YmFja0NvbnRleHQQABIXChNHZXRQbGF5YmFja01hbmlm",
-            "ZXN0EAESDwoLQ29uY3VycmVuY3kQAio1ChBBZGFwdGVyQXNzZXRUeXBlEgkK",
-            "BW1lZGlhEAASDQoJcmVjb3JkaW5nEAESBwoDZXBnEAIqYgoaQWRhcHRlclBs",
-            "YXliYWNrQ29udGV4dFR5cGUSCwoHVFJBSUxFUhAAEgsKB0NBVENIVVAQARIO",
-            "CgpTVEFSVF9PVkVSEAISDAoIUExBWUJBQ0sQAxIMCghET1dOTE9BRBAEKi4K",
-            "DkFkYXB0ZXJVcmxUeXBlEhAKDFBMQVlNQU5JRkVTVBAAEgoKBkRJUkVDVBAB",
-            "KnEKDURybVNjaGVtZU5hbWUSEgoOUExBWVJFQURZX0NFTkMQABIRCg1XSURF",
-            "VklORV9DRU5DEAESDAoIRkFJUlBMQVkQAhIMCghXSURFVklORRADEg0KCVBM",
-            "QVlSRUFEWRAEEg4KCkNVU1RPTV9EUk0QBSq2AQoOUnVsZUFjdGlvblR5cGUS",
-            "CQoFQkxPQ0sQABIVChFTVEFSVF9EQVRFX09GRlNFVBABEhMKD0VORF9EQVRF",
-            "X09GRlNFVBACEg4KClVTRVJfQkxPQ0sQAxISCg5BTExPV19QTEFZQkFDSxAE",
-            "EhIKDkJMT0NLX1BMQVlCQUNLEAUSGQoVQVBQTFlfRElTQ09VTlRfTU9EVUxF",
-            "EAYSGgoWQVBQTFlfUExBWUJBQ0tfQURBUFRFUhAHKkYKD1RyYW5zYWN0aW9u",
-            "VHlwZRIHCgNQUFYQABIQCgxTdWJzY3JpcHRpb24QARIOCgpDb2xsZWN0aW9u",
-            "EAISCAoEUEFHTxADMt0DChNQbGF5YmFja0FkYXB0ZXJHUlBDEmUKEFNldENv",
-            "bmZpZ3VyYXRpb24SJy5QbGF5YmFja0FkYXB0ZXJTZXRDb25maWd1cmF0aW9u",
-            "UmVxdWVzdBooLlBsYXliYWNrQWRhcHRlclNldENvbmZpZ3VyYXRpb25SZXNw",
-            "b25zZRJlChBHZXRDb25maWd1cmF0aW9uEicuUGxheWJhY2tBZGFwdGVyR2V0",
-            "Q29uZmlndXJhdGlvblJlcXVlc3QaKC5QbGF5YmFja0FkYXB0ZXJHZXRDb25m",
-            "aWd1cmF0aW9uUmVzcG9uc2USRwoSR2V0UGxheWJhY2tDb250ZXh0EhcuUGxh",
-            "eWJhY2tBZGFwdGVyUmVxdWVzdBoYLlBsYXliYWNrQWRhcHRlclJlc3BvbnNl",
-            "EkgKE0dldFBsYXliYWNrTWFuaWZlc3QSFy5QbGF5YmFja0FkYXB0ZXJSZXF1",
-            "ZXN0GhguUGxheWJhY2tBZGFwdGVyUmVzcG9uc2USZQoQQ29uY3VycmVuY3lD",
-            "aGVjaxInLlBsYXliYWNrQWRhcHRlckNvbmN1cnJlbmN5Q2hlY2tSZXF1ZXN0",
-            "GiguUGxheWJhY2tBZGFwdGVyQ29uY3VycmVuY3lDaGVja1Jlc3BvbnNlQlpa",
-            "NmdpdGh1Yi5jb20va2FsdHVyYS9vdHQtY2xpZW50LXBsYXliYWNrLWFkYXB0",
-            "ZXItZ3JwYy1nb6oCH1NvYXBBZGFwdGVyc0NvbW1vbi5HcnBjQWRhcHRlcnNi",
-            "BnByb3RvMw=="));
+            "dWVzdC5BZGFwdGVyRGF0YUVudHJ5Eg4KBlVzZXJJZBgFIAEoAxITCgtIb3Vz",
+            "ZWhvbGRJZBgGIAEoAxIPCgdBc3NldElkGAcgASgDEgwKBFVkaWQYCCABKAkS",
+            "FgoORGV2aWNlRmFtaWx5SWQYCSABKAMaNgoUVXNlckR5bmFtaWNEYXRhRW50",
+            "cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoyChBBZGFwdGVy",
+            "RGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiWgon",
+            "UGxheWJhY2tBZGFwdGVyQ29uY3VycmVuY3lDaGVja1Jlc3BvbnNlEhUKDUFs",
+            "bG93ZWRUb1BsYXkYASABKAgSGAoQQ2FuY2VsRGV2aWNlVWRpZBgCIAEoCSI1",
+            "Cg1QbGF5aW5nRGV2aWNlEgwKBFVkaWQYASABKAkSFgoORGV2aWNlRmFtaWx5",
+            "SWQYAiABKAMiJgoIS2V5VmFsdWUSCwoDS2V5GAEgASgJEg0KBVZhbHVlGAIg",
+            "ASgJIokCCh1SZXF1ZXN0UGxheWJhY2tDb250ZXh0T3B0aW9ucxIeCgtBZGFw",
+            "dGVyRGF0YRgBIAMoCzIJLktleVZhbHVlEhQKDEFzc2V0RmlsZUlkcxgCIAEo",
+            "CRIPCgdBc3NldElkGAMgASgJEiQKCUFzc2V0VHlwZRgEIAEoDjIRLkFkYXB0",
+            "ZXJBc3NldFR5cGUSLAoHQ29udGV4dBgFIAEoDjIbLkFkYXB0ZXJQbGF5YmFj",
+            "a0NvbnRleHRUeXBlEhUKDU1lZGlhUHJvdG9jb2wYBiABKAkSFAoMU3RyZWFt",
+            "ZXJUeXBlGAcgASgJEiAKB1VybFR5cGUYCCABKA4yDy5BZGFwdGVyVXJsVHlw",
+            "ZSI1ChRBY2Nlc3NDb250cm9sTWVzc2FnZRIMCgRDb2RlGAEgASgJEg8KB01l",
+            "c3NhZ2UYAiABKAki2AEKFkFkYXB0ZXJQbGF5YmFja0NvbnRleHQSHAoHQWN0",
+            "aW9ucxgBIAMoCzILLlJ1bGVBY3Rpb24SJwoITWVzc2FnZXMYAiADKAsyFS5B",
+            "Y2Nlc3NDb250cm9sTWVzc2FnZRI0ChBQbGF5YmFja0NhcHRpb25zGAMgAygL",
+            "MhouQ2FwdGlvblBsYXliYWNrUGx1Z2luRGF0YRIkCgdQbHVnaW5zGAQgAygL",
+            "MhMuUGxheWJhY2tQbHVnaW5EYXRhEhsKB1NvdXJjZXMYBSADKAsyCi5Bc3Nl",
+            "dEZpbGUiLgoNQWRhcHRlclN0YXR1cxIMCgRDb2RlGAEgASgFEg8KB01lc3Nh",
+            "Z2UYAiABKAkimQUKCUFzc2V0RmlsZRIOCgZBbHRVcmwYASABKAkSCwoDVXJs",
+            "GAIgASgJEhYKDkFkZGl0aW9uYWxEYXRhGAMgASgJEhUKDUFsdEV4dGVybmFs",
+            "SWQYBCABKAkSGAoQQWx0U3RyZWFtaW5nQ29kZRgFIAEoCRInCh9BbHRlcm5h",
+            "dGl2ZUNkbkFkYXBhdGVyUHJvZmlsZUlkGAYgASgDEg8KB0Fzc2V0SWQYByAB",
+            "KAUSFgoOQ2F0YWxvZ0VuZERhdGUYCCABKAMSHAoUQ2RuQWRhcGF0ZXJQcm9m",
+            "aWxlSWQYCSABKAMSEAoIRHVyYXRpb24YCiABKAMSDwoHRW5kRGF0ZRgLIAEo",
+            "AxISCgpFeHRlcm5hbElkGAwgASgJEhcKD0V4dGVybmFsU3RvcmVJZBgNIAEo",
+            "CRIQCghGaWxlU2l6ZRgOIAEoAxIKCgJJZBgPIAEoBRIZChFJc0RlZmF1bHRM",
+            "YW5ndWFnZRgQIAEoCBIOCgZMYWJlbHMYESABKAkSEAoITGFuZ3VhZ2UYEiAB",
+            "KAkSEAoIT3JkZXJOdW0YEyABKAUSHgoWT3V0cHV0UHJvdGVjYXRpb25MZXZl",
+            "bBgUIAEoCRIRCglTdGFydERhdGUYFSABKAMSDgoGU3RhdHVzGBYgASgIEgwK",
+            "BFR5cGUYFyABKAkSDgoGVHlwZUlkGBggASgFEhgKEEJ1c2luZXNzTW9kdWxl",
+            "SWQYGSABKAUSLAoSQnVzaW5lc3NNb2R1bGVUeXBlGBogASgOMhAuVHJhbnNh",
+            "Y3Rpb25UeXBlEhgKA0RybRgbIAMoCzILLlBsdWdpbkRhdGESDgoGRm9ybWF0",
+            "GBwgASgJEhMKC0lzVG9rZW5pemVkGB0gASgIEhEKCVByb3RvY29scxgeIAEo",
+            "CSI9ChhCdW1wZXJQbGF5YmFja1BsdWdpbkRhdGESFAoMU3RyZWFtZXJUeXBl",
+            "GAEgASgJEgsKA1VSTBgCIAEoCSJZChlDYXB0aW9uUGxheWJhY2tQbHVnaW5E",
+            "YXRhEg4KBkZvcm1hdBgBIAEoCRINCgVMYWJlbBgCIAEoCRIQCghMYW5ndWFn",
+            "ZRgDIAEoCRILCgNVUkwYBCABKAkifwobQ3VzdG9tRHJtUGxheWJhY2tQbHVn",
+            "aW5EYXRhEh4KC0R5bmFtaWNEYXRhGAEgAygLMgkuS2V5VmFsdWUSEgoKTGlj",
+            "ZW5zZVVSTBgCIAEoCRIeCgZTY2hlbWUYAyABKA4yDi5Ecm1TY2hlbWVOYW1l",
+            "EgwKBERhdGEYBCABKAkiawoVRHJtUGxheWJhY2tQbHVnaW5EYXRhEh4KC0R5",
+            "bmFtaWNEYXRhGAEgAygLMgkuS2V5VmFsdWUSEgoKTGljZW5zZVVSTBgCIAEo",
+            "CRIeCgZTY2hlbWUYAyABKA4yDi5Ecm1TY2hlbWVOYW1lIoUBChpGYWlyUGxh",
+            "eVBsYXliYWNrUGx1Z2luRGF0YRIeCgtEeW5hbWljRGF0YRgBIAMoCzIJLktl",
+            "eVZhbHVlEhIKCkxpY2Vuc2VVUkwYAiABKAkSHgoGU2NoZW1lGAMgASgOMg4u",
+            "RHJtU2NoZW1lTmFtZRITCgtDZXJ0aWZpY2F0ZRgEIAEoCSJrChdQbGF5YmFj",
+            "a0FkYXB0ZXJSZXNwb25zZRIwCg9QbGF5YmFja0NvbnRleHQYASABKAsyFy5B",
+            "ZGFwdGVyUGxheWJhY2tDb250ZXh0Eh4KBlN0YXR1cxgCIAEoCzIOLkFkYXB0",
+            "ZXJTdGF0dXMiFAoSUGxheWJhY2tQbHVnaW5EYXRhIgwKClBsdWdpbkRhdGEi",
+            "QAoKUnVsZUFjdGlvbhITCgtEZXNjcmlwdGlvbhgBIAEoCRIdCgRUeXBlGAIg",
+            "ASgOMg8uUnVsZUFjdGlvblR5cGUi5wEKHUFkYXB0ZXJQbGF5YmFja0NvbnRl",
+            "eHRPcHRpb25zEh4KC0FkYXB0ZXJEYXRhGAEgAygLMgkuS2V5VmFsdWUSEQoJ",
+            "QWRhcHRlcklkGAIgASgDEgoKAklQGAMgASgJEhEKCVBhcnRuZXJJZBgEIAEo",
+            "BRIwCg9QbGF5YmFja0NvbnRleHQYBSABKAsyFy5BZGFwdGVyUGxheWJhY2tD",
+            "b250ZXh0EhEKCVNpZ25hdHVyZRgGIAEoCRIRCglUaW1lU3RhbXAYByABKAMS",
+            "DAoEVWRpZBgIIAEoCRIOCgZVc2VySWQYCSABKAkqUwoPUGxheWJhY2tNZXRo",
+            "b2RzEhYKEkdldFBsYXliYWNrQ29udGV4dBAAEhcKE0dldFBsYXliYWNrTWFu",
+            "aWZlc3QQARIPCgtDb25jdXJyZW5jeRACKjUKEEFkYXB0ZXJBc3NldFR5cGUS",
+            "CQoFbWVkaWEQABINCglyZWNvcmRpbmcQARIHCgNlcGcQAipiChpBZGFwdGVy",
+            "UGxheWJhY2tDb250ZXh0VHlwZRILCgdUUkFJTEVSEAASCwoHQ0FUQ0hVUBAB",
+            "Eg4KClNUQVJUX09WRVIQAhIMCghQTEFZQkFDSxADEgwKCERPV05MT0FEEAQq",
+            "LgoOQWRhcHRlclVybFR5cGUSEAoMUExBWU1BTklGRVNUEAASCgoGRElSRUNU",
+            "EAEqcQoNRHJtU2NoZW1lTmFtZRISCg5QTEFZUkVBRFlfQ0VOQxAAEhEKDVdJ",
+            "REVWSU5FX0NFTkMQARIMCghGQUlSUExBWRACEgwKCFdJREVWSU5FEAMSDQoJ",
+            "UExBWVJFQURZEAQSDgoKQ1VTVE9NX0RSTRAFKrYBCg5SdWxlQWN0aW9uVHlw",
+            "ZRIJCgVCTE9DSxAAEhUKEVNUQVJUX0RBVEVfT0ZGU0VUEAESEwoPRU5EX0RB",
+            "VEVfT0ZGU0VUEAISDgoKVVNFUl9CTE9DSxADEhIKDkFMTE9XX1BMQVlCQUNL",
+            "EAQSEgoOQkxPQ0tfUExBWUJBQ0sQBRIZChVBUFBMWV9ESVNDT1VOVF9NT0RV",
+            "TEUQBhIaChZBUFBMWV9QTEFZQkFDS19BREFQVEVSEAcqRgoPVHJhbnNhY3Rp",
+            "b25UeXBlEgcKA1BQVhAAEhAKDFN1YnNjcmlwdGlvbhABEg4KCkNvbGxlY3Rp",
+            "b24QAhIICgRQQUdPEAMy3QMKE1BsYXliYWNrQWRhcHRlckdSUEMSZQoQU2V0",
+            "Q29uZmlndXJhdGlvbhInLlBsYXliYWNrQWRhcHRlclNldENvbmZpZ3VyYXRp",
+            "b25SZXF1ZXN0GiguUGxheWJhY2tBZGFwdGVyU2V0Q29uZmlndXJhdGlvblJl",
+            "c3BvbnNlEmUKEEdldENvbmZpZ3VyYXRpb24SJy5QbGF5YmFja0FkYXB0ZXJH",
+            "ZXRDb25maWd1cmF0aW9uUmVxdWVzdBooLlBsYXliYWNrQWRhcHRlckdldENv",
+            "bmZpZ3VyYXRpb25SZXNwb25zZRJHChJHZXRQbGF5YmFja0NvbnRleHQSFy5Q",
+            "bGF5YmFja0FkYXB0ZXJSZXF1ZXN0GhguUGxheWJhY2tBZGFwdGVyUmVzcG9u",
+            "c2USSAoTR2V0UGxheWJhY2tNYW5pZmVzdBIXLlBsYXliYWNrQWRhcHRlclJl",
+            "cXVlc3QaGC5QbGF5YmFja0FkYXB0ZXJSZXNwb25zZRJlChBDb25jdXJyZW5j",
+            "eUNoZWNrEicuUGxheWJhY2tBZGFwdGVyQ29uY3VycmVuY3lDaGVja1JlcXVl",
+            "c3QaKC5QbGF5YmFja0FkYXB0ZXJDb25jdXJyZW5jeUNoZWNrUmVzcG9uc2VC",
+            "Wlo2Z2l0aHViLmNvbS9rYWx0dXJhL290dC1jbGllbnQtcGxheWJhY2stYWRh",
+            "cHRlci1ncnBjLWdvqgIfU29hcEFkYXB0ZXJzQ29tbW9uLkdycGNBZGFwdGVy",
+            "c2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::SoapAdaptersCommon.GrpcAdapters.PlaybackMethods), typeof(global::SoapAdaptersCommon.GrpcAdapters.AdapterAssetType), typeof(global::SoapAdaptersCommon.GrpcAdapters.AdapterPlaybackContextType), typeof(global::SoapAdaptersCommon.GrpcAdapters.AdapterUrlType), typeof(global::SoapAdaptersCommon.GrpcAdapters.DrmSchemeName), typeof(global::SoapAdaptersCommon.GrpcAdapters.RuleActionType), typeof(global::SoapAdaptersCommon.GrpcAdapters.TransactionType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -136,7 +138,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterGetConfigurationRequest), global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterGetConfigurationRequest.Parser, new[]{ "AdapterId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterGetConfigurationResponse), global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterGetConfigurationResponse.Parser, new[]{ "AdapterStatus", "ImplementedMethods" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterRequest), global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterRequest.Parser, new[]{ "AdapterPlaybackContextOptions", "RequestPlaybackContextOptions" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterConcurrencyCheckRequest), global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterConcurrencyCheckRequest.Parser, new[]{ "PlayingDevices", "DeviceFamiliesIds", "UserDynamicData", "AdapterData" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterConcurrencyCheckRequest), global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterConcurrencyCheckRequest.Parser, new[]{ "PlayingDevices", "DeviceFamiliesIds", "UserDynamicData", "AdapterData", "UserId", "HouseholdId", "AssetId", "Udid", "DeviceFamilyId" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterConcurrencyCheckResponse), global::SoapAdaptersCommon.GrpcAdapters.PlaybackAdapterConcurrencyCheckResponse.Parser, new[]{ "AllowedToPlay", "CancelDeviceUdid" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PlayingDevice), global::SoapAdaptersCommon.GrpcAdapters.PlayingDevice.Parser, new[]{ "Udid", "DeviceFamilyId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.KeyValue), global::SoapAdaptersCommon.GrpcAdapters.KeyValue.Parser, new[]{ "Key", "Value" }, null, null, null, null),
@@ -1352,6 +1354,11 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       deviceFamiliesIds_ = other.deviceFamiliesIds_.Clone();
       userDynamicData_ = other.userDynamicData_.Clone();
       adapterData_ = other.adapterData_.Clone();
+      userId_ = other.userId_;
+      householdId_ = other.householdId_;
+      assetId_ = other.assetId_;
+      udid_ = other.udid_;
+      deviceFamilyId_ = other.deviceFamilyId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1400,6 +1407,61 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       get { return adapterData_; }
     }
 
+    /// <summary>Field number for the "UserId" field.</summary>
+    public const int UserIdFieldNumber = 5;
+    private long userId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long UserId {
+      get { return userId_; }
+      set {
+        userId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "HouseholdId" field.</summary>
+    public const int HouseholdIdFieldNumber = 6;
+    private long householdId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long HouseholdId {
+      get { return householdId_; }
+      set {
+        householdId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "AssetId" field.</summary>
+    public const int AssetIdFieldNumber = 7;
+    private long assetId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long AssetId {
+      get { return assetId_; }
+      set {
+        assetId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "Udid" field.</summary>
+    public const int UdidFieldNumber = 8;
+    private string udid_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Udid {
+      get { return udid_; }
+      set {
+        udid_ = value == null ? "" : value;
+      }
+    }
+
+    /// <summary>Field number for the "DeviceFamilyId" field.</summary>
+    public const int DeviceFamilyIdFieldNumber = 9;
+    private long deviceFamilyId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long DeviceFamilyId {
+      get { return deviceFamilyId_; }
+      set {
+        deviceFamilyId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as PlaybackAdapterConcurrencyCheckRequest);
@@ -1417,6 +1479,11 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       if(!deviceFamiliesIds_.Equals(other.deviceFamiliesIds_)) return false;
       if (!UserDynamicData.Equals(other.UserDynamicData)) return false;
       if (!AdapterData.Equals(other.AdapterData)) return false;
+      if (UserId != other.UserId) return false;
+      if (HouseholdId != other.HouseholdId) return false;
+      if (AssetId != other.AssetId) return false;
+      if (Udid != other.Udid) return false;
+      if (DeviceFamilyId != other.DeviceFamilyId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1427,6 +1494,11 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       hash ^= deviceFamiliesIds_.GetHashCode();
       hash ^= UserDynamicData.GetHashCode();
       hash ^= AdapterData.GetHashCode();
+      if (UserId != 0L) hash ^= UserId.GetHashCode();
+      if (HouseholdId != 0L) hash ^= HouseholdId.GetHashCode();
+      if (AssetId != 0L) hash ^= AssetId.GetHashCode();
+      if (Udid.Length != 0) hash ^= Udid.GetHashCode();
+      if (DeviceFamilyId != 0L) hash ^= DeviceFamilyId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1447,6 +1519,26 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       deviceFamiliesIds_.WriteTo(output, _repeated_deviceFamiliesIds_codec);
       userDynamicData_.WriteTo(output, _map_userDynamicData_codec);
       adapterData_.WriteTo(output, _map_adapterData_codec);
+      if (UserId != 0L) {
+        output.WriteRawTag(40);
+        output.WriteInt64(UserId);
+      }
+      if (HouseholdId != 0L) {
+        output.WriteRawTag(48);
+        output.WriteInt64(HouseholdId);
+      }
+      if (AssetId != 0L) {
+        output.WriteRawTag(56);
+        output.WriteInt64(AssetId);
+      }
+      if (Udid.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(Udid);
+      }
+      if (DeviceFamilyId != 0L) {
+        output.WriteRawTag(72);
+        output.WriteInt64(DeviceFamilyId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1460,6 +1552,26 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       deviceFamiliesIds_.WriteTo(ref output, _repeated_deviceFamiliesIds_codec);
       userDynamicData_.WriteTo(ref output, _map_userDynamicData_codec);
       adapterData_.WriteTo(ref output, _map_adapterData_codec);
+      if (UserId != 0L) {
+        output.WriteRawTag(40);
+        output.WriteInt64(UserId);
+      }
+      if (HouseholdId != 0L) {
+        output.WriteRawTag(48);
+        output.WriteInt64(HouseholdId);
+      }
+      if (AssetId != 0L) {
+        output.WriteRawTag(56);
+        output.WriteInt64(AssetId);
+      }
+      if (Udid.Length != 0) {
+        output.WriteRawTag(66);
+        output.WriteString(Udid);
+      }
+      if (DeviceFamilyId != 0L) {
+        output.WriteRawTag(72);
+        output.WriteInt64(DeviceFamilyId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1473,6 +1585,21 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       size += deviceFamiliesIds_.CalculateSize(_repeated_deviceFamiliesIds_codec);
       size += userDynamicData_.CalculateSize(_map_userDynamicData_codec);
       size += adapterData_.CalculateSize(_map_adapterData_codec);
+      if (UserId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(UserId);
+      }
+      if (HouseholdId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(HouseholdId);
+      }
+      if (AssetId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(AssetId);
+      }
+      if (Udid.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Udid);
+      }
+      if (DeviceFamilyId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(DeviceFamilyId);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1488,6 +1615,21 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       deviceFamiliesIds_.Add(other.deviceFamiliesIds_);
       userDynamicData_.Add(other.userDynamicData_);
       adapterData_.Add(other.adapterData_);
+      if (other.UserId != 0L) {
+        UserId = other.UserId;
+      }
+      if (other.HouseholdId != 0L) {
+        HouseholdId = other.HouseholdId;
+      }
+      if (other.AssetId != 0L) {
+        AssetId = other.AssetId;
+      }
+      if (other.Udid.Length != 0) {
+        Udid = other.Udid;
+      }
+      if (other.DeviceFamilyId != 0L) {
+        DeviceFamilyId = other.DeviceFamilyId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1519,6 +1661,26 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             adapterData_.AddEntriesFrom(input, _map_adapterData_codec);
             break;
           }
+          case 40: {
+            UserId = input.ReadInt64();
+            break;
+          }
+          case 48: {
+            HouseholdId = input.ReadInt64();
+            break;
+          }
+          case 56: {
+            AssetId = input.ReadInt64();
+            break;
+          }
+          case 66: {
+            Udid = input.ReadString();
+            break;
+          }
+          case 72: {
+            DeviceFamilyId = input.ReadInt64();
+            break;
+          }
         }
       }
     #endif
@@ -1548,6 +1710,26 @@ namespace SoapAdaptersCommon.GrpcAdapters {
           }
           case 34: {
             adapterData_.AddEntriesFrom(ref input, _map_adapterData_codec);
+            break;
+          }
+          case 40: {
+            UserId = input.ReadInt64();
+            break;
+          }
+          case 48: {
+            HouseholdId = input.ReadInt64();
+            break;
+          }
+          case 56: {
+            AssetId = input.ReadInt64();
+            break;
+          }
+          case 66: {
+            Udid = input.ReadString();
+            break;
+          }
+          case 72: {
+            DeviceFamilyId = input.ReadInt64();
             break;
           }
         }
