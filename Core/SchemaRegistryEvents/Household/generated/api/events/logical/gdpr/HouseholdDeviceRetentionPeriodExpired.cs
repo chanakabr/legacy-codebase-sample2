@@ -1,4 +1,4 @@
-namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup
+namespace Phoenix.Generated.Api.Events.Logical.Gdpr.HouseholdDeviceRetentionPeriodExpired
 {
     using System;
     using System.Collections.Generic;
@@ -8,11 +8,8 @@ namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup
     using Newtonsoft.Json.Converters;
 
     /// <summary>
-    /// Indicates that its time to cleanup old personal data activity records for partner in
-    /// question.
-    ///
-    /// Indicates that its time to cleanup old personal data activity records for partner in
-    /// configuration
+    /// Indicates that the referenced Household Device was removed a sufficiently long time in
+    /// the past that any retained Personal Data must now be removed from all KTP services
     ///
     /// A base event for all Logical events, contains common properties
     ///
@@ -21,7 +18,7 @@ namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup
     ///
     /// A base schema for ALL SCHEMAS, contains common meta data about the schema
     /// </summary>
-    public partial class PersonalActivityCleanup
+    public partial class HouseholdDeviceRetentionPeriodExpired
     {
         [JsonProperty("partnerId", NullValueHandling = NullValueHandling.Ignore)]
         public long? PartnerId { get; set; }
@@ -29,17 +26,14 @@ namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup
         [JsonProperty("schema", NullValueHandling = NullValueHandling.Ignore)]
         public Schema Schema { get; set; }
 
-        /// <summary>
-        /// the key of personaActivityCleanup is its execution time
-        /// </summary>
-        [JsonProperty("key")]
-        public long Key { get; set; }
+        [JsonProperty("householdDeviceId")]
+        public long HouseholdDeviceId { get; set; }
 
         /// <summary>
-        /// retention period in days as it configured at the time that the message is distributed
+        /// unique device identifier
         /// </summary>
-        [JsonProperty("retentionPeriodDays")]
-        public long RetentionPeriodDays { get; set; }
+        [JsonProperty("udid", NullValueHandling = NullValueHandling.Ignore)]
+        public string Udid { get; set; }
     }
 
     public partial class Schema

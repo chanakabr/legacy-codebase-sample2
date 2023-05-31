@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/api/events/crud/householdDevice",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HouseholdDevice",
+  "type": "object",
+  "description": "An event used to reflect a crud operation in a household device",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/crud/householdDevice"
+    }
+  ]
+}

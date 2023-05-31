@@ -1,4 +1,4 @@
-namespace Phoenix.Generated.Api.Events.Crud.Household
+namespace Phoenix.Generated.Api.Events.Crud.HouseholdDevice
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@ namespace Phoenix.Generated.Api.Events.Crud.Household
     using Newtonsoft.Json.Converters;
 
     /// <summary>
-    /// An event used to reflect a crud operation in a household
+    /// An event used to reflect a crud operation in a household device
     ///
     /// A base event for all CRUD events, contains common properties
     ///
@@ -17,7 +17,7 @@ namespace Phoenix.Generated.Api.Events.Crud.Household
     ///
     /// A base schema for ALL SCHEMAS, contains common meta data about the schema
     /// </summary>
-    public partial class Household
+    public partial class HouseholdDevice
     {
         /// <summary>
         /// enum values - Created=0, Updated=1,Deleted=2
@@ -31,14 +31,14 @@ namespace Phoenix.Generated.Api.Events.Crud.Household
         [JsonProperty("schema", NullValueHandling = NullValueHandling.Ignore)]
         public Schema Schema { get; set; }
 
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public long? Id { get; set; }
+        [JsonProperty("id")]
+        public long Id { get; set; }
 
         /// <summary>
-        /// limitation module identifier, which describes users/devices/etc limitations
+        /// unique device identifier
         /// </summary>
-        [JsonProperty("limitationModuleId", NullValueHandling = NullValueHandling.Ignore)]
-        public long? LimitationModuleId { get; set; }
+        [JsonProperty("udid", NullValueHandling = NullValueHandling.Ignore)]
+        public string Udid { get; set; }
     }
 
     public partial class Schema

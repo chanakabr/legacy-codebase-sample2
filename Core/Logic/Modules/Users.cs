@@ -15,6 +15,7 @@ using DAL;
 using APILogic.Api.Managers;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiLogic.Users;
+using ApiLogic.Users.Managers;
 
 namespace Core.Users
 {
@@ -1766,6 +1767,7 @@ namespace Core.Users
 
             if (response.Code == (int)eResponseStatus.OK)
             {
+                OttUserCrudMessagePublisher.Instance.Delete(userId);
                 Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.DeleteUser, userId, string.Empty);
             }
             else

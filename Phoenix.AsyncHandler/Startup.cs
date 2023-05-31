@@ -42,6 +42,7 @@ using Phoenix.Generated.Api.Events.Crud.OttUser;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Extensions.RecordingFailed;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
+using Phoenix.Generated.Api.Events.Logical.Gdpr.HouseholdRetentionPeriodExpired;
 using Phoenix.Generated.Api.Events.Logical.IndexRecording;
 using Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup;
 using Phoenix.Generated.Api.Events.Logical.RebuildRecordingsIndex;
@@ -173,6 +174,7 @@ namespace Phoenix.AsyncHandler
             services.AddKafkaHandler<LiveToVodAssetHandler, ProgramAsset>("live-to-vod-asset", ProgramAsset.GetTopic());
             services.AddKafkaHandler<RecordingFailedHandler, RecordingFailed>("recording-failed", RecordingFailed.GetTopic());
             services.AddKafkaHandler<PersonalActivityCleanupHandler, PersonalActivityCleanup>("personal-activity-cleanup", PersonalActivityCleanup.GetTopic());
+            services.AddKafkaHandler<Recording.HouseholdRetentionPeriodExpiredHandler, HouseholdRetentionPeriodExpired>("gdpr-recording", HouseholdRetentionPeriodExpired.GetTopic());
             return services;
         }
         

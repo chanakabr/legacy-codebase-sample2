@@ -1,4 +1,4 @@
-namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanupComplete
+namespace Phoenix.Generated.Api.Events.Logical.Gdpr.ObjectCleanupComplete
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +8,8 @@ namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanupComplete
     using Newtonsoft.Json.Converters;
 
     /// <summary>
-    /// Indicates that the referenced KTP Service complete cleanup process. The message includes
-    /// completion status (fail/success).
+    /// Indicates that the referenced KTP Service has successfully handled removal of data
+    /// related to the referenced Kafka Delete message
     ///
     /// Indicates that the referenced KTP Service has successfully handled removal of data
     /// related to the referenced Kafka Delete message, or expiration of personal data activity
@@ -22,7 +22,7 @@ namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanupComplete
     ///
     /// A base schema for ALL SCHEMAS, contains common meta data about the schema
     /// </summary>
-    public partial class PersonalActivityCleanupComplete
+    public partial class ObjectCleanupComplete
     {
         [JsonProperty("partnerId", NullValueHandling = NullValueHandling.Ignore)]
         public long? PartnerId { get; set; }
@@ -37,10 +37,17 @@ namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanupComplete
         public string ServiceName { get; set; }
 
         /// <summary>
-        /// the key of personaActivityCleanup, which initiated cleanup
+        /// identifier of the Household/User/Device whose delete event was successfully handled
         /// </summary>
-        [JsonProperty("key")]
-        public long Key { get; set; }
+        [JsonProperty("cleanedObjectId")]
+        public long CleanedObjectId { get; set; }
+
+        /// <summary>
+        /// the type of Kafka delete message which has been handled successfully. E.g.
+        /// 'events.crud.Household', 'events.logical.gdpr.householdRetentionPeriodExpired'
+        /// </summary>
+        [JsonProperty("sourceMessageTypeId")]
+        public string SourceMessageTypeId { get; set; }
     }
 
     public partial class Schema

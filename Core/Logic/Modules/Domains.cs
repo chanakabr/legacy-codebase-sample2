@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Web;
+using ApiLogic.Users.Managers;
 using Status = ApiObjects.Response.Status;
 
 namespace Core.Domains
@@ -97,7 +98,12 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.RemoveDomain(nDomainID, purge);
+                var domainResponseStatus = t.RemoveDomain(nDomainID, purge);
+                if (domainResponseStatus == DomainResponseStatus.OK)
+                {
+                    HouseholdCrudMessagePublisher.Instance.Delete(nDomainID);
+                }
+                return domainResponseStatus;
             }
 
             return DomainResponseStatus.Error;
@@ -223,6 +229,10 @@ namespace Core.Domains
                 response.DomainResponse = t.RemoveUserFromDomain(nGroupID, nDomainID, nUserGUID);
                 if (response.DomainResponse != null)
                 {
+                    if (response.DomainResponse.m_oDomainResponseStatus == DomainResponseStatus.OK)
+                    {
+                        OttUserCrudMessagePublisher.Instance.Delete(nUserGUID);
+                    }
                     // convert response status
                     response.Status = Utils.ConvertDomainResponseStatusToResponseObject(response.DomainResponse.m_oDomainResponseStatus);
                 }
@@ -941,6 +951,10 @@ namespace Core.Domains
             if (t != null)
             {
                 DomainResponseStatus domainResponseStatus = t.RemoveDomain(nDomainID, purge);
+                if (domainResponseStatus == DomainResponseStatus.OK)
+                {
+                    HouseholdCrudMessagePublisher.Instance.Delete(nDomainID);
+                } 
                 status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
             }
 
@@ -960,6 +974,10 @@ namespace Core.Domains
                 if (householdId > 0)
                 {
                     DomainResponseStatus domainResponseStatus = t.RemoveDomain(householdId, purge);
+                    if (domainResponseStatus == DomainResponseStatus.OK)
+                    {
+                        HouseholdCrudMessagePublisher.Instance.Delete(householdId);
+                    }
                     status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                 }
             }
@@ -1068,6 +1086,10 @@ namespace Core.Domains
             if (t != null)
             {
                 status = t.PurgeDomain(householdId);
+                if (status.IsOkStatusCode())
+                {
+                    HouseholdCrudMessagePublisher.Instance.Delete(householdId);
+                }
             }
 
             return status;

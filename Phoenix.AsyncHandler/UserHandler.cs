@@ -3,6 +3,7 @@ using ApiObjects.Segmentation;
 using OTT.Lib.Kafka;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.Generated.Api.Events.Crud.OttUser;
+using SchemaRegistryEvents;
 
 namespace Phoenix.AsyncHandler
 {
@@ -12,9 +13,9 @@ namespace Phoenix.AsyncHandler
 
         protected override HandleResult Create(ConsumeResult<string, OttUser> consumeResult)
         {
+            if (consumeResult.GetSourceService() == SourceService.Phoenix) return Result.Ok;
             var user = consumeResult.GetValue();
-            if (user.Source == Source.Phoenix) return Result.Ok;
-            
+
             Core.Users.Utils.AddInitiateNotificationActionToQueue((int)user.PartnerId, eUserMessageAction.Signup, (int)user.Id.Value, string.Empty);
             return Result.Ok;
         }
@@ -23,9 +24,9 @@ namespace Phoenix.AsyncHandler
 
         protected override HandleResult Delete(ConsumeResult<string, OttUser> consumeResult)
         {
+            if (consumeResult.GetSourceService() == SourceService.Phoenix) return Result.Ok;
             var user = consumeResult.GetValue();
-            if (user.Source == Source.Phoenix) return Result.Ok;
-            
+
             // GDPR TTV
             UserSegment.Remove(user.Id.ToString());
             

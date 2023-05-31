@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup;
-using Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanupComplete;
 using TVinciShared;
 using Result = Phoenix.AsyncHandler.Kafka.Result;
 
@@ -23,23 +22,20 @@ namespace Phoenix.AsyncHandler.Pricing
         
         public HandleResult Handle(ConsumeResult<string, PersonalActivityCleanup> consumeResult)
         {
-            if (!consumeResult.Result.Message.Value.PartnerId.HasValue ||
-               !consumeResult.Result.Message.Value.RetentionPeriodDays.HasValue ||
-               consumeResult.Result.Message.Value.RetentionPeriodDays.Value == 0)
+            var cleanup = consumeResult.GetValue(); 
+            if (!cleanup.PartnerId.HasValue || cleanup.RetentionPeriodDays <= 0)
             {
-                _logger.LogError("Invalid params");
-                _publisher.Publish(consumeResult.Result.Message.Value.PartnerId.HasValue ? consumeResult.Result.Message.Value.PartnerId.Value : 0, PersonalActivityCleanupStatus.Fail, "Invalid params");
+                _logger.LogError("Invalid params. partnerId:[{PartnerId}], retentionPeriodDays:[{RetentionPeriodDays}]",
+                    cleanup.PartnerId, cleanup.RetentionPeriodDays);
+                _publisher.Publish(cleanup.PartnerId ?? 0, cleanup.Key); // mark cleanup as finished successfully, because we could do nothing with invalid events
                 return Result.Ok;
             }
             
-            long partnerId = consumeResult.Result.Message.Value.PartnerId.Value;
-            long retentionPeriodDays = consumeResult.Result.Message.Value.RetentionPeriodDays.Value;
+            long partnerId = cleanup.PartnerId.Value;
 
-            DateTime endDate = DateTime.Now.AddDays(-1 * retentionPeriodDays);
-            PersonalActivityCleanupStatus status = PersonalActivityCleanupStatus.Success;
-            string description = "PersonalActivityCleanup delete all data successfully";
+            DateTime endDate = DateTime.Now.AddDays(-1 * cleanup.RetentionPeriodDays);
+
             List<string> errors = new List<string>();
-
             if (!DAL.ConditionalAccessDAL.Instance.DeletePpvPurchasesThatOutOfRetentionPeriod(partnerId, endDate))
             {
                 errors.Add("ppv purchases");
@@ -65,11 +61,12 @@ namespace Phoenix.AsyncHandler.Pricing
             
             if (!errors.IsEmpty())
             {
-                status = PersonalActivityCleanupStatus.Fail;
-                description = "failed to delete " + string.Join(", ", errors);
+                _logger.LogError("Failed to cleanup. partnerId:[{PartnerId}]. errors in:[{Description}]",
+                    cleanup.PartnerId, errors);
+                throw new Exception("Failed to cleanup");
             }
             
-            _publisher.Publish(partnerId, status, description);
+            _publisher.Publish(partnerId, cleanup.Key);
             return Result.Ok;
         }
     }

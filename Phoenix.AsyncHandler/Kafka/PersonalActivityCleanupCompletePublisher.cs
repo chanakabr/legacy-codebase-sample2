@@ -1,9 +1,8 @@
-﻿using System;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
-using Phoenix.AsyncHandler.Pricing;
 using Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanupComplete;
+using SchemaRegistryEvents;
 
 namespace Phoenix.AsyncHandler.Kafka
 {
@@ -21,7 +20,7 @@ namespace Phoenix.AsyncHandler.Kafka
             _logger = logger;
         }
 
-        public void Publish(long partnerId, PersonalActivityCleanupStatus status, string description)
+        public void Publish(long partnerId, long key)
         {
             if (_personalActivityCleanupCompleteProducer == null)
             {
@@ -32,14 +31,9 @@ namespace Phoenix.AsyncHandler.Kafka
 
             var personalActivityCleanupComplete = new PersonalActivityCleanupComplete
             {
-                ServiceName = "Phoenix",
+                ServiceName = SourceService.Phoenix,
                 PartnerId = partnerId,
-                ExecutionTimeEpoch = 0,
-                Result = new Generated.Api.Events.Logical.PersonalActivityCleanupComplete.Result
-                {
-                    Description = description,
-                    Status = Enum.GetName(typeof(PersonalActivityCleanupStatus), status)
-                }
+                Key = key
             };
             
             _personalActivityCleanupCompleteProducer.Produce(
