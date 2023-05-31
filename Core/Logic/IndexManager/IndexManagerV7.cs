@@ -1822,7 +1822,7 @@ namespace Core.Catalog
                 return new List<UnifiedSearchResult>();
             }
 
-            totalItems = searchResponse.Hits.Count;
+            totalItems = Convert.ToInt32(searchResponse.Total);
             log.Debug("Info - SearchSubscriptionAssets returned search results");
 
             var unifiedSearchResults = new List<UnifiedSearchResult>();
