@@ -3354,12 +3354,15 @@ namespace Core.Catalog
             languages = languages ?? Enumerable.Empty<LanguageObj>();
             var epgIdsList = epgIds.ToList();
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
+
             var searchResult = _elasticClient.Search<NestEpg>(searchDescriptor => searchDescriptor
                 .Index(alias)
                 .Source(false)
                 .Size(_maxResults)
                 .Fields(sf => sf.Fields(fs => fs.CouchbaseDocumentId, fs => fs.EpgID))
-                .Query(q => q.Bool(b =>
+                .Query(q =>
+                {
+                    var query = q.Bool(b =>
                         b.Filter(f =>
                             f.Bool(b2 =>
                                 b2.Must(
@@ -3368,8 +3371,12 @@ namespace Core.Catalog
                                 )
                             )
                         )
-                    )
-                )
+                    );
+
+                    query = WrapQueryIfEpgV3Feature(query);
+
+                    return query;
+                })
             );
 
 
