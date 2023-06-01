@@ -4577,7 +4577,7 @@ namespace Core.Catalog
             // get the epg document ids from elasticsearch
             var searchResult = _elasticClient.Search<NestEpg>(selector => selector
                 .Index(index)
-                .Query(q => boolQuery)
+                .Query(q => WrapQueryIfEpgV3Feature(boolQuery))
                 .Source(source => source.Includes(fields => fields.Fields(f => f.EpgIdentifier, f => f.CouchbaseDocumentId, f => f.IsAutoFill, f => f.Language)))
             );
 
