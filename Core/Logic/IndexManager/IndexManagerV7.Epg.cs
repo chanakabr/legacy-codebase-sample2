@@ -17,7 +17,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Caching;
 using System.Text;
 using BoolQuery = Nest.BoolQuery;
 using ESUtils = ElasticSearch.Common.Utils;
@@ -174,29 +173,11 @@ namespace Core.Catalog
             var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion(_partnerId);
             if (epgFeatureVersion == EpgFeatureVersion.V3)
             {
-                var epgV3IndexName = GetEpgV3IndexName();
+                var epgV3IndexName = NamingHelper.GetEpgIndexAlias(_partnerId);
                 query = WrapFilterWithCommittedOnlyTransactionsForEpgV3(epgV3IndexName, query);
             }
 
             return query;
-        }
-
-        private string GetEpgV3IndexName()
-        {
-            var epgV3IndexNameKey = $"{_partnerId}_epg_v3_index_name_cache_key";
-            var epgV3IndexName = MemoryCache.Default.Get(epgV3IndexNameKey)?.ToString();
-            if (string.IsNullOrEmpty(epgV3IndexName))
-            {
-                var epgAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
-                var epgAliasIndices = _elasticClient.GetIndicesPointingToAlias(epgAlias);
-                epgV3IndexName = epgAliasIndices.First();
-                MemoryCache.Default.Set(
-                    new CacheItem(epgV3IndexNameKey, epgV3IndexName),
-                    new CacheItemPolicy() { AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(60) }
-                );
-            }
-
-            return epgV3IndexName;
         }
     }
 }

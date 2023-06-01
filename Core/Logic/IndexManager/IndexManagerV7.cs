@@ -3268,9 +3268,7 @@ namespace Core.Catalog
             }
 
             // Checking is new Epg ingest here as well to avoid calling GetEpgCBKey if we already called elastic and have all required coument Ids
-            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
-            var isNewEpgIngest = epgFeatureVersion != EpgFeatureVersion.V1;
-
+            var isNewEpgIngest = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId) != EpgFeatureVersion.V1;
             if (isNewEpgIngest)
             {
                 return searchResponse.Fields.Select(x => x.Value<string>("cb_document_id")).Distinct().ToList();
@@ -4330,17 +4328,22 @@ namespace Core.Catalog
 
                 var routing = new List<string>();
                 var currentDate = epgSearch.m_dStartDate.AddDays(-1).Date;
-                while (currentDate <= epgSearch.m_dEndDate)
+                // we should skip any kind of routing to EPGv3, it's not by date anymore. EPGv2 uses dates as routing, but it'd be never run on TVPAPI (hopefully).
+                var isEpgV1 = _groupSettingsManager.GetEpgFeatureVersion(_partnerId) == EpgFeatureVersion.V1;
+                if (isEpgV1)
                 {
-                    routing.Add(currentDate.ToString(ESUtils.ES_DATEONLY_FORMAT));
-                    currentDate = currentDate.AddDays(1);
+                    while (currentDate <= epgSearch.m_dEndDate)
+                    {
+                        routing.Add(currentDate.ToString(ESUtils.ES_DATEONLY_FORMAT));
+                        currentDate = currentDate.AddDays(1);
+                    }
                 }
 
                 var searchResponse = _elasticClient.Search<NestEpg>(s =>
                     {
                         s.Index(Indices.Index(NamingHelper.GetEpgIndexAlias(epgSearch.m_nGroupID)));
-                        s.Routing(string.Join(",", routing));
-                        s.Query(q => unifiedSearchNestEpgBuilder.GetQuery());
+                        s.Routing(isEpgV1 ? string.Join(",", routing) : null);
+                        s.Query(q => WrapQueryIfEpgV3Feature(unifiedSearchNestEpgBuilder.GetQuery()));
                         s.TrackTotalHits();
                         return s;
                     }
