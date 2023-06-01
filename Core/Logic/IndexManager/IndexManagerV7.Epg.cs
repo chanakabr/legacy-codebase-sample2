@@ -35,7 +35,7 @@ namespace Core.Catalog
             {
                 var indexName = $"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3";
                 log.Info($"EPG v3 creating new index with name:{indexName}");
-                AddEmptyIndex(indexName, EpgFeatureVersion.V3);
+                AddEmptyEpgV3Index(indexName);
                 AddEpgIndexAlias(indexName, isWriteIndex:true);
             }
         }

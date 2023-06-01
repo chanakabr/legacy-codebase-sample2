@@ -68,6 +68,7 @@ namespace Core.Catalog
         #region Consts
 
         private const int REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS = 10;
+        private const int REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX = 1;
         private const string INDEX_REFRESH_INTERVAL = "10s";
         private const int MAX_RESULTS_DEFAULT = 100000;
 
@@ -89,6 +90,7 @@ namespace Core.Catalog
         #region Config Values
 
         private readonly int _numOfShards;
+        private readonly int _numOfShardsV3;
         private readonly int _numOfReplicas;
         private readonly int _maxResults;
 
@@ -176,6 +178,7 @@ namespace Core.Catalog
 
             //init all ES const
             _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+            _numOfShardsV3 = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShardsV3.Value;
             _numOfReplicas = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
             _maxResults = _applicationConfiguration.ElasticSearchConfiguration.MaxResults.Value;
             _sizeOfBulk = _applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.Value;
@@ -296,7 +299,7 @@ namespace Core.Catalog
 
         public string SetupEpgV2Index(string indexNmae)
         {
-            EnsureEpgIndexExist(indexNmae, EpgFeatureVersion.V2);
+            EnsureEpgV2IndexExists(indexNmae);
             SetNoRefresh(indexNmae);
 
             return indexNmae;
@@ -331,6 +334,7 @@ namespace Core.Catalog
             return true;
         }
 
+        [Obsolete]
         public bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart)
         {
             var retryCount = 3;
@@ -340,10 +344,9 @@ namespace Core.Catalog
 
             try
             {
-                var numOfShards = _applicationConfiguration.EPGIngestV2Configuration.NumOfShardsForCompactedIndex.Value;
-                EnsureEpgIndexExist(futureIndexName, EpgFeatureVersion.V2, numOfShards);
+                EnsureEpgV2IndexExists(futureIndexName);
                 SetNoRefresh(futureIndexName);
-                EnsureEpgIndexExist(pastIndexName, EpgFeatureVersion.V2, numOfShards);
+                EnsureEpgV2IndexExists(pastIndexName);
                 SetNoRefresh(pastIndexName);
 
                 var epgV2Indices = _elasticClient.GetIndicesPointingToAlias(globalEpgAlias);
@@ -467,7 +470,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (epgFeatureVersion == EpgFeatureVersion.V2)
                         {
-                            alias = EnsureEpgIndexExistsForEpg(epgCb, epgFeatureVersion, createdAliases);
+                            alias = EnsureEpgV2IndexExistsForEpg(epgCb, createdAliases);
                         }
 
                         UpdateEpgLinearMediaId(linearChannelSettings, epgCb);
@@ -553,14 +556,14 @@ namespace Core.Catalog
             }
         }
 
-        private string EnsureEpgIndexExistsForEpg(EpgCB epgCb, EpgFeatureVersion epgFeatureVersion, HashSet<string> createdAliases)
+        private string EnsureEpgV2IndexExistsForEpg(EpgCB epgCb, HashSet<string> createdAliases)
         {
             var alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
 
             // in case alias already created, no need to check in ES
             if (!createdAliases.Contains(alias))
             {
-                EnsureEpgIndexExist(alias, epgFeatureVersion);
+                EnsureEpgV2IndexExists(alias);
                 createdAliases.Add(alias);
             }
 
@@ -4635,7 +4638,7 @@ namespace Core.Catalog
             return GetLanguages().FirstOrDefault(x => x.ID == id);
         }
 
-        private void EnsureEpgIndexExist(string dailyEpgIndexName, EpgFeatureVersion epgFeatureVersion, int? numberOfShards = null)
+        private void EnsureEpgV2IndexExists(string dailyEpgIndexName)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
@@ -4645,7 +4648,7 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName, epgFeatureVersion, numberOfShards);
+                AddEmptyEpgV2Index(dailyEpgIndexName);
                 AddEpgIndexAlias(dailyEpgIndexName);
             }
             catch (Exception e)
@@ -4695,7 +4698,17 @@ namespace Core.Catalog
             }
         }
 
-        private void AddEmptyIndex(string indexName, EpgFeatureVersion epgFeatureVersion, int? numOfShards = null)
+        private void AddEmptyEpgV2Index(string indexName)
+        {
+            AddEmptyIndex(indexName, EpgFeatureVersion.V2, REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS);
+        }
+
+        private void AddEmptyEpgV3Index(string indexName)
+        {
+            AddEmptyIndex(indexName, EpgFeatureVersion.V3, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX, _numOfShardsV3);
+        }
+
+        private void AddEmptyIndex(string indexName, EpgFeatureVersion epgFeatureVersion, int refreshInterval, int? numOfShards = null)
         {
             IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
@@ -4707,7 +4720,7 @@ namespace Core.Catalog
                 }
 
                 log.Info($"creating new index [{indexName}]");
-                CreateEmptyEpgIndex(indexName, epgFeatureVersion, true, true, REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS, numOfShards: numOfShards);
+                CreateEmptyEpgIndex(indexName, epgFeatureVersion, true, true, refreshInterval, numOfShards: numOfShards);
             });
         }
 
