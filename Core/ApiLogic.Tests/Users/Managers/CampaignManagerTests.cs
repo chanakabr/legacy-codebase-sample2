@@ -3,6 +3,7 @@ using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
+using ApiObjects.Roles;
 using ApiObjects.Rules;
 using AutoFixture;
 using AutoFixture.Kernel;
@@ -10,7 +11,6 @@ using CachingProvider.LayeredCache;
 using Core.Api.Managers;
 using Core.Catalog.CatalogManagement;
 using Core.Notification;
-using Core.Pricing;
 using DAL;
 using EventBus.Abstraction;
 using Moq;
@@ -36,6 +36,42 @@ namespace ApiLogic.Tests.Users.Managers
 
         private static readonly long date = DateUtils.GetUtcUnixTimestampNow() + 900000;
 
+        private IChannelManager ChannelManagerMock;
+        private IEventBusPublisher eventBusPublisherMock;
+        private ICatalogManager catalogManager;
+        private GroupsCacheManager.IGroupsCache groupsCache;
+        private IConditionValidator conditionValidator;
+        private IPromotionValidator promotionValidator;
+        private IMessageInboxManger messageInboxManger;
+        private IAssetUserRuleManager assetUserRuleManager;
+        Mock<ICampaignRepository> campaignRepositoryMock;
+
+        private ContextData contextData;
+
+        [SetUp]
+        public void SetUp()
+        {
+            ChannelManagerMock = Mock.Of<IChannelManager>();
+            eventBusPublisherMock = Mock.Of<IEventBusPublisher>();
+            catalogManager = Mock.Of<ICatalogManager>();
+            groupsCache = Mock.Of<GroupsCacheManager.IGroupsCache>();
+            conditionValidator = Mock.Of<IConditionValidator>();
+            promotionValidator = Mock.Of<IPromotionValidator>();
+            messageInboxManger = Mock.Of<IMessageInboxManger>();
+            assetUserRuleManager = Mock.Of<IAssetUserRuleManager>();
+
+            campaignRepositoryMock = new Mock<ICampaignRepository>();
+            campaignRepositoryMock.Setup(x => x.UpdateCampaign(It.IsAny<ApiObjects.Campaign>(), It.IsAny<ContextData>()))
+                                         .Returns(true);
+
+            contextData = new ContextData(123)
+            {
+                UserId = 456,
+                DomainId = 789,
+                UserRoleIds = new List<long>() { PredefinedRoleId.ADMINISTRATOR}
+            };
+        }
+
         [TestCaseSource(nameof(SetTriggerStateFromInactiveToActiveTestCase))]
         [TestCaseSource(nameof(SetTriggerStateFromActiveToArchiveTestCase))]
         [TestCaseSource(nameof(SetStateCampaignDoesNotExistTestCase))]
@@ -55,23 +91,9 @@ namespace ApiLogic.Tests.Users.Managers
         [TestCaseSource(nameof(SetBatchStateCampaignStateUpdateNotAllowedInactiveToArchiveTestCase))]
         [TestCaseSource(nameof(SetBatchStateExceededMaxCapacityTestCase))]
         [TestCaseSource(nameof(SetBatchStateInvalidCampaignEndDateTestCase))]
-        public void CheckSetState<T>(long id, CampaignState newState, IEnumerable<CampaignDB> campaignDbs, T campaign, eResponseStatus status, ContextData contextData) where T: ApiObjects.Campaign, new()
+        public void CheckSetState<T>(long id, CampaignState newState, IEnumerable<CampaignDB> campaignDbs, T campaign, eResponseStatus status) where T: ApiObjects.Campaign, new()
         {
             var layeredCacheMock = GetLayeredCacheMock(campaignDbs, campaign, contextData);
-
-            var campaignRepositoryMock = new Mock<ICampaignRepository>();
-
-            campaignRepositoryMock.Setup(x => x.UpdateCampaign(It.IsAny<ApiObjects.Campaign>(), It.IsAny<ContextData>()))
-                                         .Returns(true);
-
-            var ChannelManagerMock = Mock.Of<IChannelManager>();
-            var eventBusPublisherMock = Mock.Of<IEventBusPublisher>();
-            var catalogManager = Mock.Of<ICatalogManager>();
-            var groupsCache = Mock.Of<GroupsCacheManager.IGroupsCache>();
-            var conditionValidator = Mock.Of<IConditionValidator>();
-            var promotionValidator = Mock.Of<IPromotionValidator>();
-            var messageInboxManger = Mock.Of<IMessageInboxManger>();
-            var assetUserRuleManager = Mock.Of<IAssetUserRuleManager>();
 
             CampaignManager manager = new CampaignManager(layeredCacheMock.Object,
                                                           campaignRepositoryMock.Object,
@@ -93,7 +115,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
 
             TriggerCampaign campaign = fixture.Create<TriggerCampaign>();
             campaign.EndDate = date;
@@ -106,8 +127,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState,
                                           campaignDbs,
                                           campaign,
-                                          eResponseStatus.OK,
-                                          contextData)
+                                          eResponseStatus.OK)
                 .SetName("SetState_Trigger_INACTIVE_to_ACTIVE");
         }
 
@@ -115,8 +135,7 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
-
+            
             TriggerCampaign campaign2 = fixture.Create<TriggerCampaign>();
             campaign2.EndDate = date;
             long id2 = campaign2.Id;
@@ -128,8 +147,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState2,
                                           campaignDbs2,
                                           campaign2,
-                                          eResponseStatus.OK,
-                                          contextData)
+                                          eResponseStatus.OK)
                 .SetName("SetState_Trigger_ACTIVE_to_ARCHIVE");
         }
 
@@ -137,7 +155,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
 
             BatchCampaign campaign = fixture.Create<BatchCampaign>();
             campaign.EndDate = date;
@@ -150,8 +167,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState,
                                           campaignDbs,
                                           campaign,
-                                          eResponseStatus.OK,
-                                          contextData)
+                                          eResponseStatus.OK)
                 .SetName("SetState_Batch_INACTIVE_to_ACTIVE");
         }
 
@@ -159,7 +175,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
 
             BatchCampaign campaign2 = fixture.Create<BatchCampaign>();
             campaign2.EndDate = date;
@@ -172,8 +187,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState2,
                                           campaignDbs2,
                                           campaign2,
-                                          eResponseStatus.OK,
-                                          contextData)
+                                          eResponseStatus.OK)
                 .SetName("SetState_Batch_ACTIVE_to_ARCHIVE");
         }
 
@@ -181,7 +195,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             long id = 777;
             CampaignState newState = CampaignState.ACTIVE;
             IEnumerable<CampaignDB> campaignDbs = fixture.CreateMany<CampaignDB>(10);
@@ -190,8 +203,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState,
                                           campaignDbs,
                                           new TriggerCampaign() { },
-                                          eResponseStatus.CampaignDoesNotExist,
-                                          contextData)
+                                          eResponseStatus.CampaignDoesNotExist)
                 .SetName("SetStateError_Trigger_CAMPAIGN_NOT_FOUND");
         }
 
@@ -199,7 +211,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
 
             TriggerCampaign campaign2 = fixture.Create<TriggerCampaign>();
             campaign2.EndDate = date;
@@ -212,8 +223,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState2,
                                           campaignDbs2,
                                           campaign2,
-                                          eResponseStatus.InvalidCampaignState,
-                                          contextData)
+                                          eResponseStatus.InvalidCampaignState)
                 .SetName("SetStateError_Trigger_SAME_STATE");
         }
 
@@ -221,7 +231,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             
             TriggerCampaign campaign3 = fixture.Create<TriggerCampaign>();
             campaign3.EndDate = date;
@@ -234,8 +243,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState3,
                                           campaignDbs3,
                                           campaign3,
-                                          eResponseStatus.CampaignStateUpdateNotAllowed,
-                                          contextData)
+                                          eResponseStatus.CampaignStateUpdateNotAllowed)
                 .SetName("SetStateError_Trigger_ARCHIVE_to_INACTIVE");
         }
 
@@ -243,7 +251,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             
             TriggerCampaign campaign4 = fixture.Create<TriggerCampaign>();
             campaign4.EndDate = date;
@@ -256,8 +263,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState4,
                                           campaignDbs4,
                                           campaign4,
-                                          eResponseStatus.CampaignStateUpdateNotAllowed,
-                                          contextData)
+                                          eResponseStatus.CampaignStateUpdateNotAllowed)
                 .SetName("SetStateError_Trigger_ARCHIVE_to_ACTIVE");
         }
 
@@ -265,7 +271,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             TriggerCampaign campaign5 = fixture.Create<TriggerCampaign>();
             campaign5.EndDate = date;
             long id5 = campaign5.Id;
@@ -277,8 +282,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState5,
                                           campaignDbs5,
                                           campaign5,
-                                          eResponseStatus.CampaignStateUpdateNotAllowed,
-                                          contextData)
+                                          eResponseStatus.CampaignStateUpdateNotAllowed)
                 .SetName("SetStateError_Trigger_ACTIVE_to_INACTIVE");
         }
 
@@ -286,7 +290,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             TriggerCampaign campaign6 = fixture.Create<TriggerCampaign>();
             campaign6.EndDate = date;
             long id6 = campaign6.Id;
@@ -298,8 +301,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState6,
                                           campaignDbs6,
                                           campaign6,
-                                          eResponseStatus.CampaignStateUpdateNotAllowed,
-                                          contextData)
+                                          eResponseStatus.CampaignStateUpdateNotAllowed)
                 .SetName("SetStateError_Trigger_INACTIVE_to_ARCHIVE");
         }
 
@@ -307,7 +309,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             TriggerCampaign campaign7 = fixture.Create<TriggerCampaign>();
 
             campaign7.EndDate = date;
@@ -325,8 +326,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           CampaignState.ACTIVE,
                                           campaignDbs7,
                                           campaign7,
-                                          eResponseStatus.ExceededMaxCapacity,
-                                          contextData)
+                                          eResponseStatus.ExceededMaxCapacity)
                 .SetName("SetStateError_Trigger_Exceeded_Max_Capacity");
         }
 
@@ -334,7 +334,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             TriggerCampaign campaign8 = fixture.Create<TriggerCampaign>();
             campaign8.EndDate = DateUtils.GetUtcUnixTimestampNow() - 900000;
             long id8 = campaign8.Id;
@@ -346,8 +345,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState8,
                                           campaignDbs8,
                                           campaign8,
-                                          eResponseStatus.InvalidCampaignEndDate,
-                                          contextData)
+                                          eResponseStatus.InvalidCampaignEndDate)
                 .SetName("SetStateError_Trigger_CAMPAIGN_ENDED");
         }
 
@@ -355,7 +353,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
 
             BatchCampaign campaign2 = fixture.Create<BatchCampaign>();
             campaign2.EndDate = date;
@@ -368,8 +365,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState2,
                                           campaignDbs2,
                                           campaign2,
-                                          eResponseStatus.InvalidCampaignState,
-                                          contextData)
+                                          eResponseStatus.InvalidCampaignState)
                 .SetName("SetStateError_Batch_SAME_STATE");
         }
 
@@ -377,7 +373,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             BatchCampaign campaign3 = fixture.Create<BatchCampaign>();
             campaign3.EndDate = date;
             long id3 = campaign3.Id;
@@ -389,8 +384,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState3,
                                           campaignDbs3,
                                           campaign3,
-                                          eResponseStatus.CampaignStateUpdateNotAllowed,
-                                          contextData)
+                                          eResponseStatus.CampaignStateUpdateNotAllowed)
                 .SetName("SetStateError_Batch_ARCHIVE_to_INACTIVE");
         }
 
@@ -398,7 +392,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             BatchCampaign campaign4 = fixture.Create<BatchCampaign>();
             campaign4.EndDate = date;
             long id4 = campaign4.Id;
@@ -410,8 +403,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState4,
                                           campaignDbs4,
                                           campaign4,
-                                          eResponseStatus.CampaignStateUpdateNotAllowed,
-                                          contextData)
+                                          eResponseStatus.CampaignStateUpdateNotAllowed)
                 .SetName("SetStateError_Batch_ARCHIVE_to_ACTIVE");
         }
 
@@ -419,7 +411,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             BatchCampaign campaign5 = fixture.Create<BatchCampaign>();
             campaign5.EndDate = date;
             long id5 = campaign5.Id;
@@ -431,8 +422,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState5,
                                           campaignDbs5,
                                           campaign5,
-                                          eResponseStatus.CampaignStateUpdateNotAllowed,
-                                          contextData)
+                                          eResponseStatus.CampaignStateUpdateNotAllowed)
                 .SetName("SetStateError_Batch_ACTIVE_to_INACTIVE");
         }
 
@@ -440,7 +430,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             BatchCampaign campaign6 = fixture.Create<BatchCampaign>();
             campaign6.EndDate = date;
             long id6 = campaign6.Id;
@@ -452,8 +441,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState6,
                                           campaignDbs6,
                                           campaign6,
-                                          eResponseStatus.CampaignStateUpdateNotAllowed,
-                                          contextData)
+                                          eResponseStatus.CampaignStateUpdateNotAllowed)
                 .SetName("SetStateError_Batch_INACTIVE_to_ARCHIVE");
         }
 
@@ -461,7 +449,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             BatchCampaign campaign7 = fixture.Create<BatchCampaign>();
 
             campaign7.EndDate = date;
@@ -479,8 +466,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           CampaignState.ACTIVE,
                                           campaignDbs7,
                                           campaign7,
-                                          eResponseStatus.ExceededMaxCapacity,
-                                          contextData)
+                                          eResponseStatus.ExceededMaxCapacity)
                 .SetName("SetStateError_Batch_Exceeded_Max_Capacity");
         }
 
@@ -488,7 +474,6 @@ namespace ApiLogic.Tests.Users.Managers
         {
             var fixture = new Fixture();
             fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
-            var contextData = fixture.Create<ContextData>();
             BatchCampaign campaign8 = fixture.Create<BatchCampaign>();
             campaign8.EndDate = DateUtils.GetUtcUnixTimestampNow() - 900000;
             long id8 = campaign8.Id;
@@ -500,8 +485,7 @@ namespace ApiLogic.Tests.Users.Managers
                                           newState8,
                                           campaignDbs8,
                                           campaign8,
-                                          eResponseStatus.InvalidCampaignEndDate,
-                                          contextData)
+                                          eResponseStatus.InvalidCampaignEndDate)
                 .SetName("SetStateError_Batch_CAMPAIGN_ENDED");
         }
 
