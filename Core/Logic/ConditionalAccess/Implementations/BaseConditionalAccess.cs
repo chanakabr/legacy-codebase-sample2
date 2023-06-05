@@ -14221,10 +14221,10 @@ namespace Core.ConditionalAccess
                 {
                     bool success = false;
                     recording.Type = recordingType;
-                    TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                    var accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                     if (accountSettings.PersonalizedRecordingEnable == true)
                     {
-                        var recordingKey = string.Empty;
+                        string recordingKey;
                         if (absoluteStartTime.HasValue)
                         {
                             recordingKey =
@@ -14232,8 +14232,8 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            recordingKey = PaddedRecordingsManager.GetRecordingKey(epgID, recording.StartPadding.Value,
-                                recording.EndPadding.Value);
+                            recordingKey = PaddedRecordingsManager.GetRecordingKey(epgID, recording.StartPadding ?? 0,
+                                recording.EndPadding ?? 0);
                         }
                         
                         var _updated = PaddedRecordingsManager.Instance.UpdateOrInsertHouseholdRecording(m_nGroupID, long.Parse(userID), domainID, recording,
