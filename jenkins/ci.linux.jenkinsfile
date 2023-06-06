@@ -3,11 +3,13 @@ stage('Unified-CI'){
         component = env.JOB_NAME
         STAGE = 'build'
         PIPECLI = cd.get_pipecli()
-        def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-        def FULL_VERSION = ci.get_latest_version_tag()
-        def COMMIT_COUNT = sh(returnStdout: true, script: 'git rev-list --count HEAD').trim()
-        def COMMITTER_EMAIL = sh (script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true).trim()
-        
+        def GIT_COMMIT
+        def FULL_VERSION
+        def COMMIT_COUNT
+        def COMMITTER_EMAIL
+        def ECR_URL ='870777418594.dkr.ecr.us-west-2.amazonaws.com'
+        def AWS_REGION="us-west-2"
+
         if (ci.is_building_tag()){
             FULL_VERSION = "${FULL_VERSION}.0"
             BRANCH_NAME = "master"
@@ -15,10 +17,6 @@ stage('Unified-CI'){
         else {
             FULL_VERSION = "${FULL_VERSION}.${COMMIT_COUNT}"
         }
-        def ECR_URL ='870777418594.dkr.ecr.us-west-2.amazonaws.com'
-        def AWS_REGION="us-west-2"
-
-        
 
         properties([
             [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']],
@@ -30,7 +28,13 @@ stage('Unified-CI'){
             "Linux" : {
                 node('Linux'){   
                     try{
-                        deleteDir()             
+                        deleteDir()
+
+                        GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                        FULL_VERSION = ci.get_latest_version_tag()
+                        COMMIT_COUNT = sh(returnStdout: true, script: 'git rev-list --count HEAD').trim()
+                        COMMITTER_EMAIL = sh (script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true).trim()
+                        
                         stage('Checkout'){
                             checkout scm: [
                                     $class: 'GitSCM',
