@@ -25,8 +25,10 @@ stage('Unified-CI'){
                                     userRemoteConfigs: scm.userRemoteConfigs
                             ]
                         }
+                        def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                        echo "GIT_COMMIT == ${GIT_COMMIT}"
                         stage('Build Base Images'){
-                            def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                            // def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-runtime:${GIT_COMMIT} --build-arg BUILD_IMAGE=ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Runtime.Dockerfile .")
                         }
