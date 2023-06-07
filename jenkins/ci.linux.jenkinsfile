@@ -44,7 +44,6 @@ stage('Unified-CI'){
                         COMMITTER_EMAIL = sh (script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true).trim()
 
                         stage('Build Base Images'){
-                            // def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-runtime:${GIT_COMMIT} --build-arg BUILD_IMAGE=ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Runtime.Dockerfile .")
                         }
@@ -238,18 +237,18 @@ stage('Unified-CI'){
                     //     )
                 }
             }
-            // stage('Trigger Wrapper'){
-            //     def branch_name = get_scm_branch()
-            //     checkout scm: [
-            //         $class: 'GitSCM',
-            //         userRemoteConfigs: [[credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend']],
-            //         branches: [[name: "${branch_name}"]]
-            //     ]
+            stage('Trigger Wrapper'){
+                def branch_name = get_scm_branch()
+                checkout scm: [
+                    $class: 'GitSCM',
+                    userRemoteConfigs: [[credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend']],
+                    branches: [[name: "${branch_name}"]]
+                ]
 
-            //     COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-            //     echo "Commiter is == ${COMMITER}"
-            //     triggerWrapper()
-            // }
+                COMMITER = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+                echo "Commiter is == ${COMMITER}"
+                triggerWrapper()
+            }
             echo "Reporting job with result - ${currentBuild.currentResult}  (final)"
             report()
         }
