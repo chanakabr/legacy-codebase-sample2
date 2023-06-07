@@ -436,6 +436,3 @@ def get_scm_branch(){
     }
     return scm_branch
 }
-
-
-
