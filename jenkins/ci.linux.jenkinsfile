@@ -10,14 +10,6 @@ stage('Unified-CI'){
         ECR_URL = '870777418594.dkr.ecr.us-west-2.amazonaws.com'
         AWS_REGION = "us-west-2"
 
-        if (ci.is_building_tag()){
-            FULL_VERSION = "${FULL_VERSION}.0"
-            BRANCH_NAME = "master"
-        }
-        else {
-            FULL_VERSION = "${FULL_VERSION}.${COMMIT_COUNT}"
-        }
-
         properties([
             [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']],
             disableConcurrentBuilds()
@@ -42,6 +34,14 @@ stage('Unified-CI'){
                         FULL_VERSION = ci.get_latest_version_tag()
                         COMMIT_COUNT = sh(returnStdout: true, script: 'git rev-list --count HEAD').trim()
                         COMMITTER_EMAIL = sh (script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true).trim()
+
+                        if (ci.is_building_tag()){
+                            FULL_VERSION = "${FULL_VERSION}.0"
+                            BRANCH_NAME = "master"
+                        }
+                        else {
+                            FULL_VERSION = "${FULL_VERSION}.${COMMIT_COUNT}"
+                        }                        
 
                         stage('Build Base Images'){
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
