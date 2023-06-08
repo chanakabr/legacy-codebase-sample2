@@ -9,6 +9,7 @@ stage('Unified-CI'){
         COMMITTER_EMAIL = ""
         ECR_URL = '870777418594.dkr.ecr.us-west-2.amazonaws.com'
         AWS_REGION = "us-west-2"
+        ECR_REPO_BRANCH = "${BRANCH_NAME}"
 
         properties([
             [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']],
@@ -36,12 +37,8 @@ stage('Unified-CI'){
                         COMMITTER_EMAIL = sh (script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true).trim()
 
                         if (ci.is_building_tag()){
-                            FULL_VERSION = "${FULL_VERSION}.0"
-                            BRANCH_NAME = "master"
-                        }
-                        else {
-                            FULL_VERSION = "${FULL_VERSION}.${COMMIT_COUNT}"
-                        }                        
+                            ECR_REPO_BRANCH = "master"
+                        }                    
 
                         stage('Build Base Images'){
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
@@ -217,7 +214,7 @@ stage('Unified-CI'){
                     }
                     stage('Retag Regression Images'){
                         for (image in images){
-                            def ecrRetagImagesToRcCommand = "aws ecr batch-delete-image --region=us-west-2 --repository-name ${BRANCH_NAME}/${image} --image-ids imageTag=release --output=json; MANIFEST=\$(aws ecr batch-get-image --region=us-west-2 --repository-name ${BRANCH_NAME}/${image} --image-ids imageTag=${sync_from} --query 'images[].imageManifest' --output text); aws ecr put-image --region=us-west-2 --repository-name ${BRANCH_NAME}/${image} --image-tag release --image-manifest \"\$MANIFEST\" --output=json"
+                            def ecrRetagImagesToRcCommand = "aws ecr batch-delete-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-ids imageTag=release --output=json; MANIFEST=\$(aws ecr batch-get-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-ids imageTag=${sync_from} --query 'images[].imageManifest' --output text); aws ecr put-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-tag release --image-manifest \"\$MANIFEST\" --output=json"
                             sh(label:"Retag ECR Regression Images", script: ecrRetagImagesToRcCommand, returnStdout: true)
                         }
                     }
@@ -296,7 +293,7 @@ def runTestInDocker(testProjects){
 
 def buildDockerAndPushToEcr(componentName, dockerfile){
     component = componentName
-    def REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/${componentName}"
+    def REPOSITORY_NAME="${ECR_REPO_BRANCH.toLowerCase()}/${componentName}"
     def ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
 
 
@@ -394,8 +391,8 @@ def triggerWrapper(){
 
 def reportRelease(){
     stage("Report Release"){
-        full_version = sh( script:"aws ecr describe-images --repository '${BRANCH_NAME}/phoenix' --image-ids imageTag=release --query 'imageDetails[0].imageTags' --region us-west-2 | egrep \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | tr -d '\"' | tr -d ' '" , returnStdout: true).trim()
-        ecrImageGitsha = sh( script:"set +x; aws ecr describe-images --repository ${BRANCH_NAME}/phoenix --image-ids imageTag=${full_version} --query 'imageDetails[0].imageTags' --region us-west-2 | grep -v '${BRANCH_NAME}\\|build\\|sanity\\|rc\\|regression\\|release' | egrep -v \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | jq .[0]  " , returnStdout: true).trim()  
+        full_version = sh( script:"aws ecr describe-images --repository '${ECR_REPO_BRANCH}/phoenix' --image-ids imageTag=release --query 'imageDetails[0].imageTags' --region us-west-2 | egrep \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | tr -d '\"' | tr -d ' '" , returnStdout: true).trim()
+        ecrImageGitsha = sh( script:"set +x; aws ecr describe-images --repository ${ECR_REPO_BRANCH}/phoenix --image-ids imageTag=${full_version} --query 'imageDetails[0].imageTags' --region us-west-2 | grep -v '${BRANCH_NAME}\\|build\\|sanity\\|rc\\|regression\\|release' | egrep -v \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | jq .[0]  " , returnStdout: true).trim()  
         sh "${PIPECLI} report release -b ${BRANCH_NAME} -v ${full_version} -g ${ecrImageGitsha} --commiter amitde7896 -j ${env.JOB_NAME}"
         addToPlatform("backend", full_version, BRANCH_NAME)
     }
