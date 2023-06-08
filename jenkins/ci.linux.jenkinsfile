@@ -31,7 +31,7 @@ stage('Unified-CI'){
                         }
 
                         GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                        FULL_VERSION = ci.get_latest_version_tag()
+                        FULL_VERSION = sh(script: './Core/get-version-tag.sh', returnStdout: true).trim()
                         COMMIT_COUNT = sh(returnStdout: true, script: 'git rev-list --count HEAD').trim()
                         COMMITTER_EMAIL = sh (script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true).trim()
 
