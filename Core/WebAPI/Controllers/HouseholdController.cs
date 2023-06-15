@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using KalturaRequestContext;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
@@ -523,7 +524,9 @@ namespace WebAPI.Controllers
                 if (!id.HasValue || id.Value == 0)
                 {
                     var isPartnerRequest = RequestContextUtilsInstance.Get().IsPartnerRequest();
-                    if (isPartnerRequest)
+
+                    // Do not allow to delete own household for Partner Users but allow it for impersonated requests.
+                    if (isPartnerRequest && !ks.IsImpersonatedRequest())
                     {
                         throw new BadRequestException(BadRequestException.SERVICE_FORBIDDEN);
                     }
