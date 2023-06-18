@@ -729,6 +729,8 @@ namespace Core.Users
                     deviceId);
                 return DomainResponseStatus.OK;
             }
+            
+            HouseholdDeviceCrudMessagePublisher.Instance.Delete(deviceId, udid);
 
             if (bDeviceExist)
             {
@@ -3255,6 +3257,7 @@ namespace Core.Users
                 UsersCache usersCache = UsersCache.Instance();
                 foreach (var userId in domainUserIds)
                 {
+                    OttUserCrudMessagePublisher.Instance.Delete(userId);
                     usersCache.RemoveUser(userId, m_nGroupID);
 
                     // GDPR TTV

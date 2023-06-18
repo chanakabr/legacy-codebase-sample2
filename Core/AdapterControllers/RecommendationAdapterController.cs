@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using TVinciShared;
 using AdapterControllers.RecommendationEngineAdapter;
+using Phx.Lib.Appconfig;
 
 namespace AdapterControllers
 {
@@ -86,7 +87,7 @@ namespace AdapterControllers
             log.Debug($"Constructing GetREAdapterServiceClient Client with url:[{adapterUrl}]");
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
-            adapterClient.ConfigureServiceClient();
+            adapterClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.RecommendationAdapter);
 
             return adapterClient;
         }

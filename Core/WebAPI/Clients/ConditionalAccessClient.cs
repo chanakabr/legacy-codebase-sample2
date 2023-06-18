@@ -27,6 +27,7 @@ using ApiObjects.Recordings;
 using WebAPI.Models.General;
 using WebAPI.Models.Billing;
 using Core.Recordings;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Clients
 {

@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/api/events/logical/gdpr/householdRetentionPeriodExpired",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HouseholdRetentionPeriodExpired",
+  "type": "object",
+  "description": "Indicates that the referenced Household was removed a sufficiently long time in the past that any retained Personal Data must now be removed from all KTP services",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/logical/gdpr/householdRetentionPeriodExpired"
+    }
+  ]
+}

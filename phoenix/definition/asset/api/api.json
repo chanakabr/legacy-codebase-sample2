@@ -1,0 +1,1238 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "asset",
+    "version": "6.7.0.0",
+    "contact": {
+      "email": "platformdev@kaltura.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "phoenix.service.consul:{port}/{base_path}",
+      "description": "dns endpoint for asset service instances",
+      "variables": {
+        "base_path": {
+          "default": "api_v3"
+        },
+        "port": {
+          "enum": [
+            "8080",
+            "8081"
+          ],
+          "default": "8080"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "KalturaBulkUploadIngestJobData": {
+        "type": "object",
+        "description": "instructions for upload data type with xml",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaBulkUploadJobData"
+          },
+          {
+            "properties": {
+              "ingestProfileId": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Identifies the ingest profile that will handle the ingest of programs\\\nIngest profiles are created separately using the ingest profile service",
+                "nullable": true,
+                "minimum": 1
+              },
+              "disableEpgNotification": {
+                "type": "boolean",
+                "description": "By default, after the successful ingest, devices will be notified about changes in epg channels.\\\nThis parameter disables this notification."
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Upload"
+      },
+      "KalturaBulkUploadAssetData": {
+        "type": "object",
+        "description": "indicates the asset object type in the bulk file",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaBulkUploadObjectData"
+          },
+          {
+            "properties": {
+              "typeId": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Identifies the asset type (EPG, Recording, Movie, TV Series, etc). \\\nPossible values: 0 - EPG linear programs, 1 - Recording; or any asset type ID according to the asset types IDs defined in the system.",
+                "minimum": 0
+              }
+            }
+          }
+        ],
+        "x-abstract": true,
+        "x-namespace": "WebAPI.Models.Upload",
+        "x-new-object-type": "#/components/schemas/KalturaBulkUploadMediaAssetData"
+      },
+      "KalturaBulkUploadLiveAssetData": {
+        "type": "object",
+        "description": "indicates the media asset object type in the bulk file",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBulkUploadMediaAssetData"
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Upload"
+      },
+      "KalturaBulkUploadMediaAssetData": {
+        "type": "object",
+        "description": "indicates the media asset object type in the bulk file",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBulkUploadAssetData"
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Upload"
+      },
+      "KalturaBulkUploadProgramAssetData": {
+        "type": "object",
+        "description": "indicates the epg asset object type in the bulk file",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBulkUploadAssetData"
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Upload"
+      },
+      "KalturaSearchAssetFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBaseSearchAssetFilter"
+          },
+          {
+            "properties": {
+              "typeIn": {
+                "type": "string",
+                "description": "(Deprecated - use KalturaBaseSearchAssetFilter.kSql)\\\nComma separated list of asset types to search within. \\\nPossible values: 0 - EPG linear programs entries; 1 - Recordings; Any media type ID (according to media type IDs defined dynamically in the system).\\\nIf omitted - all types should be included.",
+                "nullable": true
+              },
+              "idIn": {
+                "type": "string",
+                "description": "Comma separated list of EPG channel ids to search within. *****Deprecated, please use linear_media_id inside kSql instead*****",
+                "nullable": true,
+                "x-deprecated-version": "5.0.1.0"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaBaseSearchAssetFilter": {
+        "type": "object",
+        "description": "Kaltura Base Search Asset Filter",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaAssetFilter"
+          },
+          {
+            "properties": {
+              "kSql": {
+                "type": "string",
+                "description": "<![CDATA[\\\nSearch assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.\\\nPossible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. \\\nepg_id, media_id - for specific asset IDs.\\\ngeo_block - only valid value is \"true\": When enabled, only assets that are not restricted to the user by geo-block rules will return.\\\nparental_rules - only valid value is \"true\": When enabled, only assets that the user doesn't need to provide PIN code will return.\\\nuser_interests - only valid value is \"true\". When enabled, only assets that the user defined as his interests (by tags and metas) will return.\\\nepg_channel_id - the channel identifier of the EPG program.\\\nentitled_assets - valid values: \"free\", \"entitled\", \"not_entitled\", \"both\". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.\\\nasset_type - valid values: \"media\", \"epg\", \"recording\" or any number that represents media type in group.\\\nComparison operators: for numerical fields =, >, >=, <, <=, : (in). \\\nFor alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).\\\nLogical conjunction: and, or. \\\nSearch values are limited to 20 characters each for the next operators: ~, !~, ^, ^=\\\n(maximum length of entire filter is 4096 characters)]]>",
+                "nullable": true,
+                "x-validation-exception": "FILTER_SUFFIX",
+                "x-generated-symbol": "Ksql"
+              },
+              "groupBy": {
+                "type": "array",
+                "description": "groupBy",
+                "items": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaAssetGroupBy"
+                },
+                "x-validation-exception": "FILTER_SUFFIX"
+              },
+              "groupOrderBy": {
+                "type": "object",
+                "description": "order by of grouping",
+                "nullable": true,
+                "$ref": "#/components/schemas/KalturaGroupByOrder",
+                "x-validation-exception": "FILTER_SUFFIX",
+                "x-generated-symbol": "GroupByOrder"
+              },
+              "groupingOptionEqual": {
+                "type": "object",
+                "description": "Grouping Option, Omit if not specified otherwise",
+                "nullable": true,
+                "$ref": "#/components/schemas/KalturaGroupingOption"
+              }
+            }
+          }
+        ],
+        "x-abstract": true,
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaGroupByOrder": {
+        "type": "string",
+        "enum": [
+          "defaultOrder",
+          "count_asc",
+          "count_desc",
+          "value_asc",
+          "value_desc"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaGroupingOption": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaEnum"
+          }
+        ],
+        "enum": [
+          {
+            "name": "Omit",
+            "value": 1
+          },
+          {
+            "name": "Include",
+            "value": 2
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaBaseAssetOrder": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          }
+        ],
+        "x-abstract": true,
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetDynamicOrder": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBaseAssetOrder"
+          },
+          {
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "order by name",
+                "x-validation-exception": "FILTER_SUFFIX"
+              },
+              "orderBy": {
+                "type": "object",
+                "description": "order by meta asc/desc",
+                "$ref": "ott-schema-registry/models/api/rest/kalturaMetaTagOrderBy",
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetOrder": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBaseAssetOrder"
+          },
+          {
+            "properties": {
+              "orderBy": {
+                "type": "object",
+                "description": "Order By",
+                "$ref": "#/components/schemas/KalturaAssetOrderByType"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetOrderByType": {
+        "type": "string",
+        "enum": [
+          "RELEVANCY_DESC",
+          "NAME_ASC",
+          "NAME_DESC",
+          "RATINGS_DESC",
+          "VOTES_DESC",
+          "START_DATE_DESC",
+          "START_DATE_ASC",
+          "LIKES_DESC",
+          "CREATE_DATE_ASC",
+          "CREATE_DATE_DESC"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetStatisticsOrder": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBaseAssetOrder"
+          },
+          {
+            "properties": {
+              "trendingDaysEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Trending Days Equal",
+                "nullable": true,
+                "minimum": 1,
+                "maximum": 366
+              },
+              "orderBy": {
+                "type": "object",
+                "description": "order by meta asc/desc",
+                "$ref": "#/components/schemas/KalturaAssetOrderByStatistics",
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetOrderByStatistics": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaEnum"
+          }
+        ],
+        "enum": [
+          {
+            "name": "VIEWS_DESC",
+            "value": 1
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaPersistedFilter",
+            "x-template-instantiation": {
+              "KalturaT": "ott-schema-registry/models/api/rest/kalturaAssetOrderBy"
+            }
+          },
+          {
+            "properties": {
+              "newOrderBy": {
+                "type": "object",
+                "title": "orderBy",
+                "description": "order by",
+                "nullable": true,
+                "$ref": "ott-schema-registry/models/api/rest/kalturaAssetOrderBy",
+                "x-validation-exception": "FILTER_SUFFIX",
+                "x-new-property": true
+              },
+              "dynamicOrderBy": {
+                "type": "object",
+                "description": "dynamicOrderBy - order by Meta",
+                "nullable": true,
+                "$ref": "ott-schema-registry/models/api/rest/kalturaDynamicOrderBy",
+                "x-validation-exception": "FILTER_SUFFIX"
+              },
+              "orderingParameters": {
+                "type": "array",
+                "description": "Parameters for asset list sorting.",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/KalturaBaseAssetOrder"
+                },
+                "x-validation-exception": "FILTER_SUFFIX",
+                "x-generated-symbol": "OrderParameters"
+              },
+              "trendingDaysEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Trending Days Equal",
+                "nullable": true,
+                "minimum": 1,
+                "maximum": 366
+              },
+              "shouldApplyPriorityGroupsEqual": {
+                "type": "boolean",
+                "description": "Should apply priority groups filter or not.",
+                "nullable": true
+              },
+              "orderBy": {
+                "default": "CREATE_DATE_DESC",
+                "allOf": [
+                  {
+                    "$ref": "ott-schema-registry/models/api/rest/kalturaAssetOrderBy"
+                  }
+                ],
+                "x-override-default": true,
+                "x-get-default-orderby": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaPersistedFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaFilter",
+            "x-template-instantiation": {
+              "KalturaT": "KalturaT"
+            }
+          },
+          {
+            "$ref": "#/components/schemas/IKalturaPersistedFilter"
+          },
+          {
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.",
+                "nullable": true,
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-abstract": true,
+        "x-namespace": "WebAPI.Models.General",
+        "x-template": {
+          "KalturaT": [
+            "struct",
+            "IFormattable",
+            "IConvertible",
+            "IComparable"
+          ]
+        }
+      },
+      "IKalturaPersistedFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.General",
+        "x-interface": true
+      },
+      "KalturaSearchAssetListFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaSearchAssetFilter"
+          },
+          {
+            "properties": {
+              "excludeWatched": {
+                "type": "boolean",
+                "description": "Exclude watched asset.",
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetCount": {
+        "type": "object",
+        "description": "Asset count - represents a specific value of the field, its count and its sub groups.",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "value": {
+                "type": "string",
+                "description": "Value"
+              },
+              "count": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Count"
+              },
+              "subs": {
+                "type": "array",
+                "description": "Sub groups",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaAssetsCount"
+                },
+                "x-generated-symbol": "SubCounts"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetReferenceType": {
+        "type": "string",
+        "description": "Asset entity reference",
+        "enum": [
+          "media",
+          "epg_internal",
+          "epg_external",
+          "npvr"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaPlaybackContextOptions": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "mediaProtocol": {
+                "type": "string",
+                "description": "Protocol of the specific media object (http / https)."
+              },
+              "streamerType": {
+                "type": "string",
+                "description": "Playback streamer type: applehttp, mpegdash, url, smothstreaming, multicast, none"
+              },
+              "assetFileIds": {
+                "type": "string",
+                "description": "List of comma separated media file IDs",
+                "minimum": 1
+              },
+              "adapterData": {
+                "type": "object",
+                "description": "key/value map field for extra data",
+                "additionalProperties": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaStringValue"
+                }
+              },
+              "context": {
+                "type": "object",
+                "description": "Playback context type",
+                "nullable": true,
+                "$ref": "ott-schema-registry/models/api/rest/kalturaPlaybackContextType"
+              },
+              "urlType": {
+                "type": "object",
+                "description": "Url type",
+                "$ref": "#/components/schemas/KalturaUrlType"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaUrlType": {
+        "type": "string",
+        "enum": [
+          "PLAYMANIFEST",
+          "DIRECT"
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaPlaybackContext": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "sources": {
+                "type": "array",
+                "description": "Sources",
+                "items": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaPlaybackSource"
+                }
+              },
+              "actions": {
+                "type": "array",
+                "description": "Actions",
+                "items": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaRuleAction"
+                }
+              },
+              "messages": {
+                "type": "array",
+                "description": "Messages",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaAccessControlMessage"
+                }
+              },
+              "playbackCaptions": {
+                "type": "array",
+                "description": "Playback captions",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaCaptionPlaybackPluginData"
+                }
+              },
+              "plugins": {
+                "type": "array",
+                "description": "Plugins",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaPlaybackPluginData"
+                }
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaAccessControlMessage": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "message": {
+                "type": "string",
+                "description": "Message"
+              },
+              "code": {
+                "type": "string",
+                "description": "Code"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaCaptionPlaybackPluginData": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "url",
+                "x-generated-symbol": "URL"
+              },
+              "language": {
+                "type": "string",
+                "description": "Language"
+              },
+              "label": {
+                "type": "string",
+                "description": "Label"
+              },
+              "format": {
+                "type": "string",
+                "description": "Format"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaBumpersPlaybackPluginData": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaPlaybackPluginData"
+          },
+          {
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "url",
+                "x-generated-symbol": "URL"
+              },
+              "streamertype": {
+                "type": "string",
+                "description": "Streamer type: hls, dash, progressive.",
+                "x-generated-symbol": "StreamerType"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaUnmatchedItemsPolicy": {
+        "type": "string",
+        "enum": [
+          "OMIT",
+          "GROUP",
+          "INCLUDE_AND_MERGE"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog.GroupRepresentatives"
+      },
+      "KalturaListGroupsRepresentativesFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaFilter",
+            "x-template-instantiation": {
+              "KalturaT": "#/components/schemas/KalturaListGroupsRepresentativesOrderBy"
+            }
+          },
+          {
+            "properties": {
+              "kSql": {
+                "type": "string",
+                "description": "Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.",
+                "nullable": true,
+                "x-validation-exception": "FILTER_SUFFIX"
+              },
+              "orderBy": {
+                "default": "None",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/KalturaListGroupsRepresentativesOrderBy"
+                  }
+                ],
+                "x-override-default": true,
+                "x-get-default-orderby": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog.GroupRepresentatives"
+      },
+      "KalturaListGroupsRepresentativesOrderBy": {
+        "type": "string",
+        "enum": [
+          "None"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog.GroupRepresentatives"
+      },
+      "KalturaRepresentativeSelectionPolicy": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          }
+        ],
+        "x-abstract": true,
+        "x-namespace": "WebAPI.Models.Catalog.GroupRepresentatives"
+      },
+      "KalturaTopRsp": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaRepresentativeSelectionPolicy"
+          },
+          {
+            "properties": {
+              "orderBy": {
+                "type": "object",
+                "description": "order by",
+                "nullable": true,
+                "$ref": "#/components/schemas/KalturaBaseAssetOrder",
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog.GroupRepresentatives"
+      },
+      "KalturaTopSubscriptionEntitledRsp": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaRepresentativeSelectionPolicy"
+          },
+          {
+            "properties": {
+              "orderBy": {
+                "type": "object",
+                "description": "order by",
+                "nullable": true,
+                "$ref": "#/components/schemas/KalturaBaseAssetOrder",
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog.GroupRepresentatives"
+      },
+      "KalturaAssetListResponse": {
+        "type": "object",
+        "description": "Asset wrapper",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaListResponse"
+          },
+          {
+            "properties": {
+              "objects": {
+                "type": "array",
+                "description": "Assets",
+                "items": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaAsset"
+                }
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaBundleFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaAssetFilter"
+          },
+          {
+            "properties": {
+              "idEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Bundle Id.",
+                "minimum": 1
+              },
+              "typeIn": {
+                "type": "string",
+                "description": "Comma separated list of asset types to search within.\\\nPossible values: 0 - EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).\\\nIf omitted - all types should be included.",
+                "nullable": true
+              },
+              "bundleTypeEqual": {
+                "type": "object",
+                "description": "bundleType - possible values: Subscription or Collection",
+                "$ref": "#/components/schemas/KalturaBundleType"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaBundleType": {
+        "type": "string",
+        "enum": [
+          "subscription",
+          "collection",
+          "pago"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaChannelExternalFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaAssetFilter"
+          },
+          {
+            "properties": {
+              "idEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "External Channel Id.",
+                "minimum": 1,
+                "nullable": true
+              },
+              "utcOffsetEqual": {
+                "type": "number",
+                "format": "float",
+                "description": "UtcOffsetEqual",
+                "minimum": -12,
+                "maximum": 12
+              },
+              "freeText": {
+                "type": "string",
+                "description": "FreeTextEqual",
+                "nullable": true,
+                "x-validation-exception": "FILTER_SUFFIX"
+              },
+              "alias": {
+                "type": "string",
+                "description": "Alias for External Channel Id.",
+                "nullable": true,
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaChannelFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBaseSearchAssetFilter"
+          },
+          {
+            "properties": {
+              "idEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Channel Id",
+                "minimum": 1
+              },
+              "excludeWatched": {
+                "type": "boolean",
+                "description": "Exclude watched asset.",
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaPersonalListSearchFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBaseSearchAssetFilter"
+          },
+          {
+            "properties": {
+              "partnerListTypeIn": {
+                "type": "string",
+                "description": "Comma separated list of partner list types to search within. \\\nIf omitted - all types should be included.",
+                "nullable": true,
+                "minimum": 0
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaRelatedExternalFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaAssetFilter"
+          },
+          {
+            "properties": {
+              "idEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "the External ID of the asset for which to return related assets",
+                "minimum": 1
+              },
+              "typeIn": {
+                "type": "string",
+                "description": "Comma separated list of asset types to search within. \\\nPossible values: 0 - EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).\\\nIf omitted - all types should be included.",
+                "nullable": true
+              },
+              "utcOffsetEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "UtcOffsetEqual"
+              },
+              "freeText": {
+                "type": "string",
+                "description": "FreeText",
+                "nullable": true,
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaRelatedFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaBaseSearchAssetFilter"
+          },
+          {
+            "properties": {
+              "idEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "the ID of the asset for which to return related assets",
+                "nullable": true,
+                "minimum": 1
+              },
+              "typeIn": {
+                "type": "string",
+                "description": "Comma separated list of asset types to search within. \\\nPossible values: any media type ID (according to media type IDs defined dynamically in the system).\\\nIf omitted - same type as the provided asset.",
+                "nullable": true
+              },
+              "excludeWatched": {
+                "type": "boolean",
+                "description": "Exclude watched asset.",
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaScheduledRecordingProgramFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaAssetFilter"
+          },
+          {
+            "properties": {
+              "recordingTypeEqual": {
+                "type": "object",
+                "description": "The type of recordings to return",
+                "$ref": "#/components/schemas/KalturaScheduledRecordingAssetType"
+              },
+              "channelsIn": {
+                "type": "string",
+                "description": "Channels to filter by",
+                "minimum": 1,
+                "nullable": true
+              },
+              "startDateGreaterThanOrNull": {
+                "type": "integer",
+                "format": "int64",
+                "description": "start date",
+                "nullable": true
+              },
+              "endDateLessThanOrNull": {
+                "type": "integer",
+                "format": "int64",
+                "description": "end date",
+                "nullable": true
+              },
+              "seriesIdsIn": {
+                "type": "string",
+                "description": "Series to filter by",
+                "nullable": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaScheduledRecordingAssetType": {
+        "type": "string",
+        "enum": [
+          "single",
+          "series",
+          "all"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaSearchExternalFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaAssetFilter"
+          },
+          {
+            "properties": {
+              "query": {
+                "type": "string",
+                "description": "Query",
+                "nullable": true,
+                "x-validation-exception": "FILTER_SUFFIX"
+              },
+              "utcOffsetEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "UtcOffsetEqual"
+              },
+              "typeIn": {
+                "type": "string",
+                "description": "Comma separated list of asset types to search within. \\\nPossible values: 0 - EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).\\\nIf omitted - all types should be included."
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetInfoFilter": {
+        "type": "object",
+        "description": "Filtering assets",
+        "deprecated": true,
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "ids": {
+                "type": "array",
+                "description": "Entities IDs",
+                "items": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaStringValue"
+                },
+                "x-generated-symbol": "IDs"
+              },
+              "referenceType": {
+                "type": "object",
+                "description": "Reference type of the given IDs",
+                "$ref": "#/components/schemas/KalturaCatalogReferenceBy",
+                "x-old-standard": [
+                  {
+                    "oldName": "reference_type"
+                  }
+                ]
+              },
+              "filter_tags": {
+                "type": "object",
+                "description": "Filter by Tags when filtering by channel ID",
+                "nullable": true,
+                "additionalProperties": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaStringValue"
+                },
+                "x-generated-symbol": "FilterTags"
+              },
+              "cut_with": {
+                "type": "object",
+                "description": "Condition between filter_tags",
+                "$ref": "#/components/schemas/KalturaCutWith",
+                "x-generated-symbol": "cutWith"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaCatalogReferenceBy": {
+        "type": "object",
+        "description": "Catalog entity reference",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaEnum"
+          }
+        ],
+        "enum": [
+          {
+            "name": "MEDIA",
+            "value": 0
+          },
+          {
+            "name": "channel",
+            "value": 1,
+            "deprecated": true
+          },
+          {
+            "name": "EPG_INTERNAL",
+            "value": 2
+          },
+          {
+            "name": "EPG_EXTERNAL",
+            "value": 3
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaCutWith": {
+        "type": "string",
+        "description": "Filtering condition",
+        "enum": [
+          "or",
+          "and"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaPersonalAssetSelectionFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaFilter",
+            "x-template-instantiation": {
+              "KalturaT": "#/components/schemas/KalturaPersonalAssetSelectionOrderBy"
+            }
+          },
+          {
+            "properties": {
+              "slotNumberEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "selected assets for specific slot number"
+              },
+              "orderBy": {
+                "default": "ASSET_SELECTION_DATE_DESC",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/KalturaPersonalAssetSelectionOrderBy"
+                  }
+                ],
+                "x-override-default": true,
+                "x-get-default-orderby": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaPersonalAssetSelectionOrderBy": {
+        "type": "string",
+        "enum": [
+          "ASSET_SELECTION_DATE_DESC"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaIntegerValueListResponse": {
+        "type": "object",
+        "description": "Integer list wrapper",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaListResponse"
+          },
+          {
+            "properties": {
+              "objects": {
+                "type": "array",
+                "description": "Interger value items",
+                "items": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaIntegerValue"
+                },
+                "x-generated-symbol": "Values"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.General",
+        "x-data-contract": "KalturaIntegerValueListResponse",
+        "x-xml-root": "KalturaIntegerValueListResponse"
+      },
+      "KalturaAssetsCount": {
+        "type": "object",
+        "description": "Single aggregation objects",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Field name"
+              },
+              "objects": {
+                "type": "array",
+                "description": "Values, their count and sub groups",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaAssetCount"
+                }
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaPlaybackPluginData": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess",
+        "x-xml-include": [
+          "#/components/schemas/KalturaBumpersPlaybackPluginData"
+        ]
+      }
+    },
+    "securitySchemes": {}
+  },
+  "security": [],
+  "paths": {}
+}

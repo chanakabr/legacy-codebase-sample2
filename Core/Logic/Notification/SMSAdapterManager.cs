@@ -5,6 +5,7 @@ using APILogic.SmsAdapterService;
 using ApiObjects;
 using System.Linq;
 using System;
+using Phx.Lib.Appconfig;
 
 namespace ApiLogic.Notification
 {
@@ -17,7 +18,7 @@ namespace ApiLogic.Notification
             _Logger.Debug($"Constructing SmsAdapterService Client with url:[{adapterUrl}]");
             var adapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding;
             var adapterClient = new ServiceClient(adapaterServiceEndpointConfiguration, adapterUrl);
-            adapterClient.ConfigureServiceClient();
+            adapterClient.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.SmsAdapter);
 
             return adapterClient;
         }

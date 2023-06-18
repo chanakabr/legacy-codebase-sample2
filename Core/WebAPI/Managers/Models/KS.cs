@@ -19,7 +19,7 @@ namespace WebAPI.Managers.Models
     public class KS
     {
         private static int AccessTokenLength = ApplicationConfiguration.Current.RequestParserConfiguration.AccessTokenLength.Value;
-        
+
         private const int BLOCK_SIZE = 16;
         private const int SHA1_SIZE = 20;
         private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}&_d={4}";
@@ -49,7 +49,7 @@ namespace WebAPI.Managers.Models
             public BypassCacheEligibility? BypassCacheEligibility { get; set; }
 
             public static KSData Empty { get; } = new KSData();
-            
+
             private KSData(){}
 
             public KSData(
@@ -102,7 +102,7 @@ namespace WebAPI.Managers.Models
         public KSVersion ksVersion { get; private set; }
 
         public bool IsValid => AuthorizationManager.IsKsValid(this);
-        
+
         public int GroupId { get; private set; }
 
         public string UserId
@@ -297,7 +297,7 @@ namespace WebAPI.Managers.Models
 
             return ks;
         }
-        
+
         public static bool HasKsFormat(string value)
         {
             return value.Length > AccessTokenLength;
@@ -379,7 +379,7 @@ namespace WebAPI.Managers.Models
                 HttpContext.Current.Items[RequestContextConstants.REQUEST_GROUP_ID] = ks.GroupId;
             else
                 HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_GROUP_ID, ks.GroupId);
-            
+
             if (!string.IsNullOrEmpty(ks.OriginalUserId) && ks.OriginalUserId != ks.userId && long.TryParse(ks.OriginalUserId, out long originalUserId))
             {
                 if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_KS_ORIGINAL_USER_ID))
@@ -398,7 +398,7 @@ namespace WebAPI.Managers.Models
             var items = HttpContext.Current.Items;
             return items.ContainsKey(RequestContextConstants.REQUEST_KS)
                 ? (KS)items[RequestContextConstants.REQUEST_KS]
-                : null; 
+                : null;
         }
 
         public static KS CreateKSFromApiToken(ApiToken token, string tokenVal)
@@ -476,6 +476,11 @@ namespace WebAPI.Managers.Models
             };
         }
 
+        public bool IsImpersonatedRequest()
+        {
+            return !OriginalUserId.IsNullOrEmpty();
+        }
+
         private static KSData GetPayload()
         {
             try
@@ -487,7 +492,7 @@ namespace WebAPI.Managers.Models
                 return null;
             }
         }
-        
+
         private static long? GetDomainId(bool skipDomain)
         {
             if (skipDomain)

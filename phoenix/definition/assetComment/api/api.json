@@ -1,0 +1,104 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "assetComment",
+    "version": "6.7.0.0",
+    "contact": {
+      "email": "platformdev@kaltura.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "phoenix.service.consul:{port}/{base_path}",
+      "description": "dns endpoint for assetComment service instances",
+      "variables": {
+        "base_path": {
+          "default": "api_v3"
+        },
+        "port": {
+          "enum": [
+            "8080",
+            "8081"
+          ],
+          "default": "8080"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "KalturaAssetCommentFilter": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaFilter",
+            "x-template-instantiation": {
+              "KalturaT": "#/components/schemas/KalturaAssetCommentOrderBy"
+            }
+          },
+          {
+            "properties": {
+              "assetIdEqual": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Asset Id",
+                "minimum": 1
+              },
+              "assetTypeEqual": {
+                "type": "object",
+                "description": "Asset Type",
+                "$ref": "ott-schema-registry/models/api/rest/kalturaAssetType"
+              },
+              "orderBy": {
+                "default": "CREATE_DATE_DESC",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/KalturaAssetCommentOrderBy"
+                  }
+                ],
+                "x-override-default": true,
+                "x-get-default-orderby": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetCommentOrderBy": {
+        "type": "string",
+        "enum": [
+          "CREATE_DATE_DESC"
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      },
+      "KalturaAssetCommentListResponse": {
+        "type": "object",
+        "description": "Asset Comment Response",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaListResponse"
+          },
+          {
+            "properties": {
+              "objects": {
+                "type": "array",
+                "description": "Assets",
+                "items": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaAssetComment"
+                }
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Catalog"
+      }
+    },
+    "securitySchemes": {}
+  },
+  "security": [],
+  "paths": {}
+}

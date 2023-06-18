@@ -96,8 +96,8 @@ namespace Core.Recordings
             string recordingKey, TstvRecordingStatus status, bool scheduledSaved, int? originalStartPadding = null,
             int? originalEndPadding = null)
         {
-            DateTime date = DateTime.UtcNow;
-            HouseholdRecording householdRecording = new HouseholdRecording(userId, householdId, recording.EpgId,
+            var date = DateTime.UtcNow;
+            var householdRecording = new HouseholdRecording(userId, householdId, recording.EpgId,
                 recordingKey, status.ToString(),
                 recording.Type.ToString(), date, date, recording.ProtectedUntilDate, recording.ChannelId,
                 scheduledSaved);
@@ -416,7 +416,7 @@ namespace Core.Recordings
                         RecordingsUtils.UpdateIndex(groupId, paddedRecordings[0].ProgramId, eAction.Delete);
                     }
 
-                    status = deleteOrCancelRecordingOnDb(groupId, slimRecording.Id, recordingKey, recToDeleteDate);
+                    status = DeleteOrCancelRecordingOnDb(groupId, slimRecording.Id, recordingKey, recToDeleteDate);
                 }
                 else
                 {
@@ -429,7 +429,7 @@ namespace Core.Recordings
             return status;
         }
 
-        private Status deleteOrCancelRecordingOnDb(int partnerId, long recordingId, string recordingKey,
+        private Status DeleteOrCancelRecordingOnDb(int partnerId, long recordingId, string recordingKey,
             DateTime epgEndDate)
         {
             Status status = new Status((int)eResponseStatus.OK);
@@ -454,7 +454,7 @@ namespace Core.Recordings
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error on deleteOrCancelRecordingOnDb, recordingID: {0}", recordingId), ex);
+                log.Error(string.Format("Error on DeleteOrCancelRecordingOnDb, recordingID: {0}", recordingId), ex);
                 status = new Status((int)eResponseStatus.Error,
                     "Exception on CancelRecording or DeleteRecording on DB");
             }
@@ -507,6 +507,11 @@ namespace Core.Recordings
             {
                 status = new Status(eResponseStatus.RecordingNotFound,
                     "Recording not found");
+            }
+            else if (recording.AbsoluteEndTime.HasValue 
+                     && recording.AbsoluteEndTime.Value < DateTime.UtcNow)//BEO-14119, stopped in the past
+            {
+                return status;
             }
             else if ((recording.AbsoluteEndTime.HasValue && recording.AbsoluteEndTime.Value > DateTime.UtcNow) ||
                      (recording.EndPadding.HasValue &&
@@ -599,7 +604,7 @@ namespace Core.Recordings
                     e);
             }
 
-            status = deleteOrCancelRecordingOnDb(partnerId, recordingId, recordingKey, epgEndDate);
+            status = DeleteOrCancelRecordingOnDb(partnerId, recordingId, recordingKey, epgEndDate);
             return status;
         }
 
@@ -1546,13 +1551,14 @@ namespace Core.Recordings
                 RecordingsUtils.BuildRecordingFromTBRecording(partnerId, timeBasedRecording, program,
                     currentHhRecording);
 
+            var originalRecording = recording.Clone();
+
             if (timeBasedRecording.PaddingAfterMins != paddingAfterMins ||
                 timeBasedRecording.PaddingBeforeMins != paddingBeforeMins ||
                 (timeBasedRecording.IsImmediateRecording() && paddingAfterMins.HasValue &&
                  timeBasedRecording.AbsoluteEndTime != program.EndDate.AddMinutes(paddingAfterMins.Value)
                      .RoundUp(TimeSpan.FromMinutes(1))))
             {
-                RecordResult adapterResponse = null;
                 timeBasedRecording.PaddingAfterMins =
                     (paddingAfterMins.HasValue /*&& !timeBasedRecording.IsImmediateRecording()*/)
                         ? paddingAfterMins.Value
@@ -1587,6 +1593,10 @@ namespace Core.Recordings
                 if (hhRecording.Count == 1)
                 {
                     timeBasedRecording.Key = recordingKey;
+                    
+                    var potentialNewRecording = _repository.GetRecordingByKey(partnerId, timeBasedRecording.Key);
+                    var isRecordingExists = potentialNewRecording != null && potentialNewRecording.Id > 0; //BEO-14116 - new permutation exists
+                    
                     currentHhRecording.RecordingKey = recordingKey;
                     currentHhRecording.ProtectedUntilEpoch = protectedUntilEpoch;
 
@@ -1605,12 +1615,18 @@ namespace Core.Recordings
                     string externalChannelId =
                         CatalogDAL.GetEPGChannelCDVRId(partnerId, timeBasedRecording.EpgChannelId);
 
-                    if (_repository.UpdateRecording(partnerId, timeBasedRecording))
+                    if (isRecordingExists || _repository.UpdateRecording(partnerId, timeBasedRecording))
                     {
+                        if (isRecordingExists) //only 1 hh followed, delete old recording permutation, not in use
+                        {
+                            if(!DeleteRecording(partnerId, originalRecording).IsOkStatusCode())
+                                log.Warn($"Failed to clean unused recording instance: {originalRecording.Id}");
+                        }
+                        
                         _repository.UpdateHouseholdRecording(partnerId, currentHhRecording);
                         LayeredCache.Instance.SetInvalidationKey(
                             LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(partnerId, householdId));
-                        adapterResponse = adapterController.UpdateRecordingSchedule(partnerId,
+                        var adapterResponse = adapterController.UpdateRecordingSchedule(partnerId,
                             timeBasedRecording.EpgId.ToString(), externalChannelId,
                             timeBasedRecording.ExternalId, adapterId, startTimeSeconds, durationSeconds);
                         if (adapterResponse.ActionSuccess)
@@ -1620,6 +1636,10 @@ namespace Core.Recordings
                             recording.ProtectedUntilDate = protectedUntilEpoch;
                             recording.AbsoluteEndTime = timeBasedRecording.AbsoluteEndTime;
                             recording.Id = currentHhRecording.Id;
+                            recording.IsStartPaddingDefault =
+                                recording.IsStartPaddingDefault && !paddingBeforeMins.HasValue;
+                            recording.IsEndPaddingDefault =
+                                recording.IsEndPaddingDefault && !paddingAfterMins.HasValue;
                         }
                     }
                 }

@@ -43,7 +43,7 @@ ctx._source.remove('transaction');
 
             var newEpgV3IndexName = $"{NamingHelper.GetEpgIndexAlias(_partnerId)}_v3";
             log.Info($"EPG v3 creating new index and mappings with name:{newEpgV3IndexName}");
-            AddEmptyIndex(newEpgV3IndexName, EpgFeatureVersion.V3);
+            AddEmptyEpgV3Index(newEpgV3IndexName);
 
             var res = ReindexEpgDocuments(epgAlias, newEpgV3IndexName);
             if (!res) { throw new Exception($"error while trying to migrate indices for partner:[{_partnerId}]"); }
@@ -113,7 +113,7 @@ ctx._source.remove('transaction');
             {
                 var epgDate = dateIndexNamePair.Key;
                 var epgV2IndexName = dateIndexNamePair.Value;
-                AddEmptyIndex(epgV2IndexName, EpgFeatureVersion.V2);
+                AddEmptyEpgV2Index(epgV2IndexName);
                 log.Info($"created epg v2 index:[{epgV2IndexName}]");
 
                 // required to avoid an issue with re-indexing docs with negative ttl value

@@ -40,10 +40,15 @@ message PlaybackAdapterRequest{
 }
 
 message PlaybackAdapterConcurrencyCheckRequest{
-	repeated PlayingDevice PlayingDevices = 1;
-	repeated int64 DeviceFamiliesIds = 2;
-	map<string, string> UserDynamicData = 3;
-	map<string, string> AdapterData = 4;
+	repeated PlayingDevice  PlayingDevices = 1;
+	repeated int64          DeviceFamiliesIds = 2;
+	map<string, string>     UserDynamicData = 3;
+	map<string, string>     AdapterData = 4;
+	int64                   UserId = 5;
+	int64                   HouseholdId = 6;
+	int64                   AssetId = 7;
+	string                  Udid = 8;
+	int64                   DeviceFamilyId = 9;
 }
 
 message PlaybackAdapterConcurrencyCheckResponse{

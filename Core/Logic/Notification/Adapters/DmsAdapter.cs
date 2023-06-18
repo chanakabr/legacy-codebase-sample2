@@ -21,7 +21,7 @@ namespace Core.Notification.Adapters
         public static ServiceClient GetDmsAdapterServiceClient()
         {
             var client = new ServiceClient(ServiceClient.EndpointConfiguration.BasicHttpBinding_IService, _DmsAdapterUrl);
-            client.ConfigureServiceClient();
+            client.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.DmsAdapter);
             return client;
         }
 

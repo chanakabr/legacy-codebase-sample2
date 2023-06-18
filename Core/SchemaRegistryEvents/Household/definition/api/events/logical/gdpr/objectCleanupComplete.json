@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/api/events/logical/gdpr/objectCleanupComplete",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ObjectCleanupComplete",
+  "type": "object",
+  "description": "Indicates that the referenced KTP Service has successfully handled removal of data related to the referenced Kafka Delete message",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/logical/gdpr/objectCleanupComplete"
+    }
+  ]
+}

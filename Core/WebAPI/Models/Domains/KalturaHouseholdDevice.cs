@@ -169,28 +169,5 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "lastActivityTime", IsNullable = true)]
         [SchemeProperty(IsNullable = true, ReadOnly = true)]
         public long? LastActivityTime { get; set; }
-
-        internal int getBrandId()
-        {
-            return BrandId ?? 0;
-        }
-    }
-
-    [Obsolete]
-    public partial class KalturaDevice : KalturaHouseholdDevice
-    {
-    }
-
-    public static class KalturaHouseholdDeviceValidator
-    {
-        public static void Validate(this KalturaHouseholdDevice device)
-        {
-            if (device.Udid.IsNullOrEmptyOrWhiteSpace())
-            {
-                throw new BadRequestException(ARGUMENT_CANNOT_BE_EMPTY, "udid");
-            }
-
-            device.DynamicData.Validate();
-        }
     }
 }

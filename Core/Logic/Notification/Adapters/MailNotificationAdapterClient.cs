@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Web;
 using TVinciShared;
 using APILogic.MailNotificationsAdapterService;
+using Phx.Lib.Appconfig;
 
 namespace Core.Notification
 {
@@ -43,7 +44,7 @@ namespace Core.Notification
         public static ServiceClient GetMailNotificationAdapterServiceClient(string url)
         {
             var client = new ServiceClient(ServiceClient.EndpointConfiguration.BasicHttpBinding_IService, url);
-            client.ConfigureServiceClient();
+            client.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.MailNotificationAdapter);
             return client;
         }
 

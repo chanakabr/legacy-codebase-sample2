@@ -10,6 +10,7 @@ using Phx.Lib.Log;
 using Newtonsoft.Json;
 using TVinciShared;
 using Core;
+using Phx.Lib.Appconfig;
 
 namespace APILogic.Notification.Adapters
 {
@@ -20,7 +21,7 @@ namespace APILogic.Notification.Adapters
         public static ServiceClient GetEngagementAdapterServiceClient(string adapterUrl)
         {
             var client = new ServiceClient(ServiceClient.EndpointConfiguration.BasicHttpBinding_IService, adapterUrl);
-            client.ConfigureServiceClient();
+            client.ConfigureServiceClient(ApplicationConfiguration.Current.AdaptersClientConfiguration.EngagementAdapter);
             return client;
         }
 

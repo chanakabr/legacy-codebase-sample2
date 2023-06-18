@@ -1,0 +1,145 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "assetFilePpv",
+    "version": "6.7.0.0",
+    "contact": {
+      "email": "platformdev@kaltura.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "phoenix.service.consul:{port}/{base_path}",
+      "description": "dns endpoint for assetFilePpv service instances",
+      "variables": {
+        "base_path": {
+          "default": "api_v3"
+        },
+        "port": {
+          "enum": [
+            "8080",
+            "8081"
+          ],
+          "default": "8080"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "KalturaAssetFilePpv": {
+        "type": "object",
+        "description": "Asset file ppv",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObjectSupportNullable"
+          },
+          {
+            "properties": {
+              "assetFileId": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Asset file identifier"
+              },
+              "ppvModuleId": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Ppv module identifier"
+              },
+              "startDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Start date and time represented as epoch.",
+                "nullable": true
+              },
+              "endDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "End date and time represented as epoch.",
+                "nullable": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Pricing"
+      },
+      "KalturaAssetFilePpvFilter": {
+        "type": "object",
+        "description": "Filtering Asset Struct Metas",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaFilter",
+            "x-template-instantiation": {
+              "KalturaT": "#/components/schemas/KalturaAssetFilePpvOrderBy"
+            }
+          },
+          {
+            "properties": {
+              "assetIdEqual": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Filter Asset file ppvs that contain a specific asset id",
+                "nullable": true,
+                "minimum": 1
+              },
+              "assetFileIdEqual": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Filter Asset file ppvs that contain a specific asset file id",
+                "nullable": true,
+                "minimum": 1
+              },
+              "orderBy": {
+                "default": "NONE",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/KalturaAssetFilePpvOrderBy"
+                  }
+                ],
+                "x-override-default": true,
+                "x-get-default-orderby": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Pricing"
+      },
+      "KalturaAssetFilePpvOrderBy": {
+        "type": "string",
+        "enum": [
+          "NONE"
+        ],
+        "x-namespace": "WebAPI.Models.Pricing"
+      },
+      "KalturaAssetFilePpvListResponse": {
+        "type": "object",
+        "description": "Asset file ppv list",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaListResponse"
+          },
+          {
+            "properties": {
+              "objects": {
+                "type": "array",
+                "description": "A list of asset files ppvs",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaAssetFilePpv"
+                },
+                "x-generated-symbol": "AssetFilesPpvs"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.Pricing"
+      }
+    },
+    "securitySchemes": {}
+  },
+  "security": [],
+  "paths": {}
+}

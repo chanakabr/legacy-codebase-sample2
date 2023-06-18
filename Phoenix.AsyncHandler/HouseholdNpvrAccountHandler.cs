@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.Generated.Api.Events.Crud.Household;
+using SchemaRegistryEvents;
 
 namespace Phoenix.AsyncHandler
 {
@@ -24,6 +25,8 @@ namespace Phoenix.AsyncHandler
 
         protected override HandleResult Create(ConsumeResult<string, Household> consumeResult)
         {
+            if (consumeResult.GetSourceService() == SourceService.Phoenix) return Result.Ok;
+            
             var household = consumeResult.GetValue();
             
             var groupId = (int)household.PartnerId;

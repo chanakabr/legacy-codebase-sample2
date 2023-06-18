@@ -1,5 +1,6 @@
 ﻿using CouchbaseManager;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -597,20 +598,14 @@ namespace CachingProvider.LayeredCache
                 requestLayeredCache = HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
             }
 
-            return requestLayeredCache?.invalidationKeysToKeys?.Select(x => x.Key).ToList();
+            return requestLayeredCache?.invalidationKeysToKeys?.Keys.ToList();
         }
 
         public void InsertResultsToCurrentRequest<T>(Dictionary<string, T> results, Dictionary<string, List<string>> invalidationKeysToKeys)
         {
-            RequestLayeredCache requestLayeredCache = null;
-            if (DoesHttpContextContainsRequestLayeredCache())
-            {
-                requestLayeredCache = HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
-            }
-            else
-            {
-                requestLayeredCache = new RequestLayeredCache();
-            }
+            var requestLayeredCache = DoesHttpContextContainsRequestLayeredCache()
+                ? HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache
+                : new RequestLayeredCache();
 
             if (results != null)
             {
@@ -621,17 +616,20 @@ namespace CachingProvider.LayeredCache
                 }
             }
 
-            if (invalidationKeysToKeys != null && invalidationKeysToKeys.Count > 0)
+            if (invalidationKeysToKeys != null)
             {
                 // save invalidation keys (merge two dictionaries)
                 foreach (var invalidationKey in invalidationKeysToKeys)
                 {
-                    if (!requestLayeredCache.invalidationKeysToKeys.ContainsKey(invalidationKey.Key))
+                    if (invalidationKey.Value != null && invalidationKey.Value.Count > 0)
                     {
-                        requestLayeredCache.invalidationKeysToKeys[invalidationKey.Key] = new HashSet<string>();
+                        var hashset = requestLayeredCache.invalidationKeysToKeys.GetOrAdd(invalidationKey.Key,
+                            _ => new ConcurrentDictionary<string, byte>());
+                        foreach (var key in invalidationKey.Value)
+                        {
+                            hashset.TryAdd(key, 0);
+                        }
                     }
-
-                    requestLayeredCache.invalidationKeysToKeys[invalidationKey.Key].UnionWith(invalidationKey.Value);
                 }
             }
 
@@ -649,13 +647,13 @@ namespace CachingProvider.LayeredCache
             {
                 requestLayeredCache = HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
 
-                HashSet<string> keysToRemove;
+                ConcurrentDictionary<string, byte> keysToRemove;
 
                 if (requestLayeredCache.invalidationKeysToKeys.TryGetValue(invalidationKey, out keysToRemove))
                 {
                     foreach (var keyToRemove in keysToRemove)
                     {
-                        requestLayeredCache.cachedObjects.TryRemove(keyToRemove, out _);
+                        requestLayeredCache.cachedObjects.TryRemove(keyToRemove.Key, out _);
                     }
                 }
 

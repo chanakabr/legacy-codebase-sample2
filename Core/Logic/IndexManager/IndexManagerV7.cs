@@ -68,6 +68,7 @@ namespace Core.Catalog
         #region Consts
 
         private const int REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS = 10;
+        private const int REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX = 1;
         private const string INDEX_REFRESH_INTERVAL = "10s";
         private const int MAX_RESULTS_DEFAULT = 100000;
 
@@ -89,6 +90,7 @@ namespace Core.Catalog
         #region Config Values
 
         private readonly int _numOfShards;
+        private readonly int _numOfShardsV3;
         private readonly int _numOfReplicas;
         private readonly int _maxResults;
 
@@ -176,6 +178,7 @@ namespace Core.Catalog
 
             //init all ES const
             _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+            _numOfShardsV3 = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShardsV3.Value;
             _numOfReplicas = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
             _maxResults = _applicationConfiguration.ElasticSearchConfiguration.MaxResults.Value;
             _sizeOfBulk = _applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.Value;
@@ -296,7 +299,7 @@ namespace Core.Catalog
 
         public string SetupEpgV2Index(string indexNmae)
         {
-            EnsureEpgIndexExist(indexNmae, EpgFeatureVersion.V2);
+            EnsureEpgV2IndexExists(indexNmae);
             SetNoRefresh(indexNmae);
 
             return indexNmae;
@@ -331,6 +334,7 @@ namespace Core.Catalog
             return true;
         }
 
+        [Obsolete]
         public bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart)
         {
             var retryCount = 3;
@@ -340,10 +344,9 @@ namespace Core.Catalog
 
             try
             {
-                var numOfShards = _applicationConfiguration.EPGIngestV2Configuration.NumOfShardsForCompactedIndex.Value;
-                EnsureEpgIndexExist(futureIndexName, EpgFeatureVersion.V2, numOfShards);
+                EnsureEpgV2IndexExists(futureIndexName);
                 SetNoRefresh(futureIndexName);
-                EnsureEpgIndexExist(pastIndexName, EpgFeatureVersion.V2, numOfShards);
+                EnsureEpgV2IndexExists(pastIndexName);
                 SetNoRefresh(pastIndexName);
 
                 var epgV2Indices = _elasticClient.GetIndicesPointingToAlias(globalEpgAlias);
@@ -467,7 +470,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (epgFeatureVersion == EpgFeatureVersion.V2)
                         {
-                            alias = EnsureEpgIndexExistsForEpg(epgCb, epgFeatureVersion, createdAliases);
+                            alias = EnsureEpgV2IndexExistsForEpg(epgCb, createdAliases);
                         }
 
                         UpdateEpgLinearMediaId(linearChannelSettings, epgCb);
@@ -553,14 +556,14 @@ namespace Core.Catalog
             }
         }
 
-        private string EnsureEpgIndexExistsForEpg(EpgCB epgCb, EpgFeatureVersion epgFeatureVersion, HashSet<string> createdAliases)
+        private string EnsureEpgV2IndexExistsForEpg(EpgCB epgCb, HashSet<string> createdAliases)
         {
             var alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
 
             // in case alias already created, no need to check in ES
             if (!createdAliases.Contains(alias))
             {
-                EnsureEpgIndexExist(alias, epgFeatureVersion);
+                EnsureEpgV2IndexExists(alias);
                 createdAliases.Add(alias);
             }
 
@@ -1822,7 +1825,7 @@ namespace Core.Catalog
                 return new List<UnifiedSearchResult>();
             }
 
-            totalItems = searchResponse.Hits.Count;
+            totalItems = Convert.ToInt32(searchResponse.Total);
             log.Debug("Info - SearchSubscriptionAssets returned search results");
 
             var unifiedSearchResults = new List<UnifiedSearchResult>();
@@ -3268,9 +3271,7 @@ namespace Core.Catalog
             }
 
             // Checking is new Epg ingest here as well to avoid calling GetEpgCBKey if we already called elastic and have all required coument Ids
-            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
-            var isNewEpgIngest = epgFeatureVersion != EpgFeatureVersion.V1;
-
+            var isNewEpgIngest = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId) != EpgFeatureVersion.V1;
             if (isNewEpgIngest)
             {
                 return searchResponse.Fields.Select(x => x.Value<string>("cb_document_id")).Distinct().ToList();
@@ -3356,12 +3357,15 @@ namespace Core.Catalog
             languages = languages ?? Enumerable.Empty<LanguageObj>();
             var epgIdsList = epgIds.ToList();
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
+
             var searchResult = _elasticClient.Search<NestEpg>(searchDescriptor => searchDescriptor
                 .Index(alias)
                 .Source(false)
                 .Size(_maxResults)
                 .Fields(sf => sf.Fields(fs => fs.CouchbaseDocumentId, fs => fs.EpgID))
-                .Query(q => q.Bool(b =>
+                .Query(q =>
+                {
+                    var query = q.Bool(b =>
                         b.Filter(f =>
                             f.Bool(b2 =>
                                 b2.Must(
@@ -3370,8 +3374,12 @@ namespace Core.Catalog
                                 )
                             )
                         )
-                    )
-                )
+                    );
+
+                    query = WrapQueryIfEpgV3Feature(query);
+
+                    return query;
+                })
             );
 
 
@@ -4330,17 +4338,22 @@ namespace Core.Catalog
 
                 var routing = new List<string>();
                 var currentDate = epgSearch.m_dStartDate.AddDays(-1).Date;
-                while (currentDate <= epgSearch.m_dEndDate)
+                // we should skip any kind of routing to EPGv3, it's not by date anymore. EPGv2 uses dates as routing, but it'd be never run on TVPAPI (hopefully).
+                var isEpgV1 = _groupSettingsManager.GetEpgFeatureVersion(_partnerId) == EpgFeatureVersion.V1;
+                if (isEpgV1)
                 {
-                    routing.Add(currentDate.ToString(ESUtils.ES_DATEONLY_FORMAT));
-                    currentDate = currentDate.AddDays(1);
+                    while (currentDate <= epgSearch.m_dEndDate)
+                    {
+                        routing.Add(currentDate.ToString(ESUtils.ES_DATEONLY_FORMAT));
+                        currentDate = currentDate.AddDays(1);
+                    }
                 }
 
                 var searchResponse = _elasticClient.Search<NestEpg>(s =>
                     {
                         s.Index(Indices.Index(NamingHelper.GetEpgIndexAlias(epgSearch.m_nGroupID)));
-                        s.Routing(string.Join(",", routing));
-                        s.Query(q => unifiedSearchNestEpgBuilder.GetQuery());
+                        s.Routing(isEpgV1 ? string.Join(",", routing) : null);
+                        s.Query(q => WrapQueryIfEpgV3Feature(unifiedSearchNestEpgBuilder.GetQuery()));
                         s.TrackTotalHits();
                         return s;
                     }
@@ -4574,7 +4587,7 @@ namespace Core.Catalog
             // get the epg document ids from elasticsearch
             var searchResult = _elasticClient.Search<NestEpg>(selector => selector
                 .Index(index)
-                .Query(q => boolQuery)
+                .Query(q => WrapQueryIfEpgV3Feature(boolQuery))
                 .Source(source => source.Includes(fields => fields.Fields(f => f.EpgIdentifier, f => f.CouchbaseDocumentId, f => f.IsAutoFill, f => f.Language)))
             );
 
@@ -4625,7 +4638,7 @@ namespace Core.Catalog
             return GetLanguages().FirstOrDefault(x => x.ID == id);
         }
 
-        private void EnsureEpgIndexExist(string dailyEpgIndexName, EpgFeatureVersion epgFeatureVersion, int? numberOfShards = null)
+        private void EnsureEpgV2IndexExists(string dailyEpgIndexName)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
@@ -4635,7 +4648,7 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName, epgFeatureVersion, numberOfShards);
+                AddEmptyEpgV2Index(dailyEpgIndexName);
                 AddEpgIndexAlias(dailyEpgIndexName);
             }
             catch (Exception e)
@@ -4685,7 +4698,17 @@ namespace Core.Catalog
             }
         }
 
-        private void AddEmptyIndex(string indexName, EpgFeatureVersion epgFeatureVersion, int? numOfShards = null)
+        private void AddEmptyEpgV2Index(string indexName)
+        {
+            AddEmptyIndex(indexName, EpgFeatureVersion.V2, REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS);
+        }
+
+        private void AddEmptyEpgV3Index(string indexName)
+        {
+            AddEmptyIndex(indexName, EpgFeatureVersion.V3, REFRESH_INTERVAL_FOR_EMPTY_EPG_V3_INDEX, _numOfShardsV3);
+        }
+
+        private void AddEmptyIndex(string indexName, EpgFeatureVersion epgFeatureVersion, int refreshInterval, int? numOfShards = null)
         {
             IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
@@ -4697,7 +4720,7 @@ namespace Core.Catalog
                 }
 
                 log.Info($"creating new index [{indexName}]");
-                CreateEmptyEpgIndex(indexName, epgFeatureVersion, true, true, REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS, numOfShards: numOfShards);
+                CreateEmptyEpgIndex(indexName, epgFeatureVersion, true, true, refreshInterval, numOfShards: numOfShards);
             });
         }
 

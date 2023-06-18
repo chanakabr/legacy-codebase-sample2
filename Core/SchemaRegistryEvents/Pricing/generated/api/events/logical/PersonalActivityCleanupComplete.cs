@@ -31,40 +31,16 @@ namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanupComplete
         public Schema Schema { get; set; }
 
         /// <summary>
-        /// The cleanup result.
-        /// </summary>
-        [JsonProperty("result", NullValueHandling = NullValueHandling.Ignore)]
-        public Result Result { get; set; }
-
-        /// <summary>
         /// service which produced the Cleanup Complete event
         /// </summary>
         [JsonProperty("serviceName", NullValueHandling = NullValueHandling.Ignore)]
         public string ServiceName { get; set; }
 
         /// <summary>
-        /// Execution time in epoch (seconds)
+        /// the key of personaActivityCleanup, which initiated cleanup
         /// </summary>
-        [JsonProperty("executionTimeEpoch", NullValueHandling = NullValueHandling.Ignore)]
-        public long? ExecutionTimeEpoch { get; set; }
-    }
-
-    /// <summary>
-    /// The cleanup result.
-    /// </summary>
-    public partial class Result
-    {
-        /// <summary>
-        /// The failure reason description - Shall be embeded in the OpsGenie alert description
-        /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public string Description { get; set; }
-
-        /// <summary>
-        /// The operation status (success, or fail)
-        /// </summary>
-        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
-        public string Status { get; set; }
+        [JsonProperty("key")]
+        public long Key { get; set; }
     }
 
     public partial class Schema

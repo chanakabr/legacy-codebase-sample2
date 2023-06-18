@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ApiLogic.Users;
+using ApiObjects;
 using ApiObjects.Response;
 using AutoMapper;
 using Core.Users;
@@ -57,8 +58,8 @@ namespace GrpcAPI.Services
             long domainId = 0;
             try
             {
-                var status = Core.ConditionalAccess.Utils.ValidateUserAndDomain(request.GroupId,
-                    request.UserId.ToString(), ref domainId, out var _, out var user);
+                var userStatus = Core.ConditionalAccess.Utils.ValidateUser(request.GroupId,
+                    request.UserId.ToString(), ref domainId, out var user);
                 var dynamicData = new MapField<string, string>();
                 if (user?.m_oDynamicData?.m_sUserData != null)
                 {
@@ -67,9 +68,45 @@ namespace GrpcAPI.Services
                         dynamicData.Add(userData.m_sDataType, userData.m_sValue);
                     }
                 }
+                
+                Status status = new Status();
+                // Most of the cases are not interesting - focus only on those that matter
+                switch (userStatus)
+                {
+                    case ResponseStatus.OK:
+                    {
+                        status.Code = (int)eResponseStatus.OK;
+                        break;
+                    }
+                    case ResponseStatus.UserDoesNotExist:
+                    {
+                        status.Code = (int)eResponseStatus.UserDoesNotExist;
+                        status.Message = eResponseStatus.UserDoesNotExist.ToString();
+                        break;
+                    }
+                    case ResponseStatus.UserNotIndDomain:
+                    {
+                        status.Code = (int)eResponseStatus.UserNotInDomain;
+                        status.Message = "User Not In Domain";
+                        break;
+                    }
+                    case ResponseStatus.UserWithNoDomain:
+                    {
+                        status.Code = (int)eResponseStatus.UserWithNoDomain;
+                        status.Message = eResponseStatus.UserWithNoDomain.ToString();
+                        break;
+                    }
+                    // Most cases will return general error
+                    default:
+                    {
+                        status.Code = (int)eResponseStatus.Error;
+                        status.Message = "Error validating user";
+                        break;
+                    }
+                }
 
                 return new ValidateUserResponse
-                    {Status = Mapper.Map<Status>(status), DomainId = domainId, DynamicData = {dynamicData}};
+                    { Status = Mapper.Map<Status>(status), DomainId = domainId, DynamicData = { dynamicData } };
             }
             catch (Exception e)
             {

@@ -30,10 +30,16 @@ namespace Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup
         public Schema Schema { get; set; }
 
         /// <summary>
+        /// the key of personaActivityCleanup is its execution time
+        /// </summary>
+        [JsonProperty("key")]
+        public long Key { get; set; }
+
+        /// <summary>
         /// retention period in days as it configured at the time that the message is distributed
         /// </summary>
-        [JsonProperty("retentionPeriodDays", NullValueHandling = NullValueHandling.Ignore)]
-        public long? RetentionPeriodDays { get; set; }
+        [JsonProperty("retentionPeriodDays")]
+        public long RetentionPeriodDays { get; set; }
     }
 
     public partial class Schema

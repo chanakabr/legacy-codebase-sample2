@@ -383,6 +383,41 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{78638E42-DD8
 		definition\appToken\api\api.json = definition\appToken\api\api.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "asset", "asset", "{E86DF650-E3C2-4467-9D18-AD4DF9B8FE30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{7C40D4E3-75AF-41EF-8CF3-9B2D621EE810}"
+	ProjectSection(SolutionItems) = preProject
+		definition\asset\api\api.json = definition\asset\api\api.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assetComment", "assetComment", "{55538C17-25C9-4702-8C1D-D0C2A7491B8E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{341582FE-E44D-4A5A-902B-5E268E219013}"
+	ProjectSection(SolutionItems) = preProject
+		definition\assetComment\api\api.json = definition\assetComment\api\api.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assetFile", "assetFile", "{34FC4B98-4C77-4F25-9446-26395AE3218F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{7D507F8A-60C1-4C6D-80A4-5A6B69F40892}"
+	ProjectSection(SolutionItems) = preProject
+		definition\assetFile\api\api.json = definition\assetFile\api\api.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assetFilePpv", "assetFilePpv", "{F5456743-749F-40C3-802C-77888FA34B26}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{4EAFB142-92BB-445A-9CA7-09FD57F29B5D}"
+	ProjectSection(SolutionItems) = preProject
+		definition\assetFilePpv\api\api.json = definition\assetFilePpv\api\api.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assetHistory", "assetHistory", "{A873E13C-1FF5-48D4-A121-8E24118C6B1A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{F4592A89-9E28-4474-8D44-FEF8BE6AEEF9}"
+	ProjectSection(SolutionItems) = preProject
+		definition\assetHistory\api\api.json = definition\assetHistory\api\api.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -1273,9 +1308,19 @@ Global
 		{C31B3EF7-6B85-4D56-8DB5-922C08B63001} = {E0325A31-EA8D-4AEF-BC94-8395F7A47795}
 		{CE3976FE-18CB-434C-8320-EBECA6D6FFBA} = {DE289223-380A-4698-9278-9B662B0CCCE4}
 		{78638E42-DD8E-47F1-BA8A-C8710E46C110} = {CE3976FE-18CB-434C-8320-EBECA6D6FFBA}
+		{E86DF650-E3C2-4467-9D18-AD4DF9B8FE30} = {DE289223-380A-4698-9278-9B662B0CCCE4}
+		{7C40D4E3-75AF-41EF-8CF3-9B2D621EE810} = {E86DF650-E3C2-4467-9D18-AD4DF9B8FE30}
+		{55538C17-25C9-4702-8C1D-D0C2A7491B8E} = {DE289223-380A-4698-9278-9B662B0CCCE4}
+		{341582FE-E44D-4A5A-902B-5E268E219013} = {55538C17-25C9-4702-8C1D-D0C2A7491B8E}
+		{34FC4B98-4C77-4F25-9446-26395AE3218F} = {DE289223-380A-4698-9278-9B662B0CCCE4}
+		{7D507F8A-60C1-4C6D-80A4-5A6B69F40892} = {34FC4B98-4C77-4F25-9446-26395AE3218F}
+		{F5456743-749F-40C3-802C-77888FA34B26} = {DE289223-380A-4698-9278-9B662B0CCCE4}
+		{4EAFB142-92BB-445A-9CA7-09FD57F29B5D} = {F5456743-749F-40C3-802C-77888FA34B26}
+		{A873E13C-1FF5-48D4-A121-8E24118C6B1A} = {DE289223-380A-4698-9278-9B662B0CCCE4}
+		{F4592A89-9E28-4474-8D44-FEF8BE6AEEF9} = {A873E13C-1FF5-48D4-A121-8E24118C6B1A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
