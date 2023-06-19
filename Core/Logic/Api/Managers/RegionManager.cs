@@ -64,10 +64,10 @@ namespace ApiLogic.Api.Managers
                 }
 
                 // check if region in use
-                if (DomainDal.IsRegionInUse(groupId, id))
+                var status = CheckIsRegionInUse(groupId, region);
+                if (!status.IsOkStatusCode())
                 {
-                    Log.Error($"Region in use by household and cannot be deleted. groupId:{groupId}, id:{id}");
-                    return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use by household and cannot be deleted");
+                    return status;
                 }
 
                 // TODO: what if the region is a parent??
@@ -119,7 +119,7 @@ namespace ApiLogic.Api.Managers
                 //BEO-13685
                 regionToUpdate.name = !regionToUpdate.name.IsNullOrEmptyOrWhiteSpace() ? regionToUpdate.name : region.name;
                 regionToUpdate.externalId = !regionToUpdate.externalId.IsNullOrEmptyOrWhiteSpace() ? regionToUpdate.externalId : region.externalId;
-                
+
                 if (!ApiDAL.UpdateRegion(groupId, regionToUpdate, userId))
                 {
                     Log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
@@ -565,7 +565,7 @@ namespace ApiLogic.Api.Managers
                 regionsCache = null;
             }
 
-            return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);   
+            return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);
         }
 
         private static List<long> GetLinearChannelsDiff(IEnumerable<KeyValuePair<long, int>> newLinearChannels, IEnumerable<KeyValuePair<long, int>> existingLinearChannels)
@@ -708,6 +708,33 @@ namespace ApiLogic.Api.Managers
                     ? new GenericResponse<Region>(Status.Ok, response.Objects.First())
                     : new GenericResponse<Region>(eResponseStatus.RegionNotFound)
                 : new GenericResponse<Region>(response.Status);
+        }
+
+        private Status CheckIsRegionInUse(int groupId, Region region)
+        {
+            if (DomainDal.IsRegionInUse(groupId, region.id))
+            {
+                Log.Error($"Region in use by household and cannot be deleted. groupId:{groupId}, id:{region.id}");
+                return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use by household and cannot be deleted");
+            }
+
+            if (region.parentId == 0)
+            {
+                var subRegions = GetRegions(groupId, new RegionFilter() { ParentId = region.id });
+                if (subRegions.HasObjects())
+                {
+                    foreach (var subRegion in subRegions.Objects)
+                    {
+                        if (DomainDal.IsRegionInUse(groupId, subRegion.id))
+                        {
+                            Log.Error($"Region has sub-region in use by household and cannot be deleted. groupId:{groupId}, regionId:{region.id}, subRegionId: {subRegion.id}");
+                            return new Status((int)eResponseStatus.CannotDeleteSubRegionInUse, "Region has sub-region in use by household and cannot be deleted");
+                        }
+                    }
+                }
+            }
+
+            return Status.Ok;
         }
     }
 }
