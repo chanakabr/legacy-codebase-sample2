@@ -424,6 +424,7 @@ namespace ApiObjects.Response
         NameMustBeUnique = 5094,
         EntityIsNotAssociatedWithShop = 5095,
         EmbeddedPermissionRoleModificationNotAllowed = 5096,
+        CannotDeleteSubRegionInUse = 5097,
 
         #endregion
 

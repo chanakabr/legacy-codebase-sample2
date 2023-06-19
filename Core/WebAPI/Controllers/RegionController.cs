@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update an existing region 
+        /// Update an existing region
         /// </summary>
         /// <param name="region">Region to update</param>
         /// <param name="id">Region ID to update</param>
@@ -95,7 +95,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete an existing region 
+        /// Delete an existing region
         /// </summary>
         /// <param name="id">Region ID to delete</param>
         /// <returns></returns>
@@ -104,6 +104,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RegionNotFound)]
         [Throws(eResponseStatus.DefaultRegionCannotBeDeleted)]
         [Throws(eResponseStatus.CannotDeleteRegionInUse)]
+        [Throws(eResponseStatus.CannotDeleteSubRegionInUse)]
         public static void Delete(int id)
         {
             var groupId = KS.GetFromRequest().GroupId;
