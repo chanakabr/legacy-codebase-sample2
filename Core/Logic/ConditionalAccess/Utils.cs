@@ -1185,7 +1185,8 @@ namespace Core.ConditionalAccess
             return ret;
         }
 
-        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup couponsGroup, ref string couponCode, int groupID, long domainId, string countryCode)
+        internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup couponsGroup, ref string couponCode, int groupID, long domainId,
+            string countryCode, bool allowAllreadyUsed = false)
         {
             Price price = CopyPrice(pModule);
             if (!string.IsNullOrEmpty(couponCode))
@@ -1197,7 +1198,7 @@ namespace Core.ConditionalAccess
                     theCouponData.Status != null &&
                     theCouponData.Status.Code == (int)eResponseStatus.OK &&
                     theCouponData.Coupon != null &&
-                    theCouponData.Coupon.m_CouponStatus == CouponsStatus.Valid &&
+                    (theCouponData.Coupon.m_CouponStatus == CouponsStatus.Valid || (allowAllreadyUsed && theCouponData.Coupon.m_CouponStatus == CouponsStatus.AllreadyUsed)) &&
                     theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == couponsGroup.m_sGroupCode)
                 {
                     // if it is a valid gift card, set price to be 0
@@ -10133,7 +10134,7 @@ namespace Core.ConditionalAccess
         }
 
         public static Price GetLowestPriceByCouponCodeOfSubcription(int groupId, string couponCode, Subscription subscription, Price lowestPrice, 
-            long domainId, string countryCode)
+            long domainId, string countryCode, bool allowAllreadyUsed = false)
         {
             long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
             if (couponGroupId > 0)
@@ -10149,7 +10150,7 @@ namespace Core.ConditionalAccess
                     currCouponGroup = Extensions.Clone(subscription.GetValidSubscriptionCouponGroup(couponGroupId.ToString()).FirstOrDefault());
                 }
 
-                lowestPrice = CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId, countryCode);
+                lowestPrice = CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId, countryCode, allowAllreadyUsed);
             }
 
             return lowestPrice;

@@ -143,11 +143,16 @@ namespace Core.Pricing
         {
             if (couponsGroup.m_dEndDate <= DateTime.UtcNow) return CouponsStatus.Expired;
             if (couponsGroup.m_dStartDate >= DateTime.UtcNow) return CouponsStatus.NotActive;
+            
             // global limitation
             if (couponsGroup.m_nMaxUseCountForCoupon <= coupon.useCount) return CouponsStatus.AllreadyUsed;
+            
             // domain limitation
-            if (couponsGroup.HasDomainLimitation() && couponsGroup.maxDomainUses <= couponDomainUses.Value) return CouponsStatus.AllreadyUsed;
-
+            if (couponsGroup.HasDomainLimitation())
+            {
+                if (couponsGroup.maxDomainUses <= couponDomainUses.Value) return CouponsStatus.AllreadyUsed;
+            }
+            
             return CouponsStatus.Valid;
         }
 

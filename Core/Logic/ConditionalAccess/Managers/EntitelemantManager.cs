@@ -2064,7 +2064,7 @@ namespace Core.ConditionalAccess
                                 }
 
                                 var discount = Utils.GetLowestPriceByCouponCodeOfSubcription(groupId, recurringData.CouponCode, subscription, subOriginalPrice,
-                                    0, countryCode);
+                                    0, countryCode, allowAllreadyUsed: true);
                                 cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
 
                                 entitlementPriceDetails.AddDiscountDetails(cedd);
@@ -2077,7 +2077,7 @@ namespace Core.ConditionalAccess
                                     EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
                                 };
 
-                                var discount = Utils.GetLowestPriceByCouponCodeOfSubcription(groupId, customDataCoupon, subscription, subOriginalPrice, 0, countryCode);
+                                var discount = Utils.GetLowestPriceByCouponCodeOfSubcription(groupId, customDataCoupon, subscription, subOriginalPrice, 0, countryCode, allowAllreadyUsed: true);
                                 cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
 
                                 entitlementPriceDetails.AddDiscountDetails(cedd);
@@ -2132,7 +2132,8 @@ namespace Core.ConditionalAccess
                                 EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
                             };
 
-                            var discount = Utils.GetLowestPriceByCouponCodeOfSubcription(groupId, customDataCoupon, subscription, subOriginalPrice, 0, countryCode);
+                            var discount = Utils.GetLowestPriceByCouponCodeOfSubcription(groupId, customDataCoupon, subscription, subOriginalPrice, 0, 
+                                countryCode, allowAllreadyUsed: true);
                             ocedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
 
                             entitlementPriceDetails.AddDiscountDetails(ocedd);
