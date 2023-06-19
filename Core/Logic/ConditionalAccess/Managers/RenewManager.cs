@@ -238,19 +238,35 @@ namespace Core.ConditionalAccess
                                     log.ErrorFormat("Failed to suspend purchase id  entitlements for payment gateway: UpdateMPPRenewalSubscriptionStatus fail in DB purchaseId={0}, householdId={1}", purchaseId, renewDetails.DomainId);
                                 }
                             }                           
+                            
+                            var pendingThresholdDays = ApplicationConfiguration.Current.PendingThresholdDays.Value;
 
-                            if (!ignoreUnifiedBillingCycle && subscriptionCycle != null
-                                && subscriptionCycle.UnifiedBillingCycle != null
-                                && subscriptionCycle.HasCycle
-                                && subscriptionCycle.UnifiedBillingCycle.endDate < DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow)) //should be part of unified cycle 
+                            if (pendingThresholdDays == 0)
+                                pendingThresholdDays = PENDING_THRESHOLD_DAYS;
+
+                            bool isPendingSubscriptionFailed =
+                                new DateTime(1970, 1, 1).AddMilliseconds(nextEndDate).AddDays(pendingThresholdDays) <
+                                DateTime.UtcNow;
+                            
+                            if (!ignoreUnifiedBillingCycle && subscriptionCycle != null 
+                                                           && subscriptionCycle.UnifiedBillingCycle != null
+                                                           && subscriptionCycle.HasCycle 
+                                                           && subscriptionCycle.UnifiedBillingCycle.endDate < DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow)) //should be part of unified cycle 
                             {
                                 res = true;
                                 var unifiedProcess = UpdateMPPRenewalProcessId(groupId, renewDetails, subscriptionCycle, paymentDetails.PaymentGatewayId);
                                 //GetRenewalProcessId(groupId, domainId, paymentDetails.PaymentGatewayId);
                                 if (unifiedProcess != null && unifiedProcess.isNew)
                                 {
-                                    //todo create unified msg
-                                    res = HandleRenewUnifiedSubscriptionPending(groupId, domainId, unifiedProcess.EndDate, response.PaymentGateway.RenewalIntervalMinutes, unifiedProcess.Id, isKronos);
+                                    if (isPendingSubscriptionFailed)
+                                    {
+                                        res = HandleRenewUnifiedSubscriptionFailed(cas, groupId, domainId, subscription, renewDetails, transactionResponse.FailReasonCode, isKronos, null, string.Empty, nextEndDate);
+                                    }
+                                    else
+                                    {
+                                        //todo create unified msg
+                                        res = HandleRenewUnifiedSubscriptionPending(groupId, domainId, unifiedProcess.EndDate, response.PaymentGateway.RenewalIntervalMinutes, unifiedProcess.Id, isKronos);
+                                    }
                                 }
                             }
                             else
@@ -265,8 +281,10 @@ namespace Core.ConditionalAccess
                                 {
                                     nextRenewalDate = DateTime.UtcNow.AddMinutes(pendingInterval);
                                 }
-
-                                res = HandleRenewSubscriptionPending(cas, renewDetails, nextRenewalDate, logString, isKronos);
+                                
+                                    res = isPendingSubscriptionFailed ? 
+                                        HandleRenewSubscriptionFailed(cas, renewDetails, logString, subscription, transactionResponse.FailReasonCode, isKronos, null, endDateUnix) : 
+                                        HandleRenewSubscriptionPending(cas, renewDetails, nextRenewalDate, logString, isKronos);  // renew subscription pending!
                             }
                         }
                     }
@@ -477,7 +495,7 @@ namespace Core.ConditionalAccess
                 }
             }
         }
-
+        
         protected internal static bool HandleRenewSubscriptionPending(BaseConditionalAccess cas, RenewDetails renewDetails, DateTime nextRenewalDate, string logString, bool isKronos = false)
         {
             log.DebugFormat("Transaction renew pending. data: {0}", logString);
@@ -1190,7 +1208,7 @@ namespace Core.ConditionalAccess
                             var subscriptionCode = int.Parse(subscription.m_SubscriptionCode);
                             RenewDetails rsDetail = renewDetailsList.FirstOrDefault(x => x.ProductId == subscriptionCode);
 
-                            if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, rsDetail, 0, isKronos, "AddOn with no BaseSubscription valid", string.Empty, nextEndDate))
+                            if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, householdId, subscription, rsDetail, 0, isKronos, "AddOn with no BaseSubscription valid", string.Empty, nextEndDate))
                             {
                                 // save all SubscriptionCode to remove from subscription list 
                                 removeSubscriptionCodes.Add(subscriptionCode);
@@ -1267,7 +1285,7 @@ namespace Core.ConditionalAccess
                             foreach (RenewDetails renewDetails in groupedRenewDetailsList)
                             {
                                 Subscription subscription = subscriptionsMap[renewDetails.ProductId];
-                                HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewDetails, 0, isKronos, transactionResponse.Status.Message, string.Empty, nextEndDate);
+                                HandleRenewUnifiedSubscriptionFailed(cas, groupId, householdId, subscription, renewDetails, 0, isKronos, transactionResponse.Status.Message, string.Empty, nextEndDate);
                             }
                             continue;
                         }
@@ -1298,7 +1316,7 @@ namespace Core.ConditionalAccess
                                     foreach (RenewDetails renewUnifiedData in groupedRenewDetailsList)
                                     {
                                         Subscription subscription = subscriptionsMap[renewUnifiedData.ProductId];
-                                        HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode, isKronos, null, string.Empty, nextEndDate);
+                                        HandleRenewUnifiedSubscriptionFailed(cas, groupId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode, isKronos, null, string.Empty, nextEndDate);
                                     }
                                 }
                                 else
@@ -1315,7 +1333,7 @@ namespace Core.ConditionalAccess
                                 foreach (RenewDetails renewUnifiedData in groupedRenewDetailsList)
                                 {
                                     Subscription subscription = subscriptionsMap[renewUnifiedData.ProductId];
-                                    HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode, isKronos, null, string.Empty, nextEndDate);
+                                    HandleRenewUnifiedSubscriptionFailed(cas, groupId, householdId, subscription, renewUnifiedData, transactionResponse.FailReasonCode, isKronos, null, string.Empty, nextEndDate);
                                 }
                             }
                             break;
@@ -1708,7 +1726,7 @@ namespace Core.ConditionalAccess
             return true;
         }
 
-        private static bool HandleRenewUnifiedSubscriptionFailed(BaseConditionalAccess cas, int groupId, int paymentgatewayId, long householdId, Subscription subscription,
+        private static bool HandleRenewUnifiedSubscriptionFailed(BaseConditionalAccess cas, int groupId, long householdId, Subscription subscription,
             RenewDetails renewDetails, int failReasonCode, bool isKronos, string billingSettingError = null, string billingGuid = null, long endDateUnix = 0)
         {
             string logString = string.Empty;
@@ -2003,7 +2021,7 @@ namespace Core.ConditionalAccess
                                 long nextEndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(processEndDate.Value);
                                 var subscriptionCode = int.Parse(subscription.m_SubscriptionCode);
                                 RenewDetails rsDetail = renewDetailsList.FirstOrDefault(x => x.ProductId == subscriptionCode);
-                                if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, rsDetail, 0, isKronos, "AddOn with no BaseSubscription valid",
+                                if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, householdId, subscription, rsDetail, 0, isKronos, "AddOn with no BaseSubscription valid",
                                     string.Empty, nextEndDate))
                                 {
                                     // save all SubscriptionCode to remove from subscription list 
