@@ -599,7 +599,7 @@ namespace WebAPI.Managers
             if (isOperator)
             {
                 var shopManagerRoleIds = PredefinedRoleId.GetShopManagerRoleIds();
-                if (!roleIds.All(x => shopManagerRoleIds.Contains(x)))
+                if (!roleIds.Intersect(shopManagerRoleIds).Any())
                     return false;
             }
 
@@ -628,8 +628,18 @@ namespace WebAPI.Managers
 
                             // Get External editor Role Id. ( manager should be able to update it's role)
                             long? externalEditorRole = GetEERole(ks);
-
-                            if (externalEditorRole.HasValue)
+                            var shopManagerRoles = PredefinedRoleId.GetShopManagerRoleIds().ToList();
+                            
+                            if (userRoleIds.Any(ur=>ur == PredefinedRoleId.OPERATOR) && IsOperatorAllowedAction(ks, userRoleIds))
+                            {
+                                return true;
+                            }
+                            else if (userRoleIds.Intersect(shopManagerRoles).Any() && IsOperatorAllowedAction(ks, userRoleIds) 
+                                     && IsManagerAllowedAction(ks, userRoleIds)) //Allow shop manager to delete shop manager roles
+                            {
+                                return true;
+                            }
+                            else if (externalEditorRole.HasValue)
                             {
                                 if (userRoleIds?.Count > 0 && userRoleIds.Any(x => x > maxRole && x != externalEditorRole.Value))
                                 {

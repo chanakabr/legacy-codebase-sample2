@@ -662,16 +662,17 @@ namespace WebAPI.Controllers
             KalturaOttUserDynamicDataValidator.Validate(user.DynamicData);
 
             KalturaOTTUser response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            var ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
             if (string.IsNullOrEmpty(id))
             {
-                id = KS.GetFromRequest().UserId;
+                id = ks.UserId;
             }
 
             try
             {
-                if (!RolesManager.IsManagerAllowedUpdateAction(id, user.GetRoleIds()))
+                var roleIds = user.GetRoleIds();
+                if (!RolesManager.IsManagerAllowedUpdateAction(id, roleIds))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
                                                        Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),
@@ -707,9 +708,9 @@ namespace WebAPI.Controllers
         static public bool AddRole(long roleId)
         {
             bool response = false;
-
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
+            var ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+            string userId = ks.UserId;
 
             try
             {
@@ -754,7 +755,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidUser)]
         [Throws(eResponseStatus.NoUsersInDomain)]
         [Throws(eResponseStatus.UserNotAllowed)]
-        static public bool Delete()
+        public static bool Delete()
         {
             bool response = false;
             
