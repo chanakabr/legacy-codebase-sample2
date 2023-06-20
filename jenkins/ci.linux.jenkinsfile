@@ -329,7 +329,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
 
     if (BRANCH_NAME =~ /\d+\d+\d+.*_/ || BRANCH_NAME =~ /\d+\d+\d+.*-/){
         sleep 5
-        echp "Enabling ECR Life Cycle"
+        echo "Enabling ECR Life Cycle"
         def is_exist = sh(script: "aws ecr get-lifecycle-policy --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}", returnStatus: true)
         if (is_exist != "0"){
             configFileProvider([configFile(fileId: '5ea8a9af-3adb-48ae-9929-3d93de8ff641', targetLocation: 'ECR-create-lifecycle.sh')]) {}
