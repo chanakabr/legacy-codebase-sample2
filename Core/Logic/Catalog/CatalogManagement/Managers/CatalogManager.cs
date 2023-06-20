@@ -49,6 +49,7 @@ namespace Core.Catalog.CatalogManagement
         List<AssetStruct> GetLinearMediaTypes(int groupId);
         bool IsRegionalizationEnabled(int groupId);
         BooleanLeafFieldDefinitions GetMetaByName(MetaByNameInput input);
+        string GetGroupDefaultLanguage(int groupId);
     }
 
     public class CatalogManager : ICatalogManager, ITagManager
@@ -1034,6 +1035,26 @@ namespace Core.Catalog.CatalogManagement
         public bool DoesGroupUsesTemplates(int groupId)
         {
             return Core.GroupManagers.GroupSettingsManager.Instance.DoesGroupUsesTemplates(groupId);
+        }
+
+        public string GetGroupDefaultLanguage(int groupId)
+        {
+            string lang = "";
+            if (DoesGroupUsesTemplates(groupId))
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    lang = catalogGroupCache.DefaultLanguage?.Code;
+                }
+            }
+            else
+            {
+                
+                lang = _groupManager.GetGroup(groupId)?.GetGroupDefaultLanguage()?.Code;
+            }
+
+            return lang;
         }
 
         public bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache)

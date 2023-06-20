@@ -1060,7 +1060,41 @@ namespace Core.Pricing
                     LanguageContainer[] names = null;
                     if (subsNamesMapping.ContainsKey(lSubCode))
                     {
+                        var lc = subsNamesMapping[lSubCode].FirstOrDefault(x => x.IsDefault); //BEO-12276
+
+                        if (lc == null)
+                        {
+                            string lang = CatalogManager.Instance.GetGroupDefaultLanguage(m_nGroupID);
+                            string name = ODBCWrapper.Utils.GetSafeStr(subsTable.Rows[i], "NAME");
+                            LanguageContainer dlc = new LanguageContainer()
+                            {
+                                IsDefault = true,
+                                m_sValue = name,
+                                m_sLanguageCode3 = lang ?? string.Empty
+                            };
+
+                            subsNamesMapping[lSubCode].Add(dlc);
+                        }
+                        else if (string.IsNullOrEmpty(lc.m_sValue))
+                        {
+                            string name = ODBCWrapper.Utils.GetSafeStr(subsTable.Rows[i], "NAME");
+                            lc.m_sValue = name;
+                        }
+
                         names = subsNamesMapping[lSubCode].ToArray();
+                    }
+                    else 
+                    {
+                        string lang = CatalogManager.Instance.GetGroupDefaultLanguage(m_nGroupID);
+
+                        string name = ODBCWrapper.Utils.GetSafeStr(subsTable.Rows[i], "NAME");
+                        LanguageContainer lc = new LanguageContainer()
+                        {
+                            IsDefault = true,
+                            m_sValue = name,
+                            m_sLanguageCode3 = lang ?? string.Empty
+                        };
+                        names = new LanguageContainer[] { lc };
                     }
 
                     // get sub services
@@ -1104,6 +1138,9 @@ namespace Core.Pricing
         {
             Dictionary<long, List<LanguageContainer>> res = new Dictionary<long, List<LanguageContainer>>();
             DataTable dt = ds.Tables[5];
+
+            string lang = CatalogManager.Instance.GetGroupDefaultLanguage(m_nGroupID);
+
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -1111,15 +1148,18 @@ namespace Core.Pricing
                     long lSubID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["SUBSCRIPTION_ID"]);
                     string sLanguageCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["language_code3"]);
                     string sDesc = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["description"]);
-                    LanguageContainer lc = new LanguageContainer();
-                    lc.Initialize(sLanguageCode, sDesc);
-                    if (res.ContainsKey(lSubID))
+
+                    if (!string.IsNullOrEmpty(sDesc)) //BEO-12276
                     {
-                        res[lSubID].Add(lc);
-                    }
-                    else
-                    {
-                        res.Add(lSubID, new List<LanguageContainer>() { lc });
+                        LanguageContainer lc = new LanguageContainer(sLanguageCode, sDesc, sLanguageCode == lang);
+                        if (res.ContainsKey(lSubID))
+                        {
+                            res[lSubID].Add(lc);
+                        }
+                        else
+                        {
+                            res.Add(lSubID, new List<LanguageContainer>() { lc });
+                        }
                     }
                 }
             }
