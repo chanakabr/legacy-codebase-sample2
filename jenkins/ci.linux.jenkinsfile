@@ -1,10 +1,15 @@
 library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
 stage('Unified-CI'){ 
-        AWS_REGION = 'us-west-2'
-        ECR_URL = '870777418594.dkr.ecr.us-west-2.amazonaws.com'
         component = env.JOB_NAME
         STAGE = 'build'
         PIPECLI = cd.get_pipecli()
+        GIT_COMMIT = ""
+        FULL_VERSION = ""
+        COMMIT_COUNT = ""
+        COMMITTER_EMAIL = ""
+        ECR_URL = '870777418594.dkr.ecr.us-west-2.amazonaws.com'
+        AWS_REGION = "us-west-2"
+        ECR_REPO_BRANCH = "${BRANCH_NAME}"
 
         properties([
             [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50']],
@@ -16,7 +21,7 @@ stage('Unified-CI'){
             "Linux" : {
                 node('Linux'){   
                     try{
-                        deleteDir()             
+                        deleteDir()
                         stage('Checkout'){
                             checkout scm: [
                                     $class: 'GitSCM',
@@ -25,8 +30,17 @@ stage('Unified-CI'){
                                     userRemoteConfigs: scm.userRemoteConfigs
                             ]
                         }
+
+                        GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                        FULL_VERSION = sh(script: './Core/get-version-tag.sh', returnStdout: true).trim()
+                        COMMIT_COUNT = sh(returnStdout: true, script: 'git rev-list --count HEAD').trim()
+                        COMMITTER_EMAIL = sh (script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true).trim()
+
+                        if (ci.is_building_tag()){
+                            ECR_REPO_BRANCH = "master"
+                        }                    
+
                         stage('Build Base Images'){
-                            def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Build.Dockerfile .")
                             sh(label:'Bulid Base OTT-BE image', script: "docker build -t ott-be-base-runtime:${GIT_COMMIT} --build-arg BUILD_IMAGE=ott-be-base-build:${GIT_COMMIT} -f ./Docker/Base.Runtime.Dockerfile .")
                         }
@@ -36,8 +50,10 @@ stage('Unified-CI'){
                                 runTests()
                             }
                         }
+
                         stage('Build Docker Images'){ 
                             sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
+                            
                             parallel(
                                 "phoenix" : { buildDockerAndPushToEcr("phoenix","./Docker/Phoenix.Api.Rest.Dockerfile") },
                                 "tvpapi" : { buildDockerAndPushToEcr("tvpapi","./Docker/Tvpapi.Dockerfile") },
@@ -190,14 +206,32 @@ stage('Unified-CI'){
         node('Linux') {
             if (ci.is_building_tag()){
                 stage("Release BE"){
-                    build (
-                            wait: false, 
-                            job: 'OTT-BE-Release-Wrapper', 
-                            parameters: [
-                                string(name: 'BRANCH', value: "${BRANCH_NAME}"), 
-                                string(name: 'type', value: 'main')
-                                ]
-                        )
+                    STAGE = "release"
+                    images = ['phoenix', 'tvpapi', 'wsingest', 'ingesthandlers']
+                    sync_from="build"
+                    stage('Sync S3 Regression Folder'){
+                        sh "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/${sync_from}/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/release/"
+                    }
+                    stage('Retag Regression Images'){
+                        for (image in images){
+                            def ecrRetagImagesToRcCommand = "aws ecr batch-delete-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-ids imageTag=release --output=json; MANIFEST=\$(aws ecr batch-get-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-ids imageTag=${sync_from} --query 'images[].imageManifest' --output text); aws ecr put-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-tag release --image-manifest \"\$MANIFEST\" --output=json"
+                            sh(label:"Retag ECR Regression Images", script: ecrRetagImagesToRcCommand, returnStdout: true)
+                        }
+                    }
+                    stage("Report Release Stage And Trigger"){
+                        reportRelease()
+                        triggerNugetPush()
+                        triggerClientLibs()
+                        triggerClientLibsAndroid()
+                    }
+                    // build (
+                    //         wait: false, 
+                    //         job: 'OTT-BE-Release-Wrapper', 
+                    //         parameters: [
+                    //             string(name: 'BRANCH', value: "${BRANCH_NAME}"), 
+                    //             string(name: 'type', value: 'main')
+                    //             ]
+                    //     )
                 }
             }
             stage('Trigger Wrapper'){
@@ -259,10 +293,19 @@ def runTestInDocker(testProjects){
 
 def buildDockerAndPushToEcr(componentName, dockerfile){
     component = componentName
-    def REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/${componentName}"
+    def REPOSITORY_NAME="${ECR_REPO_BRANCH.toLowerCase()}/${componentName}"
     def ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
-    def GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-    def FULL_VERSION = sh(script: './Core/get-version-tag.sh', returnStdout: true).trim()
+
+
+    echo "ECR_URL: ${ECR_URL}"
+    echo "AWS_REGION: ${AWS_REGION}"
+    echo "REPOSITORY_NAME: ${REPOSITORY_NAME}"
+    echo "ECR_REPOSITORY: ${ECR_REPOSITORY}"
+    echo "FULL_VERSION: ${FULL_VERSION}"
+    echo "COMMIT_COUNT: ${COMMIT_COUNT}"
+    echo "COMPONENT_NAME: ${componentName}"
+    echo "COMMITTER_EMAIL: ${COMMITTER_EMAIL}"
+
     sh(
         label: "Docker build ${REPOSITORY_NAME}", 
         script: "docker build "+
@@ -286,6 +329,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
 
     if (BRANCH_NAME =~ /\d+\d+\d+.*_/ || BRANCH_NAME =~ /\d+\d+\d+.*-/){
         sleep 5
+        echo "Enabling ECR Life Cycle"
         def is_exist = sh(script: "aws ecr get-lifecycle-policy --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}", returnStatus: true)
         if (is_exist != "0"){
             configFileProvider([configFile(fileId: '5ea8a9af-3adb-48ae-9929-3d93de8ff641', targetLocation: 'ECR-create-lifecycle.sh')]) {}
@@ -345,6 +389,40 @@ def triggerWrapper(){
                                                 ], wait: false
 }
 
+def reportRelease(){
+    stage("Report Release"){
+        full_version = sh( script:"aws ecr describe-images --repository '${ECR_REPO_BRANCH}/phoenix' --image-ids imageTag=release --query 'imageDetails[0].imageTags' --region us-west-2 | egrep \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | tr -d '\"' | tr -d ' '" , returnStdout: true).trim()
+        ecrImageGitsha = sh( script:"set +x; aws ecr describe-images --repository ${ECR_REPO_BRANCH}/phoenix --image-ids imageTag=${full_version} --query 'imageDetails[0].imageTags' --region us-west-2 | grep -v '${BRANCH_NAME}\\|build\\|sanity\\|rc\\|regression\\|release' | egrep -v \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | jq .[0]  " , returnStdout: true).trim()  
+        sh "${PIPECLI} report release -b ${BRANCH_NAME} -v ${full_version} -g ${ecrImageGitsha} --commiter amitde7896 -j ${env.JOB_NAME}"
+        addToPlatform("backend", full_version, BRANCH_NAME)
+    }
+}
+
+def addToPlatform(component, version, branch) {
+    sh "${PIPECLI} update platform -v ${version} -c ${component} -b ${branch} --type main"
+}
+
+def triggerNugetPush() {
+    build job: 'OTT-BE-Nuget-Push', parameters: [
+                                            string(name: 'branch', value: "${BRANCH_NAME}"),
+                                            string(name: 'nuget_server', value: "nuget.rnd.ott.kaltura.com/v3/index.json"),
+                                            string(name: 'mark_alpha', value: "false"),
+                                            ], wait: false
+}
+
+def triggerClientLibs() {
+    build job: 'OTT-Generate-ClientLibs', parameters: [
+                                            string(name: 'PHOENIX_BRANCH', value: "${BRANCH_NAME}"),
+                                            string(name: 'tag_version', value: "${full_version}"),
+                                            ], wait: false
+}
+
+def triggerClientLibsAndroid() {
+    build job: 'OTT-Generate-ClientLibs-ios-and-android', parameters: [
+                                            string(name: 'PHOENIX_BRANCH', value: "${BRANCH_NAME}"),
+                                            ], wait: false
+}
+
 def get_scm_branch(){
     def scm_branch
     if (ci.is_building_tag()){
@@ -355,6 +433,3 @@ def get_scm_branch(){
     }
     return scm_branch
 }
-
-
-
