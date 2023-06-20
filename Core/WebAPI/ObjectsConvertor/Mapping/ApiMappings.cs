@@ -30,6 +30,7 @@ using KeyValuePair = ApiObjects.KeyValuePair;
 using WebAPI.ModelsValidators;
 using ApiObjects.BulkUpload;
 using ApiObjects.Rules.PreActionCondition;
+using AutoMapper;
 using WebAPI.Models.ConditionalAccess.FilterActions;
 using WebAPI.Models.Domains;
 
@@ -43,7 +44,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PageIndex, opt => opt.MapFrom(src => src.GetRealPageIndex()))
                 .ForMember(dest => dest.PageSize, opt => opt.MapFrom(src => src.PageSize.Value));
 
-            //Language 
+            //Language
             cfg.CreateMap<LanguageObj, WebAPI.Managers.Models.Language>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -255,7 +256,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region Export Tasks
 
-            //Bulk export task 
+            //Bulk export task
             cfg.CreateMap<BulkExportTask, KalturaExportTask>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -392,7 +393,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DefaultQuota, opt => opt.MapFrom(src => src.DefaultQuota))
                 .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.ResolveUsing(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
                 .ForMember(dest => dest.ProtectionPolicy, opt => opt.ResolveUsing(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
-                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod / (24 * 60 * 60)))// convert to days 
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod / (24 * 60 * 60)))// convert to days
                 .ForMember(dest => dest.PrivateCopyEnabled, opt => opt.MapFrom(src => src.IsPrivateCopyEnabled))
                 .ForMember(dest => dest.PersonalizedRecording, opt => opt.MapFrom(src => src.PersonalizedRecordingEnable))
                 .ForMember(dest => dest.MaxRecordingConcurrency, opt => opt.MapFrom(src => src.MaxRecordingConcurrency))
@@ -462,7 +463,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DefaultRecordingAdapterId, opt => opt.MapFrom(src => src.DefaultRecordingAdapter))
                 .ForMember(dest => dest.DefaultAdapterId, opt => opt.MapFrom(src => src.DefaultAdapter));
 
-            //KalturaCDNPartnerSettings to CDNPartnerSettings 
+            //KalturaCDNPartnerSettings to CDNPartnerSettings
             cfg.CreateMap<KalturaCDNPartnerSettings, CDNPartnerSettings>()
                 .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.MapFrom(src => src.DefaultRecordingAdapterId))
                 .ForMember(dest => dest.DefaultAdapter, opt => opt.MapFrom(src => src.DefaultAdapterId));
@@ -484,12 +485,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.parentId));
 
             cfg.CreateMap<KalturaRegion, Region>()
-              .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.externalId, opt => opt.MapFrom(src => src.ExternalId))
-              .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.IsDefault))
-              .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.linearChannels, opt => opt.MapFrom(src => src.RegionalChannels))
-              .ForMember(dest => dest.parentId, opt => opt.MapFrom(src => src.ParentId));
+                .ConstructUsing(src =>
+                {
+                    // Map null RegionalChannels to null linearChannels.
+                    // By default Automapper mapping null collection to empty collection.
+                    // Null and empty RegionalChannels have differen maining for the Region update functionality.
+                    var result = new Region
+                    {
+                        linearChannels = src.RegionalChannels == null
+                            ? null
+                            : Mapper.Map<List<KeyValuePair<long, int>>>(src.RegionalChannels)
+                    };
+                    return result;
+                })
+                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.externalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.IsDefault))
+                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.parentId, opt => opt.MapFrom(src => src.ParentId));
 
             cfg.CreateMap<KalturaRegionalChannel, KeyValuePair<long, int>>()
                 .ConvertUsing(x => new KeyValuePair<long, int>(x.LinearChannelId, x.ChannelNumber));
@@ -1886,7 +1899,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.PartnerListType, opt => opt.MapFrom(src => src.PartnerListType))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
-            #endregion           
+            #endregion
 
             #region Business Module Rule
 

@@ -119,7 +119,8 @@ namespace ApiLogic.Api.Managers
                 //BEO-13685
                 regionToUpdate.name = !regionToUpdate.name.IsNullOrEmptyOrWhiteSpace() ? regionToUpdate.name : region.name;
                 regionToUpdate.externalId = !regionToUpdate.externalId.IsNullOrEmptyOrWhiteSpace() ? regionToUpdate.externalId : region.externalId;
-                
+                regionToUpdate.linearChannels = regionToUpdate.linearChannels != null ? regionToUpdate.linearChannels : region.linearChannels;
+
                 if (!ApiDAL.UpdateRegion(groupId, regionToUpdate, userId))
                 {
                     Log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
@@ -565,7 +566,7 @@ namespace ApiLogic.Api.Managers
                 regionsCache = null;
             }
 
-            return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);   
+            return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);
         }
 
         private static List<long> GetLinearChannelsDiff(IEnumerable<KeyValuePair<long, int>> newLinearChannels, IEnumerable<KeyValuePair<long, int>> existingLinearChannels)
