@@ -52,11 +52,11 @@ namespace IngestTransformationHandler
 
         private IngestProfile _ingestProfile;
         private DistributedLock _locker;
-        
+
         public IngestV2TransformationHandler(
-            IndexCompactionManager indexCompactionManager, 
-            IEpgCRUDOperationsManager crudOperationsManager, 
-            IEpgIngestMessaging epgIngestMessaging, 
+            IndexCompactionManager indexCompactionManager,
+            IEpgCRUDOperationsManager crudOperationsManager,
+            IEpgIngestMessaging epgIngestMessaging,
             IXmlTvDeserializer xmlTvDeserializer,
             IPhoenixFeatureFlag phoenixFeatureFlag)
         {
@@ -73,7 +73,7 @@ namespace IngestTransformationHandler
             {
                 _logger.Debug($"Starting ingest transformation handler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
                 _indexCompactionManager.RunEpgIndexCompactionIfRequired(serviceEvent.GroupId, serviceEvent.BulkUploadId);
-                
+
                 InitHandlerProperties(serviceEvent);
                 UpdateBulkUpload(BulkUploadJobStatus.Parsing);
 
@@ -86,6 +86,10 @@ namespace IngestTransformationHandler
                 }
 
                 var result = _xmlTvDeserializer.DeserializeXmlTv(_bulkUpload.GroupId,_bulkUpload.Id,_jobData.IngestProfileId, _bulkUpload.FileURL);
+
+                _bulkUpload.Results = result.Objects ?? new List<BulkUploadResult>();
+                _bulkUpload.NumOfObjects = _bulkUpload.Results.Count;
+
                 if (!result.IsOkStatusCode())
                 {
                     // failed to parse, update status to failed, and compete
@@ -96,8 +100,6 @@ namespace IngestTransformationHandler
                     return Task.CompletedTask;
                 }
 
-                _bulkUpload.Results = result.Objects.Cast<BulkUploadResult>().ToList();
-                _bulkUpload.NumOfObjects = _bulkUpload.Results.Count();
                 if (_bulkUpload.NumOfObjects == 0)
                 {
                     _logger.Warn($"received an empty deserialized result from ingest, groupId:[{_bulkUpload.GroupId}], bulkUploadId:[{_bulkUpload.Id}]");
@@ -109,7 +111,7 @@ namespace IngestTransformationHandler
                 // updateBulkUpload: method just dumps the entire object into CB without any checks - initial creation
                 // updateStatusWithVersionCheck: intended to use when you need to update the status only with a lock in multiprocess mode (not the case in transformation handler)
                 // updateResults: will update existing result according to new result set
-                // todo: arthur: talk to lior about dropping this madness that shir used for VOD bulk uploads, and using one single save ,method, this is crazzzzyyyy.... 
+                // todo: arthur: talk to lior about dropping this madness that shir used for VOD bulk uploads, and using one single save ,method, this is crazzzzyyyy....
                 _logger.Info($"Transformation successful, setting results in couchbase, , groupId:[{_bulkUpload.GroupId}], bulkUploadId:[{_bulkUpload.Id}]");
                 UpdateBulkUpload(BulkUploadJobStatus.Processing);
 
@@ -193,7 +195,7 @@ namespace IngestTransformationHandler
 
             _ingestProfile = GetIngestProfile();
             _bulkUpload.UpdaterId = serviceEvent.UserId;
-            
+
             var languages = BulkUploadMethods.GetGroupLanguages(_eventData.GroupId, out _defaultLanguage);
             _languagesInfo = new LanguagesInfo
             {
@@ -333,7 +335,7 @@ namespace IngestTransformationHandler
                 setter(_bulkUpload, items.Cast<IAffectedObject>().ToList());
             }
         }
-        
+
         private void UpdateBulkUpload(BulkUploadJobStatus newStatus)
         {
             var result = BulkUploadManager.UpdateBulkUpload(_bulkUpload, newStatus);
@@ -372,7 +374,7 @@ namespace IngestTransformationHandler
                 UserId = _bulkUpload.UpdaterId,
                 Results = results
             };
-        
+
         private GenericResponse<BulkUpload> UpdateBulkUploadStatusAndErrors(BulkUploadJobStatus newStatus)
         {
             var result = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, newStatus);
@@ -384,7 +386,7 @@ namespace IngestTransformationHandler
         private void TrySendIngestCompleted(BulkUploadJobStatus newStatus)
         {
             if (!BulkUpload.IsProcessCompletedByStatus(newStatus)) return;
-            
+
             var updateDate = DateTime.UtcNow; // TODO looks like _bulUpload.UpdateDate is not updated in CB
             var parameters = new EpgIngestCompletedParameters
             {

@@ -50,7 +50,7 @@ namespace IngestTransformationHandler
         private readonly IXmlTvDeserializer _xmlTvDeserializer;
         private readonly IEpgIngestMessaging _epgIngestMessaging;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
 
         private BulkUpload _bulkUpload;
         private BulkUploadIngestJobData _jobData;
@@ -92,8 +92,8 @@ namespace IngestTransformationHandler
                 }
 
                 var result = _xmlTvDeserializer.DeserializeXmlTv(_bulkUpload.GroupId,_bulkUpload.Id,_jobData.IngestProfileId, _bulkUpload.FileURL);
-                _bulkUpload.Results = result.Objects;
-                _bulkUpload.NumOfObjects = result.Objects.Count();
+                _bulkUpload.Results = result.Objects ?? new List<BulkUploadResult>();;
+                _bulkUpload.NumOfObjects = result.Objects.Count;
                 if (!result.IsOkStatusCode())
                 {
                     // failed to parse, update status to failed, and compete
@@ -104,14 +104,14 @@ namespace IngestTransformationHandler
                     return;
                 }
 
-                
+
                 if (_bulkUpload.NumOfObjects == 0)
                 {
                     _logger.Warn($"received an empty deserialized result from ingest, groupId:[{_bulkUpload.GroupId}], bulkUploadId:[{_bulkUpload.Id}]");
                     UpdateBulkUpload(BulkUploadJobStatus.Success);
                     return;
                 }
-                
+
                 var targetDates = BulkUploadMethods.CalculateIngestDates(_bulkUpload.Results);
                 _jobData.DatesOfProgramsToIngest = targetDates.Distinct().ToArray();
                 _logger.Info($"Transformation successful, setting results in couchbase, , groupId:[{_bulkUpload.GroupId}], bulkUploadId:[{_bulkUpload.Id}]");
@@ -236,7 +236,7 @@ namespace IngestTransformationHandler
 
             _epgIngestMessaging.EpgIngestPartCompleted(parametersList);
         }
-        
+
         private void UpdateBulkUpload(BulkUploadJobStatus newStatus)
         {
             var result = BulkUploadManager.UpdateBulkUpload(_bulkUpload, newStatus);
