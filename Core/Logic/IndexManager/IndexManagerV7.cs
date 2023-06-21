@@ -1820,12 +1820,12 @@ namespace Core.Catalog
                 }
             );
 
+            totalItems = Convert.ToInt32(searchResponse.Total);
             if (!searchResponse.Hits.Any() || !searchResponse.IsValid)
             {
                 return new List<UnifiedSearchResult>();
             }
-
-            totalItems = Convert.ToInt32(searchResponse.Total);
+            
             log.Debug("Info - SearchSubscriptionAssets returned search results");
 
             var unifiedSearchResults = new List<UnifiedSearchResult>();

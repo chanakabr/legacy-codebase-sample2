@@ -1682,16 +1682,13 @@ namespace Core.Catalog
 
                 string searchResultString = _elasticSearchApi.Search(NamingHelper.GetMediaIndexAlias(parentGroupId), ES_MEDIA_TYPE, ref searchQuery);
 
-                int temporaryTotalItems = 0;
-                searchResults = ESUtils.DecodeAssetSearchJsonObject(searchResultString, ref temporaryTotalItems);
+                searchResults = ESUtils.DecodeAssetSearchJsonObject(searchResultString, ref totalItems);
 
                 #region Process results
 
                 if (searchResults != null && searchResults.Count > 0)
                 {
                     log.Debug("Info - SearchSubscriptionAssets returned search results");
-
-                    totalItems = temporaryTotalItems;
 
                     // Order by stats
                     if ((order.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && order.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
