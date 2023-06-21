@@ -161,8 +161,20 @@ namespace ApiLogic.Catalog.IndexManager
         //CUD
         public void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
         {
-            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG,
-                null, programsToDelete, epgIndexName,
+            // Constant value for chunking is used to make is as simple as it could be.
+            // Possible solutions:
+            // 1. Move it to TCM configuration and empirically choose batch size.
+            // 2. Calculate the size of the message to be published in memory. There are a lot of possible problems (LOH grows, memory consumption, etc.)
+            // Taking into account that replication between ESV2 and ESV7 is a temporary solution - let's avoid unnecessary complexity.
+            var transformedParameters = programsToDelete.Batch(BatchChunkSize)
+                .Select(batch => new object[] { batch.ToList(), epgIndexName, languages })
+                .ToArray();
+
+            Execute(MethodBase.GetCurrentMethod(),
+                IndexManagerMigrationEventKeys.EPG,
+                transformedParameters,
+                programsToDelete,
+                epgIndexName,
                 languages);
         }
 
@@ -414,7 +426,21 @@ namespace ApiLogic.Catalog.IndexManager
 
         public void ApplyEpgCrudOperationWithTransaction(string transactionId, List<EpgCB> programsToIndex, List<EpgCB> programsToDelete)
         {
-            Execute<object>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, transactionId, programsToIndex, programsToDelete);
+            // Constant value for chunking is used to make is as simple as it could be.
+            // Possible solutions:
+            // 1. Move it to TCM configuration and empirically choose batch size.
+            // 2. Calculate the size of the message to be published in memory. There are a lot of possible problems (LOH grows, memory consumption, etc.)
+            // Taking into account that replication between ESV2 and ESV7 is a temporary solution - let's avoid unnecessary complexity.
+            var transformedParametersIndex = programsToIndex.Batch(BatchChunkSize)
+                .Select(batch => new object[] { transactionId, batch.ToList(), new List<EpgCB>() })
+                .ToArray();
+
+            var transformedParametersDelete = programsToDelete.Batch(BatchChunkSize)
+                .Select(batch => new object[] { transactionId, new List<EpgCB>(), batch.ToList() })
+                .ToArray();
+
+            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, transformedParametersIndex, transactionId, programsToIndex, programsToDelete);
+            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, transformedParametersDelete, transactionId, new List<EpgCB>(), new List<EpgCB>());
         }
 
         public void CommitEpgCrudTransaction(string transactionId, long linearChannelId)
