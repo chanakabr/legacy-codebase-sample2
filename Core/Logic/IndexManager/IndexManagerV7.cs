@@ -4047,8 +4047,14 @@ namespace Core.Catalog
                 return false;
             }
 
-            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
             _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, epg => { Utils.ExtractSuppressedValue(GetCatalogGroupCache(), epg); });
+
+            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
+            if (epgFeatureVersion == EpgFeatureVersion.V3 && !isRecording)
+            {
+                UpsertProgramEpgV3(epgObjects);
+                return true;
+            }
 
             List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
             Dictionary<string, LinearChannelSettings> linearChannelSettings = _catalogCache.GetLinearChannelSettings(_partnerId, epgChannelIds);
