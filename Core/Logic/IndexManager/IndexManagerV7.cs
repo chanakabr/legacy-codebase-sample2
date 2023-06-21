@@ -428,7 +428,7 @@ namespace Core.Catalog
 
         public bool UpsertProgram(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings)
         {
-            if (!epgObjects.Any())
+            if (epgObjects == null || !epgObjects.Any())
             {
                 return true;
             }
@@ -437,71 +437,97 @@ namespace Core.Catalog
 
             try
             {
-                var sizeOfBulk = GetBulkSize();
-                var languages = GetLanguages();
-                var epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).Distinct().ToList();
-                linearChannelSettings = linearChannelSettings ?? new Dictionary<string, LinearChannelSettings>();
-
-                var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
-
-                var linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
-
-                var createdAliases = new HashSet<string>();
                 _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, epg => { Utils.ExtractSuppressedValue(GetCatalogGroupCache(), epg); });
-
-                var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
-                var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
-
-                // Create dictionary by languages
-                foreach (var language in languages)
+                if (_groupSettingsManager.GetEpgFeatureVersion(_partnerId) == EpgFeatureVersion.V3)
                 {
-                    // Filter programs to current language
-                    var currentLanguageEpgs = epgObjects.Where(epg =>
-                        epg.Language.ToLower() == language.Code.ToLower() ||
-                        language.IsDefault && string.IsNullOrEmpty(epg.Language)).ToList();
-
-                    if (!currentLanguageEpgs.Any())
-                        continue;
-
-                    // Create bulk request object for each program
-                    foreach (var epgCb in currentLanguageEpgs)
-                    {
-                        // Epg V2 has multiple indices connected to the global alias {groupID}_epg
-                        // in that case we need to use the specific date alias for each epg item to update
-                        if (epgFeatureVersion == EpgFeatureVersion.V2)
-                        {
-                            alias = EnsureEpgV2IndexExistsForEpg(epgCb, createdAliases);
-                        }
-
-                        UpdateEpgLinearMediaId(linearChannelSettings, epgCb);
-                        UpdateEpgRegions(epgCb, linearChannelsRegionsMapping);
-
-                        var expiry = GetEpgExpiry(epgCb);
-                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, IsOpc(), expiry);
-                        var nestEsBulkRequest = GetEpgBulkRequest(alias, epg);
-                        bulkRequests.Add(nestEsBulkRequest);
-
-                        //prepare next bulk
-                        if (bulkRequests.Count <= sizeOfBulk)
-                        {
-                            continue;
-                        }
-
-                        var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
-                        result &= isValid;
-                    }
+                    UpsertProgramEpgV3(epgObjects);
+                    return result;
                 }
 
-                if (bulkRequests.Any())
-                {
-                    var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
-                    result &= isValid;
-                }
+                // This is an upsert program for epg version 1 and 2...
+                result = UpsertProgramLegacy(epgObjects, linearChannelSettings, result);
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error: Update EPGs threw an exception. Exception={0}", ex);
                 throw;
+            }
+
+            return result;
+        }
+
+        private void UpsertProgramEpgV3(List<EpgCB> epgObjects)
+        {
+            var epgsToUpsertByChannel = epgObjects.GroupBy(e => e.ChannelID).ToArray();
+            foreach (var channelGroup in epgsToUpsertByChannel)
+            {
+                var transactionId = NamingHelper.GetEpgV3TransactionId(channelGroup.Key, 0);
+                CommitEpgCrudTransaction(transactionId, channelGroup.Key);
+                ApplyEpgCrudOperationWithTransaction(transactionId, channelGroup.ToList(), new List<EpgCB>());
+            }
+        }
+
+        private bool UpsertProgramLegacy(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings, bool result)
+        {
+            var sizeOfBulk = GetBulkSize();
+            var languages = GetLanguages();
+            linearChannelSettings = linearChannelSettings ?? new Dictionary<string, LinearChannelSettings>();
+
+            var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
+
+            var linearChannelsRegionsMapping = _regionManager.GetLinearMediaRegions(_partnerId);
+
+            var createdAliases = new HashSet<string>();
+            // _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, epg => { Utils.ExtractSuppressedValue(GetCatalogGroupCache(), epg); });
+
+            var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
+            var epgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(_partnerId);
+
+            // Create dictionary by languages
+            foreach (var language in languages)
+            {
+                // Filter programs to current language
+                var currentLanguageEpgs = epgObjects.Where(epg =>
+                        epg.Language.ToLower() == language.Code.ToLower() ||
+                        language.IsDefault && string.IsNullOrEmpty(epg.Language))
+                    .ToList();
+
+                if (!currentLanguageEpgs.Any())
+                    continue;
+
+                // Create bulk request object for each program
+                foreach (var epgCb in currentLanguageEpgs)
+                {
+                    // Epg V2 has multiple indices connected to the global alias {groupID}_epg
+                    // in that case we need to use the specific date alias for each epg item to update
+                    if (epgFeatureVersion == EpgFeatureVersion.V2)
+                    {
+                        alias = EnsureEpgV2IndexExistsForEpg(epgCb, createdAliases);
+                    }
+
+                    UpdateEpgLinearMediaId(linearChannelSettings, epgCb);
+                    UpdateEpgRegions(epgCb, linearChannelsRegionsMapping);
+
+                    var expiry = GetEpgExpiry(epgCb);
+                    var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, IsOpc(), expiry);
+                    var nestEsBulkRequest = GetEpgBulkRequest(alias, epg);
+                    bulkRequests.Add(nestEsBulkRequest);
+
+                    //prepare next bulk
+                    if (bulkRequests.Count <= sizeOfBulk)
+                    {
+                        continue;
+                    }
+
+                    var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
+                    result &= isValid;
+                }
+            }
+
+            if (bulkRequests.Any())
+            {
+                var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
+                result &= isValid;
             }
 
             return result;
