@@ -1459,6 +1459,9 @@ namespace WebAPI.Reflection
                 case "KalturaIngestStatusPartnerConfiguration":
                     return new KalturaIngestStatusPartnerConfiguration(parameters, true);
                     
+                case "KalturaIngestStatusVodConfiguration":
+                    return new KalturaIngestStatusVodConfiguration(parameters, true);
+                    
                 case "KalturaIntegerValue":
                     return new KalturaIntegerValue(parameters, true);
                     
@@ -2733,6 +2736,24 @@ namespace WebAPI.Reflection
                     
                 case "KalturaValue":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaVodIngestAssetResult":
+                    return new KalturaVodIngestAssetResult(parameters, true);
+                    
+                case "KalturaVodIngestAssetResultAggregation":
+                    return new KalturaVodIngestAssetResultAggregation(parameters, true);
+                    
+                case "KalturaVodIngestAssetResultErrorMessage":
+                    return new KalturaVodIngestAssetResultErrorMessage(parameters, true);
+                    
+                case "KalturaVodIngestAssetResultFilter":
+                    return new KalturaVodIngestAssetResultFilter(parameters, true);
+                    
+                case "KalturaVodIngestAssetResultListResponse":
+                    return new KalturaVodIngestAssetResultListResponse(parameters, true);
+                    
+                case "KalturaVodIngestAssetResultResponse":
+                    return new KalturaVodIngestAssetResultResponse(parameters, true);
                     
                 case "KalturaWatchHistoryAsset":
                     return new KalturaWatchHistoryAsset(parameters, true);
@@ -17625,8 +17646,31 @@ namespace WebAPI.Models.IngestStatus
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute VodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusPartnerConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaIngestStatusPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
+            if (fromRequest)
+            {
+                if (parameters == null || parameters.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaIngestStatusPartnerConfiguration");
+
+                if ((!parameters.ContainsKey("epg") || string.IsNullOrWhiteSpace(parameters["epg"]?.ToString())) && (!parameters.ContainsKey("vod") || string.IsNullOrWhiteSpace(parameters["vod"]?.ToString())))
+                   throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "epg, vod");
+
+            }
             if (parameters != null)
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
@@ -17641,6 +17685,380 @@ namespace WebAPI.Models.IngestStatus
                     else if (parameters["epg"] is IDictionary)
                     {
                         Epg = (KalturaIngestStatusEpgConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusEpgConfiguration), (Dictionary<string, object>) parameters["epg"]);
+                    }
+                }
+                if (parameters.ContainsKey("vod") && parameters["vod"] != null)
+                {
+                    VodSchemaProperty.Validate("vod", parameters["vod"]);
+                    if (parameters["vod"] is JObject)
+                    {
+                        Vod = (KalturaIngestStatusVodConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusVodConfiguration), ((JObject) parameters["vod"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["vod"] is IDictionary)
+                    {
+                        Vod = (KalturaIngestStatusVodConfiguration) Deserializer.deserialize(typeof(KalturaIngestStatusVodConfiguration), (Dictionary<string, object>) parameters["vod"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaIngestStatusVodConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute IsSupportedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusVodConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute RetainingPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestStatusVodConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaIngestStatusVodConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("isSupported") && parameters["isSupported"] != null)
+                {
+                    IsSupportedSchemaProperty.Validate("isSupported", parameters["isSupported"]);
+                    IsSupported = (Boolean) Convert.ChangeType(parameters["isSupported"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("retainingPeriod") && parameters["retainingPeriod"] != null)
+                {
+                    RetainingPeriodSchemaProperty.Validate("retainingPeriod", parameters["retainingPeriod"]);
+                    RetainingPeriod = (Int64) Convert.ChangeType(parameters["retainingPeriod"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaVodIngestAssetResult
+    {
+        public KalturaVodIngestAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("assetName") && parameters["assetName"] != null)
+                {
+                    AssetName = (String) Convert.ChangeType(parameters["assetName"], typeof(String));
+                }
+                if (parameters.ContainsKey("shopAssetUserRuleId") && parameters["shopAssetUserRuleId"] != null)
+                {
+                    ShopAssetUserRuleId = (Int64) Convert.ChangeType(parameters["shopAssetUserRuleId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("fileName") && parameters["fileName"] != null)
+                {
+                    FileName = (String) Convert.ChangeType(parameters["fileName"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestDate") && parameters["ingestDate"] != null)
+                {
+                    IngestDate = (Int64) Convert.ChangeType(parameters["ingestDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["status"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "status");
+                    }
+
+                    Status = (KalturaVodIngestAssetResultStatus) Enum.Parse(typeof(KalturaVodIngestAssetResultStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaVodIngestAssetResultStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaVodIngestAssetResultStatus)));
+                    }
+                }
+                if (parameters.ContainsKey("vodTypeSystemName") && parameters["vodTypeSystemName"] != null)
+                {
+                    VodTypeSystemName = (String) Convert.ChangeType(parameters["vodTypeSystemName"], typeof(String));
+                }
+                if (parameters.ContainsKey("errors") && parameters["errors"] != null)
+                {
+                    if (parameters["errors"] is JArray)
+                    {
+                        Errors = OTTObjectBuilder.buildList<KalturaVodIngestAssetResultErrorMessage>(typeof(KalturaVodIngestAssetResultErrorMessage), (JArray) parameters["errors"]);
+                    }
+                    else if (parameters["errors"] is IList)
+                    {
+                        Errors = OTTObjectBuilder.buildList(typeof(KalturaVodIngestAssetResultErrorMessage), parameters["errors"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("warnings") && parameters["warnings"] != null)
+                {
+                    if (parameters["warnings"] is JArray)
+                    {
+                        Warnings = OTTObjectBuilder.buildList<KalturaVodIngestAssetResultErrorMessage>(typeof(KalturaVodIngestAssetResultErrorMessage), (JArray) parameters["warnings"]);
+                    }
+                    else if (parameters["warnings"] is IList)
+                    {
+                        Warnings = OTTObjectBuilder.buildList(typeof(KalturaVodIngestAssetResultErrorMessage), parameters["warnings"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaVodIngestAssetResultAggregation
+    {
+        public KalturaVodIngestAssetResultAggregation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("ingestDateFrom") && parameters["ingestDateFrom"] != null)
+                {
+                    IngestDateFrom = (Int64) Convert.ChangeType(parameters["ingestDateFrom"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestDateTo") && parameters["ingestDateTo"] != null)
+                {
+                    IngestDateTo = (Int64) Convert.ChangeType(parameters["ingestDateTo"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("failureCount") && parameters["failureCount"] != null)
+                {
+                    FailureCount = (Int32) Convert.ChangeType(parameters["failureCount"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("successCount") && parameters["successCount"] != null)
+                {
+                    SuccessCount = (Int32) Convert.ChangeType(parameters["successCount"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("externalFailureCount") && parameters["externalFailureCount"] != null)
+                {
+                    ExternalFailureCount = (Int32) Convert.ChangeType(parameters["externalFailureCount"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("successWithWarningCount") && parameters["successWithWarningCount"] != null)
+                {
+                    SuccessWithWarningCount = (Int32) Convert.ChangeType(parameters["successWithWarningCount"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaVodIngestAssetResultErrorMessage
+    {
+        public KalturaVodIngestAssetResultErrorMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("message") && parameters["message"] != null)
+                {
+                    Message = (String) Convert.ChangeType(parameters["message"], typeof(String));
+                }
+                if (parameters.ContainsKey("code") && parameters["code"] != null)
+                {
+                    Code = (String) Convert.ChangeType(parameters["code"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaVodIngestAssetResultFilter
+    {
+        private static RuntimeSchemePropertyAttribute FileNameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaVodIngestAssetResultFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute AssetNameContainsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaVodIngestAssetResultFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IngestStatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaVodIngestAssetResultFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IngestDateGreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaVodIngestAssetResultFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IngestDateSmallerThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaVodIngestAssetResultFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute VodTypeSystemNameInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaVodIngestAssetResultFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ShopAssetUserRuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaVodIngestAssetResultFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = 50,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        public KalturaVodIngestAssetResultFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("fileNameContains") && parameters["fileNameContains"] != null)
+                {
+                    FileNameContainsSchemaProperty.Validate("fileNameContains", parameters["fileNameContains"]);
+                    FileNameContains = (String) Convert.ChangeType(parameters["fileNameContains"], typeof(String));
+                }
+                if (parameters.ContainsKey("assetNameContains") && parameters["assetNameContains"] != null)
+                {
+                    AssetNameContainsSchemaProperty.Validate("assetNameContains", parameters["assetNameContains"]);
+                    AssetNameContains = (String) Convert.ChangeType(parameters["assetNameContains"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestStatusIn") && parameters["ingestStatusIn"] != null)
+                {
+                    IngestStatusInSchemaProperty.Validate("ingestStatusIn", parameters["ingestStatusIn"]);
+                    IngestStatusIn = (String) Convert.ChangeType(parameters["ingestStatusIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("ingestDateGreaterThan") && parameters["ingestDateGreaterThan"] != null)
+                {
+                    IngestDateGreaterThanSchemaProperty.Validate("ingestDateGreaterThan", parameters["ingestDateGreaterThan"]);
+                    IngestDateGreaterThan = (Int64) Convert.ChangeType(parameters["ingestDateGreaterThan"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("ingestDateSmallerThan") && parameters["ingestDateSmallerThan"] != null)
+                {
+                    IngestDateSmallerThanSchemaProperty.Validate("ingestDateSmallerThan", parameters["ingestDateSmallerThan"]);
+                    IngestDateSmallerThan = (Int64) Convert.ChangeType(parameters["ingestDateSmallerThan"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("vodTypeSystemNameIn") && parameters["vodTypeSystemNameIn"] != null)
+                {
+                    VodTypeSystemNameInSchemaProperty.Validate("vodTypeSystemNameIn", parameters["vodTypeSystemNameIn"]);
+                    VodTypeSystemNameIn = (String) Convert.ChangeType(parameters["vodTypeSystemNameIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("shopAssetUserRuleIdIn") && parameters["shopAssetUserRuleIdIn"] != null)
+                {
+                    ShopAssetUserRuleIdInSchemaProperty.Validate("shopAssetUserRuleIdIn", parameters["shopAssetUserRuleIdIn"]);
+                    ShopAssetUserRuleIdIn = (String) Convert.ChangeType(parameters["shopAssetUserRuleIdIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaVodIngestAssetResultListResponse
+    {
+        public KalturaVodIngestAssetResultListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = OTTObjectBuilder.buildList<KalturaVodIngestAssetResult>(typeof(KalturaVodIngestAssetResult), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = OTTObjectBuilder.buildList(typeof(KalturaVodIngestAssetResult), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaVodIngestAssetResultResponse
+    {
+        public KalturaVodIngestAssetResultResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("result") && parameters["result"] != null)
+                {
+                    if (parameters["result"] is JObject)
+                    {
+                        Result = (KalturaVodIngestAssetResultListResponse) Deserializer.deserialize(typeof(KalturaVodIngestAssetResultListResponse), ((JObject) parameters["result"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["result"] is IDictionary)
+                    {
+                        Result = (KalturaVodIngestAssetResultListResponse) Deserializer.deserialize(typeof(KalturaVodIngestAssetResultListResponse), (Dictionary<string, object>) parameters["result"]);
+                    }
+                }
+                if (parameters.ContainsKey("aggregations") && parameters["aggregations"] != null)
+                {
+                    if (parameters["aggregations"] is JObject)
+                    {
+                        Aggregations = (KalturaVodIngestAssetResultAggregation) Deserializer.deserialize(typeof(KalturaVodIngestAssetResultAggregation), ((JObject) parameters["aggregations"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["aggregations"] is IDictionary)
+                    {
+                        Aggregations = (KalturaVodIngestAssetResultAggregation) Deserializer.deserialize(typeof(KalturaVodIngestAssetResultAggregation), (Dictionary<string, object>) parameters["aggregations"]);
                     }
                 }
             }

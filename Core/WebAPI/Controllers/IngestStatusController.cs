@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.IngestStatus;
@@ -80,6 +81,21 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static KalturaIngestStatusEpgProgramResultListResponse GetEpgProgramResultList(long ingestId, KalturaIngestEpgProgramResultFilter filter = null, KalturaFilterPager pager = null)
+        {
+            throw new NotImplementedException("call should go to Ingest status service instead of Phoenix");
+        }
+
+        /// <summary>
+        /// List detailed results of ingested assets.
+        /// </summary>
+        /// <param name="filter">Filter object with parameters to filter selected ingest processes and assets</param>
+        /// <param name="pager">Paging the request</param>
+        [Action("getVodAssetResult")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static KalturaVodIngestAssetResultResponse GetVodIngestAssetResult(
+            KalturaVodIngestAssetResultFilter filter = null,
+            KalturaFilterPager pager = null)
         {
             throw new NotImplementedException("call should go to Ingest status service instead of Phoenix");
         }

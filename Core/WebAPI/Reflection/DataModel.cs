@@ -4686,6 +4686,18 @@ namespace WebAPI.Reflection
                     {
                         case "Epg":
                             return "epg";
+                        case "Vod":
+                            return "vod";
+                    }
+                    break;
+                    
+                case "KalturaIngestStatusVodConfiguration":
+                    switch(property.Name)
+                    {
+                        case "IsSupported":
+                            return "isSupported";
+                        case "RetainingPeriod":
+                            return "retainingPeriod";
                     }
                     break;
                     
@@ -9483,6 +9495,94 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaVodIngestAssetResult":
+                    switch(property.Name)
+                    {
+                        case "AssetName":
+                            return "assetName";
+                        case "Errors":
+                            return "errors";
+                        case "FileName":
+                            return "fileName";
+                        case "IngestDate":
+                            return "ingestDate";
+                        case "ShopAssetUserRuleId":
+                            return "shopAssetUserRuleId";
+                        case "Status":
+                            return "status";
+                        case "VodTypeSystemName":
+                            return "vodTypeSystemName";
+                        case "Warnings":
+                            return "warnings";
+                    }
+                    break;
+                    
+                case "KalturaVodIngestAssetResultAggregation":
+                    switch(property.Name)
+                    {
+                        case "ExternalFailureCount":
+                            return "externalFailureCount";
+                        case "FailureCount":
+                            return "failureCount";
+                        case "IngestDateFrom":
+                            return "ingestDateFrom";
+                        case "IngestDateTo":
+                            return "ingestDateTo";
+                        case "SuccessCount":
+                            return "successCount";
+                        case "SuccessWithWarningCount":
+                            return "successWithWarningCount";
+                    }
+                    break;
+                    
+                case "KalturaVodIngestAssetResultErrorMessage":
+                    switch(property.Name)
+                    {
+                        case "Code":
+                            return "code";
+                        case "Message":
+                            return "message";
+                    }
+                    break;
+                    
+                case "KalturaVodIngestAssetResultFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetNameContains":
+                            return "assetNameContains";
+                        case "FileNameContains":
+                            return "fileNameContains";
+                        case "IngestDateGreaterThan":
+                            return "ingestDateGreaterThan";
+                        case "IngestDateSmallerThan":
+                            return "ingestDateSmallerThan";
+                        case "IngestStatusIn":
+                            return "ingestStatusIn";
+                        case "ShopAssetUserRuleIdIn":
+                            return "shopAssetUserRuleIdIn";
+                        case "VodTypeSystemNameIn":
+                            return "vodTypeSystemNameIn";
+                    }
+                    break;
+                    
+                case "KalturaVodIngestAssetResultListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaVodIngestAssetResultResponse":
+                    switch(property.Name)
+                    {
+                        case "Aggregations":
+                            return "aggregations";
+                        case "Result":
+                            return "result";
+                    }
+                    break;
+                    
                 case "KalturaWatchHistoryAsset":
                     switch(property.Name)
                     {
@@ -11497,6 +11597,10 @@ namespace WebAPI.Reflection
                         case "getpartnerconfiguration":
                             RolesManager.ValidateActionPermitted("ingestStatus", "getPartnerConfiguration", WebAPI.Managers.eKSValidation.All);
                             return IngestStatusController.GetPartnerConfiguration();
+                            
+                        case "getvodassetresult":
+                            RolesManager.ValidateActionPermitted("ingestStatus", "getVodAssetResult", WebAPI.Managers.eKSValidation.All);
+                            return IngestStatusController.GetVodIngestAssetResult((KalturaVodIngestAssetResultFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "updatepartnerconfiguration":
                             RolesManager.ValidateActionPermitted("ingestStatus", "updatePartnerConfiguration", WebAPI.Managers.eKSValidation.All);
@@ -19328,6 +19432,23 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "getpartnerconfiguration":
+                            return ret;
+                            
+                        case "getvodassetresult":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaVodIngestAssetResultFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
                             return ret;
                             
                         case "updatepartnerconfiguration":
