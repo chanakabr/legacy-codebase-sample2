@@ -86,7 +86,7 @@ namespace Ingest
 
                                 if (CatalogManager.Instance.DoesGroupUsesTemplates(groupID))
                                 {
-                                    ingestResponse = IngestManager.HandleMediaIngest(groupID, request.Data);
+                                    ingestResponse = IngestManager.HandleMediaIngest(groupID, request.Data, request.FileName);
                                 }
                                 else if (TvinciImporter.ImporterImpl.DoTheWorkInner(request.Data, groupID, string.Empty, ref response, false, out ingestResponse))
                                 {

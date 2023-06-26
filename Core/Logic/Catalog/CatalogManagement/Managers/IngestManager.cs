@@ -1,21 +1,27 @@
-﻿using APILogic.Api.Managers;
-using ApiObjects;
-using ApiObjects.Catalog;
-using ApiObjects.CDNAdapter;
-using ApiObjects.Response;
-using Phx.Lib.Log;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
+using APILogic.Api.Managers;
+using ApiLogic.Catalog.CatalogManagement.Models;
+using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.Catalog.CatalogManagement.Validators;
+using ApiObjects;
+using ApiObjects.Catalog;
+using ApiObjects.CDNAdapter;
+using ApiObjects.Response;
+using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using DAL;
+using ODBCWrapper;
+using Phx.Lib.Log;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using TagValue = ApiObjects.SearchObjects.TagValue;
+using MetaType = ApiObjects.MetaType;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -39,7 +45,7 @@ namespace Core.Catalog.CatalogManagement
 
         #endregion
 
-        public static IngestResponse HandleMediaIngest(int groupId, string xml)
+        public static IngestResponse HandleMediaIngest(int groupId, string xml, string fileName)
         {
             log.DebugFormat("Start HandleMediaIngest. groupId:{0}", groupId);
             IngestResponse ingestResponse = IngestResponse.Default;
@@ -48,13 +54,16 @@ namespace Core.Catalog.CatalogManagement
             if (!feedResponse.HasObject())
             {
                 ingestResponse.IngestStatus = feedResponse.Status;
+                VodIngestAssetResultPublisher.Instance.PublishFailedIngest(groupId, ingestResponse.IngestStatus, fileName);
+
                 return ingestResponse;
             }
 
-            CatalogGroupCache cache;
-            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out cache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out var cache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling HandleMediaIngest", groupId);
+                VodIngestAssetResultPublisher.Instance.PublishFailedIngest(groupId, ingestResponse.IngestStatus, fileName);
+
                 return ingestResponse;
             }
 
@@ -65,30 +74,45 @@ namespace Core.Catalog.CatalogManagement
             var tagsTranslations = new Dictionary<string, TagsTranslations>();
             var assetsWithNoTags = new Dictionary<int, bool>();
             var cdnAdapters = GetCDNAdaptersMapping(groupId);
-
             for (int i = 0; i < feedResponse.Object.Export.MediaList.Count; i++)
             {
                 IngestMedia media = feedResponse.Object.Export.MediaList[i];
                 ingestResponse.AssetsStatus.Add(IngestAssetStatus.Default);
-
+                MediaAsset mediaAsset = null;
+                AssetUserRule shopAssetUserRule = null;
+                long mediaId = 0;
                 try
                 {
-                    int mediaId;
-                    List<Metas> currMetas = new List<Metas>();
-                    if (media.Validate(groupId, cache, ref ingestResponse, i, out mediaId, out HashSet<long> topicIdsToRemove, ref currMetas, out List<Tags> currTags))
+                    var isMetasValid = media.ValidateMetas(cache, ref ingestResponse, i, out var metas, out var tags, out var topicIdsToRemove);
+                    if (isMetasValid)
+                    {
+                        shopAssetUserRule = ShopAssetUserRuleResolver.Instance.ResolveByMediaAsset(groupId, metas, tags);
+                    }
+
+                    if (isMetasValid && media.Validate(groupId, cache, ref ingestResponse, i, out mediaId))
                     {
                         if (media.Action.Equals(IngestMedia.DELETE_ACTION))
                         {
-                            if (!DeleteMediaAsset(mediaId, media.CoGuid, groupId, ref ingestResponse, i))
+                            var mediaAssetResponse = AssetManager.Instance.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, true);
+                            if (!mediaAssetResponse.IsOkStatusCode())
+                            {
+                                log.DebugFormat("DeleteMediaAsset - {0}", MEDIA_ID_NOT_EXIST);
+                                ingestResponse.AssetsStatus[i].Warnings.Add(new Status((int)IngestWarnings.MediaIdNotExist, MEDIA_ID_NOT_EXIST));
+                                ingestResponse.Set(media.CoGuid, "Cant delete. the item is not exist", "OK", (int)mediaId);
+                            }
+
+                            mediaAsset = (MediaAsset)mediaAssetResponse.Object;
+                            if (!DeleteMediaAsset((int)mediaId, media.CoGuid, groupId, ref ingestResponse, i))
                                 continue;
                         }
                         else
                         {
-                            var mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, currTags, currMetas, ref topicIdsToRemove);
+                            mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, tags, metas);
                             var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
                             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
                             bool isMediaExists = mediaId > 0 || (images != null && images.Count > 0) || (assetFiles != null && assetFiles.Count > 0);
                             media.Erase = media.Erase.ToLower().Trim();
+                            topicIdsToRemove = mediaId > 0 ? topicIdsToRemove : null;
                             var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, ref mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, IngestMedia.TRUE.Equals(media.Erase), true, topicIdsToRemove);
                             if (!upsertStatus.IsOkStatusCode())
                             {
@@ -102,14 +126,14 @@ namespace Core.Catalog.CatalogManagement
                             ingestResponse.AssetsStatus[i].InternalAssetId = (int)mediaAsset.Id;
                             ingestResponse.AssetsStatus[i].ExternalAssetId = mediaAsset.CoGuid;
 
-                            if (currTags == null || currTags.Count == 0)
+                            if (tags == null || tags.Count == 0)
                             {
                                 assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
                             }
                             else
                             {
                                 bool doesMediaHaveTagTranslations = false;
-                                AddTagsToTranslations(currTags, (int)mediaAsset.Id, isMediaExists, ref tagsTranslations, ref doesMediaHaveTagTranslations);
+                                AddTagsToTranslations(tags, (int)mediaAsset.Id, isMediaExists, ref tagsTranslations, ref doesMediaHaveTagTranslations);
                                 if (!doesMediaHaveTagTranslations)
                                 {
                                     assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
@@ -129,7 +153,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        ingestResponse.Set(media.CoGuid, "Media data is not valid", "FAILED", mediaId);
+                        ingestResponse.Set(media.CoGuid, "Media data is not valid", "FAILED", (int)mediaId);
                         log.ErrorFormat("Media data is not valid. mediaIndex{0}. CoGuid:{1}, MediaID:{2}, ErrorMessage:{3}", i, media.CoGuid, mediaId, ingestResponse.Description);
                     }
                 }
@@ -139,6 +163,18 @@ namespace Core.Catalog.CatalogManagement
                     log.Error(errorMsg);
                     ingestResponse.AssetsStatus[i].Status.Set((int)eResponseStatus.Error, errorMsg);
                 }
+
+                var publishContext = new VodIngestPublishContext
+                {
+                    AssetStatus = ingestResponse.AssetsStatus[i],
+                    GroupId = groupId,
+                    FileName = fileName,
+                    Media = media,
+                    MediaAsset = mediaAsset,
+                    ShopAssetUserRuleId = shopAssetUserRule?.Id
+                };
+
+                VodIngestAssetResultPublisher.Instance.Publish(publishContext);
             }
 
             if (ingestResponse.AssetsStatus.All(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK))
@@ -208,7 +244,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static MediaAsset CreateMediaAsset(int groupId, int mediaId, IngestMedia media, CatalogGroupCache cache, List<Tags> tags, List<Metas> metas, ref HashSet<long> topicIdsToRemove)
+        private static MediaAsset CreateMediaAsset(int groupId, long mediaId, IngestMedia media, CatalogGroupCache cache, List<Tags> tags, List<Metas> metas)
         {
             DateTime startDate = GetDateTimeFromString(media.Basic.Dates.Start, DateTime.UtcNow);
             DateTime endDate = GetDateTimeFromString(media.Basic.Dates.CatalogEnd, new DateTime(2099, 1, 1));
@@ -216,10 +252,10 @@ namespace Core.Catalog.CatalogManagement
             string mediaType = media.Basic.MediaType;
             if (mediaId != 0)
             {
-                var assetRespone = AssetManager.Instance.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, true);
-                if (assetRespone.HasObject() && assetRespone.Object is MediaAsset)
+                var assetResponse = AssetManager.Instance.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, true);
+                if (assetResponse.HasObject() && assetResponse.Object is MediaAsset)
                 {
-                    mediaType = (assetRespone.Object as MediaAsset).MediaType.m_sTypeName;
+                    mediaType = (assetResponse.Object as MediaAsset).MediaType.m_sTypeName;
                 }
             }
 
@@ -309,7 +345,7 @@ namespace Core.Catalog.CatalogManagement
             var tagMetaType = MetaType.Tag.ToString();
             List<TagToInvalidate> tagsToInvalidate = new List<TagToInvalidate>();
             var defaultLanguageId = cache.GetDefaultLanguage().ID;
-            Dictionary<string, ApiObjects.SearchObjects.TagValue> tagsMap = new Dictionary<string, TagValue>();
+            Dictionary<string, TagValue> tagsMap = new Dictionary<string, TagValue>();
 
             foreach (var tag in tagsTranslations)
             {
@@ -321,7 +357,7 @@ namespace Core.Catalog.CatalogManagement
 
                     string key = $"{topicTag.Id}_{tag.Value.DefaultTagValue.ToLower()}";
 
-                    ApiObjects.SearchObjects.TagValue tagValue = null;
+                    TagValue tagValue = null;
 
                     if (!tagsMap.ContainsKey(key))
                     {
@@ -484,17 +520,9 @@ namespace Core.Catalog.CatalogManagement
 
         private static bool DeleteMediaAsset(int mediaId, string coGuid, int groupId, ref IngestResponse ingestResponse, int mediaIndex)
         {
-            if (mediaId == 0)
-            {
-                ingestResponse.AssetsStatus[mediaIndex].Warnings.Add(new Status((int)IngestWarnings.MediaIdNotExist, MEDIA_ID_NOT_EXIST));
-                log.DebugFormat("DeleteMediaAsset - {0}", MEDIA_ID_NOT_EXIST);
-                ingestResponse.Set(coGuid, "Cant delete. the item is not exist", "OK", mediaId);
-                return false;
-            }
-
             Status deleteStatus = new Status(eResponseStatus.OK);
 
-            var config = Core.Api.Module.GetGeneralPartnerConfiguration(groupId);
+            var config = Api.Module.GetGeneralPartnerConfiguration(groupId);
             if (config.HasObjects() && config.Objects[0].DeleteMediaPolicy.HasValue && config.Objects[0].DeleteMediaPolicy.Value == DeleteMediaPolicy.Delete)
             {
                 deleteStatus = AssetManager.Instance.DeleteAsset(groupId, mediaId, eAssetTypes.MEDIA, USER_ID);
@@ -600,12 +628,12 @@ namespace Core.Catalog.CatalogManagement
         // TODO - use good method
         private static int GetBillingTypeIdByName(string billingTypeName)
         {
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            DataSetSelectQuery selectQuery = new DataSetSelectQuery();
 
             try
             {
                 selectQuery += "select id from lu_billing_type where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(API_VAL)))", "=", billingTypeName.Trim().ToLower());
+                selectQuery += Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(API_VAL)))", "=", billingTypeName.Trim().ToLower());
                 if (selectQuery.Execute("query", true) != null)
                 {
                     int count = selectQuery.Table("query").DefaultView.Count;
@@ -734,7 +762,7 @@ namespace Core.Catalog.CatalogManagement
         private static Dictionary<string, CDNAdapter> GetCDNAdaptersMapping(int groupId)
         {
             Dictionary<string, CDNAdapter> cdnAdapterMapping = new Dictionary<string, CDNAdapter>();
-            var cdnAdapterList = DAL.ApiDAL.GetCDNAdapters(groupId);
+            var cdnAdapterList = ApiDAL.GetCDNAdapters(groupId);
 
             foreach (var cdnAdapter in cdnAdapterList)
             {

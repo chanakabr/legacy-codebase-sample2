@@ -1,11 +1,11 @@
-﻿using System.Xml.Serialization;
+﻿using System;
 using System.Collections.Generic;
-using ApiObjects.Response;
 using System.Linq;
-using System;
+using System.Xml.Serialization;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
-using APILogic.Api.Managers;
+using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 
 namespace Core.Catalog
@@ -66,13 +66,34 @@ namespace Core.Catalog
             this.IsActive = "true";
             this.Erase = "false";
         }
+
+        public bool ValidateMetas(CatalogGroupCache cache, ref IngestResponse response, int index, out List<Metas> metas, out List<Tags> tags, out HashSet<long> topicIdsToRemove)
+        {
+            metas = new List<Metas>();
+            tags = new List<Tags>();
+            topicIdsToRemove = new HashSet<long>();
+            if (this.Structure == null)
+            {
+                response.AddError("media.Structure cannot be empty");
+                response.AssetsStatus[index].Status.Set((int)eResponseStatus.NameRequired, "media.Structure cannot be empty");
+                return false;
+            }
+
+            Status structureValidationStatus = this.Structure.Validate(cache, ref topicIdsToRemove, ref metas, ref tags);
+            if (!structureValidationStatus.IsOkStatusCode())
+            {
+                response.AddError(structureValidationStatus.Message);
+                response.AssetsStatus[index].Status = structureValidationStatus;
+                return false;
+            }
+
+            return true;
+        }
         
-        public bool Validate(int groupId, CatalogGroupCache cache, ref IngestResponse response, int index, out int mediaId, out HashSet<long> topicIdsToRemove, ref List<Metas> metas, out List<Tags> tags)
+        public bool Validate(int groupId, CatalogGroupCache cache, ref IngestResponse response, int index, out long mediaId)
         {
             mediaId = 0;
-            topicIdsToRemove = null;
-            tags = null;
-            
+
             // check media.CoGuid
             if (string.IsNullOrEmpty(this.CoGuid))
             {
@@ -131,23 +152,6 @@ namespace Core.Catalog
                 }
             }
 
-            if (this.Structure == null)
-            {
-                response.AddError("media.Structure cannot be empty");
-                response.AssetsStatus[index].Status.Set((int)eResponseStatus.NameRequired, "media.Structure cannot be empty");
-                return false;
-            }
-
-            Status structureValidationStatus = this.Structure.Validate(cache, ref topicIdsToRemove, ref metas, ref tags, isInsertAction);
-            if (!structureValidationStatus.IsOkStatusCode())
-            {
-                response.AddError(structureValidationStatus.Message);
-                response.AssetsStatus[index].Status = structureValidationStatus;
-                return false;
-            }
-            
-            
-            
             return true;
         }
     }
@@ -383,13 +387,8 @@ namespace Core.Catalog
         [XmlElement("metas")]
         public IngestMetas Metas { get; set; }
 
-        public Status Validate(CatalogGroupCache cache, ref HashSet<long> topicIdsToRemove, ref List<Metas> metas, ref List<Tags> tags, bool isInsertAction)
+        public Status Validate(CatalogGroupCache cache, ref HashSet<long> topicIdsToRemove, ref List<Metas> metas, ref List<Tags> tags)
         {
-            if (!isInsertAction)
-            {
-                topicIdsToRemove = new HashSet<long>();
-            }
-
             if (this.Doubles != null)
             {
                 var doublesValidationStatus = this.Doubles.Validate(MetaType.Number, cache, ref topicIdsToRemove, ref metas);
@@ -479,8 +478,7 @@ namespace Core.Catalog
                 var removeTopic = string.IsNullOrEmpty(meta.Value);
                 if (topicIdsToRemove != null && removeTopic)
                 {
-                    var topic = cache.TopicsMapBySystemNameAndByType[meta.Name][metaTypeName];
-                    if (!topicIdsToRemove.Contains(topic.Id)) { topicIdsToRemove.Add(topic.Id); }
+                    topicIdsToRemove.Add(cache.TopicsMapBySystemNameAndByType[meta.Name][metaTypeName].Id);
                 }
                 else if (!removeTopic)
                 {
@@ -590,10 +588,7 @@ namespace Core.Catalog
                             metaTag.Containers[0].Values != null &&
                             metaTag.Containers[0].Values.Any(x => cache.GetDefaultLanguage().Code.Equals(x.LangCode) && string.IsNullOrEmpty(x.Text)))
                         {
-                            if (topicIdsToRemove != null && !topicIdsToRemove.Contains(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id))
-                            {
-                                topicIdsToRemove.Add(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id);
-                            }
+                            topicIdsToRemove.Add(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id);
                         }
                         else
                         {

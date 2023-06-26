@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/api/events/logical/ingest/vod/ingestResult",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IngestResult",
+  "type": "object",
+  "description": "Describes ingest result for VOD asset",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/logical/ingest/vod/ingestResult"
+    }
+  ]
+}

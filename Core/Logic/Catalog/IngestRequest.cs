@@ -17,5 +17,8 @@ namespace Core.Catalog
 
         [DataMember(Name = "data", Order = 2)]
         public string Data { get; set; }
+
+        [DataMember(Name = "fileName", Order = 3)]
+        public string FileName { get; set; }
     }
 }
