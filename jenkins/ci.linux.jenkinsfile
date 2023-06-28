@@ -431,7 +431,8 @@ def reportRelease(){
         full_version = sh( script:"aws ecr describe-images --repository '${ECR_REPO_BRANCH}/phoenix' --image-ids imageTag=release --query 'imageDetails[0].imageTags' --region us-west-2 | egrep \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | tr -d '\"' | tr -d ' '" , returnStdout: true).trim()
         ecrImageGitsha = sh( script:"set +x; aws ecr describe-images --repository ${ECR_REPO_BRANCH}/phoenix --image-ids imageTag=${full_version} --query 'imageDetails[0].imageTags' --region us-west-2 | grep -v '${BRANCH_NAME}\\|build\\|sanity\\|rc\\|regression\\|release' | egrep -v \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | jq .[0]  " , returnStdout: true).trim()  
         sh "${PIPECLI} report release -b ${BRANCH_NAME} -v ${full_version} -g ${ecrImageGitsha} --commiter amitde7896 -j ${env.JOB_NAME}"
-        addToPlatform("backend", full_version, BRANCH_NAME)
+        TAG = "${BRANCH_NAME}"
+        addToPlatform("backend", TAG, ECR_REPO_BRANCH)
     }
 }
 
