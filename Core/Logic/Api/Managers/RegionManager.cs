@@ -717,7 +717,7 @@ namespace ApiLogic.Api.Managers
             {
                 Log.Error($"Region in use by household and cannot be deleted. groupId:{groupId}, id:{region.id}");
                 return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use by household and cannot be deleted");
-    }
+            }
 
             if (region.parentId == 0)
             {
@@ -730,7 +730,7 @@ namespace ApiLogic.Api.Managers
                         {
                             Log.Error($"Region has sub-region in use by household and cannot be deleted. groupId:{groupId}, regionId:{region.id}, subRegionId: {subRegion.id}");
                             return new Status((int)eResponseStatus.CannotDeleteSubRegionInUse, "Region has sub-region in use by household and cannot be deleted");
-}
+                        }
                     }
                 }
             }
