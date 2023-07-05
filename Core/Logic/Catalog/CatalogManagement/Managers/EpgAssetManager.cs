@@ -63,6 +63,7 @@ namespace Core.Catalog.CatalogManagement
         private const string PARENTAL_RATING_META_NAME = "Parental Rating";
         public const string GENRE_META_SYSTEM_NAME = "Genre";
         public const string CRID_META_SYSTEM_NAME = "Crid";
+        public const string CRID_META_SYSTEM_NAME_UPPER = "CRID";
         public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
         public const string STATUS_META_SYSTEM_NAME = "Status";
         public const string EXTERNAL_OFFER_IDS_META_SYSTEM_NAME = "ExternalOfferIds";
