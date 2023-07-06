@@ -14,7 +14,7 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="ott.client.authentication.grpc" Version="1.6.20-beo-11471-session-characteristics-727" />
+    <PackageReference Include="ott.client.authentication.grpc" Version="1.17.16" />
   </ItemGroup>
 
   <ItemGroup>

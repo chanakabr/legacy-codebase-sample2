@@ -54,7 +54,7 @@ namespace AuthenticationGrpcClientWrapper
                     return _Client.GetUserLoginHistory(new UserLoginHistoryRequest
                     {
                         PartnerId = partnerId,
-                        UserId = userId,
+                        UserId = userId
                     });
                 }
             }

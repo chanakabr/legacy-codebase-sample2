@@ -18,6 +18,7 @@ using ApiLogic.Catalog.CatalogManagement.Services;
 using ApiLogic.Catalog.Tree;
 using ApiLogic.IndexManager.QueryBuilders.SearchPriority;
 using ApiLogic.IndexManager.Sorting;
+using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Rules;
 using Phx.Lib.Appconfig;
@@ -26,6 +27,7 @@ using Core.Catalog.CatalogManagement;
 using ElasticSearch.Utils;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using Core.GroupManagers;
+using KalturaRequestContext;
 
 namespace Core.Catalog
 {
@@ -541,7 +543,15 @@ namespace Core.Catalog
             RuleActionType ruleActionType, long userId)
         {
             BooleanPhraseNode phrase = null;
-            var assetUserRulesResponse = AssetUserRuleManager.Instance.GetAssetUserRuleList(request.m_nGroupID, userId, true, ruleActionType);
+            var sessionCharacteristicKey = RequestContextUtilsInstance.Get().GetSessionCharacteristicKey();
+            var sessionCharacteristic = SessionCharacteristicManager.Instance.GetFromCache(request.m_nGroupID, sessionCharacteristicKey);
+            var assetUserRulesResponse = sessionCharacteristic == null
+                                         // TODO this condition could be removed, after we deploy ms-auth (https://github.com/kaltura/ott-service-authentication/pull/170)
+                                         // and all KSs will have AssetUserRuleIds
+                                         || sessionCharacteristic.AssetUserRuleIds.Count == 0
+                ? AssetUserRuleManager.Instance.GetAssetUserRuleList(request.m_nGroupID, userId, true, ruleActionType)
+                : AssetUserRuleManager.Instance.GetCachedAssetUserRuleByRuleIds(request.m_nGroupID, sessionCharacteristic.AssetUserRuleIds)
+                    .Map(rules => rules.Where(rule => rule.Contains(ruleActionType)).ToList());
             if (assetUserRulesResponse.IsOkStatusCode())
             {
                 if (assetUserRulesResponse.HasObjects())

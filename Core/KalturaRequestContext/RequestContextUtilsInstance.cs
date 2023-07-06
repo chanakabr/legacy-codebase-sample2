@@ -5,8 +5,9 @@ namespace KalturaRequestContext
 {
     public class RequestContextUtilsInstance
     {
-        private static readonly Lazy<IRequestContextUtils> Instance = new Lazy<IRequestContextUtils>(() => new RequestContextUtils(), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<RequestContextUtils> Instance = new Lazy<RequestContextUtils>(() => new RequestContextUtils(), LazyThreadSafetyMode.PublicationOnly);
 
         public static IRequestContextUtils Get() => Instance.Value;
+        public static RequestContextUtils Setter() => Instance.Value;
     }
 }

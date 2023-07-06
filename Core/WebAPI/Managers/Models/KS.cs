@@ -358,14 +358,15 @@ namespace WebAPI.Managers.Models
             HttpContext.Current.Items[Constants.GROUP_ID] = GroupId;
             HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_GROUP_ID, GroupId);
             HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_KS, this);
-            RequestContextUtilsInstance.Get().SetRegionId(GetPayload().RegionId);
+            var payload = GetPayload();
+            RequestContextUtilsInstance.Setter().SetKsPayload(payload.RegionId, payload.SessionCharacteristicKey);
         }
 
         public static void ClearOnRequest()
         {
             HttpContext.Current.Items.Remove(RequestContextConstants.REQUEST_GROUP_ID);
             HttpContext.Current.Items.Remove(RequestContextConstants.REQUEST_KS);
-            RequestContextUtilsInstance.Get().RemoveRegionId();
+            RequestContextUtilsInstance.Setter().RemoveKsPayload();
         }
 
         internal static void SaveOnRequest(KS ks)
@@ -388,7 +389,8 @@ namespace WebAPI.Managers.Models
                     HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_KS_ORIGINAL_USER_ID, originalUserId);
             }
 
-            RequestContextUtilsInstance.Get().SetRegionId(GetPayload().RegionId);
+            var payload = GetPayload();
+            RequestContextUtilsInstance.Setter().SetKsPayload(payload.RegionId, payload.SessionCharacteristicKey);
         }
 
         internal static KS GetFromRequest()

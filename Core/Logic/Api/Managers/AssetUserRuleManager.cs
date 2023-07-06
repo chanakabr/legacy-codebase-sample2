@@ -17,7 +17,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using ApiLogic.Api.Managers.Rule;
-using System.Threading;
 
 namespace Core.Api.Managers
 {
@@ -34,6 +33,7 @@ namespace Core.Api.Managers
         long GetShopAssetUserRuleId(int groupId, long? userId);
         bool IsAssetPartOfShopRule(Topic shopMeta, AssetShopCondition condition, IEnumerable<Metas> metas, IEnumerable<Tags> tags);
         GenericResponse<AssetUserRule> GetCachedAssetUserRuleByRuleId(int groupId, long ruleId);
+        GenericListResponse<AssetUserRule> GetCachedAssetUserRuleByRuleIds(int groupId, IReadOnlyCollection<long> ruleIds);
     }
 
     public class AssetUserRuleManager : IAssetUserRuleManager
@@ -141,8 +141,8 @@ namespace Core.Api.Managers
                     && fullAssetUserRules?.Count > 0)
                 {
                     response.Objects = fullAssetUserRules
-                        .Where(x => (!ruleActionType.HasValue || x.Actions.Any(_ => _.Type == ruleActionType))
-                            && (!ruleConditionType.HasValue || x.Conditions.Count(_ => _.Type == ruleConditionType) == 1))
+                        .Where(x => (!ruleActionType.HasValue || x.Contains(ruleActionType.Value))
+                            && (!ruleConditionType.HasValue || x.Contains(ruleConditionType.Value)))
                         .ToList();
                 }
 
@@ -177,9 +177,19 @@ namespace Core.Api.Managers
             return new GenericResponse<AssetUserRule>(eResponseStatus.AssetUserRuleDoesNotExists, ASSET_USER_RULE_DOES_NOT_EXIST);
         }
 
+        public GenericListResponse<AssetUserRule> GetCachedAssetUserRuleByRuleIds(int groupId, IReadOnlyCollection<long> ruleIds)
+        {
+            if (ruleIds.Count == 0) return GenericListResponse.Ok(Enumerable.Empty<AssetUserRule>());
+            
+            return TryGetCachedAssetUserRulesByIds(groupId, ruleIds, out var rules)
+                   && rules.Count == ruleIds.Count
+                ? GenericListResponse.Ok(rules)
+                : GenericListResponse.Error<AssetUserRule>(eResponseStatus.AssetUserRuleDoesNotExists, ASSET_USER_RULE_DOES_NOT_EXIST);
+        }
+
         private static bool TryGetCachedAssetUserRulesByIds(
             int groupId,
-            ICollection<long> assetUserRuleIds,
+            IReadOnlyCollection<long> assetUserRuleIds,
             out IReadOnlyCollection<AssetUserRule> rules)
         {
             rules = null;

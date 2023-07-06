@@ -61,4 +61,21 @@ namespace ApiObjects.Response
             throw customException ?? new KalturaException(Status.Message, Status.Code);
         }
     }
+
+    public static class GenericListResponse
+    {
+        public static GenericListResponse<T> Ok<T>(IEnumerable<T> objs) => new GenericListResponse<T>(Status.Ok, objs.ToList());
+        public static GenericListResponse<T> Error<T>(eResponseStatus responseStatus, string message = null, List<KeyValuePair> args = null) =>
+            new GenericListResponse<T>(new Status(responseStatus, message, args), null);
+    }
+
+    public static class GenericListResponseExtensions
+    {
+        public static GenericListResponse<T> Map<T>(this GenericListResponse<T> response, Func<List<T>, List<T>> mapFn)
+        {
+            return response.HasObjects()
+                ? GenericListResponse.Ok(mapFn(response.Objects))
+                : response;
+        }
+    }
 }

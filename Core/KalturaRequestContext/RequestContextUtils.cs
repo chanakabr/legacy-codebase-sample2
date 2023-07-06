@@ -5,6 +5,7 @@ namespace KalturaRequestContext
     public class RequestContextUtils : IRequestContextUtils
     {
         private const string REQUEST_REGION = "region_id";
+        private const string SCK = "sck"; // session characteristic key
 
         public string GetRequestId() => GetValueOrDefault<object>(RequestContextConstants.SESSION_ID_KEY)?.ToString()
                                         ?? GetValueOrDefault<object>(RequestContextConstants.REQUEST_ID_KEY)?.ToString();
@@ -59,7 +60,6 @@ namespace KalturaRequestContext
                 System.Web.HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_TAGS, new HashSet<string> { RequestContextConstants.REQUEST_TAGS_PARTNER_ROLE });
             }
         }
-
         // TODO duplicate with LayeredCache.isPartnerRequest
         public bool IsPartnerRequest()
         {
@@ -70,6 +70,21 @@ namespace KalturaRequestContext
             return isPartner;
         }
 
+        public bool IsImpersonateRequest() => GetValueOrDefault(RequestContextConstants.REQUEST_IMPERSONATE, false);
+
+        public void SetKsPayload(int regionId, string sessionCharacteristicKey)
+        {
+            SetValue(REQUEST_REGION, regionId);
+            SetValue(SCK, sessionCharacteristicKey);
+        }
+        public void RemoveKsPayload()
+        {
+            RemoveValue(REQUEST_REGION);
+            RemoveValue(SCK);
+        }
+        public int? GetRegionId() => GetValueOrDefault<int?>(REQUEST_REGION, null);
+        public string GetSessionCharacteristicKey() => GetValueOrDefault<string>(SCK, null);
+
         private T GetValueOrDefault<T>(string key, T defaultValue = default)
         {
             return GetRequestContextValue<T>(key, out var value)
@@ -77,7 +92,7 @@ namespace KalturaRequestContext
                 : defaultValue;
         }
 
-        public bool GetRequestContextValue<T>(string key, out T value)
+        private bool GetRequestContextValue<T>(string key, out T value)
         {
             value = default;
             var res = false;
@@ -90,26 +105,14 @@ namespace KalturaRequestContext
             return res;
         }
 
-        public bool IsImpersonateRequest()
+        private void SetValue<T>(string key, T value)
         {
-            GetRequestContextValue(RequestContextConstants.REQUEST_IMPERSONATE, out bool isImpersonateRequest);
-
-            return isImpersonateRequest;
+            System.Web.HttpContext.Current.Items[key] = value;
         }
-
-        public int? GetRegionId()
+        
+        private void RemoveValue(string key)
         {
-            return GetValueOrDefault<int?>(REQUEST_REGION, null);
-        }
-
-        public void SetRegionId(int regionId)
-        {
-            System.Web.HttpContext.Current.Items[REQUEST_REGION] = regionId;
-        }
-
-        public void RemoveRegionId()
-        {
-            System.Web.HttpContext.Current.Items.Remove(REQUEST_REGION);
+            System.Web.HttpContext.Current.Items.Remove(key);
         }
     }
 }
