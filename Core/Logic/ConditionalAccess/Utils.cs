@@ -56,6 +56,7 @@ using TVinciShared;
 using Tvinic.GoogleAPI;
 using SlimAsset = ApiObjects.Rules.SlimAsset;
 using TransactionType = OTT.Service.Offers.TransactionType;
+using User = Core.Users.User;
 
 namespace Core.ConditionalAccess
 {
@@ -8840,8 +8841,22 @@ namespace Core.ConditionalAccess
                             {
                                 foreach (var collections in tempDomainBundles.EntitledCollections.Values)
                                 {
+                                    //BEO-14175
+                                    List<UserBundlePurchase> distinctList = null;
+                                    if (collections.Select(x=> x.sBundleCode).Distinct().Count() != collections.Count) //has duplicated key
+                                    {
+                                        distinctList = new List<UserBundlePurchase>();
+                                        foreach (var _collection in collections.OrderByDescending(x=>x.dtPurchaseDate))
+                                        {
+                                            if (!distinctList.Select(x=>x.sBundleCode).Contains(_collection.sBundleCode))
+                                            {
+                                                distinctList.Add(_collection);
+                                            }
+                                        }
+                                    }
+                                    
                                     domainEntitlements.DomainBundleEntitlements.EntitledCollections
-                                        .AddRange(collections.ToDictionary(x => x.sBundleCode, x => new UserBundlePurchase(x)));
+                                        .AddRange((distinctList ?? collections).ToDictionary(x => x.sBundleCode, x => new UserBundlePurchase(x)));
                                 }
                             }
 
