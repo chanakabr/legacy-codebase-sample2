@@ -10664,15 +10664,24 @@ namespace Core.ConditionalAccess
                             }
                             else
                             {
-                                result.Code = (int)eResponseStatus.Error;
-                                result.Message = "Cancellation failed";
+                                //BEO-14251
+                                if (transactionType is eTransactionType.Collection)
+                                {
+                                    result.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
+                                    result.Message = "Collection could not be cancelled because it is not in cancellation window";
+                                }
+                                else
+                                {
+                                    result.Code = (int)eResponseStatus.Error;
+                                    result.Message = "Cancellation failed";
+                                }
                             }
                         }
                     }
                     else
                     {
                         result.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
-                        result.Message = string.Format("{0} could not be cancelled because it is not in cancellation window", transactionType.ToString());
+                        result.Message = $"{transactionType.ToString()} could not be cancelled because it is not in cancellation window";
                     }
                 }
             }
