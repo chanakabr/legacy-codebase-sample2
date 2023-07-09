@@ -206,6 +206,7 @@ namespace ApiObjects.Response
         CanOnlyCancelRecordingBeforeRecordingEnd = 3092,
         CanOnlyDeleteRecordingAfterRecordingEnd = 3093,
         RecordingExceededConcurrency = 3094,
+        ExceedingAllowedImmediateRecordingAttempts = 3095,
 
         #endregion
 

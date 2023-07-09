@@ -558,6 +558,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.RecordingFailed)]
         [Throws(eResponseStatus.InvalidParameters)]
         [Throws(eResponseStatus.RecordingExceededConcurrency)]
+        [Throws(eResponseStatus.ExceedingAllowedImmediateRecordingAttempts)]
         [Throws(eResponseStatus.NotAllowed)]
         public static KalturaImmediateRecording ImmediateRecord(long assetId, int? endPadding = null)
         {

@@ -2386,7 +2386,7 @@ namespace Core.Recordings
                     var allEpgRecords = hhRecordings.ToList();
                     if (allEpgRecords.Count() >= MaxAllowedActiveRecordings)
                     {
-                        response.SetStatus(eResponseStatus.RecordingStatusNotValid,
+                        response.SetStatus(eResponseStatus.ExceedingAllowedImmediateRecordingAttempts,
                             $"Can't record more than {MaxAllowedActiveRecordings} times from the same program");
                         return response;
                     }
