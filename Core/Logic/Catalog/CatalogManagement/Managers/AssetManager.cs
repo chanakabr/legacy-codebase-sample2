@@ -115,7 +115,7 @@ namespace Core.Catalog.CatalogManagement
         };
 
         #endregion
-        
+
         private static readonly Lazy<MediaAssetService> MediaAssetServiceLazy = new Lazy<MediaAssetService>(() => MediaAssetService.Instance, LazyThreadSafetyMode.PublicationOnly);
         private static readonly Lazy<AssetManager> AssetManagerLazy = new Lazy<AssetManager>(() => new AssetManager(), LazyThreadSafetyMode.PublicationOnly);
 
@@ -3450,8 +3450,9 @@ namespace Core.Catalog.CatalogManagement
                             currentAsset = oldAsset.Object as MediaAsset;
                         }
 
-                        // validate that existing asset is indeed linear media
-                        if (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear)
+                        // validate that asset exists and asset is indeed linear media
+                        if (currentAsset == null || currentAsset.IndexStatus == AssetIndexStatus.Deleted ||
+                            (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear))
                         {
                             result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                             return result;
