@@ -9,6 +9,8 @@ namespace Core.Users
 {
     public class FavoritObject
     {
+        private const int INSERT_NUM_OF_TRIES = 2;
+
         public FavoritObject()
         {
             m_sDeviceName = "";
@@ -320,76 +322,97 @@ namespace Core.Users
                 updateQuery = null;
             }
         }
+
         public bool Save(Int32 nGroupID)
         {
-            Int32 nRowID = 0;
-
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-            selectQuery += "select id from users_favorites where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", m_sSiteUserGUID);
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ITEM_CODE", "=", m_sItemCode);
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("TYPE_CODE", "=", m_sType);
-
-
-            if (selectQuery.Execute("query", true) != null)
+            var numOfTries = 0;
+            while (true)
             {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
+                Int32 nRowID = 0;
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                selectQuery += "select id from users_favorites where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", m_sSiteUserGUID);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ITEM_CODE", "=", m_sItemCode);
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("TYPE_CODE", "=", m_sType);
+
+
+                if (selectQuery.Execute("query", true) != null)
                 {
-                    nRowID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        nRowID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+
+                if (nRowID != 0)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
+                    updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTRA_DATA", "=", m_sExtraData);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_CHANNEL", "=", m_is_channel);
+                    updateQuery += "where";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nRowID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+
+                    return true;
+                }
+                else
+                {
+                    ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("users_favorites");
+                    insertQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTRA_DATA", "=", m_sExtraData);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                    if (!string.IsNullOrEmpty(m_sDeviceUDID))
+                    {
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_UDID", "=", m_sDeviceUDID);
+                    }
+
+                    if (!string.IsNullOrEmpty(m_sDeviceName))
+                    {
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", m_sDeviceName);
+                    }
+
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("TYPE_CODE", "=", m_sType);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ITEM_CODE", "=", m_sItemCode);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", m_sSiteUserGUID);
+                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_Channel", "=", m_is_channel);
+                    var insertQueryResult = insertQuery.Execute();
+                    insertQuery.Finish();
+                    insertQuery = null;
+
+                    if (insertQueryResult)
+                    {
+                        return true;
+                    }
+
+                    if (numOfTries >= INSERT_NUM_OF_TRIES)
+                    {
+                        return false;
+                    }
+
+                    numOfTries++;
                 }
             }
-            selectQuery.Finish();
-            selectQuery = null;
-
-            if (nRowID != 0)
-            {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
-                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTRA_DATA", "=", m_sExtraData);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_CHANNEL", "=", m_is_channel);
-                updateQuery += "where";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nRowID);
-                updateQuery.Execute();
-                updateQuery.Finish();
-                updateQuery = null;
-            }
-            else
-            {
-                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("users_favorites");
-                insertQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTRA_DATA", "=", m_sExtraData);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                if (!string.IsNullOrEmpty(m_sDeviceUDID))
-                {
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_UDID", "=", m_sDeviceUDID);
-                }
-                if (!string.IsNullOrEmpty(m_sDeviceName))
-                {
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", m_sDeviceName);
-                }
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("TYPE_CODE", "=", m_sType);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ITEM_CODE", "=", m_sItemCode);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", m_sSiteUserGUID);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_Channel", "=", m_is_channel);
-                insertQuery.Execute();
-                insertQuery.Finish();
-                insertQuery = null;
-            }
-            return true;
         }
 
         static public List<FavoritObject> GetFavoriteList(string userId, List<int> mediaIds, string mediaType = null)
