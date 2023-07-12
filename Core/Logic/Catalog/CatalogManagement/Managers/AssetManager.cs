@@ -3061,7 +3061,9 @@ namespace Core.Catalog.CatalogManagement
 
                         if (item.AssetType == eAssetTypes.NPVR)
                         {
-                            RecordingSearchResult rsr = (RecordingSearchResult)item;
+                            var rsr = item is ExtendedRecordingSearchResult result
+                                ? new RecordingSearchResult(result)
+                                : (RecordingSearchResult)item;
                             recordingsMap.Add(item.AssetId, rsr);
 
                             if (!string.IsNullOrEmpty(rsr.EpgId))
@@ -3076,9 +3078,13 @@ namespace Core.Catalog.CatalogManagement
 
                             assetType = eAssetTypes.EPG;
                         }
-                        else if (item.AssetType == eAssetTypes.EPG && epgFeatureVersion != EpgFeatureVersion.V1 && item is EpgSearchResult)
+                        else if (item.AssetType == eAssetTypes.EPG
+                            && epgFeatureVersion != EpgFeatureVersion.V1
+                            && (item is EpgSearchResult || item is ExtendedEpgSearchResult))
                         {
-                            var epgSearchResult = item as EpgSearchResult;
+                            var epgSearchResult = item is ExtendedEpgSearchResult result
+                                ? new EpgSearchResult(result)
+                                : (EpgSearchResult)item;
                             if (!string.IsNullOrEmpty(epgSearchResult.DocumentId))
                             {
                                 epgIdToDocumentId.Add(item.AssetId, epgSearchResult.DocumentId);

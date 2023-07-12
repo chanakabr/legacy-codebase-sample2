@@ -39,6 +39,16 @@ namespace Core.Catalog.Response
             m_dUpdateDate = extendedSearchResult.m_dUpdateDate;
             AssetType = eAssetTypes.NPVR;
         }
+
+        public RecordingSearchResult(ExtendedRecordingSearchResult extendedSearchResult) : base()
+        {
+            AssetId = extendedSearchResult.AssetId;
+            EpgId = extendedSearchResult.EpgId;
+            m_dUpdateDate = extendedSearchResult.m_dUpdateDate;
+            AssetType = eAssetTypes.NPVR;
+            RecordingType = extendedSearchResult.RecordingType;
+            IsMulti = extendedSearchResult.IsMulti;
+        }
     }
 
     [DataContract]
@@ -53,6 +63,14 @@ namespace Core.Catalog.Response
     [DataContract]
     public class EpgSearchResult : UnifiedSearchResult
     {
+        public EpgSearchResult(ExtendedEpgSearchResult extendedSearchResult) : base()
+        {
+            AssetId = extendedSearchResult.AssetId;
+            m_dUpdateDate = extendedSearchResult.m_dUpdateDate;
+            AssetType = eAssetTypes.EPG;
+            DocumentId = extendedSearchResult.DocumentId;
+        }
+
         [DataMember]
         public string DocumentId { get; set; }
 
