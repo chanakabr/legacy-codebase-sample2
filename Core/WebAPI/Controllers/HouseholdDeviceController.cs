@@ -27,11 +27,10 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="udid">device UDID</param>
         /// <remarks>Possible status codes: 
-        /// Device not in Household = 1003,  Household suspended = 1009, Limitation period = 1014</remarks>
+        /// Device not in Household = 1003,  Device Not Exists = 1019, Limitation period = 1014</remarks>
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.DeviceNotInDomain)]
-        [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.LimitationPeriod)]
         [Throws(eResponseStatus.DeviceNotExists)]
         static public bool Delete(string udid)
@@ -107,11 +106,10 @@ namespace WebAPI.Controllers
         /// </summary>                
         /// <param name="device">Device</param>
         /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015, No users in household = 1017</remarks>
+        /// Household does not exist = 1006, Device exists in other household = 1016, No users in household = 1017, Device Type Not Allowed = 1002, External Id Already Exists = 2054, Exceeded Limit = 1001</remarks>
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.DomainNotExists)]
-        [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
         [Throws(eResponseStatus.NoUsersInDomain)]
         [Throws(eResponseStatus.DeviceTypeNotAllowed)]
@@ -388,7 +386,6 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.LimitationPeriod)]
         [Throws(eResponseStatus.ExceededLimit)]
-        [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
         static public bool UpdateStatus(string udid, KalturaDeviceStatus status)
         {
