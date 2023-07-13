@@ -1095,6 +1095,15 @@ namespace EpgBL
             {
                 foreach (var meta in epg.Metas)
                 {
+                    // BEO-14168 meta has one single value per language by nature. Two ar more values look suspicious.
+                    if (meta.Value.Count() > 1)
+                    {
+                        var values = string.Join(",", meta.Value);
+                        
+                        log.ErrorFormat("Partner: '{0}'. Program '{1}' with epg id '{2}' and identifier '{3}' has more than one values for meta '{4}'. Values: {5}",
+                            epg.GroupID, epg.Name, epg.EpgID, epg.EpgIdentifier, meta.Key, values);
+                    }
+                    
                     foreach (var value in meta.Value)
                     {
                         dicEpgl = new EPGDictionary()
