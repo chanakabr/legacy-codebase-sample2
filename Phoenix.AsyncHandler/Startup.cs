@@ -39,6 +39,7 @@ using Phoenix.AsyncHandler.Pricing;
 using Phoenix.AsyncHandler.Recording;
 using Phoenix.Generated.Api.Events.Crud.Household;
 using Phoenix.Generated.Api.Events.Crud.OttUser;
+using Phoenix.Generated.Api.Events.Crud.PartnerMigrationHouseholdRecording;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Extensions.RecordingFailed;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
@@ -111,6 +112,7 @@ namespace Phoenix.AsyncHandler
                 .AddScoped<ILiveToVodAssetRepository, LiveToVodAssetRepository>()
                 .AddScoped<ILiveToVodAssetCrudMessagePublisher, LiveToVodAssetCrudMessagePublisher>()
                 .AddScoped<IPersonalActivityCleanupCompletePublisher, PersonalActivityCleanupCompletePublisher>()
+                .AddScoped<IHouseholdRecordingMigrationPublisher, HouseholdRecordingMigrationPublisher>()
                 .AddScoped<ILiveToVodImageService, LiveToVodImageService>()
                 .AddScoped<IImageManager, Core.Catalog.CatalogManagement.ImageManager>()
                 .AddScoped<ITtlService, TtlService>()
@@ -175,6 +177,7 @@ namespace Phoenix.AsyncHandler
             services.AddKafkaHandler<RecordingFailedHandler, RecordingFailed>("recording-failed", RecordingFailed.GetTopic());
             services.AddKafkaHandler<PersonalActivityCleanupHandler, PersonalActivityCleanup>("personal-activity-cleanup", PersonalActivityCleanup.GetTopic());
             services.AddKafkaHandler<Recording.HouseholdRetentionPeriodExpiredHandler, HouseholdRetentionPeriodExpired>("gdpr-recording", HouseholdRetentionPeriodExpired.GetTopic());
+            services.AddKafkaHandler<PartnerMigrationHouseholdRecordingHandler, PartnerMigrationHouseholdRecording>("partner-migration-household-recording", PartnerMigrationHouseholdRecording.GetTopic());
             return services;
         }
         

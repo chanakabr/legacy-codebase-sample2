@@ -1,0 +1,268 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "timeShiftedTvPartnerSettings",
+    "version": "6.7.0.0",
+    "contact": {
+      "email": "platformdev@kaltura.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "phoenix.service.consul:{port}/{base_path}",
+      "description": "dns endpoint for timeShiftedTvPartnerSettings service instances",
+      "variables": {
+        "base_path": {
+          "default": "api_v3"
+        },
+        "port": {
+          "enum": [
+            "8080",
+            "8081"
+          ],
+          "default": "8080"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "KalturaTimeShiftedTvPartnerSettings": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "catchUpEnabled": {
+                "type": "boolean",
+                "description": "Is catch-up enabled",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "catch_up_enabled"
+                  }
+                ]
+              },
+              "cdvrEnabled": {
+                "type": "boolean",
+                "description": "Is c-dvr enabled",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "cdvr_enabled"
+                  }
+                ]
+              },
+              "startOverEnabled": {
+                "type": "boolean",
+                "description": "Is start-over enabled",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "start_over_enabled"
+                  }
+                ]
+              },
+              "trickPlayEnabled": {
+                "type": "boolean",
+                "description": "Is trick-play enabled",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "trick_play_enabled"
+                  }
+                ]
+              },
+              "recordingScheduleWindowEnabled": {
+                "type": "boolean",
+                "description": "Is recording schedule window enabled",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "recording_schedule_window_enabled"
+                  }
+                ]
+              },
+              "protectionEnabled": {
+                "type": "boolean",
+                "description": "Is recording protection enabled",
+                "nullable": true
+              },
+              "catchUpBufferLength": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Catch-up buffer length",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "catch_up_buffer_length"
+                  }
+                ]
+              },
+              "trickPlayBufferLength": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Trick play buffer length",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "trick_play_buffer_length"
+                  }
+                ]
+              },
+              "recordingScheduleWindow": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Recording schedule window. Indicates how long (in minutes) after the program starts it is allowed to schedule the recording",
+                "nullable": true,
+                "x-old-standard": [
+                  {
+                    "oldName": "recording_schedule_window"
+                  }
+                ]
+              },
+              "paddingBeforeProgramStarts": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Indicates how long (in seconds) before the program starts the recording will begin",
+                "nullable": true,
+                "minimum": 0
+              },
+              "paddingAfterProgramEnds": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Indicates how long (in seconds) after the program ends the recording will end",
+                "nullable": true,
+                "minimum": 0
+              },
+              "protectionPeriod": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Specify the time in days that a recording should be protected. Start time begins at protection request.",
+                "nullable": true,
+                "minimum": 0
+              },
+              "protectionQuotaPercentage": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Indicates how many percent of the quota can be used for protection",
+                "nullable": true,
+                "minimum": 10,
+                "maximum": 100
+              },
+              "recordingLifetimePeriod": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Specify the time in days that a recording should be kept for user. Start time begins with the program end date.",
+                "nullable": true,
+                "minimum": 0
+              },
+              "cleanupNoticePeriod": {
+                "type": "integer",
+                "format": "int32",
+                "description": "The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.",
+                "nullable": true,
+                "minimum": 0
+              },
+              "seriesRecordingEnabled": {
+                "type": "boolean",
+                "description": "Is recording of series enabled",
+                "nullable": true
+              },
+              "nonEntitledChannelPlaybackEnabled": {
+                "type": "boolean",
+                "description": "Is recording playback for non-entitled channel enables",
+                "nullable": true
+              },
+              "nonExistingChannelPlaybackEnabled": {
+                "type": "boolean",
+                "description": "Is recording playback for non-existing channel enables",
+                "nullable": true
+              },
+              "quotaOveragePolicy": {
+                "type": "object",
+                "description": "Quota Policy",
+                "nullable": true,
+                "$ref": "#/components/schemas/KalturaQuotaOveragePolicy",
+                "x-json-ignore-null": true
+              },
+              "protectionPolicy": {
+                "type": "object",
+                "description": "Protection Policy",
+                "nullable": true,
+                "$ref": "#/components/schemas/KalturaProtectionPolicy",
+                "x-json-ignore-null": true
+              },
+              "recoveryGracePeriod": {
+                "type": "integer",
+                "format": "int32",
+                "description": "The time in days for recovery recording that was delete by Auto Delete .",
+                "nullable": true,
+                "minimum": 0
+              },
+              "privateCopyEnabled": {
+                "type": "boolean",
+                "description": "Is private copy enabled for the account",
+                "nullable": true
+              },
+              "defaultQuota": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Quota in seconds",
+                "nullable": true,
+                "minimum": -1
+              },
+              "personalizedRecording": {
+                "type": "boolean",
+                "description": "Define whatever the partner enables the Personal Padding and Immediate / Stop recording services to the partner. Default value should be FALSE",
+                "nullable": true
+              },
+              "maxRecordingConcurrency": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Define the max allowed number of parallel recordings. Default NULL unlimited",
+                "nullable": true,
+                "minimum": 0,
+                "maximum": 9999
+              },
+              "maxConcurrencyMargin": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Define the max grace margin time for overlapping recording. Default NULL 0 margin",
+                "nullable": true,
+                "minimum": 0,
+                "maximum": 9999
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.API"
+      },
+      "KalturaQuotaOveragePolicy": {
+        "type": "string",
+        "enum": [
+          "StopAtQuota",
+          "FIFOAutoDelete"
+        ],
+        "x-namespace": "WebAPI.Models.API"
+      },
+      "KalturaProtectionPolicy": {
+        "type": "string",
+        "enum": [
+          "ExtendingRecordingLifetime",
+          "LimitedByRecordingLifetime"
+        ],
+        "x-namespace": "WebAPI.Models.API"
+      }
+    },
+    "securitySchemes": {}
+  },
+  "security": [],
+  "paths": {}
+}

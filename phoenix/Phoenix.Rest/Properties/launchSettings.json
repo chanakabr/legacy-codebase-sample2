@@ -9,7 +9,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "FeatureToggle__LaunchDarkly__SdkKey": "sdk-39ee44c3-d726-4c9a-a561-506e82c1e0c1",
-        "ADAPTERS_CLIENT_CONFIGURATION_V2__DEFAULT__SEND_TIMEOUT_MS": "4"
+        "ADAPTERS_CLIENT_CONFIGURATION_V2__DEFAULT__SEND_TIMEOUT_MS": "4",
+        "MONGO_DB_CONFIGURATION__REPLICASETNAME": ""
         //"ENABLE_REQUEST_RESPONSE_LOGGING": "true",
         //"MIN_WORKER_THREADS": "10000",
         //"MIN_IO_WORKER_THREADS": "10000"

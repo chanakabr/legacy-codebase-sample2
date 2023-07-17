@@ -956,5 +956,24 @@ namespace APILogic
 
             return res;
         }
+
+        public static T GetEnvironmentVariable<T>(string environmentVariableKey, T defaultVal)
+        {
+            var envVar = Environment.GetEnvironmentVariable(environmentVariableKey);
+            
+            if (envVar.IsNullOrEmpty())
+                return defaultVal;
+
+            try
+            {
+                var val = (T)Convert.ChangeType(envVar, typeof(T));
+                return default(T).Equals(val) ? defaultVal : val;
+            }
+            catch (Exception e)
+            {
+                log.Warn($"Env var with key: {environmentVariableKey} has an incorrect type or value: {envVar}, type: {typeof(T).Name}");
+                return defaultVal;
+            }
+        }
     }
 }

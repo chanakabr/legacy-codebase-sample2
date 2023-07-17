@@ -282,6 +282,12 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType SEARCH_PRIORITY_GROUP_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.SearchPriorityGroupDoesNotExist, "Search Priority Group Does Not Exist");
         public static ClientExceptionType DYNAMIC_DATA_KEY_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DynamicDataKeyDoesNotExist, "Dynamic Data Keys Do Not Exist.");
         public static ClientExceptionType DYNAMIC_DATA_KEY_VALUE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DynamicDataKeyValueDoesNotExist, "Dynamic Data Key Value Does Not Exist.");
+        public static ClientExceptionType LIVE_ASSET_TO_PROGRAM_ASSET_TMISMATCH = new ClientExceptionType(eResponseStatus.LiveAssetToProgramAssetMismatch, "Live Asset To Program Asset Mismatch.");
+        public static ClientExceptionType EPG_START_DATE_TO_PROGRAM_ASSET_TMISMATCH = new ClientExceptionType(eResponseStatus.EpgStartDateToProgramAssetMismatch, "Epg Start Date To Program Asset Mismatch.");
+        public static ClientExceptionType EPG_END_DATE_TO_PROGRAM_ASSET_TMISMATCH = new ClientExceptionType(eResponseStatus.EpgEndDateToProgramAssetMismatch, "Epg End Date To Program Asset Mismatch.");
+        public static ClientExceptionType CRID_TO_PROGRAM_ASSET_TMISMATCH = new ClientExceptionType(eResponseStatus.CridToProgramAssetMismatch, "Crid To Program Asset Mismatch.");
+        public static ClientExceptionType CANNOT_IMPORT_RECORDING_WITHIN_CATCH_UP_BUFFER = new ClientExceptionType(eResponseStatus.CannotImportRecordingWithinCatchUpBuffer, "Cannot import time-based recording within catch up buffer window");
+
         #endregion
 
         #region Api 5000 - 5999
@@ -319,6 +325,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ASSET_USER_RULES_OPERATIONS_DISABLE = new ClientExceptionType(eResponseStatus.AssetUserRulesOperationsDisable, "", "AssetUserRule operations are disabled for this partner");
         public static ClientExceptionType ROLE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RoleDoesNotExists, "", "Role Does Not Exists");
         public static ClientExceptionType EMBEDDED_PERMISSION_ROLE_MODIFICATION_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.EmbeddedPermissionRoleModificationNotAllowed, "", "Embedded permission role modification is not allowed");
+        public static ClientExceptionType PERSONALIZED_RECORDING_DISABLED = new ClientExceptionType(eResponseStatus.PersonalizedRecordingDisabled, "", "Personalized recording is disabled");
         public static ClientExceptionType FILE_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.FileDoesNotExists, "File Does Not Exists", "The file does not exist in a given path");
         public static ClientExceptionType FILE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.FileAlreadyExists, "File Already Exists", "The file already exists in a given path");
         public static ClientExceptionType ERROR_SAVING_FILE = new ClientExceptionType(eResponseStatus.ErrorSavingFile, "Error While Saving File", "Error occurred while saving file to File Server");

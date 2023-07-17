@@ -1,16 +1,15 @@
-﻿using ApiObjects.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using ApiLogic.Catalog.Services;
-using ApiObjects.Base;
+﻿using ApiObjects.Base;
+using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using AutoMapper;
 using Core.Recordings;
-using TVinciShared;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
@@ -50,51 +49,6 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
-        /* 
-        /// <summary>
-        /// Return recording information and status for collection of program for a user.
-        /// Specify per programs if it can be recorded or not.
-        /// If program record request was already issued – return recording status
-        /// </summary>
-        /// <param name="filter">Filter parameters for filtering out the result</param>
-        /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
-        /// ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
-        /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, ExceededQuota = 3042,
-        /// AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
-        [Action("getContext")]
-        [ApiAuthorize]
-        [WebAPI.Managers.Schema.ValidationException(WebAPI.Managers.Schema.SchemaValidationType.ACTION_NAME)]
-        static public KalturaRecordingContextListResponse GetContext(KalturaRecordingContextFilter filter)
-        {
-            KalturaRecordingContextListResponse response = null;
-
-            try
-            {                        
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
-
-                if (filter == null)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-                }
-
-                if (string.IsNullOrEmpty(filter.AssetIdIn))
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter ids cannot be empty");
-                }          
-
-                // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, filter.getAssetIdIn());
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-            return response;
-        }
-         **/
 
         /// <summary>
         /// Issue a record request for a program
@@ -153,13 +107,11 @@ namespace WebAPI.Controllers
                     switch (recording)
                     {
                         case KalturaPaddedRecording rec:
-                            response = ClientsManager.ConditionalAccessClient()
-                                .Record(groupId, userId.ToString(), rec.AssetId, rec.StartPadding, rec.EndPadding,
-                                    true);
+                            response = ClientsManager.ConditionalAccessClient().Record
+                                (groupId, userId.ToString(), rec.AssetId, rec.StartPadding, rec.EndPadding, true);
                             break; 
                         case KalturaRecording rec:
-                            response = ClientsManager.ConditionalAccessClient()
-                                .Record(groupId, userId.ToString(), rec.AssetId, 0, 0);
+                            response = ClientsManager.ConditionalAccessClient().Record(groupId, userId.ToString(), rec.AssetId, 0, 0);
                             break;
                         default:
                             throw new NotImplementedException($"Add for {recording.objectType} is not implemented");
@@ -187,8 +139,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        public static KalturaRecordingListResponse List(KalturaRecordingFilter filter = null,
-            KalturaFilterPager pager = null)
+        public static KalturaRecordingListResponse List(KalturaRecordingFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaRecordingListResponse response = null;
 
@@ -205,7 +156,7 @@ namespace WebAPI.Controllers
                 }
 
                 var contextData = KS.GetContextData();
-                response = filter.SearchRecordings(contextData, pager);
+                response = RecordingFilter.SearchRecordings(filter, contextData, pager);
             }
             catch (ClientException ex)
             {
@@ -538,7 +489,6 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        
         /// <summary>
         /// Immediate Record
         /// </summary>
@@ -574,7 +524,7 @@ namespace WebAPI.Controllers
                 if (timeShiftedSettings.PersonalizedRecordingEnable == true)
                 {
                     Func<GenericResponse<Recording>> immediateRecordingFunc = () =>
-                        PaddedRecordingsManager.Instance.ImmediateRecord(groupId, userId, domainId, assetId, endPadding);
+                        PaddedRecordingsManager.Instance.ImmediateRecord(groupId, userId, domainId, assetId, endPadding, null);
 
                     response = ClientUtils.GetResponseFromWS<KalturaImmediateRecording, Recording>(immediateRecordingFunc);
                 }

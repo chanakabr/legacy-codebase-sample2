@@ -3818,12 +3818,29 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCloudRecordingFilter
     {
+        private static RuntimeSchemePropertyAttribute AdapterDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCloudRecordingFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaCloudRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
                 {
+                    AdapterDataSchemaProperty.Validate("adapterData", parameters["adapterData"]);
                     if (parameters["adapterData"] is JObject)
                     {
                         AdapterData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["adapterData"]).ToObject<Dictionary<string, object>>());
@@ -4113,6 +4130,90 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlement
     {
+        private static RuntimeSchemePropertyAttribute MediaFileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute MediaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IsInGracePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IsRenewableSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute IsRenewableForPurchaseSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute NextRenewalDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
             ReadOnly = true,
@@ -4323,90 +4424,6 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
-        private static RuntimeSchemePropertyAttribute NextRenewalDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-            UniqueItems = false,
-        };
-        private static RuntimeSchemePropertyAttribute IsRenewableForPurchaseSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-            UniqueItems = false,
-        };
-        private static RuntimeSchemePropertyAttribute IsRenewableSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-            UniqueItems = false,
-        };
-        private static RuntimeSchemePropertyAttribute MediaFileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-            UniqueItems = false,
-        };
-        private static RuntimeSchemePropertyAttribute MediaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-            UniqueItems = false,
-        };
-        private static RuntimeSchemePropertyAttribute IsInGracePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            ValidationState = WebAPI.Managers.eKSValidation.All,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-            UniqueItems = false,
-        };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
             ReadOnly = true,
@@ -4441,6 +4458,66 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("mediaFileId") && parameters["mediaFileId"] != null)
+                {
+                    MediaFileIdSchemaProperty.Validate("mediaFileId", parameters["mediaFileId"]);
+                    MediaFileId = (Int32) Convert.ChangeType(parameters["mediaFileId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("media_file_id") && parameters["media_file_id"] != null && isOldVersion)
+                {
+                    MediaFileIdSchemaProperty.Validate("media_file_id", parameters["media_file_id"]);
+                    MediaFileId = (Int32) Convert.ChangeType(parameters["media_file_id"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("mediaId") && parameters["mediaId"] != null)
+                {
+                    MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
+                    MediaId = (Int32) Convert.ChangeType(parameters["mediaId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("media_id") && parameters["media_id"] != null && isOldVersion)
+                {
+                    MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
+                    MediaId = (Int32) Convert.ChangeType(parameters["media_id"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("isInGracePeriod") && parameters["isInGracePeriod"] != null)
+                {
+                    IsInGracePeriodSchemaProperty.Validate("isInGracePeriod", parameters["isInGracePeriod"]);
+                    IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["isInGracePeriod"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("is_in_grace_period") && parameters["is_in_grace_period"] != null && isOldVersion)
+                {
+                    IsInGracePeriodSchemaProperty.Validate("is_in_grace_period", parameters["is_in_grace_period"]);
+                    IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["is_in_grace_period"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
+                {
+                    IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
+                    IsRenewable = (Boolean) Convert.ChangeType(parameters["isRenewable"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("is_renewable") && parameters["is_renewable"] != null && isOldVersion)
+                {
+                    IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
+                    IsRenewable = (Boolean) Convert.ChangeType(parameters["is_renewable"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("isRenewableForPurchase") && parameters["isRenewableForPurchase"] != null)
+                {
+                    IsRenewableForPurchaseSchemaProperty.Validate("isRenewableForPurchase", parameters["isRenewableForPurchase"]);
+                    IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["isRenewableForPurchase"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("is_renewable_for_purchase") && parameters["is_renewable_for_purchase"] != null && isOldVersion)
+                {
+                    IsRenewableForPurchaseSchemaProperty.Validate("is_renewable_for_purchase", parameters["is_renewable_for_purchase"]);
+                    IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["is_renewable_for_purchase"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("nextRenewalDate") && parameters["nextRenewalDate"] != null)
+                {
+                    NextRenewalDateSchemaProperty.Validate("nextRenewalDate", parameters["nextRenewalDate"]);
+                    NextRenewalDate = (Int64) Convert.ChangeType(parameters["nextRenewalDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("next_renewal_date") && parameters["next_renewal_date"] != null && isOldVersion)
+                {
+                    NextRenewalDateSchemaProperty.Validate("next_renewal_date", parameters["next_renewal_date"]);
+                    NextRenewalDate = (Int64) Convert.ChangeType(parameters["next_renewal_date"], typeof(Int64));
+                }
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
                     IdSchemaProperty.Validate("id", parameters["id"]);
@@ -4605,66 +4682,6 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     MaxUsesSchemaProperty.Validate("max_uses", parameters["max_uses"]);
                     MaxUses = (Int32) Convert.ChangeType(parameters["max_uses"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("nextRenewalDate") && parameters["nextRenewalDate"] != null)
-                {
-                    NextRenewalDateSchemaProperty.Validate("nextRenewalDate", parameters["nextRenewalDate"]);
-                    NextRenewalDate = (Int64) Convert.ChangeType(parameters["nextRenewalDate"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("next_renewal_date") && parameters["next_renewal_date"] != null && isOldVersion)
-                {
-                    NextRenewalDateSchemaProperty.Validate("next_renewal_date", parameters["next_renewal_date"]);
-                    NextRenewalDate = (Int64) Convert.ChangeType(parameters["next_renewal_date"], typeof(Int64));
-                }
-                if (parameters.ContainsKey("isRenewableForPurchase") && parameters["isRenewableForPurchase"] != null)
-                {
-                    IsRenewableForPurchaseSchemaProperty.Validate("isRenewableForPurchase", parameters["isRenewableForPurchase"]);
-                    IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["isRenewableForPurchase"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("is_renewable_for_purchase") && parameters["is_renewable_for_purchase"] != null && isOldVersion)
-                {
-                    IsRenewableForPurchaseSchemaProperty.Validate("is_renewable_for_purchase", parameters["is_renewable_for_purchase"]);
-                    IsRenewableForPurchase = (Boolean) Convert.ChangeType(parameters["is_renewable_for_purchase"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("isRenewable") && parameters["isRenewable"] != null)
-                {
-                    IsRenewableSchemaProperty.Validate("isRenewable", parameters["isRenewable"]);
-                    IsRenewable = (Boolean) Convert.ChangeType(parameters["isRenewable"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("is_renewable") && parameters["is_renewable"] != null && isOldVersion)
-                {
-                    IsRenewableSchemaProperty.Validate("is_renewable", parameters["is_renewable"]);
-                    IsRenewable = (Boolean) Convert.ChangeType(parameters["is_renewable"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("mediaFileId") && parameters["mediaFileId"] != null)
-                {
-                    MediaFileIdSchemaProperty.Validate("mediaFileId", parameters["mediaFileId"]);
-                    MediaFileId = (Int32) Convert.ChangeType(parameters["mediaFileId"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("media_file_id") && parameters["media_file_id"] != null && isOldVersion)
-                {
-                    MediaFileIdSchemaProperty.Validate("media_file_id", parameters["media_file_id"]);
-                    MediaFileId = (Int32) Convert.ChangeType(parameters["media_file_id"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("mediaId") && parameters["mediaId"] != null)
-                {
-                    MediaIdSchemaProperty.Validate("mediaId", parameters["mediaId"]);
-                    MediaId = (Int32) Convert.ChangeType(parameters["mediaId"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("media_id") && parameters["media_id"] != null && isOldVersion)
-                {
-                    MediaIdSchemaProperty.Validate("media_id", parameters["media_id"]);
-                    MediaId = (Int32) Convert.ChangeType(parameters["media_id"], typeof(Int32));
-                }
-                if (parameters.ContainsKey("isInGracePeriod") && parameters["isInGracePeriod"] != null)
-                {
-                    IsInGracePeriodSchemaProperty.Validate("isInGracePeriod", parameters["isInGracePeriod"]);
-                    IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["isInGracePeriod"], typeof(Boolean));
-                }
-                if (parameters.ContainsKey("is_in_grace_period") && parameters["is_in_grace_period"] != null && isOldVersion)
-                {
-                    IsInGracePeriodSchemaProperty.Validate("is_in_grace_period", parameters["is_in_grace_period"]);
-                    IsInGracePeriod = (Boolean) Convert.ChangeType(parameters["is_in_grace_period"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("userId") && parameters["userId"] != null)
                 {
@@ -5260,7 +5277,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -5297,12 +5314,30 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaExternalRecordingFilter
     {
+        private static RuntimeSchemePropertyAttribute MetaDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExternalRecordingFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            Default = "[]",
+            UniqueItems = false,
+        };
         public KalturaExternalRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("metaData") && parameters["metaData"] != null)
                 {
+                    MetaDataSchemaProperty.Validate("metaData", parameters["metaData"]);
                     if (parameters["metaData"] is JObject)
                     {
                         MetaData = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
@@ -5650,6 +5685,34 @@ namespace WebAPI.Models.ConditionalAccess
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute StartPaddingIsPersonalSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute EndPaddingIsPersonalSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaddedRecording")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaPaddedRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -5665,6 +5728,16 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     EndPaddingSchemaProperty.Validate("endPadding", parameters["endPadding"]);
                     EndPadding = (Int32) Convert.ChangeType(parameters["endPadding"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("startPaddingIsPersonal") && parameters["startPaddingIsPersonal"] != null)
+                {
+                    StartPaddingIsPersonalSchemaProperty.Validate("startPaddingIsPersonal", parameters["startPaddingIsPersonal"]);
+                    StartPaddingIsPersonal = (Boolean) Convert.ChangeType(parameters["startPaddingIsPersonal"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("endPaddingIsPersonal") && parameters["endPaddingIsPersonal"] != null)
+                {
+                    EndPaddingIsPersonalSchemaProperty.Validate("endPaddingIsPersonal", parameters["endPaddingIsPersonal"]);
+                    EndPaddingIsPersonal = (Boolean) Convert.ChangeType(parameters["endPaddingIsPersonal"], typeof(Boolean));
                 }
             }
         }
@@ -6360,7 +6433,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -6403,6 +6476,20 @@ namespace WebAPI.Models.ConditionalAccess
             WriteOnly = false,
             RequiresPermission = 6,
             IsNullable = false,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ViewableUntilDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -6500,6 +6587,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("viewableUntilDate") && parameters["viewableUntilDate"] != null)
                 {
+                    ViewableUntilDateSchemaProperty.Validate("viewableUntilDate", parameters["viewableUntilDate"]);
                     ViewableUntilDate = (Int64) Convert.ChangeType(parameters["viewableUntilDate"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("isProtected") && parameters["isProtected"] != null)
@@ -6597,7 +6685,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             DynamicType = typeof(KalturaRecordingStatus),
             MaxLength = -1,
@@ -6612,9 +6700,23 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = 4096,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ExternalRecordingIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecordingFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
             MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
@@ -6626,7 +6728,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = 4096,
             MinLength = -1,
@@ -6652,6 +6754,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 if (parameters.ContainsKey("externalRecordingIdIn") && parameters["externalRecordingIdIn"] != null)
                 {
+                    ExternalRecordingIdInSchemaProperty.Validate("externalRecordingIdIn", parameters["externalRecordingIdIn"]);
                     ExternalRecordingIdIn = (String) Convert.ChangeType(parameters["externalRecordingIdIn"], typeof(String));
                 }
                 if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
@@ -9363,10 +9466,26 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaMessage
     {
+        private static RuntimeSchemePropertyAttribute ArgsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMessage")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("code") && parameters["code"] != null)
                 {
                     Code = (Int32) Convert.ChangeType(parameters["code"], typeof(Int32));
@@ -9377,6 +9496,7 @@ namespace WebAPI.Models.General
                 }
                 if (parameters.ContainsKey("args") && parameters["args"] != null)
                 {
+                    ArgsSchemaProperty.Validate("args", parameters["args"]);
                     if (parameters["args"] is JObject)
                     {
                         Args = OTTObjectBuilder.buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["args"]).ToObject<Dictionary<string, object>>());
@@ -15903,13 +16023,139 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTimeShiftedTvPartnerSettings
     {
+        private static RuntimeSchemePropertyAttribute CatchUpEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute CdvrEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute StartOverEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute TrickPlayEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute RecordingScheduleWindowEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ProtectionEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute CatchUpBufferLengthSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute TrickPlayBufferLengthSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute RecordingScheduleWindowSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -15924,7 +16170,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -15939,7 +16185,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -15954,7 +16200,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -15970,7 +16216,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -15985,11 +16231,81 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute SeriesRecordingEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute NonEntitledChannelPlaybackEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute NonExistingChannelPlaybackEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute QuotaOveragePolicySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute ProtectionPolicySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,
@@ -16000,11 +16316,25 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
+        private static RuntimeSchemePropertyAttribute PrivateCopyEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
             UniqueItems = false,
@@ -16015,7 +16345,7 @@ namespace WebAPI.Models.API
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             ValidationState = WebAPI.Managers.eKSValidation.All,
             MaxLength = -1,
             MinLength = -1,
@@ -16078,70 +16408,87 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("catchUpEnabled") && parameters["catchUpEnabled"] != null)
                 {
+                    CatchUpEnabledSchemaProperty.Validate("catchUpEnabled", parameters["catchUpEnabled"]);
                     CatchUpEnabled = (Boolean) Convert.ChangeType(parameters["catchUpEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("catch_up_enabled") && parameters["catch_up_enabled"] != null && isOldVersion)
                 {
+                    CatchUpEnabledSchemaProperty.Validate("catch_up_enabled", parameters["catch_up_enabled"]);
                     CatchUpEnabled = (Boolean) Convert.ChangeType(parameters["catch_up_enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("cdvrEnabled") && parameters["cdvrEnabled"] != null)
                 {
+                    CdvrEnabledSchemaProperty.Validate("cdvrEnabled", parameters["cdvrEnabled"]);
                     CdvrEnabled = (Boolean) Convert.ChangeType(parameters["cdvrEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("cdvr_enabled") && parameters["cdvr_enabled"] != null && isOldVersion)
                 {
+                    CdvrEnabledSchemaProperty.Validate("cdvr_enabled", parameters["cdvr_enabled"]);
                     CdvrEnabled = (Boolean) Convert.ChangeType(parameters["cdvr_enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("startOverEnabled") && parameters["startOverEnabled"] != null)
                 {
+                    StartOverEnabledSchemaProperty.Validate("startOverEnabled", parameters["startOverEnabled"]);
                     StartOverEnabled = (Boolean) Convert.ChangeType(parameters["startOverEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("start_over_enabled") && parameters["start_over_enabled"] != null && isOldVersion)
                 {
+                    StartOverEnabledSchemaProperty.Validate("start_over_enabled", parameters["start_over_enabled"]);
                     StartOverEnabled = (Boolean) Convert.ChangeType(parameters["start_over_enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("trickPlayEnabled") && parameters["trickPlayEnabled"] != null)
                 {
+                    TrickPlayEnabledSchemaProperty.Validate("trickPlayEnabled", parameters["trickPlayEnabled"]);
                     TrickPlayEnabled = (Boolean) Convert.ChangeType(parameters["trickPlayEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("trick_play_enabled") && parameters["trick_play_enabled"] != null && isOldVersion)
                 {
+                    TrickPlayEnabledSchemaProperty.Validate("trick_play_enabled", parameters["trick_play_enabled"]);
                     TrickPlayEnabled = (Boolean) Convert.ChangeType(parameters["trick_play_enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("recordingScheduleWindowEnabled") && parameters["recordingScheduleWindowEnabled"] != null)
                 {
+                    RecordingScheduleWindowEnabledSchemaProperty.Validate("recordingScheduleWindowEnabled", parameters["recordingScheduleWindowEnabled"]);
                     RecordingScheduleWindowEnabled = (Boolean) Convert.ChangeType(parameters["recordingScheduleWindowEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("recording_schedule_window_enabled") && parameters["recording_schedule_window_enabled"] != null && isOldVersion)
                 {
+                    RecordingScheduleWindowEnabledSchemaProperty.Validate("recording_schedule_window_enabled", parameters["recording_schedule_window_enabled"]);
                     RecordingScheduleWindowEnabled = (Boolean) Convert.ChangeType(parameters["recording_schedule_window_enabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("protectionEnabled") && parameters["protectionEnabled"] != null)
                 {
+                    ProtectionEnabledSchemaProperty.Validate("protectionEnabled", parameters["protectionEnabled"]);
                     ProtectionEnabled = (Boolean) Convert.ChangeType(parameters["protectionEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("catchUpBufferLength") && parameters["catchUpBufferLength"] != null)
                 {
+                    CatchUpBufferLengthSchemaProperty.Validate("catchUpBufferLength", parameters["catchUpBufferLength"]);
                     CatchUpBufferLength = (Int64) Convert.ChangeType(parameters["catchUpBufferLength"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("catch_up_buffer_length") && parameters["catch_up_buffer_length"] != null && isOldVersion)
                 {
+                    CatchUpBufferLengthSchemaProperty.Validate("catch_up_buffer_length", parameters["catch_up_buffer_length"]);
                     CatchUpBufferLength = (Int64) Convert.ChangeType(parameters["catch_up_buffer_length"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("trickPlayBufferLength") && parameters["trickPlayBufferLength"] != null)
                 {
+                    TrickPlayBufferLengthSchemaProperty.Validate("trickPlayBufferLength", parameters["trickPlayBufferLength"]);
                     TrickPlayBufferLength = (Int64) Convert.ChangeType(parameters["trickPlayBufferLength"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("trick_play_buffer_length") && parameters["trick_play_buffer_length"] != null && isOldVersion)
                 {
+                    TrickPlayBufferLengthSchemaProperty.Validate("trick_play_buffer_length", parameters["trick_play_buffer_length"]);
                     TrickPlayBufferLength = (Int64) Convert.ChangeType(parameters["trick_play_buffer_length"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("recordingScheduleWindow") && parameters["recordingScheduleWindow"] != null)
                 {
+                    RecordingScheduleWindowSchemaProperty.Validate("recordingScheduleWindow", parameters["recordingScheduleWindow"]);
                     RecordingScheduleWindow = (Int64) Convert.ChangeType(parameters["recordingScheduleWindow"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("recording_schedule_window") && parameters["recording_schedule_window"] != null && isOldVersion)
                 {
+                    RecordingScheduleWindowSchemaProperty.Validate("recording_schedule_window", parameters["recording_schedule_window"]);
                     RecordingScheduleWindow = (Int64) Convert.ChangeType(parameters["recording_schedule_window"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("paddingBeforeProgramStarts") && parameters["paddingBeforeProgramStarts"] != null)
@@ -16176,18 +16523,22 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("seriesRecordingEnabled") && parameters["seriesRecordingEnabled"] != null)
                 {
+                    SeriesRecordingEnabledSchemaProperty.Validate("seriesRecordingEnabled", parameters["seriesRecordingEnabled"]);
                     SeriesRecordingEnabled = (Boolean) Convert.ChangeType(parameters["seriesRecordingEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("nonEntitledChannelPlaybackEnabled") && parameters["nonEntitledChannelPlaybackEnabled"] != null)
                 {
+                    NonEntitledChannelPlaybackEnabledSchemaProperty.Validate("nonEntitledChannelPlaybackEnabled", parameters["nonEntitledChannelPlaybackEnabled"]);
                     NonEntitledChannelPlaybackEnabled = (Boolean) Convert.ChangeType(parameters["nonEntitledChannelPlaybackEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("nonExistingChannelPlaybackEnabled") && parameters["nonExistingChannelPlaybackEnabled"] != null)
                 {
+                    NonExistingChannelPlaybackEnabledSchemaProperty.Validate("nonExistingChannelPlaybackEnabled", parameters["nonExistingChannelPlaybackEnabled"]);
                     NonExistingChannelPlaybackEnabled = (Boolean) Convert.ChangeType(parameters["nonExistingChannelPlaybackEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("quotaOveragePolicy") && parameters["quotaOveragePolicy"] != null)
                 {
+                    QuotaOveragePolicySchemaProperty.Validate("quotaOveragePolicy", parameters["quotaOveragePolicy"]);
                     if(string.IsNullOrEmpty(parameters["quotaOveragePolicy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "quotaOveragePolicy");
@@ -16202,6 +16553,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("protectionPolicy") && parameters["protectionPolicy"] != null)
                 {
+                    ProtectionPolicySchemaProperty.Validate("protectionPolicy", parameters["protectionPolicy"]);
                     if(string.IsNullOrEmpty(parameters["protectionPolicy"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "protectionPolicy");
@@ -16221,6 +16573,7 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("privateCopyEnabled") && parameters["privateCopyEnabled"] != null)
                 {
+                    PrivateCopyEnabledSchemaProperty.Validate("privateCopyEnabled", parameters["privateCopyEnabled"]);
                     PrivateCopyEnabled = (Boolean) Convert.ChangeType(parameters["privateCopyEnabled"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("defaultQuota") && parameters["defaultQuota"] != null)

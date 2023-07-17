@@ -14139,6 +14139,7 @@ namespace Core.ConditionalAccess
                         {
                             var _msg =
                                 $"epgID: {epgID} can't be recoded due to recording concurrency of {accountSettings.MaxRecordingConcurrency}";
+                            log.Debug(_msg);
                             recording.Status.Set((int)eResponseStatus.RecordingExceededConcurrency, _msg);
                         }
                         else

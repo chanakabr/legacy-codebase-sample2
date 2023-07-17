@@ -250,12 +250,12 @@ namespace Core.Catalog.CatalogManagement
                 result = AssetManager.Instance.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
                 if (result.IsOkStatusCode())
                 {
-                    _messageService.PublishCreateEventAsync(groupId, newEpgId, userId).GetAwaiter().GetResult();
+                    _messageService.PublishCreateEventAsync(groupId, newEpgId, userId)?.GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddEpgAsset for groupId: {0}, epg ExternalId: {1}", groupId, epgAssetToAdd.EpgIdentifier), ex);
+                log.Error($"Failed AddEpgAsset for groupId: {groupId}, epg ExternalId: {epgAssetToAdd.EpgIdentifier}, Exception: [{ex}].");
             }
 
             return result;

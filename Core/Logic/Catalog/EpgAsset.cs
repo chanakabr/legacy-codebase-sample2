@@ -169,7 +169,7 @@ namespace Core.Catalog
         private static Dictionary<string, List<List<LanguageContainer>>> BuildTagsForDefaultLanguageDocument(EpgCB defaultEpgCB)
         {
             var tagsToSet = new Dictionary<string, List<List<LanguageContainer>>>();
-            if (defaultEpgCB.Tags?.Count > 0)
+            if (defaultEpgCB?.Tags?.Count > 0)
             {
                 var onlyTagsWithValues = defaultEpgCB.Tags.Where(t => t.Value?.Any() == true);
                 foreach (var tag in onlyTagsWithValues)

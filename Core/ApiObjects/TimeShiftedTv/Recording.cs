@@ -1,59 +1,35 @@
 ﻿using ApiObjects.Response;
 using System;
 using System.Text;
-using ApiObjects.Recordings;
 
 namespace ApiObjects.TimeShiftedTv
 {
-
     public class Recording
     {
-        public ApiObjects.Response.Status Status { get; set; }
-
+        public Status Status { get; set; }
         public long Id { get; set; }        
-
         public long EpgId { get; set; }
-
         public long ChannelId { get; set; }
-
         public TstvRecordingStatus RecordingStatus { get; set; }
-
         public string ExternalRecordingId { get; set; }        
-
         public DateTime EpgStartDate { get; set; }
-
         public DateTime EpgEndDate { get; set; }
-
         public RecordingType Type { get; set; }       
-
         public int GetStatusRetries { get; set; }
-
         public long? ProtectedUntilDate { get; set; }
-
         public long? ViewableUntilDate { get; set; }
-
         public DateTime CreateDate { get; set; }
-
         public DateTime UpdateDate { get; set; }
-
         public string Crid { get; set; }
-
         public bool isExternalRecording { get; set; }
-
         public bool IsProtected { get; set; }
-
         public string UserId { get; set; }
-
         public bool IsStartPaddingDefault { get; set;}
         public bool IsEndPaddingDefault { get; set;}
-
         public int? EndPadding { get; set;}
-
         public int? StartPadding { get; set;}
-
         public int? UserEndPadding => !IsEndPaddingDefault ? EndPadding : null;
         public int? UserStartPadding => !IsStartPaddingDefault ? StartPadding : null;
-
         public long? RecordedProgramId { get; set; }
         public DateTime? AbsoluteStartTime { get; set; }
         public DateTime? AbsoluteEndTime { get; set; }
@@ -61,7 +37,7 @@ namespace ApiObjects.TimeShiftedTv
 
         public Recording()
         {
-            Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             this.Id = 0;            
             this.Type = RecordingType.Single;
             this.isExternalRecording = false;

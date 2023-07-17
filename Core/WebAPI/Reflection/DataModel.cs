@@ -6004,8 +6004,12 @@ namespace WebAPI.Reflection
                     {
                         case "EndPadding":
                             return "endPadding";
+                        case "EndPaddingIsPersonal":
+                            return "endPaddingIsPersonal";
                         case "StartPadding":
                             return "startPadding";
+                        case "StartPaddingIsPersonal":
+                            return "startPaddingIsPersonal";
                     }
                     break;
                     

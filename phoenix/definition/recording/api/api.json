@@ -1,0 +1,422 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "recording",
+    "version": "6.7.0.0",
+    "contact": {
+      "email": "platformdev@kaltura.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "phoenix.service.consul:{port}/{base_path}",
+      "description": "dns endpoint for recording service instances",
+      "variables": {
+        "base_path": {
+          "default": "api_v3"
+        },
+        "port": {
+          "enum": [
+            "8080",
+            "8081"
+          ],
+          "default": "8080"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {
+      "KalturaRecording": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Kaltura unique ID representing the recording identifier",
+                "nullable": true,
+                "readOnly": true
+              },
+              "status": {
+                "type": "object",
+                "description": "Recording state: scheduled/recording/recorded/canceled/failed/deleted",
+                "readOnly": true,
+                "$ref": "#/components/schemas/KalturaRecordingStatus"
+              },
+              "assetId": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Kaltura unique ID representing the program identifier",
+                "x-insert-only": true
+              },
+              "type": {
+                "type": "object",
+                "description": "Recording Type: single/season/series",
+                "$ref": "ott-schema-registry/models/api/rest/kalturaRecordingType",
+                "x-insert-only": true,
+                "x-requires-permission": "WRITE"
+              },
+              "viewableUntilDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Specifies until when the recording is available for viewing. Date and time represented as epoch.",
+                "nullable": true
+              },
+              "isProtected": {
+                "type": "boolean",
+                "description": "Specifies whether or not the recording is protected"
+              },
+              "createDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Specifies when was the recording created. Date and time represented as epoch.",
+                "readOnly": true
+              },
+              "updateDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Specifies when was the recording last updated. Date and time represented as epoch.",
+                "readOnly": true
+              },
+              "duration": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Duration in seconds",
+                "nullable": true,
+                "readOnly": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaExternalRecording": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaRecording"
+          },
+          {
+            "properties": {
+              "externalId": {
+                "type": "string",
+                "description": "External identifier for the recording",
+                "minLength": 1,
+                "maxLength": 255,
+                "x-insert-only": true,
+                "x-requires-permission": "WRITE"
+              },
+              "metaData": {
+                "type": "object",
+                "description": "key/value map field for extra data",
+                "additionalProperties": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaStringValue"
+                },
+                "x-requires-permission": "UPDATE"
+              },
+              "expiryDate": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Specifies until when the recording is available. Date and time represented as epoch.",
+                "nullable": true,
+                "readOnly": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaRecordingStatus": {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "RECORDING",
+          "RECORDED",
+          "CANCELED",
+          "FAILED",
+          "DELETED"
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaImmediateRecording": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaRecording"
+          },
+          {
+            "properties": {
+              "endPadding": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Household specific end padding of the recording",
+                "nullable": true
+              },
+              "absoluteStart": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Household absolute start time of the immediate recording",
+                "readOnly": true,
+                "x-generated-symbol": "AbsoluteStartTime"
+              },
+              "absoluteEnd": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Household absolute end time of the immediate recording, empty if till end of program",
+                "nullable": true,
+                "readOnly": true,
+                "x-generated-symbol": "AbsoluteEndTime"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaPaddedRecording": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaRecording"
+          },
+          {
+            "properties": {
+              "startPadding": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Household specific start padding of the recording",
+                "nullable": true,
+                "minimum": 0
+              },
+              "endPadding": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Household specific end padding of the recording",
+                "nullable": true,
+                "minimum": 0
+              },
+              "startPaddingIsPersonal": {
+                "type": "boolean",
+                "readonly": true,
+                "description": "Indicates whether startPadding value is personal padding (counts towards HH quota) or system padding (does not count towards HH quota)."
+              },
+              "endPaddingIsPersonal": {
+                "type": "boolean",
+                "readonly": true,
+                "description": "Indicates whether endPadding value is personal padding (counts towards HH quota) or system padding (does not count towards HH quota)."
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaActionResult": {
+        "type": "object",
+        "description": "Result of action performed on entity with Id",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaOTTObject"
+          },
+          {
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Identifier of entity",
+                "readOnly": true
+              },
+              "result": {
+                "type": "object",
+                "description": "Identifier of entity",
+                "readOnly": true,
+                "$ref": "ott-schema-registry/models/api/rest/kalturaMessage"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.General"
+      },
+      "KalturaRecordingFilter": {
+        "type": "object",
+        "description": "Filtering recordings",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaFilter",
+            "x-template-instantiation": {
+              "KalturaT": "#/components/schemas/KalturaRecordingOrderBy"
+            }
+          },
+          {
+            "properties": {
+              "statusIn": {
+                "type": "string",
+                "description": "Recording Statuses",
+                "nullable": true,
+                "x-dynamic-type": "#/components/schemas/KalturaRecordingStatus"
+              },
+              "filterExpression": {
+                "type": "string",
+                "description": "KSQL expression, deprecated, please use ksql",
+                "nullable": true,
+                "maxLength": 4096,
+                "x-validation-exception": "FILTER_SUFFIX",
+                "x-deprecated-version": "5.0.0.0"
+              },
+              "externalRecordingIdIn": {
+                "type": "string",
+                "description": "Comma separated external identifiers",
+                "nullable": true
+              },
+              "kSql": {
+                "type": "string",
+                "description": "KSQL expression",
+                "nullable": true,
+                "maxLength": 4096,
+                "x-validation-exception": "FILTER_SUFFIX",
+                "x-generated-symbol": "Ksql"
+              },
+              "orderBy": {
+                "default": "START_DATE_DESC",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/KalturaRecordingOrderBy"
+                  }
+                ],
+                "x-override-default": true,
+                "x-get-default-orderby": true
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaRecordingOrderBy": {
+        "type": "string",
+        "enum": [
+          "TITLE_ASC",
+          "TITLE_DESC",
+          "START_DATE_ASC",
+          "START_DATE_DESC"
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaCloudRecordingFilter": {
+        "type": "object",
+        "description": "Filtering cloud external recordings",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaExternalRecordingFilter"
+          },
+          {
+            "properties": {
+              "adapterData": {
+                "type": "object",
+                "description": "Adapter Data",
+                "nullable": true,
+                "additionalProperties": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaStringValue"
+                },
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaExternalRecordingFilter": {
+        "type": "object",
+        "description": "Filtering external recordings",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KalturaRecordingFilter"
+          },
+          {
+            "properties": {
+              "metaData": {
+                "type": "object",
+                "description": "MetaData filtering",
+                "nullable": true,
+                "default": "[]",
+                "additionalProperties": {
+                  "$ref": "ott-schema-registry/models/api/rest/kalturaStringValue"
+                },
+                "x-validation-exception": "FILTER_SUFFIX"
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaRecordingListResponse": {
+        "type": "object",
+        "description": "Recordings info wrapper",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaListResponse"
+          },
+          {
+            "properties": {
+              "objects": {
+                "type": "array",
+                "description": "Recordings",
+                "items": {
+                  "$ref": "#/components/schemas/KalturaRecording"
+                }
+              }
+            }
+          }
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      },
+      "KalturaExternalRecordingResponseProfileFilter": {
+        "type": "object",
+        "description": "Kaltura External Recording ResponseProfile Filter",
+        "x-namespace": "WebAPI.Models.ConditionalAccess",
+        "x-scheme-base": "ott-schema-registry/models/api/rest/kalturaRelatedObjectFilter",
+        "allOf": [
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaFilter",
+            "x-template-instantiation": {
+              "KalturaT": "#/components/schemas/KalturaExternalRecordingResponseProfileOrderBy"
+            }
+          },
+          {
+            "$ref": "ott-schema-registry/models/api/rest/kalturaRelatedObjectFilter"
+          },
+          {
+            "properties": {
+              "orderBy": {
+                "default": "NONE",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/KalturaExternalRecordingResponseProfileOrderBy"
+                  }
+                ],
+                "x-override-default": true,
+                "x-get-default-orderby": true
+              }
+            }
+          }
+        ]
+      },
+      "KalturaExternalRecordingResponseProfileOrderBy": {
+        "type": "string",
+        "enum": [
+          "NONE"
+        ],
+        "x-namespace": "WebAPI.Models.ConditionalAccess"
+      }
+    },
+    "securitySchemes": {}
+  },
+  "security": [],
+  "paths": {}
+}
