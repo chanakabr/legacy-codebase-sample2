@@ -108,6 +108,12 @@ namespace GrpcAPI.Services
                         status.Message = eResponseStatus.UserWithNoDomain.ToString();
                         break;
                     }
+                    case ResponseStatus.UserSuspended:
+                    {
+                        status.Code = (int)eResponseStatus.UserSuspended;
+                        status.Message = eResponseStatus.UserSuspended.ToString();
+                        break;
+                    }
                     // Most cases will return general error
                     default:
                     {
@@ -118,7 +124,7 @@ namespace GrpcAPI.Services
                 }
 
                 return new ValidateUserResponse
-                    { Status = Mapper.Map<Status>(status), DomainId = domainId, DynamicData = { dynamicData } };
+                    { Status = status, DomainId = domainId, DynamicData = { dynamicData } };
             }
             catch (Exception e)
             {
