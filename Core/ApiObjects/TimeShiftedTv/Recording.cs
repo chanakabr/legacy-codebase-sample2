@@ -61,6 +61,7 @@ namespace ApiObjects.TimeShiftedTv
             this.UpdateDate = record.UpdateDate;
             this.Crid = record.Crid;
             this.IsProtected = record.IsProtected;
+            this.UserId = record.UserId;
             this.isExternalRecording = record.isExternalRecording;
             this.StartPadding = record.StartPadding;
             this.EndPadding = record.EndPadding;

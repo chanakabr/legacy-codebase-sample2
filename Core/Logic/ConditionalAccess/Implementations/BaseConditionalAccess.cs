@@ -14197,8 +14197,8 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        log.DebugFormat("recording.Id = {0}, recording.Status = {1}, IsValidRecordingStatus ={2}",
-                            recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.Message.ToString() : "null", Utils.IsValidRecordingStatus(recording.RecordingStatus));
+                        log.DebugFormat("cant recored - EpgID={0}, recording.Id={1}, recording.Status={2}, recording.RecordingStatus={3}, IsValidRecordingStatus={4}",
+                            epgID, recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.ToString() : "null", recording.RecordingStatus, Utils.IsValidRecordingStatus(recording.RecordingStatus));
 
                         recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, eResponseStatus.RecordingFailed.ToString()) };
                     }
