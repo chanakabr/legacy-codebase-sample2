@@ -2923,9 +2923,9 @@ namespace Core.Recordings
             return overlap;
         }
 
-        public long GetImportedRecordingMinimumRetentionPeriodSecondsValue()
+        public long GetImportedRecordingMinimumRetentionPeriodSecondsValue(TimeShiftedTvPartnerSettings settings)
         {
-            return _importedRecordingMinimumRetentionPeriodSecondsDefault;
+            return settings.PersonalizedRecordingEnable == true ? _importedRecordingMinimumRetentionPeriodSecondsDefault : 0;
         }
 
         public DateTime GetViewableUntilDate(int groupId, DateTime endDate, TimeShiftedTvPartnerSettings accountSettings = null)
@@ -2942,7 +2942,7 @@ namespace Core.Recordings
             }
             else
             {
-                return endDate.AddSeconds(GetImportedRecordingMinimumRetentionPeriodSecondsValue());
+                return endDate.AddSeconds(GetImportedRecordingMinimumRetentionPeriodSecondsValue(accountSettings));
             }
         }
     }
