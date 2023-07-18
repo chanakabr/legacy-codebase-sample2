@@ -1324,7 +1324,7 @@ namespace Core.Catalog
             if (aggregationsResult.ContainsKey(currentGroupBy.Key))
             {
                 var missedKeysBucket = aggregationsResult.Terms(currentGroupBy.Key).Buckets
-                    .FirstOrDefault(x => x.Key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString());
+                    .FirstOrDefault(x => x.Key == ESUnifiedQueryBuilder.MissedHitBucketKeyString);
                 result.totalItems += Convert.ToInt32(missedKeysBucket?.DocCount);
             }
 
@@ -1374,7 +1374,7 @@ namespace Core.Catalog
 
                     // when groupingOption is "Include" then "missed keys" bucket should be the last in result
                     if (definitions.GroupByOption == GroupingOption.Include
-                        && bucketResult.value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                        && bucketResult.value == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
                     {
                         missingKeysBucket = bucketResult;
                         continue;

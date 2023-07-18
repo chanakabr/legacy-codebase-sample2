@@ -64,7 +64,7 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
             if (elasticAggregation.Aggregations == null) throw new Exception("Unable to parse Elasticsearch response");
 
             var groupBy = search.groupBy.Single(); // key - original field name; value - field name how it's stored in ES
-            var buckets = GetOrderedBuckets(elasticAggregation, groupBy, esOrderByField);
+            var buckets = GetOrderedBuckets(search, elasticAggregation, groupBy, esOrderByField);
             elasticAggregation.Aggregations[groupBy.Key].buckets = buckets;
 
             return elasticAggregation;
@@ -72,23 +72,30 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
 
         // TODO: How to deal with that method in terms of asset id. Does this method have a mirror in V7???
         private List<ESAggregationBucket> GetOrderedBuckets(
+            UnifiedSearchDefinitions search,
             ESAggregationsResult elasticAggregation,
             GroupByDefinition groupBy,
             IEsOrderByField esOrderByField)
         {
-            var emptyBuckets = new List<ESAggregationBucket>();
             var assetIdToBucket = new Dictionary<long, ESAggregationBucket>();
             var assetsToReorder = new List<ElasticSearchApi.ESAssetDocument>();
+            ESAggregationBucket missingKeysBucket = null;
             foreach (var bucket in elasticAggregation.Aggregations[groupBy.Key].buckets)
             {
-                var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits?.hits;
-                if (hits?.Count != 1)
+                if (search.GroupByOption == GroupingOption.Include &&
+                    bucket.key == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
                 {
-                    emptyBuckets.Add(bucket);
+                    missingKeysBucket = bucket;
                     continue;
                 }
 
-                var document = hits.Single();
+                var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits?.hits;
+                var document = hits?.FirstOrDefault();
+                if (document == null)
+                {
+                    continue;
+                }
+
                 assetIdToBucket[document.asset_id] = bucket;
                 assetsToReorder.Add(document);
             }
@@ -97,7 +104,10 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
                 .ListOrderedIdsWithSortValues(assetsToReorder, esOrderByField)
                 .Select(x => assetIdToBucket[x.id])
                 .ToList();
-            resultBuckets.AddRange(emptyBuckets);
+            if (missingKeysBucket != null)
+            {
+                resultBuckets.Add(missingKeysBucket);
+            }
 
             return resultBuckets;
         }

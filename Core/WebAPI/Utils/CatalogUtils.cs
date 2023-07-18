@@ -450,7 +450,7 @@ namespace WebAPI.Utils
             List<BaseObject> assetsBaseDataList = new List<BaseObject>();
             foreach (AggregationResult aggregationResult in aggregationResults)
             {
-                if (aggregationResult.topHits != null && aggregationResult.value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                if (aggregationResult.topHits != null && aggregationResult.value == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
                 {
                     //take all hits from 'missing' bucket
                     var _hits = aggregationResult.topHits.Select(x => x as BaseObject).ToList();
@@ -524,7 +524,7 @@ namespace WebAPI.Utils
                                 TotalCount = aggregationResults[i].count
                             };
 
-                            if (aggregationResults[i].value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                            if (aggregationResults[i].value == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
                             {
                                 internalIndex = i;
 
