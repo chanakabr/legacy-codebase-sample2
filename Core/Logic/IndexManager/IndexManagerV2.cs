@@ -2478,7 +2478,7 @@ namespace Core.Catalog
                     }
                 }
                 else if (groupingOption == GroupingOption.Group
-                    && bucketMapping.TryGetValue(ESUnifiedQueryBuilder.MissedHitBucketKey.ToString(), out var missedKeyBucket)
+                    && bucketMapping.TryGetValue(ESUnifiedQueryBuilder.MissedHitBucketKeyString, out var missedKeyBucket)
                     && !alreadyContainedBuckets.Contains(missedKeyBucket))
                 {
                     alreadyContainedBuckets.Add(missedKeyBucket);
@@ -7251,10 +7251,10 @@ namespace Core.Catalog
             }
 
             //BEO-9740
-            if (aggregationsResult.Aggregations[currentGroupBy].buckets.Any(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()))
+            if (aggregationsResult.Aggregations[currentGroupBy].buckets.Any(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKeyString))
             {
                 totalItems += aggregationsResult.Aggregations[currentGroupBy].buckets
-                    .First(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()).doc_count;
+                    .First(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKeyString).doc_count;
             }
 
             var result = new AggregationsResult()
@@ -7308,7 +7308,7 @@ namespace Core.Catalog
 
                 // when groupingOption is "Include" then "missed keys" bucket should be the last in result
                 if (definitions.GroupByOption == GroupingOption.Include
-                    && bucketResult.value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                    && bucketResult.value == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
                 {
                     missingKeysBucket = bucketResult;
                     continue;

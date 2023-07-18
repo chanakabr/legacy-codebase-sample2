@@ -21,17 +21,19 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
             foreach (var bucket in buckets)
             {
                 if (search.GroupByOption == GroupingOption.Include &&
-                    bucket.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                    bucket.key == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
                 {
                     missingKeysBucket = bucket;
                 }
 
                 var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits?.hits;
-                if (hits?.Count == 1)
+                var document = hits?.FirstOrDefault();
+                if (document == null)
                 {
-                    var document = hits.Single();
-                    assetIdToBucket[document.asset_id] = bucket;
+                    continue;
                 }
+
+                assetIdToBucket[document.asset_id] = bucket;
             }
 
             var filteredBuckets = assetIdToBucket.Values.Where(x => x != null).ToList();
