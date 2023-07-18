@@ -7081,7 +7081,7 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            dateTime = DateTime.UtcNow.AddSeconds(-PaddedRecordingsManager.Instance.GetImportedRecordingMinimumRetentionPeriodSecondsValue());
+                            dateTime = DateTime.UtcNow.AddSeconds(-PaddedRecordingsManager.Instance.GetImportedRecordingMinimumRetentionPeriodSecondsValue(tstvSettings));
                         }
 
                         if (!minDate.HasValue || dateTime > minDate.Value)
