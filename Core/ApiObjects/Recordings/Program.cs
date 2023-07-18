@@ -1,5 +1,5 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 
 namespace ApiObjects.Recordings
 {
@@ -11,10 +11,10 @@ namespace ApiObjects.Recordings
         public DateTime EndDate { get; set; }
         public DateTime __updated { get; set; }
 
-        [JsonIgnore]
+        [BsonIgnore]
         public long EpgChannelId { get; set; }
 
-        [JsonIgnore]
+        [BsonIgnore]
         public string Crid { get; set; }
 
         public Program(long epgId, DateTime startDate, DateTime endDate)
