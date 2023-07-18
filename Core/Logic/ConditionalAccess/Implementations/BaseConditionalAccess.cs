@@ -14560,6 +14560,7 @@ namespace Core.ConditionalAccess
                     {
                         log.DebugFormat("Failed Getting EPG from Catalog, DomainID: {0}, UserID: {1}, EpgId: {2}", domainID, userID, epgId);
                         recording.Status.Set((int)eResponseStatus.InvalidAssetId, eResponseStatus.InvalidAssetId.ToString());
+                        return recording;
                     }
 
                     // check if Epg are valid for recording - CDVR enabled and Catch-Up enabled if needed
