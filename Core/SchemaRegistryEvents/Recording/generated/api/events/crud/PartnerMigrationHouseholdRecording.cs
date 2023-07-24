@@ -100,8 +100,8 @@ namespace Phoenix.Generated.Api.Events.Crud.PartnerMigrationHouseholdRecording
         [JsonProperty("sourceUrl")]
         public string SourceUrl { get; set; }
 
-        [JsonProperty("version")]
-        public long Version { get; set; }
+        [JsonProperty("version", NullValueHandling = NullValueHandling.Ignore)]
+        public long? Version { get; set; }
 
         [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
         public long? Width { get; set; }

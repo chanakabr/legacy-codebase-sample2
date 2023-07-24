@@ -152,7 +152,7 @@ namespace Phoenix.AsyncHandler.Recording
         private EpgAsset GetOrCreateProgramAsset(PartnerMigrationHouseholdRecording householdRecording, long userId, TimeShiftedTvPartnerSettings partnerSettings, CatalogGroupCache cache)
         {
             var groupId = (int)householdRecording.PartnerId;
-            
+
             // if epg exist so just return it - if not create new one - DO NOT UPDATE
             var epgAssetId = GetAssetIdByExternalId(groupId, householdRecording.ProgramAssetExternalId, "epg");
             if (epgAssetId > 0)
@@ -191,9 +191,11 @@ namespace Phoenix.AsyncHandler.Recording
                 PublishError(householdRecording, eResponseStatus.ChannelDoesNotExist, "Live channel does not exist");
                 return null;
             }
+
             var epgAsset = Mapper.MapToEpgAsset(householdRecording, linearAssetId, cache, name, nameTranslations);
 
-            var catchUpBufferTime = DateTime.UtcNow.AddMinutes(partnerSettings.CatchUpBufferLength.HasValue ? -partnerSettings.CatchUpBufferLength.Value : 0);
+            var catchUpBufferTime = DateTime.UtcNow.AddMinutes(-partnerSettings.CatchUpBufferLength ?? 0);
+            
             if (epgAsset.EndDate >= catchUpBufferTime)
             {
                 LogWarning(householdRecording, $"Cannot import time-based recording EndDate [{epgAsset.EndDate}] within catch up buffer window date time [{catchUpBufferTime}].");
@@ -208,19 +210,23 @@ namespace Phoenix.AsyncHandler.Recording
                 PublishError(householdRecording, (eResponseStatus)addAssetResponse.Status.Code, addAssetResponse.Status.Message);
                 return null;
             }
-            
+
             epgAsset = addAssetResponse.Object as EpgAsset;
 
-            // add images
+            AddEpgAssetImages(householdRecording, groupId, epgAsset);
+
+            return epgAsset;
+        }
+
+        private void AddEpgAssetImages(PartnerMigrationHouseholdRecording householdRecording, int groupId, EpgAsset epgAsset)
+        {
             if (householdRecording.ProgramAssetImages != null && householdRecording.ProgramAssetImages.Length > 0)
             {
                 var epgPictures = Mapper.MapToEpgPictures(groupId, householdRecording.ProgramAssetImages, epgAsset);
-                var contextData = new LogContextData();
-                contextData.Load();
                 var uploadImageResult = EpgImageManager.UploadEPGPictures(groupId, epgPictures).ConfigureAwait(false).GetAwaiter().GetResult().ToList();
-                if (uploadImageResult.Any(x=> !x.IsOkStatusCode()))
+                if (uploadImageResult.Any(x => !x.IsOkStatusCode()))
                 {
-                    foreach (var image in uploadImageResult.Where(img=>!img.IsOkStatusCode()))
+                    foreach (var image in uploadImageResult.Where(img => !img.IsOkStatusCode()))
                     {
                         LogWarning(householdRecording, $"Failed to add image, image: [{image.Object?.Id}]");
                     }
@@ -228,24 +234,21 @@ namespace Phoenix.AsyncHandler.Recording
 
                 //Upsert epg cb
                 var _bl = new TvinciEpgBL(groupId);
-                var documentIds = _bl.GetEpgsCBKeys(groupId,  new List<long>{epgAsset.Id}, null, false);
+                var documentIds = _bl.GetEpgsCBKeys(groupId, new List<long> { epgAsset.Id }, null, false);
                 var documentId = documentIds.FirstOrDefault();
                 var epgCb = EpgDal.GetEpgCBList(documentIds).FirstOrDefault();
                 if (epgCb != null)
                 {
                     if (epgCb.pictures == null)
                         epgCb.pictures = new List<EpgPicture>();
-                    
-                    epgCb.pictures.AddRange(uploadImageResult.Select(x=> x.Object).ToList());
-                    if(!EpgDal.SaveEpgCB(documentId, epgCb, cb => TtlService.Instance.GetEpgCouchbaseTtlSeconds(cb)))
+
+                    epgCb.pictures.AddRange(uploadImageResult.Select(x => x.Object).ToList());
+                    if (!EpgDal.SaveEpgCB(documentId, epgCb, cb => TtlService.Instance.GetEpgCouchbaseTtlSeconds(cb)))
                         LogWarning(householdRecording, $"Couldn't update epg's images, epgId: [{epgAsset.Id}]");
                     else
                         AssetManager.Instance.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
                 }
             }
-            
-            
-            return epgAsset;
         }
 
         private EpgAsset ValidateExistEpg(PartnerMigrationHouseholdRecording householdRecording, int groupId, EpgAsset existEpg)
@@ -317,6 +320,23 @@ namespace Phoenix.AsyncHandler.Recording
 
         private void AddPaddedRecording(int groupId, PartnerMigrationHouseholdRecording householdRecording, long userId, long domainId, EpgAsset epgAsset)
         {
+            var accountSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+            
+            //Paddings
+            var defaultBeforeMinutes = Core.ConditionalAccess.Utils.ConvertSecondsToMinutes((int)
+                (householdRecording.PaddingStartSeconds ?? (accountSettings.PaddingBeforeProgramStarts ?? 0))); 
+                //allow in migration to use given padding as default even if not configured
+
+            var defaultAfterMinutes = Core.ConditionalAccess.Utils.ConvertSecondsToMinutes((int)
+                (householdRecording.PaddingEndSeconds ?? (accountSettings.PaddingAfterProgramEnds ?? 0)));
+
+            var eventBeforeMinutes =
+                Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(
+                    Mapper.GetNullableValueIfExist(householdRecording.PaddingStartSeconds ?? 0));
+            var eventAfterMinutes =
+                Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(
+                    Mapper.GetNullableValueIfExist(householdRecording.PaddingEndSeconds ?? 0));
+            
             var recording = PaddedRecordingsManager.Instance.Record(
                 groupId: groupId,
                 programId: epgAsset.Id,
@@ -326,14 +346,14 @@ namespace Phoenix.AsyncHandler.Recording
                 crid: householdRecording.ProgramAssetCrid,
                 domainIds: new List<long>() { domainId },
                 failedDomainIds: out _,
-                paddingBefore: Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(Mapper.GetNullableValueIfExist(householdRecording.PaddingStartSeconds)),
-                paddingAfter: Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(Mapper.GetNullableValueIfExist(householdRecording.PaddingEndSeconds)),
+                paddingBefore: householdRecording.StartPaddingIsPersonal == true ? eventBeforeMinutes : defaultBeforeMinutes,
+                paddingAfter: householdRecording.EndPaddingIsPersonal == true ? eventAfterMinutes : defaultAfterMinutes,
                 recordingContext: RecordingContext.Regular);
 
             if (recording == null || recording.Id == 0)
             {
                 LogWarning(householdRecording, "Failed to add recording");
-                PublishError(householdRecording, eResponseStatus.RecordingFailed, $"Failed to record padding recording");
+                PublishError(householdRecording, eResponseStatus.RecordingFailed, "Failed to record padding recording");
                 return;
             }
             
@@ -367,7 +387,7 @@ namespace Phoenix.AsyncHandler.Recording
         {
             var endPadding = Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(Mapper.GetNullableValueIfExist(householdRecording.PaddingEndSeconds));
             var program = new ApiObjects.Recordings.Program(epgAsset.Id, epgAsset.StartDate.Value, epgAsset.EndDate.Value, epgAsset.EpgChannelId.Value, epgAsset.Crid);
-            var result = PaddedRecordingsManager.Instance.ImmediateRecord(groupId, userId, domainId, epgAsset.Id, endPadding, program);
+            var result = PaddedRecordingsManager.Instance.ImmediateRecord(groupId, userId, domainId, epgAsset.Id, endPadding, program, householdRecording.AbsoluteStartDateTime, householdRecording.AbsoluteEndDateTime);
 
             if (result.HasObject() && result.Object.Id > 0)
             {
@@ -401,6 +421,7 @@ namespace Phoenix.AsyncHandler.Recording
                 case eResponseStatus.RecordingFailed: return Code.The3040;
                 case eResponseStatus.RecordingStatusNotValid: return Code.The3043;
                 case eResponseStatus.RecordingExceededConcurrency: return Code.The3094;
+                case eResponseStatus.ExceedingAllowedImmediateRecordingAttempts: return Code.The3095;
                 case eResponseStatus.AssetStructDoesNotExist: return Code.The4028;
                 case eResponseStatus.MetaDoesNotExist: return Code.The4033;
                 case eResponseStatus.AssetExternalIdMustBeUnique: return Code.The4038;
@@ -455,7 +476,7 @@ namespace Phoenix.AsyncHandler.Recording
 
         private void LogWarning(PartnerMigrationHouseholdRecording householdRecording, string message)
         {
-            _logger.LogWarning($"{message} PartnerId [{householdRecording.PartnerId}], OttUserExternalId [{householdRecording.OttUserExternalId}] and ProgramAssetExternalId [{householdRecording.ProgramAssetExternalId}].");
+            _logger.LogWarning($"{message} - PartnerId [{householdRecording.PartnerId}], OttUserExternalId [{householdRecording.OttUserExternalId}] and ProgramAssetExternalId [{householdRecording.ProgramAssetExternalId}].");
         }
     }
 }

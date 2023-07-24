@@ -27,7 +27,7 @@ namespace ApiLogic.ConditionalAccess.Recordings
                 StartDate = DateUtils.UtcUnixTimestampAbsSecondsToDateTime(householdRecording.ProgramAssetStartDateTime),
                 EndDate = DateUtils.UtcUnixTimestampAbsSecondsToDateTime(householdRecording.ProgramAssetEndDateTime),
                 SearchEndDate = DateTime.UtcNow.AddDays(EXPIRY_DATE_DELTA),
-                Metas = MapToMetas(householdRecording.ProgramAssetMetas),
+                Metas = MapToMetas(householdRecording.ProgramAssetMetas, cache),
                 Tags = MapToTags(householdRecording.ProgramAssetTags),
                 Name = name,
                 NamesWithLanguages = nameTranslations
@@ -46,15 +46,14 @@ namespace ApiLogic.ConditionalAccess.Recordings
         {
             if (values == null || values.Length == 0) return (null, null);
             var defaultValue = values.FirstOrDefault(x => x.Language == cache.DefaultLanguage.Code)?.Value;
-            var translations = values.Where(x => cache.LanguageMapByCode.ContainsKey(x.Language) && x.Language != cache.DefaultLanguage.Code).ToArray();
-            var otherValues = MapToLanguageContainers(translations)?.ToList();
-            return (defaultValue, otherValues);
+            var translations = MapToLanguageContainers(values, cache)?.ToList();
+            return (defaultValue, translations);
         }
 
-        private static List<Metas> MapToMetas(AssetMeta[] programAssetMetas)
+        private static List<Metas> MapToMetas(AssetMeta[] programAssetMetas, CatalogGroupCache cache)
         {
-            if (programAssetMetas == null) return null;
-            return programAssetMetas.Where(x => IsValidEventObject(x)).Select(x => MapToMeta(x)).ToList();
+            if (programAssetMetas == null || programAssetMetas.Length == 0) return null;
+            return programAssetMetas.Where(x => IsValidEventObject(x)).Select(x => MapToMeta(x, cache)).ToList();
         }
 
         private static bool IsValidEventObject(AssetMeta meta)
@@ -65,26 +64,26 @@ namespace ApiLogic.ConditionalAccess.Recordings
                 (meta.Translations == null || meta.Translations.All(x => IsValidEventObject(x)));
         }
 
-        private static Metas MapToMeta(AssetMeta assetMeta)
+        private static Metas MapToMeta(AssetMeta assetMeta, CatalogGroupCache cache)
         {
             var meta = new Metas()
             {
-                m_sValue = assetMeta.Value,
                 m_oTagMeta = new TagMeta()
                 {
                     m_sName = assetMeta.Name,
                     m_sType = assetMeta.Type
                 },
-                Value = MapToLanguageContainers(assetMeta.Translations)
+                m_sValue = assetMeta.Value,
+                Value = MapToLanguageContainers(assetMeta.Translations, cache)
             };
 
             return meta;
         }
 
-        private static LanguageContainer[] MapToLanguageContainers(TranslationValue[] translations)
+        private static LanguageContainer[] MapToLanguageContainers(TranslationValue[] translations, CatalogGroupCache cache)
         {
             if (translations == null || translations.Length == 0) return null;
-            return translations.Where(x => IsValidEventObject(x)).Select(x => MapToLanguageContainer(x)).ToArray();
+            return translations.Where(x => IsValidEventObject(x) && cache.LanguageMapByCode.ContainsKey(x.Language) && x.Language != cache.DefaultLanguage.Code).Select(x => MapToLanguageContainer(x)).ToArray();
         }
 
         private static bool IsValidEventObject(TranslationValue translation)
@@ -106,7 +105,7 @@ namespace ApiLogic.ConditionalAccess.Recordings
 
         private static List<Tags> MapToTags(AssetTag[] programAssetTags)
         {
-            if (programAssetTags == null) return null;
+            if (programAssetTags == null || programAssetTags.Length == 0) return null;
             return programAssetTags.Where(x => IsValidEventObject(x)).Select(x => MapToTag(x)).ToList();
         }
 
@@ -120,10 +119,7 @@ namespace ApiLogic.ConditionalAccess.Recordings
 
         private static bool IsValidEventObject(AssetTagValue assetTagValue)
         {
-            return !assetTagValue.Value.IsNullOrEmpty() &&
-               assetTagValue.Translations != null &&
-               assetTagValue.Translations.Length > 0 &&
-               assetTagValue.Translations.All(x => IsValidEventObject(x));
+            return !assetTagValue.Value.IsNullOrEmpty();
         }
 
         private static Tags MapToTag(AssetTag assetTag)
@@ -136,7 +132,7 @@ namespace ApiLogic.ConditionalAccess.Recordings
                     m_sType = "Tag"
                 },
                 m_lValues = assetTag.Values.Select(x => x.Value).ToList(),
-                Values = assetTag.Values.Select(x => MapToLanguageContainers(x.Translations)).ToList()
+                //Values - tag Translations is not being set
             };
 
             return tag;
@@ -144,7 +140,7 @@ namespace ApiLogic.ConditionalAccess.Recordings
 
         public static IList<EpgPicture> MapToEpgPictures(int groupId, ProgramAssetImage[] programAssetImages, EpgAsset epgAsset)
         {
-            if (programAssetImages == null) return null;
+            if (programAssetImages == null || programAssetImages.Length == 0 ) return null;
 
             var groupRatioNamesToImageTypes = Core.Catalog.CatalogManagement.ImageManager.GetImageTypesMapBySystemName(groupId);
             return programAssetImages.Where(x => IsValidEventObject(x)).Select(x => MapToEpgPicture(x, epgAsset, groupRatioNamesToImageTypes)).ToList();
@@ -157,7 +153,7 @@ namespace ApiLogic.ConditionalAccess.Recordings
                 ImageTypeId = image.ImageTypeId,
                 SourceUrl = image.SourceUrl,
                 Url = image.SourceUrl,
-                Version = (int)image.Version,
+                Version = GetValueIfExist(image.Version),
                 PicHeight = GetValueIfExist(image.Height),
                 PicWidth = GetValueIfExist(image.Width),
                 PicName = image.ImageTypeName,
@@ -183,7 +179,7 @@ namespace ApiLogic.ConditionalAccess.Recordings
         {
             return image.ImageTypeId > 0 &&
                 !image.SourceUrl.IsNullOrEmpty() &&
-                image.Version > 0;
+                (!image.Version.HasValue || image.Version.Value >= 0);
         }
 
         private static int GetValueIfExist(long? value)

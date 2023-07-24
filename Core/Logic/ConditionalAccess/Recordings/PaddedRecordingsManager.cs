@@ -2269,7 +2269,8 @@ namespace Core.Recordings
             }
         }
 
-        public GenericResponse<Recording> ImmediateRecord(int groupId, long userId, long domainId, long epgId, int? endPadding, Program program)
+        public GenericResponse<Recording> ImmediateRecord(int groupId, long userId, long domainId, long epgId, int? endPadding, Program program, 
+            long? systemAbsStart = null, long? systemAbsEnd = null)
         {
             var response = new GenericResponse<Recording>();
             response.SetStatus(Status.Ok);
@@ -2290,29 +2291,32 @@ namespace Core.Recordings
 
             var accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
 
-            var _absoluteStartTime = DateTime.UtcNow.RoundDown(TimeSpan.FromMinutes(1));
+            var _absoluteStartTime = systemAbsStart.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(systemAbsStart.Value) : DateTime.UtcNow.RoundDown(TimeSpan.FromMinutes(1));
             var absoluteEndOffset = endPadding ??
                                     ConditionalAccess.Utils.ConvertSecondsToMinutes(
                                         (int)(accountSettings.PaddingAfterProgramEnds ?? 0));
-            var _absoluteEndTime =
+            var _absoluteEndTime = systemAbsEnd.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(systemAbsEnd.Value):
                 program.EndDate.AddMinutes(absoluteEndOffset).RoundUp(TimeSpan.FromMinutes(1));
 
-            if (DateTime.UtcNow < program.StartDate)
+            if (!systemAbsStart.HasValue && !systemAbsEnd.HasValue)
             {
-                var _msg = $"This program {epgId} is in the future";
-                log.Debug(_msg);
-                response.SetStatus(eResponseStatus.RecordingStatusNotValid, _msg);
-                return response;
-            }
+                if (DateTime.UtcNow < program.StartDate)
+                {
+                    var _msg = $"This program {epgId} is in the future";
+                    log.Debug(_msg);
+                    response.SetStatus(eResponseStatus.RecordingStatusNotValid, _msg);
+                    return response;
+                }
 
-            if (_absoluteStartTime >= program.EndDate)
-            {
-                var _msg = $"This program {epgId} is in the past";
-                log.Debug(_msg);
-                response.SetStatus(eResponseStatus.RecordingStatusNotValid, _msg);
-                return response;
+                if (_absoluteStartTime >= program.EndDate)
+                {
+                    var _msg = $"This program {epgId} is in the past";
+                    log.Debug(_msg);
+                    response.SetStatus(eResponseStatus.RecordingStatusNotValid, _msg);
+                    return response;
+                }
             }
-
+            
             var absoluteStartEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(_absoluteStartTime);
             var absoluteEndEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(_absoluteEndTime);
 

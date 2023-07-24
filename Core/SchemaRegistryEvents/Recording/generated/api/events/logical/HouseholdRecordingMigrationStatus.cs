@@ -52,7 +52,7 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
     }
 
     [JsonConverter(typeof(CodeConverter))]
-    public enum Code { The0, The1, The1006, The11003, The2000, The2038, The3040, The3043, The3094, The4028, The4033, The4038, The4039, The4040, The4041, The4064, The4078, The4111, The4122, The4123, The4124, The4125, The4126, The5005, The5022, The5033, The5097, The9011 };
+    public enum Code { The0, The1, The1006, The11003, The2000, The2038, The3040, The3043, The3094, The3095, The4028, The4033, The4038, The4039, The4040, The4041, The4064, The4078, The4111, The4122, The4123, The4124, The4125, The4126, The5005, The5022, The5033, The5097, The9011 };
 
     internal static class Converter
     {
@@ -96,6 +96,8 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                     return Code.The3043;
                 case "3094":
                     return Code.The3094;
+                case "3095":
+                    return Code.The3095;
                 case "4028":
                     return Code.The4028;
                 case "4033":
@@ -174,6 +176,9 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                     return;
                 case Code.The3094:
                     serializer.Serialize(writer, "3094");
+                    return;
+                case Code.The3095:
+                    serializer.Serialize(writer, "3095");
                     return;
                 case Code.The4028:
                     serializer.Serialize(writer, "4028");

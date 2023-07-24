@@ -248,7 +248,7 @@ namespace Core.Catalog.CatalogManagement
                 SendActionEvent(groupId, newEpgId, eAction.On);
 
                 result = AssetManager.Instance.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
-                if (result.IsOkStatusCode())
+                if (result.IsOkStatusCode() && _messageService != null)
                 {
                     _messageService.PublishCreateEventAsync(groupId, newEpgId, userId)?.GetAwaiter().GetResult();
                 }
@@ -421,7 +421,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // get updated epgAsset
                 result = AssetManager.Instance.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
-                if (result.IsOkStatusCode())
+                if (result.IsOkStatusCode() && _messageService != null)
                 {
                     _messageService.PublishUpdateEventAsync(groupId, epgAssetToUpdate.Id, userId).GetAwaiter().GetResult();
                 }
@@ -477,8 +477,11 @@ namespace Core.Catalog.CatalogManagement
             SendActionEvent(groupId, epgId, eAction.Delete);
 
             var epgAsset = new EpgAsset(epgCbList, catalogGroupCache.GetDefaultLanguage().Code, groupEpgPicturesSizes, groupId);
-            _messageService.PublishDeleteEventAsync(groupId, epgAsset, userId).GetAwaiter().GetResult();
-
+            if (_messageService != null)
+            {
+                _messageService.PublishDeleteEventAsync(groupId, epgAsset, userId).GetAwaiter().GetResult();
+            }
+            
             // Delete Index
             var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
             var epgIds = new List<long>() { epgId };
@@ -582,7 +585,11 @@ namespace Core.Catalog.CatalogManagement
                             epgsToUpdate.Select(item => item.ChannelID.ToString()).Distinct().ToList(), false);
                     }
 
-                    _messageService.PublishUpdateEventAsync(groupId, epgAsset.Id, userId).GetAwaiter().GetResult();
+                    if (_messageService != null)
+                    {
+                        _messageService.PublishUpdateEventAsync(groupId, epgAsset.Id, userId).GetAwaiter().GetResult();
+                    }
+                    
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
