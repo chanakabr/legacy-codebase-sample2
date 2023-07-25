@@ -4,9 +4,6 @@
 
 tag=$(git describe --tags)
 commitCount=$(git rev-list --count HEAD)
-
-echo "get-version-tag tag: $tag"
-echo "get-version-tag commitCount: $commitCount"
 #If no tag has been added only the sha1 will be returned
 
 #This will be the version in the format <major>.<minor>.<build number>.<revision>
@@ -16,5 +13,4 @@ build=$(echo $tag | cut -b '1-7' | cut -f3 -d'.' )
 revision=$(echo $tag | cut -b '1-7' | cut -f4 -d'.' )
 # revision=${commitCount}
 version="${major}"."${minor}"."${build}"."${revision}"
-echo "get-version-tag version: $version"
 echo $version
