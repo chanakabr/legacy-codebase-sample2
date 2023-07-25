@@ -6,19 +6,20 @@ startScanPath=$1
 allProjFiles=$(find . -name *.csproj | xargs grep -rnwl -E "(netcoreapp[0-9]+\.[0-9]+)|netstandard[0-9]+\.[0-9]+")
 tag=$(git describe --tags --always --dirty --long)
 
-echo "VERSION_TAG: $VERSION_TAG"
 commitCount=$(git rev-list --count HEAD)
 commiter=$(git config user.name)
 
-echo "tag: $tag"
-echo "commit count: $commitCount"
+echo "DllVersioning tag: $tag"
+echo "DllVersioning commitCount: $commitCount"
+echo "DllVersioning commiter: $commiter"
 #If no tag has been added only the sha1 will be returned
 
 #This will be the version in the format <major>.<minor>.<build number>.<revision>
 major=$(echo $tag | cut -f1 -d'.')
 minor=$(echo $tag | cut -f2 -d'.')
 build=$(echo $tag | cut -f3 -d'.' )
-revision=${commitCount}
+revision=$(echo $tag | cut -f4 -d'.' )
+# revision=${commitCount}
 version="${major}"."${minor}"."${build}"."${revision}$2"
 description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"
 echo "Identified Version: $version"
