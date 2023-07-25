@@ -15,10 +15,10 @@ echo "DllVersioning commiter: $commiter"
 #If no tag has been added only the sha1 will be returned
 
 #This will be the version in the format <major>.<minor>.<build number>.<revision>
-major=$(echo $tag | cut -f1 -d'.')
-minor=$(echo $tag | cut -f2 -d'.')
-build=$(echo $tag | cut -f3 -d'.' )
-revision=$(echo $tag | cut -f4 -d'.' )
+major=$(echo $tag | cut -b '1-7' | cut -f1 -d'.')
+minor=$(echo $tag | cut -b '1-7' | cut -f2 -d'.')
+build=$(echo $tag | cut -b '1-7' | cut -f3 -d'.' )
+revision=$(echo $tag | cut -b '1-7' | cut -f4 -d'.' )
 # revision=${commitCount}
 version="${major}"."${minor}"."${build}"."${revision}$2"
 description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"
