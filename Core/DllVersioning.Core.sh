@@ -16,8 +16,8 @@ echo "commit count: $commitCount"
 
 #This will be the version in the format <major>.<minor>.<build number>.<revision>
 major=$(echo $tag | cut -f1 -d'.')
-minor=$(echo $tag | cut -f2 -d'.' | cut -f1 -d'-')
-build=$(echo $tag | cut -f2 -d'-' )
+minor=$(echo $tag | cut -f2 -d'.')
+build=$(echo $tag | cut -f3 -d'.' )
 revision=${commitCount}
 version="${major}"."${minor}"."${build}"."${revision}$2"
 description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"

@@ -9,8 +9,8 @@ commitCount=$(git rev-list --count HEAD)
 
 #This will be the version in the format <major>.<minor>.<build number>.<revision>
 major=$(echo $tag | cut -f1 -d'.')
-minor=$(echo $tag | cut -f2 -d'.' | cut -f1 -d'-')
-build=$(echo $tag | cut -f2 -d'-' )
+minor=$(echo $tag | cut -f2 -d'.')
+build=$(echo $tag | cut -f3 -d'.' )
 revision=${commitCount}
 version="${major}"."${minor}"."${build}"."${revision}"
 echo $version
