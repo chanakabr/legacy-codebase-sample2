@@ -4,7 +4,7 @@
 
 startScanPath=$1
 allProjFiles=$(find . -name *.csproj | xargs grep -rnwl -E "(netcoreapp[0-9]+\.[0-9]+)|netstandard[0-9]+\.[0-9]+")
-tag=$(git describe --tags --always --dirty --long)
+tag=$(git describe --tag --always --abbrev=0)
 
 commitCount=$(git rev-list --count HEAD)
 commiter=$(git config user.name)
@@ -20,7 +20,8 @@ minor=$(echo $tag | cut -b '1-7' | cut -f2 -d'.')
 build=$(echo $tag | cut -b '1-7' | cut -f3 -d'.' )
 revision=$(echo $tag | cut -b '1-7' | cut -f4 -d'.' )
 # revision=${commitCount}
-version="${major}"."${minor}"."${build}"."${revision}$2"
+# version="${major}"."${minor}"."${build}"."${revision}$2"
+version=$tag
 description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"
 echo "Identified Version: $version"
 echo "Identified Description: $description"
