@@ -28,7 +28,9 @@ namespace WebAPI.Controllers
         private static readonly IMediaFileFilter _mediaFileFilter = MediaFileFilter.Instance;
 
         /// <summary>
-        /// Return regional lineup (list of lineup channel asset objects) based on the requester session characteristics and his region.
+        /// Returns regional lineup (list of lineup channel asset objects) based on the requester session characteristics and his region.
+        /// NOTE: Calling lineup.get action using HTTP POST is supported only for tests (non production environment) and is rate limited or blocked.
+        /// For production, HTTP GET shall be used: GET https://{Host_IP}/{build version}/api_v3/service/lineup/action/get
         /// </summary>
         /// <param name="pageIndex">Page index - The page index to retrieve, (if it is not sent the default page size is 1).</param>
         /// <param name="pageSize">Page size - The page size to retrieve. Must be one of the follow numbers: 100, 200, 800, 1200, 1600 (if it is not sent the default page size is 500).</param>

@@ -56,6 +56,7 @@ using TVinciShared;
 using Tvinic.GoogleAPI;
 using SlimAsset = ApiObjects.Rules.SlimAsset;
 using TransactionType = OTT.Service.Offers.TransactionType;
+using User = Core.Users.User;
 
 namespace Core.ConditionalAccess
 {
@@ -5534,7 +5535,7 @@ namespace Core.ConditionalAccess
         internal static void SetRecordingStatus(Dictionary<long, Recording> dic, int groupId)
         {
             TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
-            int recordingLifetime = -1;
+            bool isViewableUntilDateSet = false;
             foreach (var recording in dic.Values)
             {
                 if (recording.RecordingStatus == TstvRecordingStatus.OK
@@ -5559,14 +5560,11 @@ namespace Core.ConditionalAccess
 
                     if (recording.RecordingStatus == TstvRecordingStatus.Recorded && (!recording.ViewableUntilDate.HasValue || recording.ViewableUntilDate.Value == 0))
                     {
-                        if (recordingLifetime == -1)
+                        if (!isViewableUntilDateSet)
                         {
-                            recordingLifetime = accountSettings.RecordingLifetimePeriod.HasValue ? accountSettings.RecordingLifetimePeriod.Value : 0;
-                        }
-
-                        if (recordingLifetime > 0)
-                        {
-                            recording.ViewableUntilDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(recording.EpgEndDate.AddDays(recordingLifetime));
+                            var viewableUntilDate = PaddedRecordingsManager.Instance.GetViewableUntilDate(groupId, recording.EpgEndDate, accountSettings);
+                            recording.ViewableUntilDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
+                            isViewableUntilDateSet = true;
                         }
                     }
                 }
@@ -7076,13 +7074,19 @@ namespace Core.ConditionalAccess
                             minDate = DateTime.UtcNow.AddMinutes(-tstvSettings.RecordingScheduleWindow.Value);
                         }
 
-                        if (tstvSettings.RecordingLifetimePeriod.HasValue)
+                        DateTime dateTime;
+                        if (tstvSettings.RecordingLifetimePeriod.HasValue && tstvSettings.RecordingLifetimePeriod.Value > 0)
                         {
-                            DateTime dateTime = DateTime.UtcNow.AddDays(-tstvSettings.RecordingLifetimePeriod.Value);
-                            if (!minDate.HasValue || dateTime > minDate.Value)
-                            {
-                                minDate = dateTime;
-                            }
+                            dateTime = DateTime.UtcNow.AddDays(-tstvSettings.RecordingLifetimePeriod.Value);
+                        }
+                        else
+                        {
+                            dateTime = DateTime.UtcNow.AddSeconds(-PaddedRecordingsManager.Instance.GetImportedRecordingMinimumRetentionPeriodSecondsValue(tstvSettings));
+                        }
+
+                        if (!minDate.HasValue || dateTime > minDate.Value)
+                        {
+                            minDate = dateTime;
                         }
 
                         if (minDate.HasValue)
@@ -7422,25 +7426,15 @@ namespace Core.ConditionalAccess
 
         internal static bool UpdateRecording(Recording recording, int groupId, int rowStatus, int isActive, RecordingInternalStatus? status)
         {
-            TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
-            int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
-            DateTime? viewableUntilDate = null;
+            DateTime viewableUntilDate = PaddedRecordingsManager.Instance.GetViewableUntilDate(groupId, recording.EpgEndDate);
+            recording.ViewableUntilDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
 
-            //BEO - 7188
-            if (recordingLifetime.HasValue)
+            if (!string.IsNullOrEmpty(recording.ExternalRecordingId) && status.HasValue && status.Value == RecordingInternalStatus.Waiting)
             {
-                viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
-                recording.ViewableUntilDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
-
-                if (!string.IsNullOrEmpty(recording.ExternalRecordingId) && status.HasValue && status.Value == RecordingInternalStatus.Waiting)
-                {
-                    status = null;
-                }
-
-                return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
+                status = null;
             }
 
-            return false;
+            return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
         }
 
         internal static List<Recording> GetRecordings(int groupId, List<long> recordingIds)
@@ -7487,16 +7481,9 @@ namespace Core.ConditionalAccess
 
         internal static Recording InsertRecording(Recording recording, int groupId, RecordingInternalStatus? status)
         {
-            Recording insertedRecording = null;
-            TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
-            int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
-            DateTime? viewableUntilDate = null;
-            if (recordingLifetime.HasValue)
-            {
-                viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
-                recording.ViewableUntilDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
-            }
-
+            Recording insertedRecording = null;            
+            DateTime viewableUntilDate = PaddedRecordingsManager.Instance.GetViewableUntilDate(groupId, recording.EpgEndDate);
+            recording.ViewableUntilDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
             DataTable dt = RecordingsDAL.InsertRecording(recording, groupId, status, viewableUntilDate);
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
             {
@@ -8840,8 +8827,22 @@ namespace Core.ConditionalAccess
                             {
                                 foreach (var collections in tempDomainBundles.EntitledCollections.Values)
                                 {
+                                    //BEO-14175
+                                    List<UserBundlePurchase> distinctList = null;
+                                    if (collections.Select(x=> x.sBundleCode).Distinct().Count() != collections.Count) //has duplicated key
+                                    {
+                                        distinctList = new List<UserBundlePurchase>();
+                                        foreach (var _collection in collections.OrderByDescending(x=>x.dtPurchaseDate))
+                                        {
+                                            if (!distinctList.Select(x=>x.sBundleCode).Contains(_collection.sBundleCode))
+                                            {
+                                                distinctList.Add(_collection);
+                                            }
+                                        }
+                                    }
+                                    
                                     domainEntitlements.DomainBundleEntitlements.EntitledCollections
-                                        .AddRange(collections.ToDictionary(x => x.sBundleCode, x => new UserBundlePurchase(x)));
+                                        .AddRange((distinctList ?? collections).ToDictionary(x => x.sBundleCode, x => new UserBundlePurchase(x)));
                                 }
                             }
 

@@ -2115,7 +2115,7 @@ namespace Core.Catalog
                             var idToDocument = new Dictionary<string, ElasticSearchApi.ESAssetDocument>();
                             foreach (var doc in assetsDocumentsDecoded)
                             {
-                                var result = CreateUnifiedSearchResultFromESDocument(unifiedSearchDefinitions, doc);
+                                var result = CreateUnifiedSearchResultFromEsDocument(unifiedSearchDefinitions, doc);
                                 searchResultsList.Add(result);
                                 idToDocument.Add(result.AssetId, doc);
 
@@ -2316,9 +2316,8 @@ namespace Core.Catalog
                     foreach (var hit in aggregation.hits.hits)
                     {
                         hit.extraReturnFields = hit.extraReturnFields ?? new Dictionary<string, string>();
-                        var unifiedSearchResult = CreateUnifiedSearchResultFromESDocument(definitions, hit);
 
-                        result[hit] = unifiedSearchResult;
+                        result[hit] = CreateUnifiedSearchResultFromEsDocument(definitions, hit);
                     }
                 }
 
@@ -2342,114 +2341,101 @@ namespace Core.Catalog
             return result;
         }
 
-        public static UnifiedSearchResult CreateUnifiedSearchResultFromESDocument(
+        private static UnifiedSearchResult CreateUnifiedSearchResultFromEsDocument(
             UnifiedSearchDefinitions definitions, ElasticSearchApi.ESAssetDocument doc)
         {
-            UnifiedSearchResult result = null;
-            string assetId = doc.asset_id.ToString();
-            var assetType = ESUtils.ParseAssetType(doc.type);
-
-            if (definitions.shouldReturnExtendedSearchResult)
+            var result = CreateUnifiedSearchResult(definitions, doc);
+            if (!definitions.shouldReturnExtendedSearchResult)
             {
-                result = new ExtendedSearchResult()
+                return result;
+            }
+
+            if (result is RecordingSearchResult recordingSearchResult)
+            {
+                return new ExtendedRecordingSearchResult(doc, recordingSearchResult);
+            }
+
+            if (result is EpgSearchResult epgSearchResult)
+            {
+                return new ExtendedEpgSearchResult(doc, epgSearchResult);
+            }
+
+            return new ExtendedSearchResult(doc, result);
+        }
+
+        private static UnifiedSearchResult CreateUnifiedSearchResult(UnifiedSearchDefinitions definitions, ElasticSearchApi.ESAssetDocument doc)
+        {
+            var assetType = ESUtils.ParseAssetType(doc.type);
+            var assetId = doc.asset_id.ToString();
+            if (assetType == eAssetTypes.NPVR)
+            {
+                // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
+                if (definitions?.recordingIdToSearchableRecordingMapping?.Count > 0)
+                {
+                    var recording = new RecordingSearchResult
+                    {
+                        AssetType = eAssetTypes.NPVR,
+                        Score = doc.score,
+                        RecordingId = assetId
+                    };
+
+                    if (definitions.recordingIdToSearchableRecordingMapping.ContainsKey(assetId))
+                    {
+                        // Replace ID
+                        recording.AssetId = definitions.recordingIdToSearchableRecordingMapping[assetId].DomainRecordingId.ToString();
+                        recording.EpgId = definitions.recordingIdToSearchableRecordingMapping[assetId].EpgId.ToString();
+                        recording.RecordingType = definitions.recordingIdToSearchableRecordingMapping[assetId].RecordingType;
+                        recording.IsMulti = definitions.recordingIdToSearchableRecordingMapping[assetId].IsMulti;
+                    }
+
+                    if (doc.extraReturnFields.ContainsKey("epg_id") && (string.IsNullOrEmpty(recording.EpgId) || recording.EpgId == "0"))
+                    {
+                        recording.EpgId = doc.extraReturnFields["epg_id"];
+                    }
+
+                    return recording;
+                }
+
+                var epgId = string.Empty;
+                if (doc.extraReturnFields.ContainsKey("epg_id"))
+                {
+                    epgId = doc.extraReturnFields["epg_id"];
+                }
+                else if (!string.IsNullOrEmpty(doc.epg_identifier))
+                {
+                    epgId = doc.epg_identifier;
+                }
+
+                return new RecordingSearchResult
                 {
                     AssetId = assetId,
                     m_dUpdateDate = doc.update_date,
                     AssetType = assetType,
-                    EndDate = doc.end_date,
-                    StartDate = doc.start_date,
-                    Score = doc.score
+                    EpgId = epgId,
+                    Score = doc.score,
+                    RecordingId = assetId
                 };
-
-                if (doc.extraReturnFields != null)
-                {
-                    (result as ExtendedSearchResult).ExtraFields = new List<ApiObjects.KeyValuePair>();
-
-                    foreach (var field in doc.extraReturnFields)
-                    {
-                        (result as ExtendedSearchResult).ExtraFields.Add(new ApiObjects.KeyValuePair()
-                        {
-                            key = field.Key,
-                            value = field.Value
-                        });
-                    }
-                }
             }
-            else
+
+            if (assetType == eAssetTypes.EPG && definitions.EpgFeatureVersion != EpgFeatureVersion.V1)
             {
-                if (assetType == eAssetTypes.NPVR)
+                return new EpgSearchResult
                 {
-                    // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
-                    if (definitions != null && definitions.recordingIdToSearchableRecordingMapping != null && definitions.recordingIdToSearchableRecordingMapping.Count > 0)
-                    {
-                        result = new RecordingSearchResult
-                        {
-                            AssetType = eAssetTypes.NPVR,
-                            Score = doc.score,
-                            RecordingId = assetId
-                        };
-                        if (definitions.recordingIdToSearchableRecordingMapping.ContainsKey(assetId))
-                        {
-                            // Replace ID
-                            result.AssetId = definitions.recordingIdToSearchableRecordingMapping[assetId].DomainRecordingId.ToString();
-                            (result as RecordingSearchResult).EpgId = definitions.recordingIdToSearchableRecordingMapping[assetId].EpgId.ToString();
-                            (result as RecordingSearchResult).RecordingType = definitions.recordingIdToSearchableRecordingMapping[assetId].RecordingType;
-                            (result as RecordingSearchResult).IsMulti = definitions.recordingIdToSearchableRecordingMapping[assetId].IsMulti;
-                        }
-
-                        if (doc.extraReturnFields.ContainsKey("epg_id") && (string.IsNullOrEmpty((result as RecordingSearchResult).EpgId) || (result as RecordingSearchResult).EpgId == "0"))
-                        {
-                            (result as RecordingSearchResult).EpgId = doc.extraReturnFields["epg_id"];
-                        }
-                    }
-                    else
-                    {
-                        string epgId = string.Empty;
-
-                        if (doc.extraReturnFields.ContainsKey("epg_id"))
-                        {
-                            epgId = doc.extraReturnFields["epg_id"];
-                        }
-                        else if (!string.IsNullOrEmpty(doc.epg_identifier))
-                        {
-                            epgId = doc.epg_identifier;
-                        }
-
-                        result = new RecordingSearchResult()
-                        {
-                            AssetId = assetId,
-                            m_dUpdateDate = doc.update_date,
-                            AssetType = assetType,
-                            EpgId = epgId,
-                            Score = doc.score,
-                            RecordingId = assetId
-                        };
-                    }
-                }
-                else if (assetType == eAssetTypes.EPG && definitions.EpgFeatureVersion != EpgFeatureVersion.V1)
-                {
-                    result = new EpgSearchResult()
-                    {
-                        AssetId = assetId,
-                        m_dUpdateDate = doc.update_date,
-                        AssetType = assetType,
-                        Score = doc.score,
-                        DocumentId = doc.epg_couchbase_key
-                    };
-                }
-                else
-                {
-                    result = new UnifiedSearchResult()
-                    {
-                        AssetId = assetId,
-                        m_dUpdateDate = doc.update_date,
-                        AssetType = assetType,
-                        Score = doc.score
-                    };
-                }
+                    AssetId = assetId,
+                    m_dUpdateDate = doc.update_date,
+                    AssetType = assetType,
+                    Score = doc.score,
+                    DocumentId = doc.epg_couchbase_key
+                };
             }
 
-            return result;
+            return new UnifiedSearchResult
+            {
+                AssetId = assetId,
+                m_dUpdateDate = doc.update_date,
+                AssetType = assetType,
+                Score = doc.score
+            };
         }
 
         private static void ReorderBuckets(
@@ -2492,7 +2478,7 @@ namespace Core.Catalog
                     }
                 }
                 else if (groupingOption == GroupingOption.Group
-                    && bucketMapping.TryGetValue(ESUnifiedQueryBuilder.MissedHitBucketKey.ToString(), out var missedKeyBucket)
+                    && bucketMapping.TryGetValue(ESUnifiedQueryBuilder.MissedHitBucketKeyString, out var missedKeyBucket)
                     && !alreadyContainedBuckets.Contains(missedKeyBucket))
                 {
                     alreadyContainedBuckets.Add(missedKeyBucket);
@@ -7265,10 +7251,10 @@ namespace Core.Catalog
             }
 
             //BEO-9740
-            if (aggregationsResult.Aggregations[currentGroupBy].buckets.Any(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()))
+            if (aggregationsResult.Aggregations[currentGroupBy].buckets.Any(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKeyString))
             {
                 totalItems += aggregationsResult.Aggregations[currentGroupBy].buckets
-                    .First(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()).doc_count;
+                    .First(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKeyString).doc_count;
             }
 
             var result = new AggregationsResult()
@@ -7314,7 +7300,7 @@ namespace Core.Catalog
                         {
                             var unifiedSearchResult = topHitsMapping != null && topHitsMapping.ContainsKey(doc)
                                 ? topHitsMapping[doc]
-                                : CreateUnifiedSearchResultFromESDocument(definitions, doc);
+                                : CreateUnifiedSearchResultFromEsDocument(definitions, doc);
                             bucketResult.topHits.Add(unifiedSearchResult);
                         }
                     }
@@ -7322,7 +7308,7 @@ namespace Core.Catalog
 
                 // when groupingOption is "Include" then "missed keys" bucket should be the last in result
                 if (definitions.GroupByOption == GroupingOption.Include
-                    && bucketResult.value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                    && bucketResult.value == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
                 {
                     missingKeysBucket = bucketResult;
                     continue;

@@ -943,6 +943,9 @@ namespace Core.Catalog
                                             epg.Suppressed = epg.EndDate.ToString("yyyyMMddHHmmss");
                                             break;
                                         case EpgAssetManager.CRID_META_SYSTEM_NAME:
+                                            // This case there with upper case CRID to support PPF accounts (for some reason Crid in upper case for them)
+                                            // It was decided to make this dirty hack to avoid lowercasing or uppercasing all the metas/tags.
+                                        case EpgAssetManager.CRID_META_SYSTEM_NAME_UPPER:
                                             epg.Suppressed = epg.Crid;
                                             break;
                                         case EpgAssetManager.EXTERNAL_ID_META_SYSTEM_NAME:

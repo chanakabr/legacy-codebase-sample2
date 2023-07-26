@@ -10664,15 +10664,24 @@ namespace Core.ConditionalAccess
                             }
                             else
                             {
-                                result.Code = (int)eResponseStatus.Error;
-                                result.Message = "Cancellation failed";
+                                //BEO-14251
+                                if (transactionType is eTransactionType.Collection)
+                                {
+                                    result.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
+                                    result.Message = "Collection could not be cancelled because it is not in cancellation window";
+                                }
+                                else
+                                {
+                                    result.Code = (int)eResponseStatus.Error;
+                                    result.Message = "Cancellation failed";
+                                }
                             }
                         }
                     }
                     else
                     {
                         result.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
-                        result.Message = string.Format("{0} could not be cancelled because it is not in cancellation window", transactionType.ToString());
+                        result.Message = $"{transactionType.ToString()} could not be cancelled because it is not in cancellation window";
                     }
                 }
             }
@@ -14130,6 +14139,7 @@ namespace Core.ConditionalAccess
                         {
                             var _msg =
                                 $"epgID: {epgID} can't be recoded due to recording concurrency of {accountSettings.MaxRecordingConcurrency}";
+                            log.Debug(_msg);
                             recording.Status.Set((int)eResponseStatus.RecordingExceededConcurrency, _msg);
                         }
                         else
@@ -14187,8 +14197,8 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        log.DebugFormat("recording.Id = {0}, recording.Status = {1}, IsValidRecordingStatus ={2}",
-                            recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.Message.ToString() : "null", Utils.IsValidRecordingStatus(recording.RecordingStatus));
+                        log.DebugFormat("cant recored - EpgID={0}, recording.Id={1}, recording.Status={2}, recording.RecordingStatus={3}, IsValidRecordingStatus={4}",
+                            epgID, recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.ToString() : "null", recording.RecordingStatus, Utils.IsValidRecordingStatus(recording.RecordingStatus));
 
                         recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, eResponseStatus.RecordingFailed.ToString()) };
                     }
@@ -14550,6 +14560,7 @@ namespace Core.ConditionalAccess
                     {
                         log.DebugFormat("Failed Getting EPG from Catalog, DomainID: {0}, UserID: {1}, EpgId: {2}", domainID, userID, epgId);
                         recording.Status.Set((int)eResponseStatus.InvalidAssetId, eResponseStatus.InvalidAssetId.ToString());
+                        return recording;
                     }
 
                     // check if Epg are valid for recording - CDVR enabled and Catch-Up enabled if needed

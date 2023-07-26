@@ -2,7 +2,7 @@ param([String]$BasePath)
 
 function Get-Version-Git {
     #get the latest tag info. The 'always' flag will give you a shortened SHA1 if no tag exists.
-    $tag = $(git describe --tags --always --dirty --long)
+    $tag = $(git describe --tag --always --abbrev=0)
     $commitCount = $(git rev-list --count HEAD)
    
     $tagParts = $tag -split '\.'
@@ -19,14 +19,15 @@ function Get-Version-Git {
         # Write-Host "Build: $build"
    
         #$revision = $(git rev-list --count --first-parent HEAD)
-        $version = "$major.$minor.$build.$commitCount"
+        # $version = "$major.$minor.$build.$commitCount"
+        $version = $tag
         return $version
     }
 }
 
  
 function Get-Description {
-    $tag = $(git describe --tags --always --dirty --long)
+    $tag = $(git describe --tag --always --abbrev=0)
     $date = get-date -format "yyy-mm-dd HH:MM:ss"
     $hostname = $(hostname)
     $committer = $(git config user.name)

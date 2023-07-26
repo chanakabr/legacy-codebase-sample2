@@ -80,16 +80,22 @@ namespace EpgBL
                             }
                         }
 
+                        var multilingualMetasLookup = multilingualProgrammeObject.EPG_Meta.ToLookup(x => x.Key);
                         // set Multilingual Metas
                         for (int i = 0; i < programmeObject.EPG_Meta.Count; i++)
                         {
                             EPGDictionary currMeta = programmeObject.EPG_Meta[i];
-                            EPGDictionary currMultilingualMeta = multilingualProgrammeObject.EPG_Meta.FirstOrDefault(x => currMeta.Key.Equals(x.Key));
-                            if (!currMultilingualMeta.Equals(default(EPGDictionary)))
+                            if (!multilingualMetasLookup.Contains(currMeta.Key))
                             {
-                                currMeta.Values = SetLanguageContainer(currMeta.Values, languageObj, currMultilingualMeta.Value);
-                                programmeObject.EPG_Meta[i] = currMeta;
+                                continue;
                             }
+
+                            Array.ForEach(multilingualMetasLookup[currMeta.Key].ToArray(), x =>
+                            {
+                                currMeta.Values = SetLanguageContainer(currMeta.Values, languageObj, x.Value);
+                            });
+
+                            programmeObject.EPG_Meta[i] = currMeta;
                         }
                     }
                 }
@@ -113,12 +119,21 @@ namespace EpgBL
                     programmeObject.EPG_TAGS[epgIndex] = epgDictionary;
                 }
 
-                for (epgIndex = 0; epgIndex < programmeObject.EPG_Meta.Count; epgIndex++)
+                var metasLookup = programmeObject.EPG_Meta.ToLookup(x => x.Key);
+                var resultMetas = new List<EPGDictionary>();
+                foreach (var metaLookupValue in metasLookup)
                 {
-                    epgDictionary = programmeObject.EPG_Meta[epgIndex];
-                    epgDictionary.Values = SetLanguageContainer(epgDictionary.Values, languageObj, epgDictionary.Value);
-                    programmeObject.EPG_Meta[epgIndex] = epgDictionary;
+                    var metaValues = metaLookupValue.ToArray();
+                    var resultMeta = metaValues.First();
+                    Array.ForEach(metaValues, x =>
+                    {
+                        resultMeta.Values = SetLanguageContainer(resultMeta.Values, languageObj, x.Value);
+                    });
+
+                    resultMetas.Add(resultMeta);
                 }
+
+                programmeObject.EPG_Meta = resultMetas;
             }
         }
 

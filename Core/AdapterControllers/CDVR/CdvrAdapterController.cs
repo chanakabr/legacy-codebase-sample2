@@ -150,7 +150,7 @@ namespace AdapterControllers.CDVR
 
             if (adapter == null)
             {
-                throw new KalturaException(string.Format("Cdvr Adapter {0} doesn't exist", adapter.ID), (int)eResponseStatus.AdapterNotExists);
+                throw new KalturaException(string.Format("Cdvr Adapter {0} doesn't exist", adapterId), (int)eResponseStatus.AdapterNotExists);
             }
 
             if (string.IsNullOrEmpty(adapter.AdapterUrl))

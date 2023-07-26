@@ -172,7 +172,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services.GroupRepresentatives
 
             IEnumerable<UnifiedSearchResult> missedKeyAssets = null;
             var aggregations = new List<AggregationResult>();
-            var missedBucketKey = ESUnifiedQueryBuilder.MissedHitBucketKey.ToString();
+            var missedBucketKey = ESUnifiedQueryBuilder.MissedHitBucketKeyString;
             foreach (var group in groups)
             {
                 if (group.value == missedBucketKey)

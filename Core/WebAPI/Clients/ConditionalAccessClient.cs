@@ -1272,7 +1272,22 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
+            var accountSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+            if (accountSettings?.PersonalizedRecordingEnable == true)
+            {
+                if (response.AbsoluteStartTime.HasValue)
+                {
+                    recording = Mapper.Map<KalturaImmediateRecording>(response);
+                }
+                else
+                {
+                    recording = Mapper.Map<KalturaPaddedRecording>(response);
+                }
+            }
+            else
+            {
+                recording = Mapper.Map<KalturaRecording>(response);
+            }
 
             return recording;
         }

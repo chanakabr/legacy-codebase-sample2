@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using CouchbaseManager;
 
 namespace Core.Api.Modules
 {
@@ -237,6 +238,7 @@ namespace Core.Api.Modules
                 isDescending = true,
                 endKey = new object[] { userId, language, 0 },
                 startKey = new object[] { userId, language, "\uefff" },
+                staleState = ViewStaleState.False,
                 inclusiveEnd = true,
                 fullSet = true,
                 skip = skip,

@@ -586,6 +586,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartPadding, opt => opt.MapFrom(src => src.StartPadding))
                 .ForMember(dest => dest.EndPadding, opt => opt.MapFrom(src => src.EndPadding))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.Duration)))
+                .ForMember(dest => dest.IsStartPaddingDefault, opt => opt.MapFrom(src => !src.StartPaddingIsPersonal))
+                .ForMember(dest => dest.IsEndPaddingDefault, opt => opt.MapFrom(src => !src.EndPaddingIsPersonal))
                 ;
             
               
@@ -619,6 +621,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<Recording, KalturaRecording>()
                 .ForMember(dest => dest.StartPadding, opt => opt.MapFrom(src => src.UserStartPadding))
                 .ForMember(dest => dest.EndPadding, opt => opt.MapFrom(src => src.UserEndPadding))
+                .ForMember(dest => dest.StartPaddingIsPersonal, opt => opt.MapFrom(src => !src.IsStartPaddingDefault))
+                .ForMember(dest => dest.EndPaddingIsPersonal, opt => opt.MapFrom(src => !src.IsEndPaddingDefault))
                 ;
             
             // KalturaExternalRecording to ExternalRecording

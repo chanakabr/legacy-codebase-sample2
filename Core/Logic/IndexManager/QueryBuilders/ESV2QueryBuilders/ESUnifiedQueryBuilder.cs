@@ -39,7 +39,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
         public static readonly string TAGS = "TAGS";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
 
-        public static readonly int MissedHitBucketKey = 999;
+        public const int MissedHitBucketKey = 999;
+        public static readonly string MissedHitBucketKeyString = MissedHitBucketKey.ToString();
 
         protected static readonly Dictionary<string, string> NONE_PHONETIC_LANGUAGES 
             = new Dictionary<string, string> { { "heb", @"[\u0590-\u05FF]+" } };

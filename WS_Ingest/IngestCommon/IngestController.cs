@@ -202,24 +202,40 @@ namespace Ingest
                 log.Debug($"bulk uploadId:[{bulkUpload.Id}] status:[{bulkUpload.Status}], results count:[{bulkUpload.Results.Count}], groupId:[{groupID}]");
 
                 if (bulkUpload.IsProcessCompleted)
-
-                    log.Info($"completed bulk uploadId:[{bulkUpload.Id}] status:[{bulkUpload.Status}], results count:[{bulkUpload.Results.Count}], groupId:[{groupID}]");
                 {
-                    ingestResponse.IngestStatus = Status.Ok;
+                    log.Info($"completed bulk uploadId:[{bulkUpload.Id}] status:[{bulkUpload.Status}], results count:[{bulkUpload.Results.Count}], groupId:[{groupID}]");
+                    if (bulkUpload.Errors != null && bulkUpload.Errors.Any())
+                    {
+                        ingestResponse.Status = "false";
+                        ingestResponse.IngestStatus = Status.ErrorMessage(string.Join(" ; ", bulkUpload.Errors.Select(e => e.ToString()).ToArray()));
+                    }
+                    else
+                    {
+                        ingestResponse.Status = "true";
+                        ingestResponse.IngestStatus = Status.Ok;
+                    }
+
                     ingestResponse.AssetsStatus = new List<IngestAssetStatus>();
                     foreach (var res in bulkUpload.Results)
                     {
                         var programResult = (BulkUploadProgramAssetResult)res;
-                        var programWarnnings = new List<Status>();
-                        if (programResult.Warnings.Any()) { programWarnnings.AddRange(programResult.Warnings); }
-                        if (programResult.Errors.Any()) { programWarnnings.AddRange(programResult.Errors); }
+                        var programWarnings = new List<Status>();
+                        if (programResult.Warnings != null && programResult.Warnings.Any())
+                        {
+                            programWarnings.AddRange(programResult.Warnings);
+                        }
+
+                        if (programResult.Errors != null && programResult.Errors.Any())
+                        {
+                            programWarnings.AddRange(programResult.Errors);
+                        }
 
                         var ingestAssetStatus = new IngestAssetStatus
                         {
                             EntryID = programResult.ObjectId.ToString(),
                             ExternalAssetId = programResult.ProgramExternalId.ToString(),
                             InternalAssetId = programResult.ChannelId,
-                            Warnings = programWarnnings,
+                            Warnings = programWarnings,
                             Status = programResult.Status == BulkUploadResultStatus.Ok ? Status.Ok : Status.Error,
                         };
 

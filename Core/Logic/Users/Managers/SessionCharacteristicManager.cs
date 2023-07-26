@@ -18,18 +18,18 @@ namespace ApiLogic.Users.Managers
         private static readonly KLogger Log = new KLogger(nameof(SessionCharacteristicManager));
 
         private readonly ILayeredCache _layeredCache;
-        private readonly IAuthenticationClient _authenticationClient;
+        private readonly Lazy<IAuthenticationClient> _authenticationClient;
 
         private static readonly Lazy<SessionCharacteristicManager> LazyInstance =
             new Lazy<SessionCharacteristicManager>(() =>
                     new SessionCharacteristicManager(
                         LayeredCache.Instance,
-                        AuthenticationClient.GetClientFromTCM()),
+                        new Lazy<IAuthenticationClient>(AuthenticationClient.GetClientFromTCM, LazyThreadSafetyMode.PublicationOnly)),
                 LazyThreadSafetyMode.PublicationOnly);
 
         public static ISessionCharacteristicManager Instance => LazyInstance.Value;
 
-        public SessionCharacteristicManager(ILayeredCache layeredCache, IAuthenticationClient authenticationClient)
+        public SessionCharacteristicManager(ILayeredCache layeredCache, Lazy<IAuthenticationClient> authenticationClient)
         {
             _layeredCache = layeredCache;
             _authenticationClient = authenticationClient;
@@ -63,6 +63,6 @@ namespace ApiLogic.Users.Managers
         }
 
         private GetSessionCharacteristicsResponse Get(int groupId, string sessionCharacteristicId)
-            => _authenticationClient.GetSessionCharacteristics(groupId, sessionCharacteristicId);
+            => _authenticationClient.Value.GetSessionCharacteristics(groupId, sessionCharacteristicId);
     }
 }

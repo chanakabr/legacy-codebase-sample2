@@ -115,7 +115,7 @@ namespace Core.Catalog.CatalogManagement
         };
 
         #endregion
-        
+
         private static readonly Lazy<MediaAssetService> MediaAssetServiceLazy = new Lazy<MediaAssetService>(() => MediaAssetService.Instance, LazyThreadSafetyMode.PublicationOnly);
         private static readonly Lazy<AssetManager> AssetManagerLazy = new Lazy<AssetManager>(() => new AssetManager(), LazyThreadSafetyMode.PublicationOnly);
 
@@ -3061,7 +3061,9 @@ namespace Core.Catalog.CatalogManagement
 
                         if (item.AssetType == eAssetTypes.NPVR)
                         {
-                            RecordingSearchResult rsr = (RecordingSearchResult)item;
+                            var rsr = item is ExtendedRecordingSearchResult result
+                                ? new RecordingSearchResult(result)
+                                : (RecordingSearchResult)item;
                             recordingsMap.Add(item.AssetId, rsr);
 
                             if (!string.IsNullOrEmpty(rsr.EpgId))
@@ -3076,9 +3078,13 @@ namespace Core.Catalog.CatalogManagement
 
                             assetType = eAssetTypes.EPG;
                         }
-                        else if (item.AssetType == eAssetTypes.EPG && epgFeatureVersion != EpgFeatureVersion.V1 && item is EpgSearchResult)
+                        else if (item.AssetType == eAssetTypes.EPG
+                            && epgFeatureVersion != EpgFeatureVersion.V1
+                            && (item is EpgSearchResult || item is ExtendedEpgSearchResult))
                         {
-                            var epgSearchResult = item as EpgSearchResult;
+                            var epgSearchResult = item is ExtendedEpgSearchResult result
+                                ? new EpgSearchResult(result)
+                                : (EpgSearchResult)item;
                             if (!string.IsNullOrEmpty(epgSearchResult.DocumentId))
                             {
                                 epgIdToDocumentId.Add(item.AssetId, epgSearchResult.DocumentId);
@@ -3450,8 +3456,9 @@ namespace Core.Catalog.CatalogManagement
                             currentAsset = oldAsset.Object as MediaAsset;
                         }
 
-                        // validate that existing asset is indeed linear media
-                        if (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear)
+                        // validate that asset exists and asset is indeed linear media
+                        if (currentAsset == null || currentAsset.IndexStatus == AssetIndexStatus.Deleted ||
+                            (isLinear && currentAsset.MediaAssetType != MediaAssetType.Linear))
                         {
                             result.SetStatus(eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                             return result;

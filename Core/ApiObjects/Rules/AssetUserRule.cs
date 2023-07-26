@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ApiObjects.Rules.Converters;
 
 namespace ApiObjects.Rules
@@ -59,5 +60,13 @@ namespace ApiObjects.Rules
                 }
             }
         }
+    }
+
+    public static class AssetUserRuleExtensions
+    {
+        public static bool Contains(this AssetUserRule rule, RuleActionType ruleActionType) =>
+            rule.Actions.Any(_ => _.Type == ruleActionType);
+        public static bool Contains(this AssetUserRule rule, RuleConditionType ruleConditionType) =>
+            rule.Conditions.Any(_ => _.Type == ruleConditionType);
     }
 }

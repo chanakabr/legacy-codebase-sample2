@@ -9,10 +9,8 @@ namespace KalturaRequestContext
         bool IsPartnerRequest();
         string GetUdid();
         string GetUserIp();
-        void SetIsPartnerRequest();
         bool IsImpersonateRequest();
         int? GetRegionId();
-        void SetRegionId(int regionId);
-        void RemoveRegionId();
+        string GetSessionCharacteristicKey();
     }
 }

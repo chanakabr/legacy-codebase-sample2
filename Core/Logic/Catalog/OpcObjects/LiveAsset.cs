@@ -18,7 +18,7 @@ namespace Core.Catalog
         public long? BufferCatchUp { get; set; }
         public long? BufferTrickPlay { get; set; }
 
-        [ExcelColumn(ExcelColumnType.Basic, EXTERNAL_EPG_INGEST_ID)]
+        [ExcelColumn(ExcelColumnType.Basic, EXTERNAL_EPG_INGEST_ID, IsMandatory = true)]
         public string ExternalEpgIngestId { get; set; }
 
         public string ExternalCdvrId { get; set; }
@@ -216,7 +216,7 @@ namespace Core.Catalog
             var columnName = ExcelColumn.GetFullColumnName(EXTERNAL_EPG_INGEST_ID);
             if (columnNamesToValues.ContainsKey(columnName))
             {
-                this.ExternalEpgIngestId = columnNamesToValues[columnName].ToString();                
+                this.ExternalEpgIngestId = columnNamesToValues[columnName].ToString();
             }
         }
         public override Dictionary<string, object> GetExcelValues(int groupId)

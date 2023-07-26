@@ -63,6 +63,7 @@ namespace Core.Catalog.CatalogManagement
         private const string PARENTAL_RATING_META_NAME = "Parental Rating";
         public const string GENRE_META_SYSTEM_NAME = "Genre";
         public const string CRID_META_SYSTEM_NAME = "Crid";
+        public const string CRID_META_SYSTEM_NAME_UPPER = "CRID";
         public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
         public const string STATUS_META_SYSTEM_NAME = "Status";
         public const string EXTERNAL_OFFER_IDS_META_SYSTEM_NAME = "ExternalOfferIds";
@@ -247,14 +248,14 @@ namespace Core.Catalog.CatalogManagement
                 SendActionEvent(groupId, newEpgId, eAction.On);
 
                 result = AssetManager.Instance.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
-                if (result.IsOkStatusCode())
+                if (result.IsOkStatusCode() && _messageService != null)
                 {
-                    _messageService.PublishCreateEventAsync(groupId, newEpgId, userId).GetAwaiter().GetResult();
+                    _messageService.PublishCreateEventAsync(groupId, newEpgId, userId)?.GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed AddEpgAsset for groupId: {0}, epg ExternalId: {1}", groupId, epgAssetToAdd.EpgIdentifier), ex);
+                log.Error($"Failed AddEpgAsset for groupId: {groupId}, epg ExternalId: {epgAssetToAdd.EpgIdentifier}, Exception: [{ex}].");
             }
 
             return result;
@@ -420,7 +421,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // get updated epgAsset
                 result = AssetManager.Instance.GetAsset(groupId, epgAssetToUpdate.Id, eAssetTypes.EPG, true);
-                if (result.IsOkStatusCode())
+                if (result.IsOkStatusCode() && _messageService != null)
                 {
                     _messageService.PublishUpdateEventAsync(groupId, epgAssetToUpdate.Id, userId).GetAwaiter().GetResult();
                 }
@@ -476,8 +477,11 @@ namespace Core.Catalog.CatalogManagement
             SendActionEvent(groupId, epgId, eAction.Delete);
 
             var epgAsset = new EpgAsset(epgCbList, catalogGroupCache.GetDefaultLanguage().Code, groupEpgPicturesSizes, groupId);
-            _messageService.PublishDeleteEventAsync(groupId, epgAsset, userId).GetAwaiter().GetResult();
-
+            if (_messageService != null)
+            {
+                _messageService.PublishDeleteEventAsync(groupId, epgAsset, userId).GetAwaiter().GetResult();
+            }
+            
             // Delete Index
             var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
             var epgIds = new List<long>() { epgId };
@@ -581,7 +585,11 @@ namespace Core.Catalog.CatalogManagement
                             epgsToUpdate.Select(item => item.ChannelID.ToString()).Distinct().ToList(), false);
                     }
 
-                    _messageService.PublishUpdateEventAsync(groupId, epgAsset.Id, userId).GetAwaiter().GetResult();
+                    if (_messageService != null)
+                    {
+                        _messageService.PublishUpdateEventAsync(groupId, epgAsset.Id, userId).GetAwaiter().GetResult();
+                    }
+                    
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }

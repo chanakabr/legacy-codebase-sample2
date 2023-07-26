@@ -41,6 +41,7 @@
     <ProjectReference Include="..\Core\LiveToVod\LiveToVod.csproj" />
     <ProjectReference Include="..\Core\Logic\ApiLogic.csproj" />
     <ProjectReference Include="..\Core\WebAPI\WebAPI.csproj" />
+    <ProjectReference Include="..\RemoteTasks\IngestHandler\IngestHandler.csproj" />
   </ItemGroup>
 
 </Project>

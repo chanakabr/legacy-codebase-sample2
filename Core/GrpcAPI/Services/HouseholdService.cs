@@ -84,10 +84,22 @@ namespace GrpcAPI.Services
                         status.Message = eResponseStatus.UserDoesNotExist.ToString();
                         break;
                     }
+                    //Wrong status in https://github.com/kaltura/ott-backend/blob/master/Core/Logic/ConditionalAccess/Utils.cs#L4258
+                    //and all the other places in the code using it so it's very hard to change and believe that it won't
+                    //any other problem
+                    //TODO change the status to correct one.
                     case ResponseStatus.UserNotIndDomain:
                     {
-                        status.Code = (int)eResponseStatus.UserNotInDomain;
-                        status.Message = "User Not In Domain";
+                        if (domainId == 0)
+                        {
+                            status.Code = (int)eResponseStatus.UserWithNoDomain;
+                            status.Message = eResponseStatus.UserWithNoDomain.ToString();
+                        }
+                        else
+                        {
+                            status.Code = (int)eResponseStatus.UserNotInDomain;
+                            status.Message = "User Not In Domain";
+                        }
                         break;
                     }
                     case ResponseStatus.UserWithNoDomain:

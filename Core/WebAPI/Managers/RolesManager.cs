@@ -311,7 +311,7 @@ namespace WebAPI.Managers
             //BEO-7703 - No cache for operator+
             if (IsPartner(ks.GroupId, roleIds))
             {
-                RequestContextUtilsInstance.Get().SetIsPartnerRequest();
+                RequestContextUtilsInstance.Setter().SetIsPartnerRequest();
             }
 
             string allowedUsersGroup = null;

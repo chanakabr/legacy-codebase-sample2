@@ -34,7 +34,10 @@ namespace Core.Recordings
     public class PaddedRecordingsManager
     {
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
-        private const int MaxAllowedActiveRecordings = 2;
+        private readonly int _maxAllowedActiveRecordings;
+        private readonly long _importedRecordingMinimumRetentionPeriodSecondsDefault;
+        private const int MAX_IMMEDIATE_RECORDINGS_PER_HOUSEHOLD_PER_PROGRAM_DEFAULT = 2; 
+        private const long IMPORTED_RECORDING_MINIMUM_RETENTION_PERIOD_SECONDS_DEFAULT = 8000000;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly Lazy<PaddedRecordingsManager> LazyInstance = new Lazy<PaddedRecordingsManager>(
@@ -84,6 +87,9 @@ namespace Core.Recordings
             {
                 MINUTES_ALLOWED_DIFFERENCE = MINUTES_RETRY_INTERVAL;
             }
+            
+            _maxAllowedActiveRecordings = APILogic.Utils.GetEnvironmentVariable<int>("MAX_IMMEDIATE_RECORDINGS_PER_HOUSEHOLD_PER_PROGRAM", defaultVal: MAX_IMMEDIATE_RECORDINGS_PER_HOUSEHOLD_PER_PROGRAM_DEFAULT);
+            _importedRecordingMinimumRetentionPeriodSecondsDefault = APILogic.Utils.GetEnvironmentVariable<long>("IMPORTED_RECORDING_MINIMUM_RETENTION_PERIOD_SECONDS", defaultVal: IMPORTED_RECORDING_MINIMUM_RETENTION_PERIOD_SECONDS_DEFAULT);
         }
 
         public List<long> GetAllPartnerIds()
@@ -192,28 +198,29 @@ namespace Core.Recordings
             return GetRecordingByHouseholdRecording(groupId, householdRecordings);
         }
 
-        private Dictionary<long, Recording> GetRecordingByHouseholdRecording(int groupId,
-            List<HouseholdRecording> householdRecordings)
+        private Dictionary<long, Recording> GetRecordingByHouseholdRecording(int groupId, List<HouseholdRecording> householdRecordings)
         {
             Dictionary<long, Recording> domainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
+
             List<long> epgIdIds = householdRecordings.Select(e => e.EpgId).ToList();
-            List<string> paddedRecordingKeys = householdRecordings.Select(e => e.RecordingKey).ToList();
             List<Program> programs = _repository.GetProgramsByEpgIds(groupId, epgIdIds);
-            var paddedRecordings = _repository.GetRecordingsByKeys(groupId, paddedRecordingKeys)?
-                .ToDictionary(x => x.Key, x => x);
+
+            List<string> paddedRecordingKeys = householdRecordings.Select(e => e.RecordingKey).ToList();
+            Dictionary<string, TimeBasedRecording> paddedRecordings = _repository.GetRecordingsByKeys(groupId, paddedRecordingKeys)?.ToDictionary(x => x.Key, x => x);
 
             foreach (var householdRecording in householdRecordings)
             {
-                Program program = programs.Find(f => f.EpgId.Equals(householdRecording.EpgId));
                 TimeBasedRecording timeBasedRecording = null;
                 paddedRecordings?.TryGetValue(householdRecording.RecordingKey, out timeBasedRecording);
-                if (program != null && timeBasedRecording != null)
+                if (timeBasedRecording != null)
                 {
-                    //BEO-13648
-                    var record =
-                        RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, program,
-                            householdRecording);
-                    domainRecordingIdToRecordingMap.Add(householdRecording.Id, record);
+                    Program program = programs.FirstOrDefault(f => f.EpgId.Equals(householdRecording.EpgId));
+                    if (program != null)
+                    {
+                        //BEO-13648
+                        var record = RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, program, householdRecording);
+                        domainRecordingIdToRecordingMap.Add(householdRecording.Id, record);
+                    }
                 }
             }
 
@@ -673,13 +680,7 @@ namespace Core.Recordings
             if (parameters.TryGetValue("absoluteEnd", out var _absoluteEnd))
                 absoluteEnd = (DateTime?)_absoluteEnd;
 
-            TimeShiftedTvPartnerSettings accountSettings =
-                ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
-
-            int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
-            DateTime? viewableUntilDate = null;
-            if (recordingLifetime.HasValue)
-                viewableUntilDate = endDate.AddDays(recordingLifetime.Value);
+            DateTime viewableUntilDate = GetViewableUntilDate(groupId, endDate);
 
             // for private copy we always issue a recording            
             //Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, epgId);
@@ -706,8 +707,8 @@ namespace Core.Recordings
                 program.Id = _repository.AddProgram(groupId, new Program(epgId, startDate, endDate));
                 recording = new TimeBasedRecording(key, epgId, epgChannelID, program.Id,
                     RecordingInternalStatus.Waiting.ToString(),
-                    DateTime.UtcNow, DateTime.UtcNow, viewableUntilDate.Value,
-                    TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value),
+                    DateTime.UtcNow, DateTime.UtcNow, viewableUntilDate,
+                    DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate),
                     false, crid, paddingBefore, paddingAfter);
 
                 if (isImmediate)
@@ -728,8 +729,8 @@ namespace Core.Recordings
                 {
                     recording = new TimeBasedRecording(key, epgId, epgChannelID, program.Id,
                         RecordingInternalStatus.Waiting.ToString(),
-                        DateTime.UtcNow, DateTime.UtcNow, viewableUntilDate.Value,
-                        TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value),
+                        DateTime.UtcNow, DateTime.UtcNow, viewableUntilDate,
+                        DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate),
                         false, crid, paddingBefore, paddingAfter);
 
                     if (isImmediate)
@@ -746,8 +747,8 @@ namespace Core.Recordings
 
                     recording = new TimeBasedRecording(key, epgId, epgChannelID, program.Id,
                         RecordingInternalStatus.Waiting.ToString(),
-                        DateTime.UtcNow, DateTime.UtcNow, viewableUntilDate.Value,
-                        TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value),
+                        DateTime.UtcNow, DateTime.UtcNow, viewableUntilDate,
+                        DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate),
                         false, crid, paddingBefore, paddingAfter);
 
                     if (isImmediate)
@@ -1493,20 +1494,9 @@ namespace Core.Recordings
 
         public bool UpdateRecording(int groupId, Program program, TimeBasedRecording recording)
         {
-            TimeShiftedTvPartnerSettings accountSettings =
-                ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
-
-            int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
-
-            //BEO - 7188
-            if (recordingLifetime.HasValue)
-            {
-                DateTime viewableUntilDate = program.EndDate.AddDays(recordingLifetime.Value);
-                recording.ViewableUntilEpoch =
-                    TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
-                recording.UpdateDate = DateTime.UtcNow;
-            }
-
+            DateTime viewableUntilDate = GetViewableUntilDate(groupId, program.EndDate);
+            recording.ViewableUntilEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate);
+            recording.UpdateDate = DateTime.UtcNow;
             return _repository.UpdateRecording(groupId, recording);
         }
 
@@ -2279,99 +2269,101 @@ namespace Core.Recordings
             }
         }
 
-        public GenericResponse<Recording> ImmediateRecord(int groupId, long userId, long domainId,
-            long epgId, int? endPadding = null)
+        public GenericResponse<Recording> ImmediateRecord(int groupId, long userId, long domainId, long epgId, int? endPadding, Program program, 
+            long? systemAbsStart = null, long? systemAbsEnd = null)
         {
             var response = new GenericResponse<Recording>();
             response.SetStatus(Status.Ok);
 
-            var epgs = Core.ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
-            if (epgs == null || epgs.Count == 0)
+            // set epgChannelProgrammeObject only if the request is not from migration / program wasn't set
+            EPGChannelProgrammeObject epgChannelProgrammeObject = null;
+            if (program == null)
             {
-                var _msg = $"Program {epgId} wasn't found";
-                log.Debug(_msg);
-                response.SetStatus(eResponseStatus.ProgramDoesntExist, _msg);
-                return response;
+                program = GetRecordingProgram(groupId, epgId, out epgChannelProgrammeObject);
+                if (program == null)
+                {
+                    var _msg = $"Program {epgId} wasn't found";
+                    log.Debug(_msg);
+                    response.SetStatus(eResponseStatus.ProgramDoesntExist, _msg);
+                    return response;
+                }
             }
-
-            //get program from epg
-            var epgChannelProg = epgs.First();
-            epgChannelProg.ParseDate(epgChannelProg.START_DATE, out var epgStartDate);
-            epgChannelProg.ParseDate(epgChannelProg.END_DATE, out var epgEndDate);
-            var _program = new Program(epgId, epgStartDate, epgEndDate);
 
             var accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
 
-            var _absoluteStartTime = DateTime.UtcNow.RoundDown(TimeSpan.FromMinutes(1));
+            var _absoluteStartTime = systemAbsStart.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(systemAbsStart.Value) : DateTime.UtcNow.RoundDown(TimeSpan.FromMinutes(1));
             var absoluteEndOffset = endPadding ??
                                     ConditionalAccess.Utils.ConvertSecondsToMinutes(
                                         (int)(accountSettings.PaddingAfterProgramEnds ?? 0));
-            var _absoluteEndTime =
-                _program.EndDate.AddMinutes(absoluteEndOffset).RoundUp(TimeSpan.FromMinutes(1));
+            var _absoluteEndTime = systemAbsEnd.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(systemAbsEnd.Value):
+                program.EndDate.AddMinutes(absoluteEndOffset).RoundUp(TimeSpan.FromMinutes(1));
 
-            if (DateTime.UtcNow < _program.StartDate)
+            if (!systemAbsStart.HasValue && !systemAbsEnd.HasValue)
             {
-                var _msg = $"This program {epgId} is in the future";
-                log.Debug(_msg);
-                response.SetStatus(eResponseStatus.RecordingStatusNotValid, _msg);
-                return response;
-            }
+                if (DateTime.UtcNow < program.StartDate)
+                {
+                    var _msg = $"This program {epgId} is in the future";
+                    log.Debug(_msg);
+                    response.SetStatus(eResponseStatus.RecordingStatusNotValid, _msg);
+                    return response;
+                }
 
-            if (_absoluteStartTime >= _program.EndDate)
-            {
-                var _msg = $"This program {epgId} is in the past";
-                log.Debug(_msg);
-                response.SetStatus(eResponseStatus.RecordingStatusNotValid, _msg);
-                return response;
+                if (_absoluteStartTime >= program.EndDate)
+                {
+                    var _msg = $"This program {epgId} is in the past";
+                    log.Debug(_msg);
+                    response.SetStatus(eResponseStatus.RecordingStatusNotValid, _msg);
+                    return response;
+                }
             }
-
+            
             var absoluteStartEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(_absoluteStartTime);
             var absoluteEndEpoch = DateUtils.DateTimeToUtcUnixTimestampSeconds(_absoluteEndTime);
 
             var _recDates = new Recording()
             {
-                EpgStartDate = _program.StartDate,
-                EpgEndDate = _program.EndDate,
+                EpgStartDate = program.StartDate,
+                EpgEndDate = program.EndDate,
                 AbsoluteStartTime = _absoluteStartTime,
                 AbsoluteEndTime = _absoluteEndTime
             };
 
             if (!ValidateRecordingConcurrency(groupId, domainId, _recDates))
             {
-                var _msg =
-                    $"epgID: {_program.EpgId} can't be recoded due to recording concurrency of {accountSettings.MaxRecordingConcurrency}";
+                var _msg = $"epgID: {program.EpgId} can't be recoded due to recording concurrency of {accountSettings.MaxRecordingConcurrency}";
                 log.Debug(_msg);
                 response.SetStatus(eResponseStatus.RecordingExceededConcurrency, _msg);
                 return response;
             }
 
             //Validate quota & entitlement
-            var isQuotaOverage = RecordingsUtils.QuotaOverageAndEntitlement(groupId, domainId, userId, epgId,
-                epgs.First(),
-                absoluteStartEpoch, absoluteEndEpoch);
-
-            if (!isQuotaOverage.Status.IsOkStatusCode())
+            var quotaOverage = false;
+            if (epgChannelProgrammeObject != null)
             {
-                response.SetStatus(isQuotaOverage.Status);
-                return response;
+                var isQuotaOverage = RecordingsUtils.QuotaOverageAndEntitlement(groupId, domainId, userId, epgId, epgChannelProgrammeObject, absoluteStartEpoch, absoluteEndEpoch);
+                if (!isQuotaOverage.Status.IsOkStatusCode())
+                {
+                    response.SetStatus(isQuotaOverage.Status);
+                    return response;
+                }
+                quotaOverage = isQuotaOverage.QuotaOverage;
             }
 
-            long.TryParse(epgChannelProg.EPG_CHANNEL_ID, out var _epgChannelId);
             Recording recording = null;
             TimeBasedRecording timeBasedRecording;
             var syncKey = string.Format("PaddedRecordingsManager_{0}", epgId);
             Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
             syncParmeters.Add("groupId", groupId);
             syncParmeters.Add("programId", epgId);
-            syncParmeters.Add("epgChannelID", _epgChannelId);
+            syncParmeters.Add("epgChannelID", program.EpgChannelId);
             syncParmeters.Add("domainIds", new List<long>() { });
             syncParmeters.Add("isPrivateCopy", false);
             syncParmeters.Add("absoluteStart", _absoluteStartTime);
             syncParmeters.Add("absoluteEnd", _absoluteEndTime);
-            syncParmeters.Add("startDate", _program.StartDate);
-            syncParmeters.Add("endDate", _program.EndDate); //calc viewable until date
+            syncParmeters.Add("startDate", program.StartDate);
+            syncParmeters.Add("endDate", program.EndDate); //calc viewable until date
             syncParmeters.Add("paddingAfter", absoluteEndOffset);
-            syncParmeters.Add("crid", epgs.First().CRID);
+            syncParmeters.Add("crid", program.Crid);
 
             try
             {
@@ -2379,27 +2371,24 @@ namespace Core.Recordings
                 {
                     RecordingInternalStatus.OK.ToString(), RecordingInternalStatus.Waiting.ToString()
                 };
-                var hhRecordings = _repository.GetHhRecordingsByEpgId(groupId, domainId, epgId,
-                    recordingStatuses, RecordingType.Single.ToString());
+                var hhRecordings = _repository.GetHhRecordingsByEpgId(groupId, domainId, epgId, recordingStatuses, RecordingType.Single.ToString());
                 if (hhRecordings != null && hhRecordings.Count > 0)
                 {
-                    var allEpgRecords = hhRecordings.ToList();
-                    if (allEpgRecords.Count() >= MaxAllowedActiveRecordings)
+                    if (hhRecordings.Count >= _maxAllowedActiveRecordings)
                     {
-                        response.SetStatus(eResponseStatus.RecordingStatusNotValid,
-                            $"Can't record more than {MaxAllowedActiveRecordings} times from the same program");
+                        response.SetStatus(eResponseStatus.ExceedingAllowedImmediateRecordingAttempts,
+                            $"Can't record more than {_maxAllowedActiveRecordings} times from the same program");
+                        
                         return response;
                     }
 
                     //Validate on-going recording
-                    foreach (var hhRecord in allEpgRecords)
+                    foreach (var hhRecord in hhRecordings)
                     {
                         var permutation = _repository.GetRecordingByKey(groupId, hhRecord.RecordingKey);
-                        if (permutation != null && (!permutation.AbsoluteEndTime.HasValue ||
-                                                    permutation.AbsoluteEndTime > DateTime.UtcNow))
+                        if (permutation != null && (!permutation.AbsoluteEndTime.HasValue || permutation.AbsoluteEndTime > DateTime.UtcNow))
                         {
-                            response.SetStatus(eResponseStatus.RecordingStatusNotValid,
-                                $"Recording {hhRecord.Id} is in progress");
+                            response.SetStatus(eResponseStatus.RecordingStatusNotValid, $"Recording {hhRecord.Id} is in progress");
                             return response;
                         }
                     }
@@ -2430,11 +2419,9 @@ namespace Core.Recordings
                     }
 
                     // Schedule a message to check duplicate crid
-                    DateTime checkTime = _program.EndDate.AddDays(7);
+                    DateTime checkTime = program.EndDate.AddDays(7);
                     eRecordingTask task = eRecordingTask.CheckRecordingDuplicateCrids;
-                    RecordingsManager.EnqueueMessage(groupId, epgId, recordingId,
-                        _absoluteStartTime, checkTime,
-                        task);
+                    RecordingsManager.EnqueueMessage(groupId, epgId, recordingId, _absoluteStartTime, checkTime, task);
                 }
                 else
                 {
@@ -2443,8 +2430,7 @@ namespace Core.Recordings
                     var _status = RecordingInternalStatus.OK;
                     if (Enum.IsDefined(typeof(RecordingInternalStatus), timeBasedRecording.Status))
                     {
-                        _status = (RecordingInternalStatus)Enum.Parse(typeof(RecordingInternalStatus),
-                            timeBasedRecording.Status);
+                        _status = (RecordingInternalStatus)Enum.Parse(typeof(RecordingInternalStatus), timeBasedRecording.Status);
                     }
 
                     var _hhRecording = new HouseholdRecording(
@@ -2457,38 +2443,35 @@ namespace Core.Recordings
                         DateTime.UtcNow,
                         DateTime.UtcNow,
                         DateUtils.DateTimeToUtcUnixTimestampSeconds(protectedUntilDate),
-                        _epgChannelId,
+                        program.EpgChannelId,
                         true
                     );
-                    recording = RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, _program,
-                        _hhRecording);
+                    recording = RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, program, _hhRecording);
                 }
 
                 //Overcome exceeded quota
-                CheckAndClearHouseholdQuota(groupId, domainId, recording, isQuotaOverage.QuotaOverage,
-                    userId.ToString(), epgId);
-
-                if (!recording.Status.IsOkStatusCode())
+                if (epgChannelProgrammeObject != null)
                 {
-                    response.Status.Set(recording.Status);
-                    return response;
+                    CheckAndClearHouseholdQuota(groupId, domainId, recording, quotaOverage, userId.ToString(), epgId);
+                    if (!recording.Status.IsOkStatusCode())
+                    {
+                        response.Status.Set(recording.Status);
+                        return response;
+                    }
                 }
 
-                var hhRecording = SaveToHousehold(groupId, userId, domainId, _epgChannelId, epgId, key, recording,
-                    false, !endPadding.HasValue);
+                var hhRecording = SaveToHousehold(groupId, userId, domainId, program.EpgChannelId, epgId, key, recording, false, !endPadding.HasValue);
 
                 if (!hhRecording.success)
                 {
-                    response.SetStatus(eResponseStatus.Error,
-                        "Failed saving hh recording");
+                    response.SetStatus(eResponseStatus.Error, "Failed saving hh recording");
                     return response;
                 }
 
                 // Todo - Matan/Gil - needed? will throw null ref from recording
-                if (recording == null && _program != null && timeBasedRecording != null)
+                if (recording == null && program != null && timeBasedRecording != null)
                 {
-                    recording = RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, _program,
-                        hhRecording.rec);
+                    recording = RecordingsUtils.BuildRecordingFromTBRecording(groupId, timeBasedRecording, program, hhRecording.rec);
                 }
 
                 //BEO-13648
@@ -2507,6 +2490,24 @@ namespace Core.Recordings
             }
 
             return response;
+        }
+
+        private Program GetRecordingProgram(int groupId, long epgId, out EPGChannelProgrammeObject epgChannelProgrammeObject)
+        {
+            epgChannelProgrammeObject = null;
+            var epgs = ConditionalAccess.Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
+            if (epgs == null || epgs.Count == 0)
+            {
+                return null;
+            }
+
+            //get program from epg
+            epgChannelProgrammeObject = epgs.First();
+            epgChannelProgrammeObject.ParseDate(epgChannelProgrammeObject.START_DATE, out var epgStartDate);
+            epgChannelProgrammeObject.ParseDate(epgChannelProgrammeObject.END_DATE, out var epgEndDate);
+            long.TryParse(epgChannelProgrammeObject.EPG_CHANNEL_ID, out var _epgChannelId);
+            var _program = new Program(epgId, epgStartDate, epgEndDate, _epgChannelId, epgChannelProgrammeObject.CRID);
+            return _program;
         }
 
         private void CheckAndClearHouseholdQuota(int groupId, long domainId, Recording recording, bool quotaOverage,
@@ -2549,12 +2550,13 @@ namespace Core.Recordings
             {
                 hhRecording.IsStartPaddingDefault = isStartPaddingDefault ?? hhRecording.IsStartPaddingDefault;
                 hhRecording.IsEndPaddingDefault = isEndPaddingDefault ?? hhRecording.IsEndPaddingDefault;
-
-                if (_repository.AddHouseholdRecording(groupId, hhRecording) == 0)
+                var hhRecordingId = _repository.AddHouseholdRecording(groupId, hhRecording);
+                if (hhRecordingId == 0)
                 {
                     log.Warn("Failed saving HH recording");
                     return (hhRecording, false);
                 }
+                hhRecording.Id = hhRecordingId;
             }
             else // hh recording with the same key
             {
@@ -2825,7 +2827,7 @@ namespace Core.Recordings
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in HandleDomainQuotaByRecording, ex = {1}, ST = {2}", ex.Message, ex.StackTrace);
+                log.ErrorFormat("Error in EvacuateRecording, ex = {1}, ST = {2}", ex.Message, ex.StackTrace);
             }
 
             return result;
@@ -2889,14 +2891,11 @@ namespace Core.Recordings
                 RecordingInternalStatus.OK, RecordingInternalStatus.Waiting
             }.Select(s => s.ToString()).ToList();
 
-            var allHhRecordings =
-                _repository.GetAllHhRecordings(groupId, domainId, statuses,
-                    RecordingType.Single.ToString()); //TODO - make selection smaller?
+            var allHhRecordings = _repository.GetAllHhRecordings(groupId, domainId, statuses, RecordingType.Single.ToString()); //TODO - make selection smaller?
             if (allHhRecordings == null || allHhRecordings.Count < maxRecordingConcurrency)
                 return true;
 
-            var recordings =
-                GetRecordingByHouseholdRecording(groupId, allHhRecordings); //dont count default padding as overlap
+            var recordings = GetRecordingByHouseholdRecording(groupId, allHhRecordings); //dont count default padding as overlap
 
             // Based on margin & max reject if needed    
             var parallel = recordings.Select(dic => dic.Value)
@@ -2926,6 +2925,29 @@ namespace Core.Recordings
             //          (recordingEndDate < oldRecordingStartDate && recordingStartDate < oldRecordingStartDate));
 
             return overlap;
+        }
+
+        public long GetImportedRecordingMinimumRetentionPeriodSecondsValue(TimeShiftedTvPartnerSettings settings)
+        {
+            return settings.PersonalizedRecordingEnable == true ? _importedRecordingMinimumRetentionPeriodSecondsDefault : 0;
+        }
+
+        public DateTime GetViewableUntilDate(int groupId, DateTime endDate, TimeShiftedTvPartnerSettings accountSettings = null)
+        {
+            if (accountSettings == null)
+            {
+                accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+            }
+
+            //BEO-7188
+            if (accountSettings.RecordingLifetimePeriod.HasValue && accountSettings.RecordingLifetimePeriod.Value > 0)
+            {
+                return endDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
+            }
+            else
+            {
+                return endDate.AddSeconds(GetImportedRecordingMinimumRetentionPeriodSecondsValue(accountSettings));
+            }
         }
     }
 }

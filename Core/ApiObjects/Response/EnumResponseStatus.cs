@@ -206,6 +206,7 @@ namespace ApiObjects.Response
         CanOnlyCancelRecordingBeforeRecordingEnd = 3092,
         CanOnlyDeleteRecordingAfterRecordingEnd = 3093,
         RecordingExceededConcurrency = 3094,
+        ExceedingAllowedImmediateRecordingAttempts = 3095,
 
         #endregion
 
@@ -333,6 +334,11 @@ namespace ApiObjects.Response
         L2VMetadataClassifierIsNotValid = 4119,
         DynamicDataKeyDoesNotExist = 4120,
         DynamicDataKeyValueDoesNotExist = 4121,
+        LiveAssetToProgramAssetMismatch = 4122,
+        EpgStartDateToProgramAssetMismatch = 4123,
+        EpgEndDateToProgramAssetMismatch = 4124,
+        CridToProgramAssetMismatch = 4125,
+        CannotImportRecordingWithinCatchUpBuffer = 4126,
 
         #endregion
 
@@ -425,6 +431,7 @@ namespace ApiObjects.Response
         EntityIsNotAssociatedWithShop = 5095,
         EmbeddedPermissionRoleModificationNotAllowed = 5096,
         CannotDeleteSubRegionInUse = 5097,
+        PersonalizedRecordingDisabled = 5098,
 
         #endregion
 

@@ -418,6 +418,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{F4592A89-9E2
 		definition\assetHistory\api\api.json = definition\assetHistory\api\api.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "recording", "recording", "{E2A7DC9A-7972-4320-BBC2-B0D09BE0C0F8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{FE460359-A7B0-40EB-B1E0-E9A6147C86D8}"
+	ProjectSection(SolutionItems) = preProject
+		definition\recording\api\api.json = definition\recording\api\api.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -1318,9 +1325,11 @@ Global
 		{4EAFB142-92BB-445A-9CA7-09FD57F29B5D} = {F5456743-749F-40C3-802C-77888FA34B26}
 		{A873E13C-1FF5-48D4-A121-8E24118C6B1A} = {DE289223-380A-4698-9278-9B662B0CCCE4}
 		{F4592A89-9E28-4474-8D44-FEF8BE6AEEF9} = {A873E13C-1FF5-48D4-A121-8E24118C6B1A}
+		{E2A7DC9A-7972-4320-BBC2-B0D09BE0C0F8} = {DE289223-380A-4698-9278-9B662B0CCCE4}
+		{FE460359-A7B0-40EB-B1E0-E9A6147C86D8} = {E2A7DC9A-7972-4320-BBC2-B0D09BE0C0F8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal
