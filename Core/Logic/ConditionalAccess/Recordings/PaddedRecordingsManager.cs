@@ -1662,6 +1662,15 @@ namespace Core.Recordings
                     LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(partnerId, householdId));
             }
 
+            //BEO-14325
+            if (originalRecording.EndPadding != recording.EndPadding 
+                || originalRecording.StartPadding != recording.StartPadding 
+                || originalRecording.AbsoluteStartTime != recording.AbsoluteStartTime 
+                || originalRecording.AbsoluteEndTime != recording.AbsoluteEndTime)
+            {
+                recording.Duration = QuotaManager.GetRecordingDurationSeconds(partnerId, recording, false, householdId);
+            }
+            
             return recording;
         }
 
