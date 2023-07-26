@@ -114,7 +114,7 @@ namespace Core.Users
                 {
                     oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.Error;
                 }
-                // No change required, return OK 
+                // No change required, return OK
                 else if (nNewMasterID == nCurrentMasterID)
                 {
                     oDomainResponseObject.m_oDomainResponseStatus = DomainResponseStatus.OK;
@@ -239,7 +239,7 @@ namespace Core.Users
 
         public virtual DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType)
         {
-            Domain domain = DomainInitializer(m_nGroupID, nDomainID, false); // build the domain - without insert it to cache 
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID, false); // build the domain - without insert it to cache
 
             DomainResponseStatus eDomainResponseStatus;
             if (domain.m_DomainStatus != DomainStatus.OK)
@@ -274,7 +274,7 @@ namespace Core.Users
                 User masterUser = new User();
                 if (sendMail)
                 {
-                    // get domain master user details                    
+                    // get domain master user details
                     int userId = domain.m_masterGUIDs.FirstOrDefault();
                     masterUser = new User(m_nGroupID, userId);
 
@@ -605,7 +605,7 @@ namespace Core.Users
                 return resp;
             }
 
-            // insert the new domain to cache 
+            // insert the new domain to cache
             //DomainsCache oDomainCache = DomainsCache.Instance();
             //bool bInsert = oDomainCache.InsertDomain(domain);
 
@@ -780,7 +780,7 @@ namespace Core.Users
             }
             else
             {
-                // remove domain from cache 
+                // remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nGroupID, (int)lDomainID);
 
@@ -981,7 +981,7 @@ namespace Core.Users
             {
                 if (!roleId.HasValue)
                 {
-                    //get default sespend role id 
+                    //get default sespend role id
                     suspendDefaultRole = roles.Roles.FirstOrDefault(x => x.Profile == RoleProfileType.Profile && x.GroupId == 0);
                     if (suspendDefaultRole != null)
                     {
@@ -1005,7 +1005,7 @@ namespace Core.Users
             domain.shouldUpdateSuspendStatus = true;
             domain.nextSuspensionStatus = DomainSuspentionStatus.Suspended;
 
-            // get current domain.roleId ==> to update the users 
+            // get current domain.roleId ==> to update the users
             int? currentRoleId = domain.roleId;
 
             if (roleId.HasValue && roleId.Value > 0)
@@ -1029,7 +1029,7 @@ namespace Core.Users
             }
             else // get default roleId
             {
-                // get default role 
+                // get default role
                 if (suspendDefaultRole == null)
                 {
                     suspendDefaultRole = roles.Roles.FirstOrDefault(x => x.Profile == RoleProfileType.Profile && x.GroupId == 0);
@@ -1051,7 +1051,7 @@ namespace Core.Users
                 {
                     bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, domain.roleId.Value);
 
-                    // invalidate user roles 
+                    // invalidate user roles
                     domain.InvalidateDomainUsersRoles();
 
                     // check if this new roleId excluded renew subscription if so- insert messages to queue
@@ -1170,7 +1170,7 @@ namespace Core.Users
                 domain.InvalidateDomainUsersRoles();
 
                 result.Code = (int)eResponseStatus.OK;
-                // get all subscription in status suspended 
+                // get all subscription in status suspended
                 ResumeDomainSubscriptions(nDomainID);
             }
             else
@@ -1190,7 +1190,7 @@ namespace Core.Users
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     //create messages to queue as needed
-                    // get all regular subscription 
+                    // get all regular subscription
                     List<DataRow> drs = dt.AsEnumerable().Where(x => x.Field<long>("unified_process_id") == 0 && x.Field<DateTime>("end_date") < DateTime.UtcNow).ToList();
                     if (drs != null && drs.Count > 0)
                     {
@@ -1210,7 +1210,7 @@ namespace Core.Users
                             }
                         }
                     }
-                    // get all unified billing renews 
+                    // get all unified billing renews
                     drs = dt.AsEnumerable().Where(x => x.Field<long>("unified_process_id") > 0 && x.Field<DateTime>("unified_end_date") < DateTime.UtcNow).ToList();
                     Dictionary<string, List<DataRow>> renewUnifiedDict = drs.GroupBy(x => string.Format("{0}_{1}", x.Field<long>("unified_process_id"), x.Field<DateTime>("unified_end_date"))).ToDictionary(g => g.Key, g => g.ToList());
                     // enqueue unified renew transaction
@@ -1249,7 +1249,7 @@ namespace Core.Users
         /*
          * 07/04/2014
          * Initializing a domain in Eutelsat is different than in other customers.
-         * 
+         *
          */
         // protected abstract Domain DomainInitializer(int nGroupID, int nDomainID);
         protected abstract Domain DomainInitializer(int nGroupID, int nDomainID, bool bCache = true);
@@ -1269,7 +1269,7 @@ namespace Core.Users
         {
             bool isDeviceRecognized = false;
             deviceFamilyId = 0;
-    
+
             try
             {
                 if (domain != null)
@@ -1623,7 +1623,7 @@ namespace Core.Users
             try
             {
                 LimitationsManager oLimitationsManager = null;
-                // get Domain (with it current DLM) by domain ID 
+                // get Domain (with it current DLM) by domain ID
                 DomainsCache oDomainsCache = DomainsCache.Instance();
                 Domain domain = oDomainsCache.GetDomain(domainID, nGroupID);
                 if (domain != null)
@@ -1634,7 +1634,7 @@ namespace Core.Users
                     }
                     else
                     {
-                        // get the new DLM from cache 
+                        // get the new DLM from cache
                         bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager);
                         if (!bDLM || oLimitationsManager == null)
                         {
@@ -1660,7 +1660,7 @@ namespace Core.Users
                 oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return oChangeDLMObj;
             }
-        }        
+        }
 
         public GenericResponse<LimitationsManager> AddDLM(int groupId, LimitationsManager limitationsManager, long userId)
         {
@@ -1694,7 +1694,7 @@ namespace Core.Users
             {
                 LimitationsManager dlmObj;
                 DomainsCache oDomainsCache = DomainsCache.Instance();
-                // get the DLM from cache 
+                // get the DLM from cache
                 bool bDLM = oDomainsCache.GetDLM(nDlmID, nGroupID, out dlmObj);
                 if (bDLM && dlmObj != null)
                 {
@@ -1988,7 +1988,7 @@ namespace Core.Users
                     CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dtInsertedNetwork.Rows[0]["CREATE_DATE"])
                 };
 
-                // remove domain from cache 
+                // remove domain from cache
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nGroupID, (int)domainId);
 
@@ -2002,7 +2002,15 @@ namespace Core.Users
         {
             DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
-            if (domainID <= 0 || string.IsNullOrEmpty(dDevice.Udid))
+            if (domainID <= 0)
+            {
+                return new DeviceResponse
+                {
+                    Status = new ApiObjects.Response.Status(eResponseStatus.DomainNotExists, "Household does not exist")
+                };
+            }
+
+            if (string.IsNullOrEmpty(dDevice.Udid))
             {
                 return response;
             }
@@ -2070,10 +2078,10 @@ namespace Core.Users
 
         /*
          VerifyDRMDevice => verify that the DRM ID is bound to the specific UDID by specific policy
-         *  get 4 params : 
-         *  groupId , 
-         *  userId , 
-         *  udid (is not necessarily sent), 
+         *  get 4 params :
+         *  groupId ,
+         *  userId ,
+         *  udid (is not necessarily sent),
          *  drmId (is a unique ID per device - will check the uniqueness)
          *  1. In this scenario, a UDID is not necessarily sent in the verification request for a specific device brand. Therefore, the DRM ID shall be set on a random free device on the household.
          *  2. In this scenario, a UDID is assumed to always be sent => need to act by policy : free in specific family device/specific deviceUdid / free in household devices
@@ -2094,10 +2102,10 @@ namespace Core.Users
                 if (drmPolicy == null)
                 {
                     log.Error("fail to get drm policy at VerifyDRMDevice ");
-                    return false; // error 
+                    return false; // error
                 }
 
-                // when deviceUdid is empty drmPolicy.Policy can't be DeviceLevel              
+                // when deviceUdid is empty drmPolicy.Policy can't be DeviceLevel
                 if (string.IsNullOrEmpty(udid) && drmPolicy.Policy == DrmSecurityPolicy.DeviceLevel)
                 {
                     return false;
@@ -2108,7 +2116,7 @@ namespace Core.Users
                 if (domain == null || domain.m_deviceFamilies == null || domain.m_deviceFamilies.Count == 0)
                 {
                     log.ErrorFormat("fail to get GetDomainByUser or m_deviceFamilies empty VerifyDRMDevice groupId={0}, userId={1}", m_nGroupID, userId);
-                    return false; // error 
+                    return false; // error
                 }
                 //check the uniqueness of drmID
                 KeyValuePair<int, string> drmValue = new KeyValuePair<int, string>();
@@ -2120,7 +2128,7 @@ namespace Core.Users
                 else if (drmValue.Key == domain.m_nDomainID && drmValue.Value == udid && !string.IsNullOrEmpty(udid))
                 {
                     return true;
-                }// else - drmId unique in domain or not exsits at all continue 
+                }// else - drmId unique in domain or not exsits at all continue
 
 
                 if (!string.IsNullOrEmpty(udid))
@@ -2130,7 +2138,7 @@ namespace Core.Users
                     if (deviceContainer == null || deviceContainer.DeviceInstances == null || deviceContainer.DeviceInstances.Count == 0)
                     {
                         log.ErrorFormat("udid not exsits in Domain devices list groupId={0}, userId={1}, udid ={2}", m_nGroupID, userId, udid);
-                        return false; // error 
+                        return false; // error
                     }
 
                     device = deviceContainer.DeviceInstances.FirstOrDefault(x => x.m_deviceUDID == udid); // get specific device by udid
@@ -2138,13 +2146,13 @@ namespace Core.Users
                     // check that device family in the Family policy roles
                     if (drmPolicy.FamilyLimitation.Contains(deviceContainer.m_deviceFamilyID))
                     {
-                        // get domainDrmId by deviceIds list 
+                        // get domainDrmId by deviceIds list
                         deviceIds = deviceContainer.DeviceInstances.Select(d => int.Parse(d.m_id)).ToList<int>();
                         domainDrmId = Utils.GetDomainDrmId(m_nGroupID, domain.m_nDomainID, deviceIds);
                         if (domainDrmId.Count == 0)
                         {
                             log.ErrorFormat("fail GetDomainDrmId groupId={0}, domainId={1}", m_nGroupID, domain.m_nDomainID);
-                            return false; // error 
+                            return false; // error
                         }
                         if (domainDrmId.Count(x => x.Value == drmId) > 0)
                         {
@@ -2158,7 +2166,7 @@ namespace Core.Users
                         {
                             return false;
                         }
-                        // get all devices with empty drmId 
+                        // get all devices with empty drmId
                         domainDrmId = domainDrmId.Where(x => string.IsNullOrEmpty(x.Value)).ToDictionary(x => x.Key, x => x.Value);
                         if (domainDrmId != null && domainDrmId.Count > 0)
                         {
@@ -2313,7 +2321,7 @@ namespace Core.Users
                 return response;
             }
 
-            // delete pin from DB - for single login 
+            // delete pin from DB - for single login
             if (!DomainDal.SetDevicePinToNull(groupId, udid, pin))
             {
                 log.ErrorFormat("Failed to delete pin for device after successful login. udid = {0}, pin = {1}", udid, pin);
