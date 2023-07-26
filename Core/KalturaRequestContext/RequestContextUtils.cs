@@ -9,7 +9,7 @@ namespace KalturaRequestContext
 
         public string GetRequestId() => GetValueOrDefault<object>(RequestContextConstants.SESSION_ID_KEY)?.ToString()
                                         ?? GetValueOrDefault<object>(RequestContextConstants.REQUEST_ID_KEY)?.ToString();
-        
+
         public long? GetPartnerId()
         {
             if (GetRequestContextValue(RequestContextConstants.REQUEST_GROUP_ID, out object partnerIdObject)
@@ -113,6 +113,11 @@ namespace KalturaRequestContext
         private void RemoveValue(string key)
         {
             System.Web.HttpContext.Current.Items.Remove(key);
+        }
+
+        public bool TryGetRecordingConvertId(out long programId)
+        {
+            return GetRequestContextValue(RequestContextConstants.RECORDING_CONVERT_KEY, out programId);
         }
     }
 }

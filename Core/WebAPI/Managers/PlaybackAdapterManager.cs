@@ -2,6 +2,7 @@
 using Phx.Lib.Log;
 using System.Reflection;
 using System.Web;
+using KalturaRequestContext;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
@@ -20,15 +21,7 @@ namespace WebAPI.Utils
             string id = assetId;
             if (assetType == KalturaAssetType.recording)
             {
-                if (HttpContext.Current != null && HttpContext.Current.Items[Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY] != null)
-                {
-                    id = HttpContext.Current.Items[Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY].ToString();
-                }
-                else
-                {
-                    log.ErrorFormat("Error trying to convert recording assetId {0} to epgId from httpContext key {1}",
-                                        assetId, Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY);
-                }
+                TryConvertRecordingAssetIdFromContext(ref id);
             }
 
             KalturaAssetRuleFilter filter = new KalturaAssetRuleFilter()
@@ -64,7 +57,7 @@ namespace WebAPI.Utils
 
             if (adapterId == 0)
             {
-                // Get default adapter configuration 
+                // Get default adapter configuration
                 var defaultConfig = PartnerConfigurationManager.GetPlaybackConfig(groupId);
                 if (defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultAdapters != null)
                 {
@@ -93,15 +86,7 @@ namespace WebAPI.Utils
             string id = assetId;
             if (assetType == KalturaAssetType.recording)
             {
-                if (HttpContext.Current != null && HttpContext.Current.Items[Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY] != null)
-                {
-                    id = HttpContext.Current.Items[Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY].ToString();
-                }
-                else
-                {
-                    log.ErrorFormat("Error trying to convert recording assetId {0} to epgId from httpContext key {1}",
-                                        assetId, Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY);
-                }
+                TryConvertRecordingAssetIdFromContext(ref id);
             }
 
             KalturaAssetRuleFilter filter = new KalturaAssetRuleFilter()
@@ -182,6 +167,19 @@ namespace WebAPI.Utils
             }
 
             return adapterId;
+        }
+
+        private static void TryConvertRecordingAssetIdFromContext(ref string assetId)
+        {
+            if (RequestContextUtilsInstance.Get().TryGetRecordingConvertId(out var id))
+            {
+                assetId = id.ToString();
+            }
+            else
+            {
+                log.ErrorFormat("Error trying to convert recording assetId {0} to epgId from httpContext key {1}",
+                    assetId, RequestContextConstants.RECORDING_CONVERT_KEY);
+            }
         }
     }
 }
