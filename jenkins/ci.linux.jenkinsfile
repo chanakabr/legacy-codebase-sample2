@@ -318,9 +318,6 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     echo "BRANCH_NAME: ${BRANCH_NAME}"
 
     def tags_str = "-t ${ECR_REPOSITORY}:build  -t ${ECR_REPOSITORY}:${GIT_COMMIT} -t ${ECR_REPOSITORY}:${FULL_VERSION} "
-    if (ci.is_building_tag()){
-        tags_str += "-t ${ECR_REPOSITORY}:${BRANCH_NAME} "
-    }
 
     sh(
         label: "Docker build ${REPOSITORY_NAME}", 
@@ -358,10 +355,7 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
     sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:${GIT_COMMIT} || true")
     sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${FULL_VERSION}")
     sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:${FULL_VERSION} || true")
-    if (ci.is_building_tag()){
-        sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${BRANCH_NAME}")
-        sh(label: "Remove Image", script: "docker rmi -f ${ECR_REPOSITORY}:${BRANCH_NAME} || true")
-    }
+
     echo "Docker build image: ${ECR_REPOSITORY}:${FULL_VERSION}"
 }
 
