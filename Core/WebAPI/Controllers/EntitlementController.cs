@@ -351,7 +351,6 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("productId", MinInteger = 1)]
         [Throws(eResponseStatus.UserNotInDomain)]
-        [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UnableToPurchasePPVPurchased)]
         [Throws(eResponseStatus.UnableToPurchaseFree)]
