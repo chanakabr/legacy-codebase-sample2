@@ -5020,8 +5020,12 @@ namespace WebAPI.Reflection
                 case "KalturaLineupChannelAssetListResponse":
                     switch(property.Name)
                     {
+                        case "LineupExternalId":
+                            return "lineupExternalId";
                         case "Objects":
                             return "objects";
+                        case "ParentLineupExternalId":
+                            return "parentLineupExternalId";
                     }
                     break;
                     

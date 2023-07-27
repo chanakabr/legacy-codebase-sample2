@@ -54,7 +54,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             _logger = logger;
         }
 
-        public GenericListResponse<LineupChannelAsset> GetLineupChannelAssets(long groupId, long regionId,
+        public GenericResponse<LineupChannelAssetResponse> GetLineupChannelAssets(long groupId, long regionId,
             UserSearchContext searchContext, int pageIndex, int pageSize)
         {
             if (regionId == -1 || regionId == 0)
@@ -151,7 +151,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 userSearchContext);
         }
 
-        private GenericListResponse<LineupChannelAsset> GetRegionLineup(long groupId, long regionId,
+        private GenericResponse<LineupChannelAssetResponse> GetRegionLineup(long groupId, long regionId,
             UserSearchContext userSearchContext, int pageIndex, int pageSize)
         {
             var regionResponse = _regionManager.GetRegion(groupId, regionId);
@@ -160,31 +160,47 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 _logger.Error(
                     $"{nameof(IRegionManager.GetRegion)} with parameters groupId:{groupId}, id:{regionId} completed with status {{{regionResponse.ToStringStatus()}}}.");
 
-                return new GenericListResponse<LineupChannelAsset>(regionResponse.Status, null);
+                return new GenericResponse<LineupChannelAssetResponse>(regionResponse.Status, null);
+            }
+
+            var region = regionResponse.Object;
+            Region parentRegion = null;
+            if (region.parentId > 0)
+            {
+                var parentRegionResponse = _regionManager.GetRegion(groupId, region.parentId);
+                if (!regionResponse.IsOkStatusCode())
+                {
+                    _logger.Warn(
+                        $"{nameof(IRegionManager.GetRegion)} with parameters groupId:{groupId}, id:{regionId} completed with status {{{regionResponse.ToStringStatus()}}}.");
+                }
+                else
+                {
+                    parentRegion = parentRegionResponse.Object;
+                }
             }
 
             var builder = new UnifiedSearchRequestBuilder(_filterAsset);
-            var searchResponse = SearchAssets(groupId, builder, userSearchContext, regionResponse.Object.linearChannels);
+            var searchResponse = SearchAssets(groupId, builder, userSearchContext, region.linearChannels);
             // Get all linear channels
             if (!searchResponse.IsOkStatusCode())
             {
-                return new GenericListResponse<LineupChannelAsset>(searchResponse.Status, null);
+                return new GenericResponse<LineupChannelAssetResponse>(searchResponse.Status, null);
             }
 
             // Get all pairs <linear_channel_id, lcn> ordered by LCN
             var linearChannelIds = searchResponse.Object.searchResults
                 .Select(x => long.Parse(x.AssetId))
                 .ToHashSet();
-            var allLinearChannelLcn = regionResponse.Object.linearChannels
+            var allLinearChannelLcn = region.linearChannels
                 .Where(x => linearChannelIds.Contains(x.Key))
                 .OrderBy(x => x.Value)
                 .ToArray();
 
             // Apply paging and map result
-            return MapResponse(allLinearChannelLcn, groupId, pageIndex, pageSize, userSearchContext);
+            return MapResponse(allLinearChannelLcn, groupId, pageIndex, pageSize, userSearchContext, region, parentRegion);
         }
 
-        private GenericListResponse<LineupChannelAsset> GetNonRegionLineup(long groupId, UserSearchContext userSearchContext, int pageIndex, int pageSize)
+        private GenericResponse<LineupChannelAssetResponse> GetNonRegionLineup(long groupId, UserSearchContext userSearchContext, int pageIndex, int pageSize)
         {
             var builder = new UnifiedSearchRequestBuilder(_filterAsset)
                 .WithPageIndex(pageIndex)
@@ -193,7 +209,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             var searchResponse = SearchAssets(groupId, builder, userSearchContext, Array.Empty<KeyValuePair<long, int>>());
             if (!searchResponse.IsOkStatusCode())
             {
-                return new GenericListResponse<LineupChannelAsset>(searchResponse.Status, null);
+                return new GenericResponse<LineupChannelAssetResponse>(searchResponse.Status, null);
             }
 
             var pagedLinearChannelIds = searchResponse.Object.searchResults
@@ -211,8 +227,12 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 .Select(x => new LineupChannelAsset(linearChannels[x], null))
                 .ToList();
 
-            return new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLineupChannelAssets,
-                searchResponse.Object.m_nTotalItems);
+            return new GenericResponse<LineupChannelAssetResponse>(Status.Ok,
+                new LineupChannelAssetResponse
+                {
+                    LineupChannelAssets = pagedLineupChannelAssets,
+                    TotalCount = searchResponse.Object.m_nTotalItems
+                });
         }
 
         private GenericResponse<UnifiedSearchResponse> SearchAssets(
@@ -317,6 +337,26 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
                 .ToList();
 
             return new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLineupChannelAssets, orderedLinearChannelLcn.Length);
+        }
+
+        private GenericResponse<LineupChannelAssetResponse> MapResponse(
+            KeyValuePair<long, int>[] orderedLinearChannelLcn,
+            long partnerId,
+            int pageIndex,
+            int pageSize,
+            UserSearchContext searchContext,
+            Region region,
+            Region parentRegion)
+        {
+            var response = MapResponse(orderedLinearChannelLcn, partnerId, pageIndex, pageSize, searchContext);
+            return new GenericResponse<LineupChannelAssetResponse>(Status.Ok,
+                new LineupChannelAssetResponse
+                {
+                    LineupChannelAssets = response.Objects,
+                    LineupExternalId = region?.externalId,
+                    ParentLineupExternalId = parentRegion?.externalId,
+                    TotalCount = response.TotalItems
+                });
         }
 
         public Status SendUpdatedNotification(long groupId, string userId, List<long> regionIds)

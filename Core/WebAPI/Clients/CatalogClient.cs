@@ -4153,10 +4153,11 @@ namespace WebAPI.Clients
 
         internal KalturaLineupChannelAssetListResponse GetLineup(long groupId, long regionId, UserSearchContext searchContext, int pageIndex, int pageSize)
         {
-            Func<GenericListResponse<LineupChannelAsset>> getLineupAssets = () => LineupService.Instance.GetLineupChannelAssets(groupId, regionId, searchContext, pageIndex, pageSize);
-            var assets = ClientUtils.GetResponseListFromWS<KalturaLineupChannelAsset, LineupChannelAsset>(getLineupAssets);
+            Func<GenericResponse<LineupChannelAssetResponse>> getLineupAssets = () => LineupService.Instance.GetLineupChannelAssets(groupId, regionId, searchContext, pageIndex, pageSize);
 
-            var result = new KalturaLineupChannelAssetListResponse(assets.Objects, assets.TotalCount);
+            var response = ClientUtils.GetResponseFromWS<KalturaLineupChannelAssetListResponse, LineupChannelAssetResponse>(getLineupAssets);
+
+            var result = new KalturaLineupChannelAssetListResponse(response);
 
             return result;
         }
