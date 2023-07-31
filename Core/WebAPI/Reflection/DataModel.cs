@@ -9573,11 +9573,13 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaVodIngestAssetResultListResponse":
+                case "KalturaVodIngestAssetResultList":
                     switch(property.Name)
                     {
                         case "Objects":
                             return "objects";
+                        case "TotalCount":
+                            return "totalCount";
                     }
                     break;
                     

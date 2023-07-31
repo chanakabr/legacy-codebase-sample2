@@ -2749,8 +2749,8 @@ namespace WebAPI.Reflection
                 case "KalturaVodIngestAssetResultFilter":
                     return new KalturaVodIngestAssetResultFilter(parameters, true);
                     
-                case "KalturaVodIngestAssetResultListResponse":
-                    return new KalturaVodIngestAssetResultListResponse(parameters, true);
+                case "KalturaVodIngestAssetResultList":
+                    return new KalturaVodIngestAssetResultList(parameters, true);
                     
                 case "KalturaVodIngestAssetResultResponse":
                     return new KalturaVodIngestAssetResultResponse(parameters, true);
@@ -18366,9 +18366,9 @@ namespace WebAPI.Models.IngestStatus
             }
         }
     }
-    public partial class KalturaVodIngestAssetResultListResponse
+    public partial class KalturaVodIngestAssetResultList
     {
-        public KalturaVodIngestAssetResultListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
+        public KalturaVodIngestAssetResultList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
             {
@@ -18383,6 +18383,10 @@ namespace WebAPI.Models.IngestStatus
                         Objects = OTTObjectBuilder.buildList(typeof(KalturaVodIngestAssetResult), parameters["objects"] as object[]);
                     }
                 }
+                if (parameters.ContainsKey("totalCount") && parameters["totalCount"] != null)
+                {
+                    TotalCount = (Int32) Convert.ChangeType(parameters["totalCount"], typeof(Int32));
+                }
             }
         }
     }
@@ -18396,11 +18400,11 @@ namespace WebAPI.Models.IngestStatus
                 {
                     if (parameters["result"] is JObject)
                     {
-                        Result = (KalturaVodIngestAssetResultListResponse) Deserializer.deserialize(typeof(KalturaVodIngestAssetResultListResponse), ((JObject) parameters["result"]).ToObject<Dictionary<string, object>>());
+                        Result = (KalturaVodIngestAssetResultList) Deserializer.deserialize(typeof(KalturaVodIngestAssetResultList), ((JObject) parameters["result"]).ToObject<Dictionary<string, object>>());
                     }
                     else if (parameters["result"] is IDictionary)
                     {
-                        Result = (KalturaVodIngestAssetResultListResponse) Deserializer.deserialize(typeof(KalturaVodIngestAssetResultListResponse), (Dictionary<string, object>) parameters["result"]);
+                        Result = (KalturaVodIngestAssetResultList) Deserializer.deserialize(typeof(KalturaVodIngestAssetResultList), (Dictionary<string, object>) parameters["result"]);
                     }
                 }
                 if (parameters.ContainsKey("aggregations") && parameters["aggregations"] != null)
