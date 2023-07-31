@@ -105,11 +105,10 @@ namespace ApiLogic.Api.Managers
 
         private Status AllExists<T>(IEnumerable<T> idsToCheck, Dictionary<T, long?> exisitingIds, string objectName, eResponseStatus errorStatus, long? assetUserRuleId, bool mustToBeInShop)
         {
-            var nonExistingIds = idsToCheck.Where(x => !exisitingIds.ContainsKey(x));
-            if (nonExistingIds.Any())
-            {
-                new Status(errorStatus, $"{objectName} ids {string.Join(", ", nonExistingIds)} does not exist");
-            }
+            var nonExistingIds = idsToCheck.Where(x => !exisitingIds.ContainsKey(x)).ToList();
+            
+            if (nonExistingIds.Count > 0)
+                return new Status(errorStatus, $"{objectName} ids {string.Join(", ", nonExistingIds)} does not exist");
                 
             if (assetUserRuleId.HasValue)
             {
@@ -122,11 +121,11 @@ namespace ApiLogic.Api.Managers
                 {
                     notInShopIds = exisitingIds.Where(x => x.Value.HasValue && x.Value.Value != assetUserRuleId.Value).Select(x => x.Key);
                 }
-                
-                if (notInShopIds.Any())
-                {
-                    return new Status(eResponseStatus.EntityIsNotAssociatedWithShop, $"{objectName} ids {string.Join(",", notInShopIds)} is not associated with shop [{assetUserRuleId}].");
-                }
+
+                var _notInShopIds = notInShopIds.ToList();
+
+                if (_notInShopIds.Count > 0)
+                    return new Status(eResponseStatus.EntityIsNotAssociatedWithShop, $"{objectName} ids {string.Join(",", _notInShopIds)} is not associated with shop [{assetUserRuleId}].");
             }
 
             return Status.Ok;
