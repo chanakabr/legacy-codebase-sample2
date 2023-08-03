@@ -709,6 +709,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<LiveAsset, KalturaLiveAsset>()
                 .ForMember(dest => dest.LinearChannelNumber, opt => opt.MapFrom(src => src.LinearChannelNumber));
 
+            cfg.CreateMap<LineupChannelAssetResponse, KalturaLineupChannelAssetListResponse>()
+                .ForMember(dest => dest.Objects, opt => opt.MapFrom(src => src.LineupChannelAssets))
+                .ForMember(dest => dest.LineupExternalId, opt => opt.MapFrom(src => src.LineupExternalId))
+                .ForMember(dest => dest.ParentLineupExternalId, opt => opt.MapFrom(src => src.ParentLineupExternalId))
+                .ForMember(dest => dest.TotalCount, opt => opt.MapFrom(src => src.TotalCount));
+
             cfg.CreateMap<EpgAsset, KalturaProgramAsset>()
                 .IncludeBase<Asset, KalturaAsset>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))

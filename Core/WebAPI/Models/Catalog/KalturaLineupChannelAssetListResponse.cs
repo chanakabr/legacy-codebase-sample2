@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -18,10 +19,34 @@ namespace WebAPI.Models.Catalog
         [XmlArrayItem("item")]
         public List<KalturaLineupChannelAsset> Objects { get; set; }
 
-        public KalturaLineupChannelAssetListResponse(IEnumerable<KalturaLineupChannelAsset> channelAssets, int totalCount)
+        /// <summary>
+        /// Lineup External Id
+        /// </summary>
+        [DataMember(Name = "lineupExternalId")]
+        [JsonProperty("lineupExternalId")]
+        [XmlElement(ElementName = "lineupExternalId", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public string LineupExternalId { get; set; }
+
+        /// <summary>
+        /// Parent Lineup External Id
+        /// </summary>
+        [DataMember(Name = "parentLineupExternalId")]
+        [JsonProperty("parentLineupExternalId")]
+        [XmlElement(ElementName = "parentLineupExternalId", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public string ParentLineupExternalId { get; set; }
+
+        public KalturaLineupChannelAssetListResponse()
         {
-            Objects = channelAssets.ToList();
-            TotalCount = totalCount;
+        }
+
+        public KalturaLineupChannelAssetListResponse(KalturaLineupChannelAssetListResponse response)
+        {
+            Objects = response.Objects;
+            TotalCount = response.TotalCount;
+            LineupExternalId = response.LineupExternalId;
+            ParentLineupExternalId = response.ParentLineupExternalId;
         }
     }
 }

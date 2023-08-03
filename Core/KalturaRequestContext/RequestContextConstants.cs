@@ -39,5 +39,7 @@ namespace KalturaRequestContext
         public const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
 
         public const string REQUEST_IMPERSONATE = "impersonate";
+
+        public const string RECORDING_CONVERT_KEY = "GetPlaybackContextAssetConvert";
     }
 }

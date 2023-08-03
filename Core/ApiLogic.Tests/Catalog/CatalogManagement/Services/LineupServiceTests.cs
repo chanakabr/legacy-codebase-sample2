@@ -66,7 +66,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             result.Should().NotBeNull();
             result.Status.Should().Be(new Status(2, "Custom Region Error"));
-            result.Objects.Should().BeNull();
+            result.Object.Should().BeNull();
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             result.Should().NotBeNull();
             result.Status.Should().Be(Status.Error);
-            result.Objects.Should().BeNull();
+            result.Object.Should().BeNull();
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             result.Should().NotBeNull();
             result.Status.Should().Be(new Status(3, "Custom Search Error"));
-            result.Objects.Should().BeNull();
+            result.Object.Should().BeNull();
         }
 
         [Test]
@@ -147,14 +147,14 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             result.Should().NotBeNull();
             result.Status.Should().Be(Status.Ok);
-            result.Objects.Should().NotBeEmpty();
-            result.Objects[0].Id.Should().Be(101);
-            result.Objects[0].LinearChannelNumber.Should().Be(4);
-            result.Objects[1].Id.Should().Be(103);
-            result.Objects[1].LinearChannelNumber.Should().Be(7);
-            result.Objects[2].Id.Should().Be(101);
-            result.Objects[2].LinearChannelNumber.Should().Be(8);
-            result.TotalItems.Should().Be(8);
+            result.Object.LineupChannelAssets.Should().NotBeEmpty();
+            result.Object.LineupChannelAssets[0].Id.Should().Be(101);
+            result.Object.LineupChannelAssets[0].LinearChannelNumber.Should().Be(4);
+            result.Object.LineupChannelAssets[1].Id.Should().Be(103);
+            result.Object.LineupChannelAssets[1].LinearChannelNumber.Should().Be(7);
+            result.Object.LineupChannelAssets[2].Id.Should().Be(101);
+            result.Object.LineupChannelAssets[2].LinearChannelNumber.Should().Be(8);
+            result.Object.TotalCount.Should().Be(8);
         }
 
         [Test]
@@ -388,7 +388,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             result.Should().NotBeNull();
             result.Status.Should().Be(Status.Error);
-            result.Objects.Should().BeNull();
+            result.Object.Should().BeNull();
         }
 
         [TestCase(0)]
@@ -419,7 +419,7 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             result.Should().NotBeNull();
             result.Status.Should().Be(new Status(3, "Custom Search Error"));
-            result.Objects.Should().BeNull();
+            result.Object.Should().BeNull();
         }
 
         [TestCase(0)]
@@ -456,14 +456,14 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             result.Should().NotBeNull();
             result.Status.Should().Be(Status.Ok);
-            result.Objects.Should().NotBeEmpty();
-            result.Objects[0].Id.Should().Be(103);
-            result.Objects[0].LinearChannelNumber.Should().BeNull();
-            result.Objects[1].Id.Should().Be(106);
-            result.Objects[1].LinearChannelNumber.Should().BeNull();
-            result.Objects[2].Id.Should().Be(108);
-            result.Objects[2].LinearChannelNumber.Should().BeNull();
-            result.TotalItems.Should().Be(8);
+            result.Object.LineupChannelAssets.Should().NotBeEmpty();
+            result.Object.LineupChannelAssets[0].Id.Should().Be(103);
+            result.Object.LineupChannelAssets[0].LinearChannelNumber.Should().BeNull();
+            result.Object.LineupChannelAssets[1].Id.Should().Be(106);
+            result.Object.LineupChannelAssets[1].LinearChannelNumber.Should().BeNull();
+            result.Object.LineupChannelAssets[2].Id.Should().Be(108);
+            result.Object.LineupChannelAssets[2].LinearChannelNumber.Should().BeNull();
+            result.Object.TotalCount.Should().Be(8);
         }
 
         [TestCase(0)]
@@ -501,14 +501,14 @@ namespace ApiLogic.Tests.Catalog.CatalogManagement.Services
 
             result.Should().NotBeNull();
             result.Status.Should().Be(Status.Ok);
-            result.Objects.Should().NotBeEmpty();
-            result.Objects[0].Id.Should().Be(101);
-            result.Objects[0].LinearChannelNumber.Should().Be(4);
-            result.Objects[1].Id.Should().Be(103);
-            result.Objects[1].LinearChannelNumber.Should().Be(7);
-            result.Objects[2].Id.Should().Be(101);
-            result.Objects[2].LinearChannelNumber.Should().Be(8);
-            result.TotalItems.Should().Be(8);
+            result.Object.LineupChannelAssets.Should().NotBeEmpty();
+            result.Object.LineupChannelAssets[0].Id.Should().Be(101);
+            result.Object.LineupChannelAssets[0].LinearChannelNumber.Should().Be(4);
+            result.Object.LineupChannelAssets[1].Id.Should().Be(103);
+            result.Object.LineupChannelAssets[1].LinearChannelNumber.Should().Be(7);
+            result.Object.LineupChannelAssets[2].Id.Should().Be(101);
+            result.Object.LineupChannelAssets[2].LinearChannelNumber.Should().Be(8);
+            result.Object.TotalCount.Should().Be(8);
         }
 
         private UserSearchContext GetUserSearchContext()

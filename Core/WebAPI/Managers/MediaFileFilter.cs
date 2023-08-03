@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Web;
 using ApiLogic.Api.Managers;
 using ApiLogic.Api.Managers.Rule;
 using ApiObjects;
@@ -10,6 +11,7 @@ using AutoMapper;
 using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
+using KalturaRequestContext;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.ObjectsConvertor.Mapping;
@@ -86,9 +88,15 @@ namespace WebAPI.Managers
             var type = AssetTypeMapper.ToEAssetType(assetType);
             var lazyAsset = new Lazy<FilterMediaFileAsset>(() =>
             {
+                var assetToGet =
+                    type == eAssetTypes.NPVR &&
+                    RequestContextUtilsInstance.Get().TryGetRecordingConvertId(out var programId)
+                        ? new KeyValuePair<eAssetTypes, long>(eAssetTypes.EPG, programId)
+                        : new KeyValuePair<eAssetTypes, long>(type, assetId);
+
                 var asset = _assetManager.GetAssets(
                     groupId,
-                    new[] { new KeyValuePair<eAssetTypes, long>(type, assetId) },
+                    new[] { assetToGet },
                     true).Single();
                 return Map(asset);
             });

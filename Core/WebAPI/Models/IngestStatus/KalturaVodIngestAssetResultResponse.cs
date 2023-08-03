@@ -14,7 +14,7 @@ namespace WebAPI.Models.IngestStatus
         [DataMember(Name = "result")]
         [JsonProperty("result")]
         [XmlElement(ElementName = "result")]
-        public KalturaVodIngestAssetResultListResponse Result { get; set; }
+        public KalturaVodIngestAssetResultList Result { get; set; }
 
         /// <summary>
         /// Aggregated counters

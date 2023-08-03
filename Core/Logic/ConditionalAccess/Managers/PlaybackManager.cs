@@ -29,6 +29,7 @@ using MoreLinq;
 using TVinciShared;
 using ApiObjects.MediaMarks;
 using ApiLogic.Api.Managers;
+using KalturaRequestContext;
 
 namespace Core.ConditionalAccess
 {
@@ -36,7 +37,6 @@ namespace Core.ConditionalAccess
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public const string RECORDING_CONVERT_KEY = "GetPlaybackContextAssetConvert";
         public const string PROGRAM_ID_KEY = "PROGRAM_ID";
 
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType,
@@ -49,7 +49,7 @@ namespace Core.ConditionalAccess
             };
 
             playbackContextOut = new PlaybackContextOut();
-            BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value 
+            BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value
 
             try
             {
@@ -58,7 +58,7 @@ namespace Core.ConditionalAccess
 
                 if (assetType == eAssetTypes.MEDIA && validationStatus.Code == (int)eResponseStatus.UserSuspended)
                 {
-                    // check permissions                     
+                    // check permissions
                     bool permittedPpv = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_PPV);
                     bool permittedSubscription = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
 
@@ -80,7 +80,7 @@ namespace Core.ConditionalAccess
                 {
                     if (validationStatus.Code == (int)eResponseStatus.UserSuspended || validationStatus.Code == (int)eResponseStatus.OK)
                     {
-                        // check permissions                     
+                        // check permissions
                         bool permittedEpg = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_EPG);
                         bool permittedRecording = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_RECORDING);
                         if ((assetType == eAssetTypes.NPVR && !permittedRecording) || (assetType == eAssetTypes.EPG && !permittedEpg))
@@ -207,12 +207,12 @@ namespace Core.ConditionalAccess
                     {
                         if (System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Items != null)
                         {
-                            System.Web.HttpContext.Current.Items[RECORDING_CONVERT_KEY] = recording.EpgId;
+                            System.Web.HttpContext.Current.Items[RequestContextConstants.RECORDING_CONVERT_KEY] = recording.EpgId;
                         }
                         else
                         {
                             log.ErrorFormat("Error when trying to save epgId in httpContext key {0} for GetPlaybackContext on recording assetId {1}",
-                                                Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY, assetId);
+                                                RequestContextConstants.RECORDING_CONVERT_KEY, assetId);
                         }
 
                         assetsToCheck = new List<SlimAsset>() { new SlimAsset(recording.EpgId, recording.Id > 0 ? eAssetTypes.NPVR : eAssetTypes.EPG) };
@@ -266,7 +266,7 @@ namespace Core.ConditionalAccess
                             {
                                 AdsControlData adsData = null;
 
-                                // check permitted role 
+                                // check permitted role
                                 PriceReason priceReason = PriceReason.PPVPurchased;
 
                                 if (!isSuspended && price.m_oItemPrices?.First()?.m_PriceReason == PriceReason.UserSuspended)
@@ -324,7 +324,7 @@ namespace Core.ConditionalAccess
                         !assetFileIdsAds.ContainsKey(x.Id)).ToList();
                     var hasFilesNotFromPago = assetFileIdsAds.Count > 0;
 
-                    //Make sure we're not checking pago in case of purchased by different entitlement/free asset 
+                    //Make sure we're not checking pago in case of purchased by different entitlement/free asset
                     if (!hasFilesNotFromPago)
                     {
                         playbackContextOut.PagoProgramAvailability = Utils.GetEntitledPagoWindow(groupId,
@@ -535,7 +535,7 @@ namespace Core.ConditionalAccess
                 if (assetType != eAssetTypes.MEDIA)
                 {
                     Utils.ValidateDomain(groupId, (int)domainId, out Domain domain);
-                    response.Status = Utils.GetMediaIdForAsset(groupId, assetIdString, assetType, 
+                    response.Status = Utils.GetMediaIdForAsset(groupId, assetIdString, assetType,
                         userId, domain, udid, out mediaId, out var recording, out _);
 
                     if (assetType == eAssetTypes.NPVR)
@@ -601,7 +601,7 @@ namespace Core.ConditionalAccess
                 groupId, new int[] { (int)mediaFileId });
 
             // if we successfully got the modules CONTAINERS for this file - but there is no module assigned to this file, it's free
-            if (modules != null && modules.Length > 0 && 
+            if (modules != null && modules.Length > 0 &&
                 (modules[0].m_oPPVModules == null || modules[0].m_oPPVModules.Length == 0))
             {
                 isFree = true;
@@ -610,8 +610,8 @@ namespace Core.ConditionalAccess
             return isFree;
         }
 
-        public static ConcurrencyResponse CheckConcurrencyForBooking(int groupId, 
-            string udid, string userIdString, int assetId, int domainId, long programId, 
+        public static ConcurrencyResponse CheckConcurrencyForBooking(int groupId,
+            string udid, string userIdString, int assetId, int domainId, long programId,
             ePlayType playType, bool isFree, string npvrId = "")
         {
             ConcurrencyResponse concurrencyResponse = new ConcurrencyResponse();
@@ -625,7 +625,7 @@ namespace Core.ConditionalAccess
                 playType = playType.ToString(),
                 NpvrId = npvrId,
                 IsFree = isFree,
-                // the Playback Service shall set the Timestamp and CreatedAt fields 
+                // the Playback Service shall set the Timestamp and CreatedAt fields
                 // of the DevicePlay document to the current system time
                 TimeStamp = DateUtils.GetUtcUnixTimestampNow(),
                 CreatedAt = DateUtils.GetUtcUnixTimestampNow(),
@@ -700,7 +700,7 @@ namespace Core.ConditionalAccess
             var altUrlAdapterResponse = string.IsNullOrEmpty(file.AltUrl)
                 ? null
                 : RetrievePlayManifestAdapterResponse(cas, groupId, userId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording, true);
-            
+
             return (urlAdapterResponse, altUrlAdapterResponse);
         }
 
@@ -739,7 +739,7 @@ namespace Core.ConditionalAccess
             return playManifestResponse;
         }
 
-        public static void HandlePlayUsesAndDevicePlayData(BaseConditionalAccess cas, string userId, long domainId, int fileId, string ip, string udid, 
+        public static void HandlePlayUsesAndDevicePlayData(BaseConditionalAccess cas, string userId, long domainId, int fileId, string ip, string udid,
             PlaybackContextOut playbackContextOutContainer, ApiObjects.MediaMarks.DevicePlayData devicePlayData, bool isLive)
         {
             var filePrice = playbackContextOutContainer.MediaFileItemPrices;
@@ -760,7 +760,7 @@ namespace Core.ConditionalAccess
                             null, isLive));
                 }
                 // item must be free otherwise we wouldn't get this far
-                else if(filePrice?.m_oItemPrices?.Length > 0) 
+                else if(filePrice?.m_oItemPrices?.Length > 0)
                 {
                     Utils.InsertOrSetCachedEntitlementResults(domainId, fileId,
                         new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,
@@ -1329,12 +1329,12 @@ namespace Core.ConditionalAccess
                     {
                         if (System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Items != null)
                         {
-                            System.Web.HttpContext.Current.Items[RECORDING_CONVERT_KEY] = recording.EpgId;
+                            System.Web.HttpContext.Current.Items[RequestContextConstants.RECORDING_CONVERT_KEY] = recording.EpgId;
                         }
                         else
                         {
                             log.ErrorFormat("Error when trying to save epgId in httpContext key {0} for GetPlaybackContext on recording assetId {1}",
-                                                Core.ConditionalAccess.PlaybackManager.RECORDING_CONVERT_KEY, assetId);
+                                RequestContextConstants.RECORDING_CONVERT_KEY, assetId);
                         }
                     }
                 }

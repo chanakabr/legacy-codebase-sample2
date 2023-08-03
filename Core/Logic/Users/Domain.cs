@@ -688,49 +688,10 @@ namespace Core.Users
                         m_nDomainID, udid, ex), ex);
             }
 
-            // set is_Active = 2; status = 2
-            DomainDevice domainDevice = new DomainDevice()
+            if (!RemoveDevice(device, deviceId, udid))
             {
-                Udid = udid,
-                DeviceId = deviceId,
-                GroupId = m_nGroupID,
-                DomainId = m_nDomainID,
-                ActivataionStatus = device != null ? device.m_state : DeviceState.UnActivated
-            };
-
-            if (device != null) //BEO-8622
-            {
-                domainDevice.ActivataionStatus = device.m_state;
-                domainDevice.DeviceBrandId = device.m_deviceBrandID;
-                domainDevice.ActivatedOn = device.m_activationDate;
-                domainDevice.Name = device.m_deviceName;
-                domainDevice.DeviceFamilyId = device.m_deviceFamilyID;
-                domainDevice.ExternalId = device.ExternalId;
-            }
-
-            bool deleted = domainDevice.Delete();
-
-            if (!deleted)
-            {
-                log.Debug("RemoveDeviceFromDomain - " +
-                          String.Format(
-                              "Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}",
-                              m_nDomainID, udid));
                 return DomainResponseStatus.Error;
             }
-
-            // set is_Active = 2; status = 2
-            deleted = DomainDal.UpdateDeviceStatus(deviceId, 2, 2);
-
-            if (!deleted)
-            {
-                log.ErrorFormat(
-                    "Failed to update device in devices table. Status=2, Is_Active=2, UDID={0}, deviceId={1}", udid,
-                    deviceId);
-                return DomainResponseStatus.OK;
-            }
-            
-            HouseholdDeviceCrudMessagePublisher.Instance.Delete(deviceId, udid);
 
             if (bDeviceExist)
             {
@@ -766,6 +727,45 @@ namespace Core.Users
             ConcurrencyManager.HandleRevokePlaybackSession(m_nGroupID, udid);
 
             return bRes;
+        }
+
+        private bool RemoveDevice(Device device, long deviceId, string udid)
+        {
+            // set is_Active = 2; status = 2
+            var domainDevice = new DomainDevice
+            {
+                Udid = udid,
+                DeviceId = deviceId,
+                GroupId = m_nGroupID,
+                DomainId = m_nDomainID,
+                ActivataionStatus = device?.m_state ?? DeviceState.UnActivated
+            };
+
+            if (device != null) //BEO-8622
+            {
+                domainDevice.ActivataionStatus = device.m_state;
+                domainDevice.DeviceBrandId = device.m_deviceBrandID;
+                domainDevice.ActivatedOn = device.m_activationDate;
+                domainDevice.Name = device.m_deviceName;
+                domainDevice.DeviceFamilyId = device.m_deviceFamilyID;
+                domainDevice.ExternalId = device.ExternalId;
+            }
+
+            if (!domainDevice.Delete())
+            {
+                log.DebugFormat("RemoveDeviceFromDomain - Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, udid);
+                return false;
+            }
+
+            // set is_Active = 2; status = 2
+            if (!DomainDal.UpdateDeviceStatus(deviceId, 2, 2))
+            {
+                log.ErrorFormat("Failed to update device in devices table. Status=2, Is_Active=2, UDID={0}, deviceId={1}", udid, deviceId);
+                return false;
+            }
+            
+            HouseholdDeviceCrudMessagePublisher.Instance.Delete(deviceId, udid);
+            return true;
         }
 
         private bool RemoveDeviceDrmId(string sUDID)
@@ -2986,24 +2986,18 @@ namespace Core.Users
                         }
                     }
 
-                    if (devicesToRemove.Count > 0)
+                    foreach (var device in devicesToRemove.Where(_ => !string.IsNullOrEmpty(_.m_deviceUDID)))
                     {
-                        var devicesIdsToRemove = devicesToRemove.Select(x => int.Parse(x.m_id)).ToList();
-                        if (DomainDal.SetDevicesDomainUnActive(m_nDomainID, devicesIdsToRemove, DomainDevice.DeletedDeviceStatus) == 0)
+                        if (RemoveDevice(device, long.Parse(device.m_id), device.m_deviceUDID))
                         {
-                            dlmObjectToChange.resp =
-                                new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
+                            Utils.AddInitiateNotificationActionToQueue(GroupId, eUserMessageAction.DeleteDevice, 0, device.m_deviceUDID);
+                        }
+                        else
+                        {
+                            dlmObjectToChange.resp = ApiObjects.Response.Status.Error;
                             return false;
                         }
-
-                        foreach (Device device in devicesToRemove)
-                        {
-                            if (device != null && !string.IsNullOrEmpty(device.m_deviceUDID))
-                                Utils.AddInitiateNotificationActionToQueue(GroupId,
-                                    eUserMessageAction.DeleteDevice, 0, device.m_deviceUDID);
-                        }
                     }
-
                     #endregion
 
                     #region Users limit

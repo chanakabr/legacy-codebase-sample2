@@ -180,6 +180,7 @@ namespace WebAPI.Managers
             catch (Exception ex)
             {
                 log.Error(string.Format("BuildGroupPermissionItemsDictionary failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                return new Tuple<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>, bool>(new Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>(), false);
             }
 
             return new Tuple<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>, bool>(result, result != null && result.Count > 0);

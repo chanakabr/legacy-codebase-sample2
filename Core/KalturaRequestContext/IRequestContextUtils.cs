@@ -12,5 +12,6 @@ namespace KalturaRequestContext
         bool IsImpersonateRequest();
         int? GetRegionId();
         string GetSessionCharacteristicKey();
+        bool TryGetRecordingConvertId(out long programId);
     }
 }

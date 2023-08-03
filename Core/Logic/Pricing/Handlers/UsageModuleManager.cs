@@ -119,13 +119,14 @@ namespace ApiLogic.Pricing.Handlers
             var ppvResponse = PpvManager.Instance.GetPPVModules(contextData);
             if (ppvResponse.HasObjects())
             {
-                var UsageModulePpvs =ppvResponse.Objects.Where(ppv => ppv.m_oUsageModule.m_nObjectID == id).ToList();
-                if (UsageModulePpvs.Count > 0)
+                var usageModulePpvs = ppvResponse.Objects.Where(ppv => ppv.m_oUsageModule?.m_nObjectID == id).ToList();
+                if (usageModulePpvs.Count > 0)
                 {
                     result.Set(eResponseStatus.UsageModuleExistInPpv);
                     return result;
                 }
             }
+            
             if (!_repository.DeletePricePlan(contextData.GroupId, id, contextData.UserId.Value))
             {
                 log.Error($"Error while DeleteUsageModule. contextData: {contextData.ToString()}.");
@@ -164,7 +165,7 @@ namespace ApiLogic.Pricing.Handlers
                 return response;
             }
             var oldUsageModule = oldUsageModuleResponse.Object;
-            Boolean shouldUpdate = usageModuleToUpdate.ShouldUpdate(oldUsageModule);
+            var shouldUpdate = usageModuleToUpdate.ShouldUpdate(oldUsageModule);
             usageModuleToUpdate.Id = id;
             
             if (shouldUpdate)
