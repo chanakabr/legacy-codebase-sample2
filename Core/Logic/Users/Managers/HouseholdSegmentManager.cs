@@ -181,7 +181,7 @@ namespace ApiLogic.Users.Managers
 
                 if (totalCount > 0)
                 {
-                    var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(householdSegments.ToList());
+                    var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(householdSegments);
                     if (segmentTypeIds?.Count > 0)
                     {
                         AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value, Filter = filter.Ksql };

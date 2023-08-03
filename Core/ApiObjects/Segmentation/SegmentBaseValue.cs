@@ -28,16 +28,12 @@ namespace ApiObjects.Segmentation
             return couchbaseManager.Get<long>(string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId));
         }
 
-        public static Dictionary<long, long> GetSegmentationTypeOfSegmentIds(List<long> segmentIds)
+        public static Dictionary<long, long> GetSegmentationTypeOfSegmentIds(IEnumerable<long> segmentIds)
         {
             Dictionary<long, long> result = new Dictionary<long, long>();
             Dictionary<string, long> keyToIds = new Dictionary<string, long>();
-            foreach (long segmentId in segmentIds)
-            {
-                string key = string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId);
-                keyToIds.Add(key, segmentId);
-            }
-
+            keyToIds = segmentIds.Distinct().ToDictionary(segmentId => string.Format(SegmentToSegmentationTypeDocumentKeyFormat, segmentId));
+            
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
             var resultDictionary = couchbaseManager.GetValues<long>(keyToIds.Keys.ToList(), true, true);
 

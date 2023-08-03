@@ -12219,11 +12219,11 @@ namespace Core.Api
                 return segmentations;
             }
 
-            List<long> segmentsIds = new List<long>();
+            var segmentsIds = new HashSet<long>();
             var userSegments = UserSegmentLogic.List(groupId, userId, out int totalCount);
             if (totalCount > 0)
             {
-                segmentsIds.AddRange(userSegments);
+                segmentsIds.UnionWith(userSegments);
             }
 
             var user = Users.Module.GetUserData(groupId, userId, string.Empty);
@@ -12233,7 +12233,7 @@ namespace Core.Api
                 var householdSegments = HouseholdSegmentLogic.List(groupId, user.m_user.m_domianID, out totalCount);
                 if (totalCount > 0)
                 {
-                    segmentsIds.AddRange(householdSegments.ToList());
+                    segmentsIds.UnionWith(householdSegments);
                 }
             }
 

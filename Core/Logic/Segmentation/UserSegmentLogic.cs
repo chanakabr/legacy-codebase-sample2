@@ -13,28 +13,24 @@ namespace ApiLogic.Segmentation
 
         public static List<long> List(int groupId, string userId, out int totalCount, List<long> segmentsIds = null)
         {
-            List<long> result;
+            IEnumerable<long> result;
 
-            if(CanaryDeploymentManager.CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.Segmentation))
+            if (CanaryDeploymentManager.CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.Segmentation))
             {
-
-                var segmentIds = SegmentationClient.Instance.ListUserSegmentIds(new ListUserSegmentRequest
+                result = SegmentationClient.Instance.ListUserSegmentIds(new ListUserSegmentRequest
                 {
                     PartnerId = groupId,
                     UserId = long.Parse(userId)
                 });
-
-                result = segmentIds.ToList();
-                
-            } else {
-                
-                var userSegments = ApiObjects.Segmentation.UserSegment.ListFromCb(groupId, userId, out totalCount, segmentsIds);
-                result = userSegments.Select(i => i.SegmentId).ToList();
-                
             }
-            
+            else
+            {
+                var userSegments = ApiObjects.Segmentation.UserSegment.ListFromCb(groupId, userId, out totalCount, segmentsIds);
+                result = userSegments.Select(i => i.SegmentId);
+            }
+
             totalCount = result.Count();
-            return result;
+            return result.ToList();
         }
 
         public static HashSet<long> ListAll(int groupId, string userId)
