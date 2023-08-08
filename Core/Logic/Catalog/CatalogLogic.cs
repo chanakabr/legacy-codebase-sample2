@@ -2330,7 +2330,7 @@ namespace Core.Catalog
             // If this group has regionalization enabled at all
             if (isRegionalizationEnabled)
             {
-                var regionId = GetRegionIdOfUser(groupId, domainId, siteGuid, defaultRegion);
+                var regionId = GetRegionIdOfUser(groupId, domainId, defaultRegion);
                 // Get the region of the requesting domain
                 if (regionId == -1 && defaultRegion != 0)
                 {
@@ -2351,64 +2351,43 @@ namespace Core.Catalog
                 }
             }
         }
-
-        public static int GetRegionIdOfUser(int groupId, int domainId, string siteGuid, int defaultRegion = -1)
+        
+        public static bool IsRegionalizationEnabled(int groupId, out int partnerDefaultRegionId)
         {
-            int regionId = -1;
-            bool isRegionalizationEnabled = false;
-
-            if (defaultRegion > -1)
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
-                isRegionalizationEnabled = true;
+                if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId,
+                        out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
+                {
+                    partnerDefaultRegionId = catalogGroupCache.DefaultRegion;
+                    return true;
+                }
             }
             else
             {
-                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
+                var group = GroupsCache.Instance().GetGroup(groupId);
+                if (group != null && group.isRegionalizationEnabled)
                 {
-                    if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId,
-                        out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
-                    {
-                        isRegionalizationEnabled = true;
-                        defaultRegion = catalogGroupCache.DefaultRegion;
-                    }
-                }
-                else
-                {
-                    var group = GroupsCache.Instance().GetGroup(groupId);
-                    if (group != null && group.isRegionalizationEnabled)
-                    {
-                        isRegionalizationEnabled = true;
-                        defaultRegion = group.defaultRegion;
-                    }
+                    partnerDefaultRegionId = group.defaultRegion;
+                    return true;
                 }
             }
-
-            if (isRegionalizationEnabled)
-            {
-                regionId = RequestContextUtilsInstance.Get().GetRegionId() ?? GetRegionByDomain(groupId, domainId, defaultRegion);
-            }
-
-            return regionId;
+            
+            partnerDefaultRegionId = -1;
+            return false;
         }
 
-        // Old standard - only if regionId from KS not working
-        private static int GetRegionByDomain(int groupId, int domainId, int defaultRegion)
+        public static int GetRegionIdOfUser(int groupId, int domainId, int partnerDefaultRegionId)
+        {
+            return RequestContextUtilsInstance.Get().GetRegionId() ?? GetRegionByDomain(groupId, domainId, partnerDefaultRegionId);;
+        }
+        
+        public static int GetRegionByDomain(int groupId, int domainId, int defaultRegion)
         {
             var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
-            if (domainRes != null && domainRes.Status.IsOkStatusCode())
-            {
-                // If the domain is not associated to a region - get default region
-                if (domainRes.Domain.m_nRegion > 0)
-                {
-                    return domainRes.Domain.m_nRegion;
-                }
-                else
-                {
-                    return defaultRegion;
-                }
-            }
-
-            return -1;
+            return domainRes != null && domainRes.Status.IsOkStatusCode() && domainRes.Domain.m_nRegion > 0 // If the domain is not associated to a region - get default region
+                ? domainRes.Domain.m_nRegion
+                : defaultRegion;
         }
 
         /*Build Full search object*/
@@ -6437,7 +6416,7 @@ namespace Core.Catalog
 
                             if (group != null && group.isRegionalizationEnabled)
                             {
-                                int regionId = GetRegionIdOfUser(request.m_nGroupID, request.domainId, request.m_sSiteGuid, group.defaultRegion);
+                                int regionId = GetRegionIdOfUser(request.m_nGroupID, request.domainId, group.defaultRegion);
 
                                 DataRow regionRow =
                                 ODBCWrapper.Utils.GetTableSingleRow("linear_channels_regions", regionId);
