@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
+using ApiLogic.Catalog;
 using Tvinci.Core.DAL;
 using ApiLogic.IndexManager.Helpers;
 
@@ -1193,25 +1194,8 @@ namespace Core.Catalog
                     {
                         if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(lowered))
                         {
-                            if (catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.Tag.ToString()))
-                            {
-                                isValid = true;
-                                groupByDefinition.Type = eFieldType.Tag;
-                            }
-                            else if (definitions.shouldSearchEpg ||
-                                     definitions.shouldSearchRecordings ||
-                                     catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.String.ToString()) ||
-                                     catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.MultilingualString.ToString()) ||
-                                     catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.ReleatedEntity.ToString()))
-                            {
-                                isValid = true;
-                                groupByDefinition.Type = eFieldType.StringMeta;
-                            }
-                            else
-                            {
-                                isValid = true;
-                                groupByDefinition.Type = eFieldType.NonStringMeta;
-                            }
+                            groupByDefinition.Type = GroupBySearchOpcHelper.ExtractDefinitionType(lowered, catalogGroupCache, definitions);
+                            isValid = true;
                         }
                     }
                     else
