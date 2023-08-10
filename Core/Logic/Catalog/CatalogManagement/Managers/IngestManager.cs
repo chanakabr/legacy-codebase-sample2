@@ -86,7 +86,7 @@ namespace Core.Catalog.CatalogManagement
                     var isMetasValid = media.ValidateMetas(cache, ref ingestResponse, i, out var metas, out var tags, out var topicIdsToRemove);
                     if (isMetasValid)
                     {
-                        shopAssetUserRule = ShopAssetUserRuleResolver.Instance.ResolveByMediaAsset(groupId, metas, tags);
+                        shopAssetUserRule = ShopAssetUserRuleResolver.Instance.ResolveByMediaAsset(groupId, media.Basic?.MediaType, metas, tags);
                     }
 
                     if (isMetasValid && media.Validate(groupId, cache, ref ingestResponse, i, out mediaId))
