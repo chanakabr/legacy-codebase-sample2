@@ -17,9 +17,6 @@ namespace ApiLogic.IndexManager.Sorting
                 () => new SortingByBasicFieldsService(StringComparerService.Instance),
                 LazyThreadSafetyMode.PublicationOnly);
 
-        private static readonly Func<string, DateTime> DateTimeConverter =
-            s => DateTime.TryParse(s, out var value) ? value : default;
-
         private readonly IStringComparerService _comparerService;
 
         public static ISortingByBasicFieldsService Instance => LazyInstance.Value;
@@ -108,7 +105,7 @@ namespace ApiLogic.IndexManager.Sorting
             {
                 return Sort(
                     searchResults,
-                    d => ExtractValue(d, DateTimeConverter, extraReturnField),
+                    d => ExtractValue(d, x => x, extraReturnField),
                     d => long.Parse(d.AssetId),
                     null,
                     esOrderByField.OrderByDirection);
