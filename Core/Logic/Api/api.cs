@@ -9644,8 +9644,18 @@ namespace Core.Api
             var response = SearchAssetsExtended(groupID, filter, pageIndex, pageSize, OnlyIsActive, languageID, UseStartDate,
                                         Udid, UserIP, SiteGuid, DomainId, ExectGroupId, IgnoreDeviceRule, isAllowedToViewInactiveAssets,
                                         extraReturnFields, order);
+
             if (response != null)
             {
+                if (response.status == null)
+                {
+                    log.Error($"SearchAssetsExtended returned empty status");
+                }
+                else if (response.status.Code != (int)eResponseStatus.OK)
+                {
+                    log.Error($"SearchAssetsExtended returned error status code {response.status.Code} - {response.status.Message}");
+                }
+
                 unifiedSearchResult = response.searchResults.ToArray();
             }
 
@@ -9677,46 +9687,40 @@ namespace Core.Api
                     };
                 }
 
-                try
+                ExtendedSearchRequest assetRequest = new ExtendedSearchRequest()
                 {
-                    ExtendedSearchRequest assetRequest = new ExtendedSearchRequest()
+                    m_nGroupID = groupID,
+                    m_oFilter = new Filter()
                     {
-                        m_nGroupID = groupID,
-                        m_oFilter = new Filter()
-                        {
-                            m_bOnlyActiveMedia = OnlyIsActive,
-                            m_nLanguage = languageID,
-                            m_bUseStartDate = UseStartDate,
-                            m_sDeviceId = Udid,
-                        },
-                        m_sSignature = catalogSignature,
-                        m_sSignString = catalogSignString,
-                        m_nPageIndex = pageIndex,
-                        m_nPageSize = pageSize,
-                        m_sUserIP = UserIP,
-                        filterQuery = filter,
-                        exactGroupId = ExectGroupId,
-                        shouldIgnoreDeviceRuleID = IgnoreDeviceRule,
-                        order = order,
-                        orderingParameters = orderingParameters,
-                        m_sSiteGuid = SiteGuid,
-                        domainId = DomainId,
-                        isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                        ExtraReturnFields = extraReturnFields
-                    };
+                        m_bOnlyActiveMedia = OnlyIsActive,
+                        m_nLanguage = languageID,
+                        m_bUseStartDate = UseStartDate,
+                        m_sDeviceId = Udid,
+                    },
+                    m_sSignature = catalogSignature,
+                    m_sSignString = catalogSignString,
+                    m_nPageIndex = pageIndex,
+                    m_nPageSize = pageSize,
+                    m_sUserIP = UserIP,
+                    filterQuery = filter,
+                    exactGroupId = ExectGroupId,
+                    shouldIgnoreDeviceRuleID = IgnoreDeviceRule,
+                    order = order,
+                    orderingParameters = orderingParameters,
+                    m_sSiteGuid = SiteGuid,
+                    domainId = DomainId,
+                    isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                    ExtraReturnFields = extraReturnFields
+                };
 
-                    BaseResponse response = assetRequest.GetResponse(assetRequest);
-                    unifiedSearchResponse = (UnifiedSearchResponse)response;
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Error - " + string.Format("SearchAssets filter :{0}, languageID:{1}, Udid:{2}, UserIP:{3}, SiteGuid:{4}, DomainId:{5},OnlyIsActive:{6}, UseStartDate:{7},msg:{8}",
-                                                         filter, languageID, Udid, UserIP, SiteGuid, DomainId, OnlyIsActive, UseStartDate, ex.Message), ex);
-                }
+                BaseResponse response = assetRequest.GetResponse(assetRequest);
+                unifiedSearchResponse = (UnifiedSearchResponse)response;
             }
             catch (Exception ex)
             {
-                log.Error("Configuration Reading - Couldn't read values from configuration ", ex);
+                log.Error($"Error SearchAssets - filter: {filter}, languageID: {languageID}, Udid: {Udid}, UserIP: {UserIP}, SiteGuid: {SiteGuid}, " +
+                    $"DomainId: {DomainId}, OnlyIsActive: {OnlyIsActive}, UseStartDate: {UseStartDate}, msg: {ex.Message}", ex);
+                unifiedSearchResponse.status = new Status(eResponseStatus.Error, ex.Message);
             }
 
             return unifiedSearchResponse;
