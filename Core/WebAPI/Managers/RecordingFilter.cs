@@ -61,7 +61,7 @@ namespace WebAPI.Managers
             Dictionary<string, string> adapterData = null;
             if (filter.AdapterData != null)
             {
-                adapterData = filter.AdapterData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
+                adapterData = filter.AdapterData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value);
             }
 
             var response = ClientsManager.ConditionalAccessClient().SearchCloudRecordings(contextData.GroupId, contextData.UserId.Value.ToString(), contextData.DomainId.Value,
