@@ -469,7 +469,7 @@ namespace Core.Notification
                         }
                     }
 
-                    if (!NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                    if (!NotificationDal.InsertUserNotificationData(groupId, userId, userNotificationData))
                     {
                         log.ErrorFormat("Error while trying to create user notification document", JsonConvert.SerializeObject(userNotificationData));
                         return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

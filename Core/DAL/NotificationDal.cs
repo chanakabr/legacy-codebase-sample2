@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Notification;
 using CouchbaseManager;
+using Jaeger.Util;
 using Newtonsoft.Json;
 using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
@@ -1841,6 +1842,66 @@ namespace DAL
             {
                 log.ErrorFormat("Error while setting user notification data (unlock). GID: {0}, user ID: {1}, ex: {2}",
                     groupId, userId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool InsertUserNotificationData(int groupId, long userId, UserNotification userNotification)
+        {
+            bool result = false;
+            try
+            {
+                ulong outCas = 0;
+
+                result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification, true,
+                    out outCas, 0, 0);
+
+                if (!result && outCas == 0)
+                {
+                    log.Error($"failed inserting user notification data for group {groupId}, user {userId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while inserting user notification data (unlock). GID: {0}, user ID: {1}, ex: {2}",
+                    groupId, userId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool AddReminderToNotificationData(int groupId, long userId, UserNotification userNotification, Announcement reminder)
+        {
+            bool result = false;
+            try
+            {
+                int numOfTries = 0;
+                string key = GetUserNotificationKey(groupId, userId);
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    UserNotification originalUserNotification = null;
+                    CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
+                    ulong cas = 0;
+                    originalUserNotification = cbManager.Get<UserNotification>(key, true, out cas, out status);
+
+                    if (status == eResultStatus.KEY_NOT_EXIST && userNotification != null)
+                    {
+                        userNotification.Reminders.Add(reminder);
+                        result = cbManager.Set(key, userNotification, true, 0, cas);
+                    }
+                    else if (status == eResultStatus.SUCCESS && originalUserNotification != null)
+                    {
+                        originalUserNotification.Reminders.Add(reminder);
+                        result = cbManager.Set(key, originalUserNotification, true, 0, cas);
+                    }
+
+                    numOfTries++;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error adding reminder to user notification data; group {groupId} user {userId} ex = {ex}", ex);
             }
 
             return result;

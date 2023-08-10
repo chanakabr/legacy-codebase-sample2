@@ -199,15 +199,15 @@ namespace Core.Notification
 
                 // update user notification object
                 long addedSecs = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-                userNotificationData.Reminders.Add(new Announcement()
+                var newReminder = new Announcement()
                 {
                     AnnouncementId = dbReminder.ID,
                     AnnouncementName = dbReminder.Name,
                     AddedDateSec = addedSecs
-                });
+                };
 
                 // update CB userNotificationData
-                if (!DAL.NotificationDal.SetUserNotificationData(dbReminder.GroupId, userId, userNotificationData))
+                if (!DAL.NotificationDal.AddReminderToNotificationData(dbReminder.GroupId, userId, userNotificationData, newReminder))
                 {
                     log.ErrorFormat("error setting user reminder notification data. group: {0}, user id: {1}", dbReminder.GroupId, userId);
                     response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
