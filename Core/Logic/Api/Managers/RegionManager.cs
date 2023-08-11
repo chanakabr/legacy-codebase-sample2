@@ -13,6 +13,7 @@ using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using DAL;
+using Force.DeepCloner;
 using GroupsCacheManager;
 using Phx.Lib.Log;
 using TVinciShared;
@@ -449,11 +450,15 @@ namespace ApiLogic.Api.Managers
                         }
 
                         result.Objects = pageSize > 0 ? result.Objects.Skip(pageIndex * pageSize).Take(pageSize).ToList() : result.Objects;
-
-                        foreach (var item in result.Objects)
+                        
+                        for (var i = 0; i < result.Objects.Count; i++)
                         {
-                            if (item.parentId > 0 && regionsCache.Regions.ContainsKey(item.parentId))
+                            if (result.Objects[i].parentId > 0 && regionsCache.Regions.ContainsKey(result.Objects[i].parentId))
                             {
+                                // Cloning region object to prevent in-memory object mutations.
+                                var item = result.Objects[i].DeepClone();
+                                result.Objects[i] = item;
+
                                 if (item.linearChannels == null)
                                 {
                                     item.linearChannels = new List<KeyValuePair<long, int>>();
