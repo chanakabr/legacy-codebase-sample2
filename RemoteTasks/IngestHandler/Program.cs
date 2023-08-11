@@ -47,6 +47,12 @@ using Core.Api;
 using System.Collections.Generic;
 using System.Linq;
 using IngestHandler.Common.Managers.Abstractions;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using OTT.Lib.Metrics.Extensions;
 
 namespace EPGTransformationHandler
 {
@@ -86,6 +92,7 @@ namespace EPGTransformationHandler
                 })
                 .AddKafkaConsumer<IngestV3Handler, ChannelIngestStaged>(CONSUMER_GROUP, ChannelIngestStaged.GetTopic())
                 .AddKafkaConsumer<BulkUploadUpdater, UpdateBulkUpload>(CONSUMER_GROUP, UpdateBulkUpload.GetTopic())
+                .ConfigureHealthAndMetricsEndpoint()
                 .ConfigureCommonHostLogging();
 
             var ingestV2Task = ingestV2Host.RunConsoleAsync();
@@ -164,6 +171,26 @@ namespace EPGTransformationHandler
                 s.AddScoped<IIngestFinalizer, IngestFinalizer>();
                 s.AddPhoenixFeatureFlag();
             });
+        }
+
+        private static IHostBuilder ConfigureHealthAndMetricsEndpoint(this IHostBuilder hostBuilder)
+        {
+            return hostBuilder
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    if (!int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var port)) port = 8080;
+                    webBuilder
+                        .UseUrls($"http://*:{port}")
+                        .Configure(a => a
+                            .UseMetrics()
+                            .UseHealthChecks("/health", new HealthCheckOptions
+                            {
+                                ResponseWriter = (context, report) =>
+                                    context.Response.WriteAsync(JsonConvert.SerializeObject(report))
+                            })
+                        );
+
+                });
         }
     }
 }

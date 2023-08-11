@@ -1,11 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
+using OTT.Lib.Kafka.Extensions;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
 
 namespace Phoenix.AsyncHandler.Pricing
 {
-    public class EntitlementLogicalHandler : IHandler<AppstoreNotification>
+    public class EntitlementLogicalHandler : IKafkaMessageHandler<AppstoreNotification>
     {
         private readonly ILogger<EntitlementLogicalHandler> _logger;
 
@@ -14,12 +16,12 @@ namespace Phoenix.AsyncHandler.Pricing
             _logger = logger;
         }
         
-        public HandleResult Handle(ConsumeResult<string, AppstoreNotification> consumeResult)
+        public Task<HandleResult> Handle(ConsumeResult<string, AppstoreNotification> consumeResult)
         {
             switch (consumeResult.Result.Message.Value.State)
             {
-                case State.SubscriptionCanceled: return CancelSubscriptionRenewal(consumeResult);
-                default: return Result.Ok;
+                case State.SubscriptionCanceled: return Task.FromResult(CancelSubscriptionRenewal(consumeResult));
+                default: return Task.FromResult(Result.Ok);
             }
         }
         

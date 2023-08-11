@@ -1,13 +1,15 @@
-﻿using Confluent.Kafka;
+﻿using System.Threading.Tasks;
+using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
+using OTT.Lib.Kafka.Extensions;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.Generated.Api.Events.Logical.Gdpr.HouseholdRetentionPeriodExpired;
 using Phoenix.Generated.Api.Events.Logical.Gdpr.ObjectCleanupComplete;
 
 namespace Phoenix.AsyncHandler.Recording
 {
-    public class HouseholdRetentionPeriodExpiredHandler : IHandler<HouseholdRetentionPeriodExpired>
+    public class HouseholdRetentionPeriodExpiredHandler : IKafkaMessageHandler<HouseholdRetentionPeriodExpired>
     {
         private readonly IKafkaProducer<string, ObjectCleanupComplete> _producer;
         private readonly ILogger<HouseholdRetentionPeriodExpiredHandler> _logger;
@@ -21,7 +23,7 @@ namespace Phoenix.AsyncHandler.Recording
             _logger = logger;
         }
 
-        public HandleResult Handle(OTT.Lib.Kafka.ConsumeResult<string, HouseholdRetentionPeriodExpired> consumeResult)
+        public Task<HandleResult> Handle(OTT.Lib.Kafka.ConsumeResult<string, HouseholdRetentionPeriodExpired> consumeResult)
         {
             var r = consumeResult.GetValue();
             _logger.LogInformation("Performing GDPR cleanup. household [{id}]", r.HouseholdId);
@@ -35,7 +37,7 @@ namespace Phoenix.AsyncHandler.Recording
                 SourceMessageTypeId = HouseholdRetentionPeriodExpired.GetTopic()
             };
             _producer.Produce(ObjectCleanupComplete.GetTopic(), cleanupComplete.GetPartitioningKey(), cleanupComplete);
-            return Result.Ok;
+            return Task.FromResult(Result.Ok);
         }
     }
 }
