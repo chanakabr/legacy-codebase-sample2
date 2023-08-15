@@ -52,6 +52,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             }
 
             var shopMeta = GetShopMeta(groupId);
+            if (shopMeta == null) return null;
             if (!assetStruct.MetaIds.Contains(shopMeta.Id))
             {
                 Logger.DebugFormat("Asset type {0} does not contain shop meta {1}", assetType, shopMeta.SystemName);
