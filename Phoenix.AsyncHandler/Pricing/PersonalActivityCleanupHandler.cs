@@ -34,10 +34,9 @@ namespace Phoenix.AsyncHandler.Pricing
             }
             
             long partnerId = cleanup.PartnerId.Value;
-
-            DateTime endDate = DateTime.Now.AddDays(-1 * cleanup.RetentionPeriodDays);
-
+            DateTime endDate = DateTime.UtcNow.AddDays(-1 * cleanup.RetentionPeriodDays);
             List<string> errors = new List<string>();
+
             if (!DAL.ConditionalAccessDAL.Instance.DeletePpvPurchasesThatOutOfRetentionPeriod(partnerId, endDate))
             {
                 errors.Add("ppv purchases");
@@ -52,15 +51,17 @@ namespace Phoenix.AsyncHandler.Pricing
             {
                 errors.Add("program asset group offer purchases");
             }  
+
             if (!DAL.ConditionalAccessDAL.Instance.DeleteSubscriptionsPurchasesThatOutOfRetentionPeriod(partnerId, endDate))
             {
                 errors.Add("subscriptions purchases");
             }
+
             if (!DAL.ConditionalAccessDAL.Instance.DeleteSubscriptionsBillingTransactionsThatOutOfRetentionPeriod(partnerId, endDate))
             {
                 errors.Add("subscriptions billing transactions");
             }
-            
+
             if (!errors.IsEmpty())
             {
                 _logger.LogError("Failed to cleanup. partnerId:[{PartnerId}]. errors in:[{Description}]",

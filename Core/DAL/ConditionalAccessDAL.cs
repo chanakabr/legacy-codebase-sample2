@@ -66,7 +66,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }        
+        }
 
         public static string GetMediaFileCoGuid(int nGroupID, int nMediaFileID)
         {
@@ -95,12 +95,12 @@ namespace DAL
             {
                 var sp = new StoredProcedure("Delete_PpvPurchasesThatOutOfRetentionPeriod");
                 sp.SetConnectionKey("CA_CONNECTION_STRING");
-                
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@endDate", endDate);
                 var result = sp.ExecuteReturnValue<int>();
-                log.Debug($"groupId: {groupId} - {result} ppv purchases have been deleted oldest then {endDate}");
-                return result > 0;
+                log.Debug($"groupId: {groupId} - {result} ppv purchases have been deleted older than {endDate}");
+                return result >= 0;
             }
             catch (Exception ex)
             {
@@ -108,19 +108,19 @@ namespace DAL
                 return false;
             }
         }
-        
+
         public bool DeleteSubscriptionsPurchasesThatOutOfRetentionPeriod(long groupId, DateTime endDate)
         {
             try
             {
                 var sp = new StoredProcedure("Delete_SubscriptionsPurchasesThatOutOfRetentionPeriod");
                 sp.SetConnectionKey("CA_CONNECTION_STRING");
-                
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@endDate", endDate);
                 var result = sp.ExecuteReturnValue<int>();
-                log.Debug($"groupId: {groupId} - {result} subscriptions purchases have been deleted oldest then {endDate}");
-                return result > 0;
+                log.Debug($"groupId: {groupId} - {result} subscriptions purchases have been deleted older than {endDate}");
+                return result >= 0;
             }
             catch (Exception ex)
             {
@@ -128,19 +128,19 @@ namespace DAL
                 return false;
             }
         }
-        
+
         public bool DeleteSubscriptionsBillingTransactionsThatOutOfRetentionPeriod(long groupId, DateTime endDate)
         {
             try
             {
                 var sp = new StoredProcedure("Delete_SubscriptionsBillingTransactionsThatOutOfRetentionPeriod");
                 sp.SetConnectionKey("CA_CONNECTION_STRING");
-                
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@endDate", endDate);
                 var result = sp.ExecuteReturnValue<int>();
-                log.Debug($"groupId: {groupId} - {result} subscriptions purchases have been deleted oldest then {endDate}");
-                return result > 0;
+                log.Debug($"groupId: {groupId} - {result} subscriptions purchases have been deleted older than {endDate}");
+                return result >= 0;
             }
             catch (Exception ex)
             {
@@ -154,12 +154,12 @@ namespace DAL
             {
                 var sp = new StoredProcedure("Delete_CollectionPurchasesThatOutOfRetentionPeriod");
                 sp.SetConnectionKey("CA_CONNECTION_STRING");
-                
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@endDate", endDate);
                 var result = sp.ExecuteReturnValue<int>();
-                log.Debug($"groupId: {groupId} - {result} Collection purchases have been deleted oldest then {endDate}");
-                return result  > 0;
+                log.Debug($"groupId: {groupId} - {result} Collection purchases have been deleted older than {endDate}");
+                return result >= 0;
             }
             catch (Exception ex)
             {
@@ -167,7 +167,7 @@ namespace DAL
                 return false;
             }
         }
-        
+
         public bool DeletePagoPurchasesThatOutOfRetentionPeriod(long groupId, DateTime endDate)
         {
             try
@@ -177,9 +177,9 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@endDate", endDate);
                 var result = sp.ExecuteReturnValue<int>();
-                log.Debug($"groupId: {groupId} - {result} Pago purchases have been deleted oldest then {endDate}");
+                log.Debug($"groupId: {groupId} - {result} Pago purchases have been deleted older than {endDate}");
 
-                return result > 0;
+                return result >= 0;
             }
             catch (Exception ex)
             {
@@ -187,7 +187,7 @@ namespace DAL
                 return false;
             }
         }
-        
+
         public static bool InsertPPVPurchase(int nGroupID, string sSubCode, int nMediaFileID, string sSiteGUID, double dPrice, string sCurrency, int nNumOfUses, string sCustomData, int transactionID,
                                              string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int maxNumOfUses, int nIsActive, int nStatus, DateTime? dtEndDate, int domainId)
         {
@@ -1003,7 +1003,7 @@ namespace DAL
 
             sp.ExecuteNonQuery();
         }
-        
+
         public static bool AddRenewToSumOfRenews(long purchaseId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Add_RenewToNumOfRenew");
@@ -1024,7 +1024,7 @@ namespace DAL
 
             sp.ExecuteNonQuery();
         }
-        
+
         public static void Insert_SubscriptionsPurchasesKronos(long purchaseID)
         {
             StoredProcedure sp = new StoredProcedure("Insert_SubscriptionsPurchasesKronos");
@@ -2791,7 +2791,7 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() * 60;
         }
-        
+
         public static int GetDefaultQuotaByModuleIdInSeconds(int groupID, int quotaModuleId)
         {
             StoredProcedure sp = new StoredProcedure("Get_QuotaInMinutesByModuleId");
@@ -2808,7 +2808,7 @@ namespace DAL
 
             return 0;
         }
-        
+
         public static void SetDefaultQuotaInSeconds(int id, int quotaSeconds)
         {
             StoredProcedure sp = new StoredProcedure("Set_QuotaSeconds");
@@ -3866,7 +3866,7 @@ namespace DAL
 
             return sp.ExecuteReturnValue<long>();
         }
-        
+
         public static bool CancelPagoPurchaseTransactionByUser(long userId, long productId)
         {
             StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelPAGOPurchaseTransactionByUser");
@@ -3919,7 +3919,7 @@ namespace DAL
 
             sp.AddParameter("@domainId", domainId);
             return sp.Execute();
-        }       
+        }
 
         public List<EntitlementDto> GetEntitlementPagoItems(int partnerId, int domainId)
         {
