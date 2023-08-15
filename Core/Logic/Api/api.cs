@@ -10429,67 +10429,6 @@ namespace Core.Api
             return status;
         }
 
-        //CleanUserAssetHistory - new method
-        internal static Status CleanUserAssetHistory(int groupId, string userId, List<KeyValuePair<int, eAssetTypes>> assets)
-        {
-            Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            try
-            {
-                if (MediaMarksNewModel.Enabled(groupId))
-                {
-                    var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-                    string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userId);
-                    var userMarks = mediaMarkManager.Get<UserMediaMarks>(documentKey);
-                    if (userMarks?.mediaMarks != null && userMarks.mediaMarks.Count > 0)
-                    {
-                        userMarks.mediaMarks.RemoveAll(m => assets.Exists(MatchAssetIdAndType(m)));
-                        if (!mediaMarkManager.Set(documentKey, userMarks, UtilsDal.UserMediaMarksTtl))
-                        {
-                            return response;
-                        }
-                    }
-                }
-
-                List<string> assetHistoryKeys = new List<string>();
-
-                foreach (var asset in assets)
-                {
-                    switch (asset.Value)
-                    {
-                        case eAssetTypes.NPVR:
-                            assetHistoryKeys.Add(DAL.UtilsDal.GetUserNpvrMarkDocKey(int.Parse(userId), asset.Key.ToString()));
-                            break;
-                        case eAssetTypes.MEDIA:
-                            assetHistoryKeys.Add(DAL.UtilsDal.GetUserMediaMarkDocKey(userId, asset.Key));
-                            break;
-                        case eAssetTypes.EPG:
-                            assetHistoryKeys.Add(DAL.UtilsDal.GetUserEpgMarkDocKey(int.Parse(userId), asset.Key));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                if (DAL.ApiDAL.CleanUserAssetHistory(assetHistoryKeys))
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("CleanUserHistory - Error = " + ex.Message, ex);
-            }
-
-            return response;
-        }
-
-        private static Predicate<KeyValuePair<int, eAssetTypes>> MatchAssetIdAndType(AssetAndLocation m)
-        {
-            return kv => (kv.Value == eAssetTypes.NPVR && !string.IsNullOrEmpty(m.NpvrId) && kv.Key.ToString() == m.NpvrId) 
-                         || (kv.Value == m.AssetType && kv.Key == m.AssetId);
-        }
-
         internal static DrmAdapterResponse SendDrmConfigurationToAdapter(int groupId, int adapterID)
         {
             DrmAdapterResponse response = new DrmAdapterResponse();

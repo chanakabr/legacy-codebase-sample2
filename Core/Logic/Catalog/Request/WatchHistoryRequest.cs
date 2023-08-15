@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ApiLogic.Catalog;
 
 namespace Core.Catalog.Request
 {
@@ -85,7 +86,8 @@ namespace Core.Catalog.Request
                     excludedAssetTypes.Add((int)eAssetTypes.EPG);
                 }
 
-                List<WatchHistory> res = CatalogLogic.GetUserWatchHistory(m_nGroupID, m_sSiteGuid, userDomainID, AssetTypes, AssetIds, excludedAssetTypes, FilterStatus, NumOfDays,
+                var userId = long.Parse(m_sSiteGuid); // validated by CatalogLogic.IsUserValid
+                List<WatchHistory> res = UserWatchHistoryManager.Instance.Get(m_nGroupID, userId, userDomainID, AssetTypes, AssetIds, excludedAssetTypes, FilterStatus, NumOfDays,
                                                                           OrderDir, m_nPageIndex, m_nPageSize, Suppress, FilterQuery, out totalItems);
 
                 // convert to client response

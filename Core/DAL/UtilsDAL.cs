@@ -10,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 
 namespace DAL
@@ -294,6 +295,57 @@ namespace DAL
             return result;
         }
 
+        public static async Task<bool> DeleteObjectFromCBAsync(eCouchbaseBucket couchbaseBucket, string key)
+        {
+            var result = false;
+            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+
+            try
+            {
+                result = await cbManager.RemoveAsync(key);
+                if (result)
+                    log.DebugFormat("Successfully removed {0}", key);
+                else
+                    log.ErrorFormat("Error while removing {0}", key);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing {0}. ex: {1}", key, ex);
+            }
+
+            return result;
+        }
+
+        public static async Task<bool> BulkDeleteObjectFromCBAsync(eCouchbaseBucket couchbaseBucket, IEnumerable<string> keys)
+        {
+            try
+            {
+                var finalResult = true;
+                var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+                var r = new Random();
+                foreach (var key in keys)
+                {
+                    var operationResult = await cbManager.RemoveAsync(key);
+                    await Task.Delay(r.Next(50));
+                    if (operationResult)
+                    {
+                        continue;
+                    }
+
+                    log.ErrorFormat("Bulk delete: failed to delete entry, key = {0}", key);
+                    finalResult = false;
+                }
+
+                return finalResult;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Bulk delete operation failed", ex);
+
+                return false;
+            }
+        }
+
         public static DataTable Execute(string storedProcedure, Dictionary<string, object> parameters = null, string connectionKey = MAIN_CONNECTION_STRING)
         {
             StoredProcedure sp = new StoredProcedure(storedProcedure);
@@ -352,7 +404,7 @@ namespace DAL
             return string.Format("u{0}_t{1}", userId, createdAt.ToString("yyyyMM"));
         }
 
-        public static string GetUserAllAssetMarksDocKey(string userId)
+        public static string GetUserAllAssetMarksDocKey(long userId)
         {
             return string.Format("u{0}", userId);
         }
@@ -364,12 +416,12 @@ namespace DAL
             return string.Format("u{0}_m{1}", siteUserGuid, mediaId);
         }
 
-        public static string GetUserNpvrMarkDocKey(int siteUserGuid, string npvrId)
+        public static string GetUserNpvrMarkDocKey(long siteUserGuid, string npvrId)
         {
             return string.Format("u{0}_n{1}", siteUserGuid, npvrId);
         }
 
-        public static string GetUserEpgMarkDocKey(int userID, long epgID)
+        public static string GetUserEpgMarkDocKey(long userID, long epgID)
         {
             return string.Format("u{0}_epg{1}", userID, epgID);
         }

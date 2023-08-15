@@ -1,5 +1,6 @@
 ﻿using System;
 using ApiLogic.Api.Managers;
+using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Managers;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
 using ApiLogic.Catalog.CatalogManagement.Services;
@@ -7,6 +8,7 @@ using ApiLogic.Catalog.CatalogManagement.Validators;
 using ApiLogic.EPG;
 using ApiLogic.Pricing.Handlers;
 using ApiLogic.Repositories;
+using ApiObjects;
 using CachingProvider.LayeredCache;
 using Core.Api;
 using Core.Api.Managers;
@@ -14,6 +16,7 @@ using Core.Catalog;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
+using Core.Notification;
 using Core.Pricing;
 using Core.Users.Cache;
 using CouchbaseManager;
@@ -40,6 +43,7 @@ using OTT.Service.TaskScheduler.Extensions.TaskHandler;
 using Phoenix.AsyncHandler.Catalog;
 using Phoenix.AsyncHandler.ConditionalAccess;
 using Phoenix.AsyncHandler.Couchbase;
+using Phoenix.AsyncHandler.Gdpr;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.AsyncHandler.Kronos;
 using Phoenix.AsyncHandler.Pricing;
@@ -51,6 +55,7 @@ using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Extensions.RecordingFailed;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
 using Phoenix.Generated.Api.Events.Logical.Gdpr.HouseholdRetentionPeriodExpired;
+using Phoenix.Generated.Api.Events.Logical.Gdpr.OttUserRetentionPeriodExpired;
 using Phoenix.Generated.Api.Events.Logical.IndexRecording;
 using Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup;
 using Phoenix.Generated.Api.Events.Logical.RebuildRecordingsIndex;
@@ -111,7 +116,7 @@ namespace Phoenix.AsyncHandler
                     .AddHandler<VerifyRecordingFinalStatusHandler>(VerifyRecordingFinalStatus.VerifyRecordingFinalStatusQualifiedName)
                     .AddHandler<RetryRecordingHandler>(RetryRecording.RetryRecordingQualifiedName)
                     .AddHandler<EvictRecordingHandler>(EvictRecording.EvictRecordingQualifiedName)
-                );
+            );
 
             services.AddKafkaProducerFactory(kafkaConfig);
             services
@@ -162,6 +167,9 @@ namespace Phoenix.AsyncHandler
                 .AddScoped<IGroupSettingsManager, GroupSettingsManager>()
                 .AddScoped<IEpgPartnerConfigurationManager>(serviceProvider => EpgPartnerConfigurationManager.Instance)
                 .AddScoped<IGroupManager, GroupManager>()
+                .AddScoped<IUserWatchHistoryManager, UserWatchHistoryManager>()
+                .AddScoped<IMediaMarksDAL, MediaMarksDAL>()
+                .AddScoped<NotificationCache>()
                 .AddSingleton<ICatalogCache, CatalogCache>()
                 //.AddSingleton<ICouchbaseWorker, CouchbaseWorker>()
                 // live to vod
@@ -186,6 +194,7 @@ namespace Phoenix.AsyncHandler
             services.AddKafkaConsumer<PersonalActivityCleanupHandler, PersonalActivityCleanup>(KafkaConfig.GetConsumerGroup("personal-activity-cleanup"), PersonalActivityCleanup.GetTopic());
             services.AddKafkaConsumer<Recording.HouseholdRetentionPeriodExpiredHandler, HouseholdRetentionPeriodExpired>(KafkaConfig.GetConsumerGroup("gdpr-recording"), HouseholdRetentionPeriodExpired.GetTopic());
             services.AddKafkaConsumer<PartnerMigrationHouseholdRecordingHandler, PartnerMigrationHouseholdRecording>(KafkaConfig.GetConsumerGroup("partner-migration-household-recording"), PartnerMigrationHouseholdRecording.GetTopic());
+            services.AddKafkaConsumer<OttUserRetentionPeriodExpiredHandler, OttUserRetentionPeriodExpired>("gdpr-ott-user", OttUserRetentionPeriodExpired.GetTopic());
             return services;
         }
         

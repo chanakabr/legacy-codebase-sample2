@@ -212,10 +212,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.BadSearchRequest)]
         static public void Clean(KalturaAssetHistoryFilter filter = null)
         {
-            var ks = KS.GetFromRequest();
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            var contextData = KS.GetContextData();
 
             if (filter == null)
             {
@@ -250,8 +247,9 @@ namespace WebAPI.Controllers
 
             try
             {
+                var userId = contextData.UserId ?? default;
                 // call client
-                ClientsManager.ApiClient().CleanUserAssetHistory(groupId, userId, udid, filter.getAssetIdIn(), filterTypes, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.Ksql);
+                ClientsManager.ApiClient().CleanUserAssetHistory(contextData.GroupId, userId, contextData.Udid, filter.getAssetIdIn(), filterTypes, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.Ksql);
             }
             catch (ClientException ex)
             {

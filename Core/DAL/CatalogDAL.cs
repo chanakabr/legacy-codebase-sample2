@@ -86,7 +86,6 @@ namespace Tvinci.Core.DAL
         private static readonly string META_ID_FIELD = "META_ID";
         private static readonly string PARENT_META_ID_FIELD = "PARENT_META_ID";
         private static readonly string ENABLE_NOTIFICATION_FIELD = "ENABLE_NOTIFICATION";
-        private static readonly string MEDIA_MARK_KEY_FORMAT = "u{0}_{1}{2}";
 
         /// <summary>
         /// 5
@@ -1397,7 +1396,7 @@ namespace Tvinci.Core.DAL
         {
             Dictionary<string, int> dictMediaUsersCount = new Dictionary<string, int>(); // key: media id , value: users count
 
-            List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId.ToString())).ToList();
+            List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId)).ToList();
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var usersMediaMarks = cbManager.GetValues<UserMediaMarks>(keys, true, false);
@@ -1423,7 +1422,7 @@ namespace Tvinci.Core.DAL
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
-            List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId.ToString())).ToList();
+            List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId)).ToList();
 
             var res = cbManager.GetValues<UserMediaMarks>(keys, true, false);
 
@@ -2134,7 +2133,7 @@ namespace Tvinci.Core.DAL
         {
             bool success = false;
 
-            string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userMediaMark.UserID.ToString());
+            string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userMediaMark.UserID);
 
             var couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
@@ -6165,49 +6164,6 @@ namespace Tvinci.Core.DAL
         }
 
         #endregion
-
-        public static List<string> ConvertUserMediaMarksToKeys(string userId, IEnumerable<AssetAndLocation> assetsAndLocations)
-        {
-            List<string> result = new List<string>();
-
-            foreach (var item in assetsAndLocations)
-            {
-                string assetType = ConvertAssetTypeIdToKeyPrefix((int)item.AssetType);
-                string key = string.Format(MEDIA_MARK_KEY_FORMAT, userId, assetType, item.AssetId);
-
-                result.Add(key);
-            }
-
-            return result;
-        }
-
-        public static string ConvertAssetTypeIdToKeyPrefix(int typeId)
-        {
-            string assetType;
-            switch (typeId)
-            {
-                case (int)eAssetTypes.EPG:
-                    {
-                        assetType = "epg";
-                        break;
-                    }
-
-                case (int)eAssetTypes.NPVR:
-                    {
-                        assetType = "n";
-                        break;
-                    }
-                case (int)eAssetTypes.MEDIA:
-                default:
-                    {
-                        assetType = "m";
-                        break;
-                    }
-
-            }
-
-            return assetType;
-        }
 
         public static bool SetMediaIsActiveToOff(int mediaId, long userId)
         {
