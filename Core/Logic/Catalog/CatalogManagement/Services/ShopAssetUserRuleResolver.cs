@@ -8,7 +8,6 @@ using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using Core.Api.Managers;
-using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Phx.Lib.Log;
 
@@ -52,14 +51,31 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             }
 
             var shopMeta = GetShopMeta(groupId);
-            if (shopMeta == null) return null;
-            if (!assetStruct.MetaIds.Contains(shopMeta.Id))
+            if (shopMeta == null)
             {
-                Logger.DebugFormat("Asset type {0} does not contain shop meta {1}", assetType, shopMeta.SystemName);
-
                 return null;
             }
 
+            if (assetStruct.MetaIds.Contains(shopMeta.Id))
+            {
+                return ResolveByMediaAsset(groupId, shopMeta, metas, tags);
+            }
+
+            Logger.DebugFormat("Asset type {0} does not contain shop meta {1}", assetType, shopMeta.SystemName);
+
+            return null;
+
+        }
+
+        public AssetUserRule ResolveByMediaAsset(int groupId, IEnumerable<Metas> metas, IEnumerable<Tags> tags)
+        {
+            var shopMeta = GetShopMeta(groupId);
+
+            return ResolveByMediaAsset(groupId, shopMeta, metas, tags);
+        }
+
+        private AssetUserRule ResolveByMediaAsset(int groupId, Topic shopMeta, IEnumerable<Metas> metas, IEnumerable<Tags> tags)
+        {
             var assetUserRules = GetAssetUserRules(groupId);
             foreach (var assetUserRule in assetUserRules)
             {

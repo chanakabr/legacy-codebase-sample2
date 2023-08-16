@@ -11,5 +11,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
             string assetType,
             IEnumerable<Metas> metas,
             IEnumerable<Tags> tags);
+
+        AssetUserRule ResolveByMediaAsset(int groupId, IEnumerable<Metas> metas, IEnumerable<Tags> tags);
     }
 }

@@ -89,34 +89,10 @@ namespace Core.Catalog
 
             return true;
         }
-        
-        public bool Validate(int groupId, CatalogGroupCache cache, ref IngestResponse response, int index, out long mediaId)
+
+        public bool ValidateOnInsertOrUpdate(int groupId, CatalogGroupCache cache, long mediaId, ref IngestResponse response, int index)
         {
-            mediaId = 0;
-
-            // check media.CoGuid
-            if (string.IsNullOrEmpty(this.CoGuid))
-            {
-                response.AssetsStatus[index].Status.Set((int)eResponseStatus.MissingExternalIdentifier, MISSING_EXTERNAL_IDENTIFIER);
-                response.AddError("Missing co_guid");
-                return false;
-            }
-            
-            if (string.IsNullOrEmpty(this.EntryId))
-            {
-                response.AssetsStatus[index].Warnings.Add(new Status((int)IngestWarnings.MissingEntryId, MISSING_ENTRY_ID));
-            }
-
-            if (string.IsNullOrEmpty(this.Action))
-            {
-                response.AssetsStatus[index].Warnings.Add(new Status((int)IngestWarnings.MissingAction, MISSING_ACTION));
-            }
-            this.Action = this.Action.Trim().ToLower();
-
-            mediaId = BulkAssetManager.GetMediaIdByCoGuid(groupId, this.CoGuid);
             var isInsertAction = mediaId == 0;
-
-            this.IsActive = this.IsActive.Trim().ToLower();
             if (isInsertAction && !TRUE.Equals(this.IsActive) && !FALSE.Equals(this.IsActive))
             {
                 response.AddError("media.IsActive cannot be empty");
@@ -124,8 +100,6 @@ namespace Core.Catalog
                 return false;
             }
 
-            if (DELETE_ACTION.Equals(this.Action)) { return true; }
-            
             if (this.Basic == null)
             {
                 string errMsg = string.Format(CANNOT_BE_EMPTY, "media.Basic");
@@ -151,6 +125,35 @@ namespace Core.Catalog
                     response.AssetsStatus[index].Warnings.Add(warning);
                 }
             }
+
+            return true;
+        }
+
+        public bool Validate(int groupId, CatalogGroupCache cache, ref IngestResponse response, int index, out long mediaId)
+        {
+            mediaId = 0;
+
+            // check media.CoGuid
+            if (string.IsNullOrEmpty(this.CoGuid))
+            {
+                response.AssetsStatus[index].Status.Set((int)eResponseStatus.MissingExternalIdentifier, MISSING_EXTERNAL_IDENTIFIER);
+                response.AddError("Missing co_guid");
+                return false;
+            }
+            
+            if (string.IsNullOrEmpty(this.EntryId))
+            {
+                response.AssetsStatus[index].Warnings.Add(new Status((int)IngestWarnings.MissingEntryId, MISSING_ENTRY_ID));
+            }
+
+            if (string.IsNullOrEmpty(this.Action))
+            {
+                response.AssetsStatus[index].Warnings.Add(new Status((int)IngestWarnings.MissingAction, MISSING_ACTION));
+            }
+            this.Action = this.Action.Trim().ToLower();
+            this.IsActive = this.IsActive.Trim().ToLower();
+
+            mediaId = BulkAssetManager.GetMediaIdByCoGuid(groupId, this.CoGuid);
 
             return true;
         }
