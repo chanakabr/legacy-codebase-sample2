@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -496,12 +497,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("discounts_groupId_{0}", groupId);
         }
-        
+
         public static string GetUsageModulesKey(int groupId)
         {
             return string.Format("UsageModules_groupId_{0}", groupId);
         }
-        
+
         public static string GetGroupDiscountCodesKey(int groupId)
         {
             return string.Format("discountCodes_groupId_{0}", groupId);
@@ -757,6 +758,17 @@ namespace CachingProvider.LayeredCache
             return $"groupCategoriesKey_groupId_{groupId}";
         }
 
+        public static string GetGroupCategoriesForVersionKey(int groupId, long? versionId)
+        {
+            var versionValue = GetNullableValue(versionId, "none");
+            return $"groupCategoriesKey_groupId_{groupId}_version_{versionValue}";
+        }
+
+        public static string GetGroupRootCategoriesKey(int groupId)
+        {
+            return $"groupRootCategoriesKey_groupId_{groupId}";
+        }
+
         public static string GetCategoryItemKey(int groupId, long id)
         {
             return $"categoryItem_V1_{groupId}_{id}";
@@ -795,7 +807,7 @@ namespace CachingProvider.LayeredCache
         {
             return $"group_campaign_{groupId}_type_{campaignType}";
         }
-        
+
         public static string GetUserMessagesStatusKey(int groupId, int userId)
         {
             return $"{groupId}_user_messages_status_{userId}";
@@ -805,7 +817,7 @@ namespace CachingProvider.LayeredCache
         {
             return $"{groupId}_system_message_announcements";
         }
-        
+
         public static string GetFollowMessageAnnouncementKey(int groupId, long announcementId)
         {
             return $"{groupId}_follow_message_announcement_{announcementId}";
@@ -870,12 +882,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format($"{partnerId}_MicroservicesCanaryDeploymentConfiguration");
         }
-        
+
         public static string GetElasticsearchCanaryDeploymentConfigurationKey(int partnerId)
         {
             return string.Format($"{partnerId}_ElasticsearchCanaryDeploymentConfiguration");
         }
-        
+
         public static string GetEpgV2PartnerConfigurationKey(int partnerId)
         {
             return string.Format($"{partnerId}_EpgV2PartnerConfiguration");
@@ -909,7 +921,7 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupSubscriptionItemsKey(int groupId)
         {
             return string.Format("group_subscription_itms_groupId_{0}", groupId);
-        }       
+        }
 
         public static string GetGroupPreviewModulesKey(int groupId)
         {
@@ -920,12 +932,12 @@ namespace CachingProvider.LayeredCache
         {
             return $"Labels_{groupId}";
         }
-        
+
         public static string GetGroupUsingAliasNamesKey(int groupId)
         {
             return $"GroupUsingAliasNames_{groupId}";
         }
-        
+
         public static string GetListSearchPriorityGroupMappingsKey(long groupId)
         {
             return $"group_{groupId}_searchPriorityGroupsMappings";
@@ -948,7 +960,7 @@ namespace CachingProvider.LayeredCache
         {
             return $"device_brands_{groupId}";
         }
-        
+
         public static string GetLiveToVodFullConfigurationKey(long groupId)
             => $"live_to_vod_full_configuration_{groupId}";
 
@@ -1032,11 +1044,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("PricingSettings_groupId_{0}", groupId);
         }
-        
+
         public static string GetPpvGroupInvalidationKey(int groupId)
         {
             return string.Format("Ppv_groupId_{0}", groupId);
-        }       
+        }
         public static string GetPpvInvalidationKey(int id)
         {
             return string.Format("Ppv_id_{0}", id);
@@ -1065,7 +1077,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyAnnounecements_groupId_{0}", groupId);
         }
-        
+
         public static string GetUserMessagesStatusInvalidationKey(int groupId, int userId)
         {
             return $"invalidationKey_{groupId}_User_Messages_Status_{userId}";
@@ -1295,12 +1307,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyDiscounts_groupId_{0}", groupId);
         }
-        
+
         public static string GetGroupUsageModuleInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyUsageModule_groupId_{0}", groupId);
         }
-        
+
         public static string GetGroupPricePlanInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyPricePlan_groupId_{0}", groupId);
@@ -1524,7 +1536,7 @@ namespace CachingProvider.LayeredCache
         }
 
         public static string GetValidateKsInvalidationKeyByKs(int groupId, string ks)
-        {            
+        {
             return $"{groupId}_InvalidateKSRevocationStatus_{ks}";
         }
 
@@ -1653,6 +1665,17 @@ namespace CachingProvider.LayeredCache
             return $"invalidationKeyGroupCategories_groupId_{groupId}";
         }
 
+        public static string GetGroupCategoriesForVersionInvalidationKey(int groupId, long? versionId)
+        {
+            var versionValue = GetNullableValue(versionId, "none");
+            return $"invalidationKeyGroupCategories_groupId_{groupId}_version_{versionValue}";
+        }
+
+        public static string GetGroupRootCategoriesInvalidationKey(int groupId)
+        {
+            return $"invalidationKeyGroupRootCategories_groupId_{groupId}";
+        }
+
         public static string GetCategoryIdInvalidationKey(int groupId, long categoryId)
         {
             return $"invalidationKeyCategory_groupId_{groupId}_Id_{categoryId}";
@@ -1712,7 +1735,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format($"{partnerId}_InvalidateCanaryDeploymentConfiguration");
         }
-        
+
         public static string GetElasticsearchCanaryDeploymentConfigurationInvalidationKey(int partnerId)
         {
             return string.Format($"{partnerId}_InvalidateElasticsearchCanaryDeploymentConfiguration");
@@ -1721,7 +1744,7 @@ namespace CachingProvider.LayeredCache
         public static string GetSubscriptionInvalidationKey(int groupId, long subId)
         {
             return string.Format("invalidationKey_Subscription_groupId_{0}_Id_{1}", groupId, subId);
-        }      
+        }
 
         public static string GetGroupSubscriptionItemsInvalidationKey(int groupId)
         {
@@ -1747,7 +1770,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKey_GroupPremiumServices_groupId_{0}", groupId);
         }
-        
+
         public static string GetGroupUsingAliasNamesInvalidationKey(int groupId)
         {
             return $"invalidationKey_GetGroupUsingAliasNames_groupId_{groupId}";
@@ -1772,7 +1795,7 @@ namespace CachingProvider.LayeredCache
         {
             return $"invalidationKey_DeviceBrands_{groupId}";
         }
-        
+
         public static string GetLiveToVodFullConfigurationInvalidationKey(long groupId)
             => $"invalidationKey_GetLiveToVodFullConfiguration_{groupId}";
 
@@ -1807,5 +1830,9 @@ namespace CachingProvider.LayeredCache
             return "allLanguageList";
         }
 
+        private static string GetNullableValue<T>(T? value, string defaultValue) where T : struct
+        {
+            return value.HasValue ? value.ToString() : defaultValue;
+        }
     }
 }

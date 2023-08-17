@@ -22,11 +22,16 @@ namespace Core.Catalog.CatalogManagement
         //CategoryItem
         GenericResponse<CategoryItem> GetCategoryItem(int groupId, long id);
         Dictionary<long, CategoryParentCache> GetGroupCategoriesIds(int groupId, List<long> ids = null, bool rootOnly = false);
+        Dictionary<long, CategoryParentCache> GetGroupCategoriesIdsForVersion(int groupId, long? versionId);
+        Dictionary<long, CategoryParentCache> GetGroupCategoriesByIds(int groupId, List<long> ids);
+        Dictionary<long, CategoryParentCache> GetGroupRootCategoriesIds(int groupId);
         bool DeleteCategoryItem(int groupId, long userId, long id, bool DBOnly = false);
         List<long> GetCategoryItemSuccessors(int groupId, long id);
         void InvalidateCategoryItem(int groupId, long itemId);
         bool UpdateCategoryOrderNum(int groupId, long? userId, long id, long? versionId, List<long> childCategoriesIds, List<long> childCategoriesIdsToRemove = null);
         void InvalidateGroupCategory(int groupId);
+        void InvalidateGroupCategoryForVersion(int groupId, long? versionId);
+        void InvalidateGroupRootCategories(int groupId);
         bool UpdateCategory(int groupId, long? userId, List<KeyValuePair<long, string>> namesInOtherLanguages, CategoryItem categoryItemToUpdate);
         List<long> GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType);
         long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
@@ -167,12 +172,100 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        public Dictionary<long, CategoryParentCache> GetGroupCategoriesIdsForVersion(int groupId, long? versionId)
+        {
+            var result = new Dictionary<long, CategoryParentCache>();
+
+            try
+            {
+                var cacheResult = new Dictionary<long, CategoryParentCache>();
+                var key = LayeredCacheKeys.GetGroupCategoriesForVersionKey(groupId, versionId);
+                var invalidationKey = LayeredCacheKeys.GetGroupCategoriesForVersionInvalidationKey(groupId, versionId);
+
+                if (!_layeredCache.Get(key,
+                        ref cacheResult,
+                        BuildGroupCategoriesForVersion,
+                        new Dictionary<string, object> {{"groupId", groupId}, {"versionId", versionId}},
+                        groupId,
+                        LayeredCacheConfigNames.GET_GROUP_CATEGORIES,
+                        new List<string> {invalidationKey}))
+                {
+                    log.Error($"Failed getting GetGroupCategoriesIdsForVersion from LayeredCache, groupId: {groupId}, key: {key}");
+                    return result;
+                }
+
+                if (cacheResult != null)
+                {
+                    result = cacheResult;
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed GetGroupCategoriesIdsForVersion, groupId: {groupId}, versionId: {versionId}", e);
+            }
+
+            return result;
+        }
+
+        public Dictionary<long, CategoryParentCache> GetGroupCategoriesByIds(int groupId, List<long> ids)
+        {
+            var result = new Dictionary<long, CategoryParentCache>();
+
+            try
+            {
+                result = _repository.GetCategoriesByIds(groupId, ids);
+            }
+            catch (Exception e)
+            {
+                var idsString = ids == null ? "null" : $"[{string.Join(", ", ids)}]";
+                log.Error($"Failed {nameof(GetGroupCategoriesByIds)}, groupId: {groupId}, ids: {idsString}", e);
+            }
+
+            return result;
+        }
+
+        public Dictionary<long, CategoryParentCache> GetGroupRootCategoriesIds(int groupId)
+        {
+            var result = new Dictionary<long, CategoryParentCache>();
+
+            try
+            {
+                var cacheResult = new Dictionary<long, CategoryParentCache>();
+                var key = LayeredCacheKeys.GetGroupRootCategoriesKey(groupId);
+                var invalidationKey = LayeredCacheKeys.GetGroupRootCategoriesInvalidationKey(groupId);
+
+                if (!_layeredCache.Get(key,
+                        ref cacheResult,
+                        BuildRootGroupCategories,
+                        new Dictionary<string, object> {{"groupId", groupId}},
+                        groupId,
+                        LayeredCacheConfigNames.GET_GROUP_CATEGORIES,
+                        new List<string> {invalidationKey}))
+                {
+                    log.Error($"Failed getting GetGroupRootCategoriesIds from LayeredCache, groupId: {groupId}, key: {key}");
+                    return result;
+                }
+
+                if (cacheResult != null)
+                {
+                    result = cacheResult;
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed GetGroupRootCategoriesIds, groupId: {groupId}", e);
+            }
+
+            return result;
+        }
+
         public bool DeleteCategoryItem(int groupId, long userId, long id, bool DBOnly = false)
         {
             var response = Status.Error;
 
             try
             {
+                var category = GetCategoryItem(groupId, id);
                 if (!_repository.DeleteCategory(groupId, userId, id))
                 {
                     log.Error($"Error while DeleteCategory. id: {id}");
@@ -184,7 +277,15 @@ namespace Core.Catalog.CatalogManagement
                     return true;
                 }
 
-                _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId));
+                if (category.HasObject())
+                {
+                    InvalidateGroupCategoryForVersion(groupId, category.Object.VersionId);
+                    if (category.Object.ParentId == 0)
+                    {
+                        InvalidateGroupRootCategories(groupId);
+                    }
+                }
+
                 InvalidateCategoryItem(groupId, id);
             }
             catch (Exception ex)
@@ -201,7 +302,14 @@ namespace Core.Catalog.CatalogManagement
         {
             List<long> successors = new List<long>();
 
-            var categories = GetGroupCategoriesIds(groupId);
+            var categoryItem = GetCategoryItem(groupId, id);
+
+            if (!categoryItem.HasObject())
+            {
+                return successors;
+            }
+
+            var categories = GetGroupCategoriesIdsForVersion(groupId, categoryItem.Object.VersionId);
             GetCategoryItemSuccessors(categories, id, successors);
 
             return successors;
@@ -217,6 +325,16 @@ namespace Core.Catalog.CatalogManagement
             _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesInvalidationKey(groupId));
         }
 
+        public void InvalidateGroupCategoryForVersion(int groupId, long? versionId)
+        {
+            _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetGroupCategoriesForVersionInvalidationKey(groupId, versionId));
+        }
+
+        public void InvalidateGroupRootCategories(int groupId)
+        {
+            _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetGroupRootCategoriesInvalidationKey(groupId));
+        }
+
         public bool UpdateCategoryOrderNum(int groupId, long? userId, long id, long? versionId, List<long> childCategoriesIds, List<long> childCategoriesIdsToRemove = null)
         {
             if (!_repository.UpdateCategoryOrderNum(groupId, userId, id, versionId, childCategoriesIds, childCategoriesIdsToRemove))
@@ -225,12 +343,14 @@ namespace Core.Catalog.CatalogManagement
                 return false;
             }
 
+            InvalidateGroupRootCategories(groupId);
+
             return true;
         }
 
         public bool UpdateCategory(int groupId, long? userId, List<KeyValuePair<long, string>> namesInOtherLanguages, CategoryItem categoryItemToUpdate)
         {
-            if (!_repository.UpdateCategory(groupId, userId, categoryItemToUpdate.Id, categoryItemToUpdate.Name, namesInOtherLanguages, categoryItemToUpdate.UnifiedChannels, 
+            if (!_repository.UpdateCategory(groupId, userId, categoryItemToUpdate.Id, categoryItemToUpdate.Name, namesInOtherLanguages, categoryItemToUpdate.UnifiedChannels,
                                             categoryItemToUpdate.DynamicData, categoryItemToUpdate.IsActive, categoryItemToUpdate.TimeSlot, categoryItemToUpdate.ReferenceId))
             {
                 log.Error($"Error while updateCategory. categoryId: {categoryItemToUpdate.Id}.");
@@ -320,7 +440,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             Type = ObjectVirtualAssetInfoType.Category,
                             Id = categoryItem.Id,
-                            withExtendedTypes = true 
+                            withExtendedTypes = true
                         };
 
                         var virtualAssetResponse = _virtualAssetManager.GetVirtualAsset(groupId, virtualAssetInfo);
@@ -373,7 +493,7 @@ namespace Core.Catalog.CatalogManagement
                             }
 
                             categoryItem.UnifiedChannels.Add(unifiedChannelInfo);
-                            //TODO ANAT: check if channel exist 
+                            //TODO ANAT: check if channel exist
                         }
                     }
 
@@ -399,7 +519,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // Set ChildCategoriesIds
-                    var groupCategoriesIds = GetGroupCategoriesIds(groupId);
+                    var groupCategoriesIds = GetGroupCategoriesIdsForVersion(groupId, categoryItem.VersionId);
                     if (groupCategoriesIds != null)
                     {
                         categoryItem.ChildrenIds = groupCategoriesIds.Where(x => x.Value.ParentId == id).OrderBy(y => y.Value.Order).Select(z => z.Key).ToList();
@@ -433,6 +553,62 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error($"BuildGroupCategories failed, parameters : {string.Join(";", funcParams.Keys)}", ex);
+            }
+
+            return new Tuple<Dictionary<long, CategoryParentCache>, bool>(result, success);
+        }
+
+        private Tuple<Dictionary<long, CategoryParentCache>, bool> BuildGroupCategoriesForVersion(
+            Dictionary<string, object> funcParams)
+        {
+            var result = new Dictionary<long, CategoryParentCache>();
+            var success = false;
+            try
+            {
+                if (funcParams == null || !funcParams.ContainsKey("groupId") || !funcParams.ContainsKey("versionId"))
+                {
+                    return new Tuple<Dictionary<long, CategoryParentCache>, bool>(result, false);
+                }
+
+                var groupId = funcParams["groupId"] as int?;
+                var versionId = funcParams["versionId"] as long?;
+
+                if (groupId.HasValue)
+                {
+                    result = _repository.GetCategoriesByVersion(groupId.Value, versionId);
+                    success = true;
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error($"BuildGroupCategoriesForVersion failed, parameters : {string.Join(";", funcParams.Keys)}", e);
+            }
+
+            return new Tuple<Dictionary<long, CategoryParentCache>, bool>(result, success);
+        }
+
+        private Tuple<Dictionary<long, CategoryParentCache>, bool> BuildRootGroupCategories(Dictionary<string, object> funcParams)
+        {
+            var result = new Dictionary<long, CategoryParentCache>();
+            var success = false;
+            try
+            {
+                if (funcParams == null || !funcParams.ContainsKey("groupId"))
+                {
+                    return new Tuple<Dictionary<long, CategoryParentCache>, bool>(result, false);
+                }
+
+                var groupId = funcParams["groupId"] as int?;
+
+                if (groupId.HasValue)
+                {
+                    result = _repository.GetRootCategories(groupId.Value);
+                    success = true;
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error($"BuildRootGroupCategories failed, parameters : {string.Join(";", funcParams.Keys)}", e);
             }
 
             return new Tuple<Dictionary<long, CategoryParentCache>, bool>(result, success);
@@ -683,7 +859,7 @@ namespace Core.Catalog.CatalogManagement
 
             InvalidateCategoryVersion(contextData.GroupId, true, newDefaultVersionId);
             InvalidateCategoryVersion(contextData.GroupId, false, currentDefaultVersionId);
-            
+
             return true;
         }
 
