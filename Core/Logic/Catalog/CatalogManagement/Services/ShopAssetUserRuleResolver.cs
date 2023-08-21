@@ -8,6 +8,7 @@ using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using Core.Api.Managers;
+using Core.Catalog.CatalogManagement;
 using Phx.Lib.Log;
 
 namespace ApiLogic.Catalog.CatalogManagement.Services
@@ -18,23 +19,63 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 
         private readonly IShopMarkerService _shopMarkerService;
         private readonly IAssetUserRuleManager _assetUserRuleManager;
+        private readonly ICatalogManager _catalogManager;
 
         private static readonly Lazy<IShopAssetUserRuleResolver> LazyInstance =
             new Lazy<IShopAssetUserRuleResolver>(
-                () => new ShopAssetUserRuleResolver(ShopMarkerService.Instance, AssetUserRuleManager.Instance),
+                () => new ShopAssetUserRuleResolver(
+                    ShopMarkerService.Instance,
+                    AssetUserRuleManager.Instance,
+                    CatalogManager.Instance),
                 LazyThreadSafetyMode.PublicationOnly);
 
         public static IShopAssetUserRuleResolver Instance = LazyInstance.Value;
 
-        public ShopAssetUserRuleResolver(IShopMarkerService shopMarkerService, IAssetUserRuleManager assetUserRuleManager)
+        public ShopAssetUserRuleResolver(
+            IShopMarkerService shopMarkerService,
+            IAssetUserRuleManager assetUserRuleManager,
+            ICatalogManager catalogManager)
         {
             _shopMarkerService = shopMarkerService;
             _assetUserRuleManager = assetUserRuleManager;
+            _catalogManager = catalogManager;
+        }
+
+        public AssetUserRule ResolveByMediaAsset(int groupId, string assetType, IEnumerable<Metas> metas, IEnumerable<Tags> tags)
+        {
+            if (!_catalogManager.TryGetCatalogGroupCacheFromCache(groupId, out var cache)
+                || string.IsNullOrEmpty(assetType)
+                || !cache.AssetStructsMapBySystemName.TryGetValue(assetType, out var assetStruct))
+            {
+                return null;
+            }
+
+            var shopMeta = GetShopMeta(groupId);
+            if (shopMeta == null)
+            {
+                return null;
+            }
+
+            if (assetStruct.MetaIds.Contains(shopMeta.Id))
+            {
+                return ResolveByMediaAsset(groupId, shopMeta, metas, tags);
+            }
+
+            Logger.DebugFormat("Asset type {0} does not contain shop meta {1}", assetType, shopMeta.SystemName);
+
+            return null;
+
         }
 
         public AssetUserRule ResolveByMediaAsset(int groupId, IEnumerable<Metas> metas, IEnumerable<Tags> tags)
         {
             var shopMeta = GetShopMeta(groupId);
+
+            return ResolveByMediaAsset(groupId, shopMeta, metas, tags);
+        }
+
+        private AssetUserRule ResolveByMediaAsset(int groupId, Topic shopMeta, IEnumerable<Metas> metas, IEnumerable<Tags> tags)
+        {
             var assetUserRules = GetAssetUserRules(groupId);
             foreach (var assetUserRule in assetUserRules)
             {

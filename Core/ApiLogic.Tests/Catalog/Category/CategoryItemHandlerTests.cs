@@ -21,16 +21,16 @@ namespace ApiLogic.Tests.Catalog.Category
     public class CategoryItemHandlerTests
     {
         [TestCaseSource(nameof(GetTreeByVersionTestCases))]
-        public void CheckGetTreeByVersion(long treeId, 
-                                          List<CategoryVersion> defaultVersions, 
+        public void CheckGetTreeByVersion(long treeId,
+                                          List<CategoryVersion> defaultVersions,
                                           long? versionId,
                                           int? deviceFamilyId,
-                                          CategoryVersion categoryVersionOfId, 
+                                          CategoryVersion categoryVersionOfId,
                                           CategoryItem rootCategoryItem,
                                           Dictionary<long, CategoryItem> children)
         {
             Fixture fixture = new Fixture();
-            
+
             var catalogPartnerConfigMock = new Mock<ICatalogPartnerConfigManager>();
             catalogPartnerConfigMock.Setup(x => x.GetCategoryVersionTreeIdByDeviceFamilyId(It.IsAny<ContextData>(), It.IsAny<int?>()))
                                     .Returns(treeId);
@@ -45,7 +45,7 @@ namespace ApiLogic.Tests.Catalog.Category
                 categoryCacheMock.Setup(x => x.GetCategoryItem(It.IsAny<int>(), child))
                            .Returns(categoryItemResponse);
             }
-           
+
             categoryCacheMock.Setup(x => x.GetCategoryItem(It.IsAny<int>(), itemId))
                             .Returns(rootCategoryItemResponse);
 
@@ -62,7 +62,7 @@ namespace ApiLogic.Tests.Catalog.Category
                 categoryCacheMock.Setup(x => x.ListCategoryVersionDefaults(It.IsAny<ContextData>(), It.IsAny<CategoryVersionFilter>(), null))
                                 .Returns(vaersionDefaultResponse);
             }
-            
+
             var externalChannelManagerMock = new Mock<IExternalChannelManager>();
             var externalChannelResponse = new GenericResponse<ExternalChannel>(Status.Ok, fixture.Create<ExternalChannel>());
             externalChannelManagerMock.Setup(x => x.GetChannelById(It.IsAny<ContextData>(), It.IsAny<int>(), It.IsAny<bool>()))
@@ -82,15 +82,15 @@ namespace ApiLogic.Tests.Catalog.Category
             var catalogManagerMock = Mock.Of<ICatalogManager>();
             var virtualAssetPartnerManagerMock = Mock.Of<IVirtualAssetPartnerConfigManager>();
             var virtualAssetManagerMock = Mock.Of<IVirtualAssetManager>();
-            var handler = new CategoryItemHandler(virtualAssetPartnerManagerMock, 
-                                                  virtualAssetManagerMock, 
-                                                  imageManagerMock.Object, 
+            var handler = new CategoryItemHandler(virtualAssetPartnerManagerMock,
+                                                  virtualAssetManagerMock,
+                                                  imageManagerMock.Object,
                                                   catalogManagerMock,
                                                   channelManagerMock.Object,
                                                   externalChannelManagerMock.Object,
                                                   categoryCacheMock.Object,
                                                   catalogPartnerConfigMock.Object);
-            
+
             var categoryTreeResponse = handler.GetTreeByVersion(fixture.Create<ContextData>(), versionId, deviceFamilyId);
             Assert.That(categoryTreeResponse.Status.Code, Is.EqualTo((int)eResponseStatus.OK));
             if (versionId.HasValue)
@@ -107,7 +107,7 @@ namespace ApiLogic.Tests.Catalog.Category
         {
             Fixture fixture = new Fixture();
 
-            // get tree by default 
+            // get tree by default
             var categoryVersion1 = fixture.Create<CategoryVersion>();
             categoryVersion1.State = CategoryVersionState.Default;
             var treeId1 = categoryVersion1.TreeId;
@@ -130,7 +130,7 @@ namespace ApiLogic.Tests.Catalog.Category
                     children1.Add(child.Id, child);
                 }
             }
-            
+
             yield return new TestCaseData(treeId1,
                                           new List<CategoryVersion>() { categoryVersion1 },
                                           null,
@@ -172,7 +172,7 @@ namespace ApiLogic.Tests.Catalog.Category
                                           children2)
                 .SetName("GetTreeByVersion_Version");
 
-            // get tree by device family 
+            // get tree by device family
             var categoryVersion3 = fixture.Create<CategoryVersion>();
             categoryVersion3.State = CategoryVersionState.Default;
             var treeId3 = categoryVersion3.TreeId;
@@ -215,7 +215,7 @@ namespace ApiLogic.Tests.Catalog.Category
             var categoryItemResponse = new GenericResponse<CategoryItem>(Status.Ok, categoryItem);
             categoryCacheMock.Setup(x => x.GetCategoryItem(It.IsAny<int>(), It.IsAny<long>()))
                            .Returns(categoryItemResponse);
-            
+
             var categoryVersionResponse = new GenericResponse<CategoryVersion>(Status.Ok, categoryVersion);
             categoryCacheMock.Setup(x => x.GetCategoryVersion(It.IsAny<int>(), It.IsAny<long>()))
                            .Returns(categoryVersionResponse);
@@ -291,10 +291,10 @@ namespace ApiLogic.Tests.Catalog.Category
         }
 
         [TestCaseSource(nameof(UpdateTestCases))]
-        public void CheckUpdate(eResponseStatus exceptedResponse, 
+        public void CheckUpdate(eResponseStatus exceptedResponse,
                                 CategoryItem oldCategoryItem,
                                 CategoryItem newCategoryItem,
-                                CategoryVersion categoryVersion, 
+                                CategoryVersion categoryVersion,
                                 Dictionary<long, CategoryParentCache> groupChildCategories)
         {
             Fixture fixture = new Fixture();
@@ -308,8 +308,8 @@ namespace ApiLogic.Tests.Catalog.Category
             categoryCacheMock.Setup(x => x.GetCategoryVersion(It.IsAny<int>(), It.IsAny<long>()))
                            .Returns(categoryVersionResponse);
 
-            categoryCacheMock.Setup(x => x.GetGroupCategoriesIds(It.IsAny<int>(), It.IsAny<List<long>>(), It.IsAny<bool>()))
-                             .Returns(groupChildCategories);
+            categoryCacheMock.Setup(x => x.GetGroupCategoriesByIds(It.IsAny<int>(), It.IsAny<List<long>>()))
+                .Returns(groupChildCategories);
 
             var categoryItemSuccessors = new List<long>();
             categoryCacheMock.Setup(x => x.GetCategoryItemSuccessors(It.IsAny<int>(), It.IsAny<long>()))
@@ -378,8 +378,8 @@ namespace ApiLogic.Tests.Catalog.Category
 
             yield return new TestCaseData(eResponseStatus.OK,
                                           oldCategoryItem1,
-                                          newCategoryItem1, 
-                                          categoryVersion1, 
+                                          newCategoryItem1,
+                                          categoryVersion1,
                                           groupChildCategories1)
                 .SetName("Update_NoVersion");
 
@@ -404,8 +404,8 @@ namespace ApiLogic.Tests.Catalog.Category
 
             yield return new TestCaseData(eResponseStatus.OK,
                                           oldCategoryItem2,
-                                          newCategoryItem2, 
-                                          categoryVersion2, 
+                                          newCategoryItem2,
+                                          categoryVersion2,
                                           groupChildCategories2)
                 .SetName("Update_DraftVersion");
 
@@ -430,8 +430,8 @@ namespace ApiLogic.Tests.Catalog.Category
 
             yield return new TestCaseData(eResponseStatus.CategoryVersionIsNotDraft,
                                           oldCategoryItem3,
-                                          newCategoryItem3, 
-                                          categoryVersion3, 
+                                          newCategoryItem3,
+                                          categoryVersion3,
                                           groupChildCategories3)
                 .SetName("Update_DefaultVersion");
 
@@ -456,7 +456,7 @@ namespace ApiLogic.Tests.Catalog.Category
 
             yield return new TestCaseData(eResponseStatus.CategoryVersionIsNotDraft,
                                           oldCategoryItem4,
-                                          newCategoryItem4, 
+                                          newCategoryItem4,
                                           categoryVersion4,
                                           groupChildCategories4)
                 .SetName("Update_ReleasedVersion");
@@ -481,8 +481,8 @@ namespace ApiLogic.Tests.Catalog.Category
 
             yield return new TestCaseData(eResponseStatus.CategoryIsAlreadyAssociatedToVersion,
                                           oldCategoryItem5,
-                                          newCategoryItem5, 
-                                          categoryVersion5, 
+                                          newCategoryItem5,
+                                          categoryVersion5,
                                           groupChildCategories5)
                 .SetName("Update_ChildCategoryAssociatedToOtherVersion");
 
@@ -507,8 +507,8 @@ namespace ApiLogic.Tests.Catalog.Category
 
             yield return new TestCaseData(eResponseStatus.OK,
                                           oldCategoryItem6,
-                                          newCategoryItem6, 
-                                          categoryVersion6, 
+                                          newCategoryItem6,
+                                          categoryVersion6,
                                           groupChildCategories6)
                 .SetName("Update_ChildCategoryAssociatedToSameVersion");
         }

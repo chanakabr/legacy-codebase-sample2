@@ -74,82 +74,92 @@ namespace Core.Catalog.CatalogManagement
             var tagsTranslations = new Dictionary<string, TagsTranslations>();
             var assetsWithNoTags = new Dictionary<int, bool>();
             var cdnAdapters = GetCDNAdaptersMapping(groupId);
-            for (int i = 0; i < feedResponse.Object.Export.MediaList.Count; i++)
+            for (var i = 0; i < feedResponse.Object.Export.MediaList.Count; i++)
             {
-                IngestMedia media = feedResponse.Object.Export.MediaList[i];
+                var media = feedResponse.Object.Export.MediaList[i];
                 ingestResponse.AssetsStatus.Add(IngestAssetStatus.Default);
                 MediaAsset mediaAsset = null;
                 AssetUserRule shopAssetUserRule = null;
-                long mediaId = 0;
                 try
                 {
-                    var isMetasValid = media.ValidateMetas(cache, ref ingestResponse, i, out var metas, out var tags, out var topicIdsToRemove);
-                    if (isMetasValid)
+                    if (media.Validate(groupId, cache, ref ingestResponse, i, out var mediaId))
                     {
-                        shopAssetUserRule = ShopAssetUserRuleResolver.Instance.ResolveByMediaAsset(groupId, metas, tags);
-                    }
-
-                    if (isMetasValid && media.Validate(groupId, cache, ref ingestResponse, i, out mediaId))
-                    {
-                        if (media.Action.Equals(IngestMedia.DELETE_ACTION))
+                        switch (media.Action)
                         {
-                            var mediaAssetResponse = AssetManager.Instance.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, true);
-                            if (!mediaAssetResponse.IsOkStatusCode())
+                            case IngestMedia.DELETE_ACTION:
                             {
-                                log.DebugFormat("DeleteMediaAsset - {0}", MEDIA_ID_NOT_EXIST);
-                                ingestResponse.AssetsStatus[i].Warnings.Add(new Status((int)IngestWarnings.MediaIdNotExist, MEDIA_ID_NOT_EXIST));
-                                ingestResponse.Set(media.CoGuid, "Cant delete. the item is not exist", "OK", (int)mediaId);
-                            }
-
-                            mediaAsset = (MediaAsset)mediaAssetResponse.Object;
-                            if (!DeleteMediaAsset((int)mediaId, media.CoGuid, groupId, ref ingestResponse, i))
-                                continue;
-                        }
-                        else
-                        {
-                            mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, tags, metas);
-                            var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
-                            var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
-                            bool isMediaExists = mediaId > 0 || (images != null && images.Count > 0) || (assetFiles != null && assetFiles.Count > 0);
-                            media.Erase = media.Erase.ToLower().Trim();
-                            topicIdsToRemove = mediaId > 0 ? topicIdsToRemove : null;
-                            var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, ref mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, IngestMedia.TRUE.Equals(media.Erase), true, topicIdsToRemove);
-                            if (!upsertStatus.IsOkStatusCode())
-                            {
-                                ingestResponse.AssetsStatus[i].Status = upsertStatus.Status;
-                                ingestResponse.Set(mediaAsset.CoGuid, "UpsertMediaAsset faild", "FAILED", (int)mediaAsset.Id);
-                                continue;
-                            }
-
-                            ingestResponse.AssetsStatus[i].Warnings.AddRange(upsertStatus.Objects);
-                            ingestResponse.Set(mediaAsset.CoGuid, "succeeded Upsert media", "OK", (int)mediaAsset.Id);
-                            ingestResponse.AssetsStatus[i].InternalAssetId = (int)mediaAsset.Id;
-                            ingestResponse.AssetsStatus[i].ExternalAssetId = mediaAsset.CoGuid;
-
-                            if (tags == null || tags.Count == 0)
-                            {
-                                assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
-                            }
-                            else
-                            {
-                                bool doesMediaHaveTagTranslations = false;
-                                AddTagsToTranslations(tags, (int)mediaAsset.Id, isMediaExists, ref tagsTranslations, ref doesMediaHaveTagTranslations);
-                                if (!doesMediaHaveTagTranslations)
+                                var mediaAssetResponse = AssetManager.Instance.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, true);
+                                if (!mediaAssetResponse.IsOkStatusCode())
                                 {
-                                    assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
+                                    log.DebugFormat("DeleteMediaAsset - {0}", MEDIA_ID_NOT_EXIST);
+                                    ingestResponse.AssetsStatus[i].Warnings.Add(new Status((int)IngestWarnings.MediaIdNotExist, MEDIA_ID_NOT_EXIST));
+                                    ingestResponse.Set(media.CoGuid, "Cant delete. the item is not exist", "OK", (int)mediaId);
                                 }
-                            }
+                                else
+                                {
+                                    mediaAsset = (MediaAsset)mediaAssetResponse.Object;
+                                    shopAssetUserRule = ShopAssetUserRuleResolver.Instance.ResolveByMediaAsset(groupId, mediaAsset.Metas, mediaAsset.Tags);
+                                    DeleteMediaAsset((int)mediaId, media.CoGuid, groupId, ref ingestResponse, i);
+                                }
 
-                            // update notification
-                            if (mediaAsset.IsActive.Value)
+                                break;
+                            }
+                            default:
                             {
-                                Notification.Module.AddFollowNotificationRequestForOpc(groupId, mediaAsset, USER_ID, cache);
+                                var isMetasValid = media.ValidateMetas(cache, ref ingestResponse, i, out var metas, out var tags, out var topicIdsToRemove);
+                                if (isMetasValid)
+                                {
+                                    shopAssetUserRule = ShopAssetUserRuleResolver.Instance.ResolveByMediaAsset(groupId, media.Basic?.MediaType, metas, tags);
+                                }
+
+                                if (isMetasValid && media.ValidateOnInsertOrUpdate(groupId, cache, mediaId, ref ingestResponse, i))
+                                {
+                                    mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, tags, metas);
+                                    var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
+                                    var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
+                                    bool isMediaExists = mediaId > 0 || (images != null && images.Count > 0) || (assetFiles != null && assetFiles.Count > 0);
+                                    media.Erase = media.Erase.ToLower().Trim();
+                                    topicIdsToRemove = mediaId > 0 ? topicIdsToRemove : null;
+                                    var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, ref mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, IngestMedia.TRUE.Equals(media.Erase), true, topicIdsToRemove);
+                                    if (!upsertStatus.IsOkStatusCode())
+                                    {
+                                        ingestResponse.AssetsStatus[i].Status = upsertStatus.Status;
+                                        ingestResponse.Set(mediaAsset.CoGuid, "UpsertMediaAsset faild", "FAILED", (int)mediaAsset.Id);
+                                        continue;
+                                    }
+
+                                    ingestResponse.AssetsStatus[i].Warnings.AddRange(upsertStatus.Objects);
+                                    ingestResponse.Set(mediaAsset.CoGuid, "succeeded Upsert media", "OK", (int)mediaAsset.Id);
+                                    ingestResponse.AssetsStatus[i].InternalAssetId = (int)mediaAsset.Id;
+                                    ingestResponse.AssetsStatus[i].ExternalAssetId = mediaAsset.CoGuid;
+                                    if (tags == null || tags.Count == 0)
+                                    {
+                                        assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
+                                    }
+                                    else
+                                    {
+                                        bool doesMediaHaveTagTranslations = false;
+                                        AddTagsToTranslations(tags, (int)mediaAsset.Id, isMediaExists, ref tagsTranslations, ref doesMediaHaveTagTranslations);
+                                        if (!doesMediaHaveTagTranslations)
+                                        {
+                                            assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
+                                        }
+                                    }
+
+                                    // update notification
+                                    if (mediaAsset.IsActive.Value)
+                                    {
+                                        Notification.Module.AddFollowNotificationRequestForOpc(groupId, mediaAsset, USER_ID, cache);
+                                    }
+
+                                    // succeeded import media
+                                    ingestResponse.AssetsStatus[i].Status.Set(eResponseStatus.OK);
+                                    log.DebugFormat("succeeded import media. CoGuid:{0}, MediaID:{1}, ErrorMessage:{2}", media.CoGuid, mediaId, media.IsActive, ingestResponse.Description);
+                                }
+
+                                break;
                             }
                         }
-
-                        // succeeded import media
-                        ingestResponse.AssetsStatus[i].Status.Set(eResponseStatus.OK);
-                        log.DebugFormat("succeeded import media. CoGuid:{0}, MediaID:{1}, ErrorMessage:{2}", media.CoGuid, mediaId, media.IsActive, ingestResponse.Description);
                     }
                     else
                     {

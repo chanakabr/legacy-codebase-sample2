@@ -17,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using ApiLogic.Api.Managers;
+using ApiLogic.Catalog;
 using Tvinci.Core.DAL;
 using TVinciShared;
 

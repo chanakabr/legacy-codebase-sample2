@@ -1442,6 +1442,46 @@ namespace CouchbaseManager
             return result;
         }
 
+        public async Task<bool> RemoveAsync(string key)
+        {
+            try
+            {
+                var bucket = await ClusterHelper.GetBucketAsync(bucketName);
+                IOperationResult operationResult;
+                using (new KMonitor(Events.eEvent.EVENT_COUCHBASE)
+                    {
+                        QueryType = KLogEnums.eDBQueryType.DELETE,
+                        Database = $"bucket: {bucketName}; key: {key}"
+                    })
+                {
+                    operationResult = await bucket.RemoveAsync(key);
+                }
+
+                if (operationResult == null)
+                {
+                    return false;
+                }
+
+                if (operationResult.Success)
+                {
+                    return true;
+                }
+                // if key is already deleted - we regard this remove as successful
+                if (operationResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                {
+                    return true;
+                }
+
+                log.ErrorFormat("Error while trying to delete document. key: {0}. CB response: {2}", key, JsonConvert.SerializeObject(operationResult));
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchbaseManager - Failed remove on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
+            }
+
+            return false;
+        }
+
         public T GetWithVersion<T>(string key, out ulong version, bool asJson = false)
         {
             version = 0;

@@ -10,13 +10,14 @@ using Core.ConditionalAccess;
 using GroupsCacheManager;
 using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
+using OTT.Lib.Kafka.Extensions;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.Generated.Api.Events.Logical.IndexRecording;
 using Phx.Lib.Log;
 
 namespace Phoenix.AsyncHandler.Recording
 {
-    public class IndexRecordingHandler : IHandler<IndexRecording>
+    public class IndexRecordingHandler : IKafkaMessageHandler<IndexRecording>
     {
         private readonly ILogger<IndexRecordingHandler> _logger;
         private const int CHUNK_EPG_SIZE = 5;
@@ -26,19 +27,19 @@ namespace Phoenix.AsyncHandler.Recording
             _logger = logger;
         }
         
-        public HandleResult Handle(ConsumeResult<string, IndexRecording> consumeResult)
+        public Task<HandleResult> Handle(ConsumeResult<string, IndexRecording> consumeResult)
         {
             if (!consumeResult.Result.Message.Value.PartnerId.HasValue)
             {
                 _logger.LogError("Wrong event body - must have partner id");
-                return Result.Ok;
+                return Task.FromResult(Result.Ok);
             }
             
             indexManager = IndexManagerFactory.Instance.GetIndexManager((int)consumeResult.Result.Message.Value.PartnerId.Value);
             if (consumeResult.Result.Message.Value.AssetIds == null || consumeResult.Result.Message.Value.AssetIds.Length == 0)
             {
                 _logger.LogDebug("Recordings Id list empty");
-                return Result.Ok;
+                return Task.FromResult(Result.Ok);
             }
             
             
@@ -85,7 +86,7 @@ namespace Phoenix.AsyncHandler.Recording
                     break;
             }
 
-            return result;
+            return Task.FromResult(result);
         }
         
         private bool UpdateEpg(int partnerId, List<long> epgIds, Dictionary<long, long> epgToRecordingMapping)

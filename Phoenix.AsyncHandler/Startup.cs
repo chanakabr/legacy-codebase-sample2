@@ -1,5 +1,6 @@
 ﻿using System;
 using ApiLogic.Api.Managers;
+using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Managers;
 using ApiLogic.Catalog.CatalogManagement.Repositories;
 using ApiLogic.Catalog.CatalogManagement.Services;
@@ -7,6 +8,7 @@ using ApiLogic.Catalog.CatalogManagement.Validators;
 using ApiLogic.EPG;
 using ApiLogic.Pricing.Handlers;
 using ApiLogic.Repositories;
+using ApiObjects;
 using CachingProvider.LayeredCache;
 using Core.Api;
 using Core.Api.Managers;
@@ -14,6 +16,7 @@ using Core.Catalog;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
+using Core.Notification;
 using Core.Pricing;
 using Core.Users.Cache;
 using CouchbaseManager;
@@ -25,14 +28,22 @@ using LiveToVod;
 using LiveToVod.BOL;
 using LiveToVod.DAL;
 using log4net.Core;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OTT.Lib.Kafka;
+using OTT.Lib.Kafka.Extensions;
+using OTT.Lib.Metrics.Extensions;
 using OTT.Service.TaskScheduler.Extensions.TaskHandler;
 using Phoenix.AsyncHandler.Catalog;
 using Phoenix.AsyncHandler.ConditionalAccess;
 using Phoenix.AsyncHandler.Couchbase;
+using Phoenix.AsyncHandler.Gdpr;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.AsyncHandler.Kronos;
 using Phoenix.AsyncHandler.Pricing;
@@ -44,6 +55,7 @@ using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Extensions.RecordingFailed;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
 using Phoenix.Generated.Api.Events.Logical.Gdpr.HouseholdRetentionPeriodExpired;
+using Phoenix.Generated.Api.Events.Logical.Gdpr.OttUserRetentionPeriodExpired;
 using Phoenix.Generated.Api.Events.Logical.IndexRecording;
 using Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup;
 using Phoenix.Generated.Api.Events.Logical.RebuildRecordingsIndex;
@@ -80,10 +92,10 @@ namespace Phoenix.AsyncHandler
                     services.AddKafkaConsumerFactory(KafkaConfig.Get());
                     services
                         .AddDependencies()
-                        .AddKafkaHandlers()
-                        .AddMetricsAndHealthHttpServer();
+                        .AddKafkaHandlers();
                 }).ConfigureMappings()
-                .ConfigureEventNotificationsConfig();
+                .ConfigureEventNotificationsConfig()
+                .ConfigureHealthAndMetricsEndpoint();
 
             return builder;
         }
@@ -93,6 +105,7 @@ namespace Phoenix.AsyncHandler
             var kafkaConfig = KafkaConfig.Get();
             services.AddSingleton(p => DomainsCache.Instance());
             services.AddScoped<IKafkaContextProvider, AsyncHandlerKafkaContextProvider>();
+            services.AddKafkaConsumerInterceptor<KafkaConsumerInterceptor>();
 
             services.AddKronosHandlers(kafkaConfig[KafkaConfigKeys.BootstrapServers],
                 p => p
@@ -103,7 +116,7 @@ namespace Phoenix.AsyncHandler
                     .AddHandler<VerifyRecordingFinalStatusHandler>(VerifyRecordingFinalStatus.VerifyRecordingFinalStatusQualifiedName)
                     .AddHandler<RetryRecordingHandler>(RetryRecording.RetryRecordingQualifiedName)
                     .AddHandler<EvictRecordingHandler>(EvictRecording.EvictRecordingQualifiedName)
-                );
+            );
 
             services.AddKafkaProducerFactory(kafkaConfig);
             services
@@ -154,6 +167,9 @@ namespace Phoenix.AsyncHandler
                 .AddScoped<IGroupSettingsManager, GroupSettingsManager>()
                 .AddScoped<IEpgPartnerConfigurationManager>(serviceProvider => EpgPartnerConfigurationManager.Instance)
                 .AddScoped<IGroupManager, GroupManager>()
+                .AddScoped<IUserWatchHistoryManager, UserWatchHistoryManager>()
+                .AddScoped<IMediaMarksDAL, MediaMarksDAL>()
+                .AddScoped<NotificationCache>()
                 .AddSingleton<ICatalogCache, CatalogCache>()
                 //.AddSingleton<ICouchbaseWorker, CouchbaseWorker>()
                 // live to vod
@@ -168,16 +184,17 @@ namespace Phoenix.AsyncHandler
 
         public static IServiceCollection AddKafkaHandlers(this IServiceCollection services)
         {
-            services.AddKafkaHandler<IndexRecordingHandler, IndexRecording>("Index-Recording", IndexRecording.GetTopic());
-            services.AddKafkaHandler<RebuildRecordingsIndexHandler, RebuildRecordingsIndex>("rebuild-recordings-index", RebuildRecordingsIndex.GetTopic());
-            services.AddKafkaHandler<HouseholdNpvrAccountHandler, Household>("household-npvr-account", Household.GetTopic());
-            services.AddKafkaHandler<EntitlementLogicalHandler, AppstoreNotification>("appstore-notification", AppstoreNotification.GetTopic());
-            services.AddKafkaHandler<UserHandler, OttUser>("ottuser", OttUser.GetTopic());
-            services.AddKafkaHandler<LiveToVodAssetHandler, ProgramAsset>("live-to-vod-asset", ProgramAsset.GetTopic());
-            services.AddKafkaHandler<RecordingFailedHandler, RecordingFailed>("recording-failed", RecordingFailed.GetTopic());
-            services.AddKafkaHandler<PersonalActivityCleanupHandler, PersonalActivityCleanup>("personal-activity-cleanup", PersonalActivityCleanup.GetTopic());
-            services.AddKafkaHandler<Recording.HouseholdRetentionPeriodExpiredHandler, HouseholdRetentionPeriodExpired>("gdpr-recording", HouseholdRetentionPeriodExpired.GetTopic());
-            services.AddKafkaHandler<PartnerMigrationHouseholdRecordingHandler, PartnerMigrationHouseholdRecording>("partner-migration-household-recording", PartnerMigrationHouseholdRecording.GetTopic());
+            services.AddKafkaConsumer<IndexRecordingHandler, IndexRecording>(KafkaConfig.GetConsumerGroup("Index-Recording"), IndexRecording.GetTopic());
+            services.AddKafkaConsumer<RebuildRecordingsIndexHandler, RebuildRecordingsIndex>(KafkaConfig.GetConsumerGroup("rebuild-recordings-index"), RebuildRecordingsIndex.GetTopic());
+            services.AddKafkaConsumer<HouseholdNpvrAccountHandler, Household>(KafkaConfig.GetConsumerGroup("household-npvr-account"), Household.GetTopic());
+            services.AddKafkaConsumer<EntitlementLogicalHandler, AppstoreNotification>(KafkaConfig.GetConsumerGroup("appstore-notification"), AppstoreNotification.GetTopic());
+            services.AddKafkaConsumer<UserHandler, OttUser>(KafkaConfig.GetConsumerGroup("ottuser"), OttUser.GetTopic());
+            services.AddKafkaConsumer<LiveToVodAssetHandler, ProgramAsset>(KafkaConfig.GetConsumerGroup("live-to-vod-asset"), ProgramAsset.GetTopic());
+            services.AddKafkaConsumer<RecordingFailedHandler, RecordingFailed>(KafkaConfig.GetConsumerGroup("recording-failed"), RecordingFailed.GetTopic());
+            services.AddKafkaConsumer<PersonalActivityCleanupHandler, PersonalActivityCleanup>(KafkaConfig.GetConsumerGroup("personal-activity-cleanup"), PersonalActivityCleanup.GetTopic());
+            services.AddKafkaConsumer<Recording.HouseholdRetentionPeriodExpiredHandler, HouseholdRetentionPeriodExpired>(KafkaConfig.GetConsumerGroup("gdpr-recording"), HouseholdRetentionPeriodExpired.GetTopic());
+            services.AddKafkaConsumer<PartnerMigrationHouseholdRecordingHandler, PartnerMigrationHouseholdRecording>(KafkaConfig.GetConsumerGroup("partner-migration-household-recording"), PartnerMigrationHouseholdRecording.GetTopic());
+            services.AddKafkaConsumer<OttUserRetentionPeriodExpiredHandler, OttUserRetentionPeriodExpired>("gdpr-ott-user", OttUserRetentionPeriodExpired.GetTopic());
             return services;
         }
         
@@ -216,30 +233,6 @@ namespace Phoenix.AsyncHandler
             return services;
         }
 
-        private static IServiceCollection AddKafkaHandler<THandler, TValue>(this IServiceCollection services, string kafkaGroupSuffix, string topic) where THandler : IHandler<TValue>
-        {
-            services.AddScoped(typeof(THandler), typeof(THandler));
-            services.AddSingleton<IHostedService, BackgroundServiceStarter<THandler, TValue>>(p =>
-                new BackgroundServiceStarter<THandler, TValue>(
-                    p.GetService<IKafkaConsumerFactory>(),
-                    p.GetService<IServiceScopeFactory>(),
-                    p.GetService<IHostApplicationLifetime>(),
-                    kafkaGroupSuffix,
-                    topic));
-            return services;
-        }
-
-        public static IServiceCollection AddMetricsAndHealthHttpServer(this IServiceCollection services)
-        {
-            if (!int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var port)) port = 8080;
-
-            return services.AddHostedService(serviceProvider =>
-            {
-                var logger = serviceProvider.GetService<ILogger<HttpHostedService>>();
-                return new HttpHostedService(port, logger);
-            });
-        }
-
         private static LogLevel GetLogLevelFromKLogger()
         {
             var level = KLogger.GetLogLevel();
@@ -248,6 +241,26 @@ namespace Phoenix.AsyncHandler
             if (level >= Level.Info) return LogLevel.Information;
             if (level >= Level.Debug) return LogLevel.Debug;
             return LogLevel.Trace;
+        }
+
+        private static IHostBuilder ConfigureHealthAndMetricsEndpoint(this IHostBuilder hostBuilder)
+        {
+            return hostBuilder
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    if (!int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var port)) port = 8080;
+                    webBuilder
+                        .UseUrls($"http://*:{port}")
+                        .Configure(a => a
+                            .UseMetrics()
+                            .UseHealthChecks("/health", new HealthCheckOptions
+                            {
+                                ResponseWriter = (context, report) =>
+                                    context.Response.WriteAsync(JsonConvert.SerializeObject(report))
+                            })
+                        );
+
+                });
         }
     }
 }

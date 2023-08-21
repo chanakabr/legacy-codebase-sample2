@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Catalog;
 using Core.Api;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -3508,11 +3509,11 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal void CleanUserAssetHistory(int groupId, string userId, string udid, List<string> assetIds, List<int> assetTypes, KalturaWatchStatus watchStatus, int days, string ksql)
+        internal void CleanUserAssetHistory(int groupId, long userId, string udid, List<string> assetIds, List<int> assetTypes, KalturaWatchStatus watchStatus, int days, string ksql)
         {
             Status response = null;
             
-            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, udid, string.Empty, 0, 0, watchStatus, days, assetTypes,
+            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId.ToString(), udid, string.Empty, 0, 0, watchStatus, days, assetTypes,
                             assetIds, false, ksql);
 
             if (historyResponse != null && historyResponse.Objects != null && historyResponse.Objects.Count > 0)
@@ -3521,7 +3522,7 @@ namespace WebAPI.Clients
                 {
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        response = Core.Api.Module.CleanUserAssetHistory(groupId, userId,
+                        response = UserWatchHistoryManager.Instance.Clean(groupId, userId,
                             historyResponse.Objects.Select(a => new KeyValuePair<int, eAssetTypes>((int)a.AssetId, AutoMapper.Mapper.Map<eAssetTypes>(a.AssetType))).ToList());
                     }
                 }

@@ -252,9 +252,9 @@ namespace ApiLogic.Catalog.NextEpisode
                 SeriesId = seriesId.ToLower()
             };
 
-            var usersWatchHistory = CatalogLogic.GetRawUserWatchHistory(
+            var usersWatchHistory = UserWatchHistoryManager.Instance.GetRaw(
                 context.GroupId,
-                context.UserId.ToString(),
+                context.UserId,
                 new List<int>(),
                 new List<string>(),
                 new List<int>(),

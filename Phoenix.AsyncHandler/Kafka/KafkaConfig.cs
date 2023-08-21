@@ -8,6 +8,8 @@ namespace Phoenix.AsyncHandler.Kafka
     public static class KafkaConfig
     {
         public const string KafkaGroupId = "ott-service-phoenix-async-handler";
+
+        public static string GetConsumerGroup(string kafkaGroupSuffix) => $"{KafkaConfig.KafkaGroupId}-{kafkaGroupSuffix}";
         
         public static IDictionary<string, string> Get()
         {

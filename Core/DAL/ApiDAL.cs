@@ -1071,7 +1071,7 @@ namespace DAL
 
                 var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
-                string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userId);
+                string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(nSiteGuid);
                 var allUserAssetMarks = new Lazy<UserMediaMarks>(() => mediaMarkManager.Get<UserMediaMarks>(documentKey));
 
                 if (mediaIdsToRemove.Count == 0 && allUserAssetMarks.Value?.mediaMarks != null) // remove all media
@@ -4442,34 +4442,6 @@ namespace DAL
             sp.AddParameter("@Ip", ip);
 
             return sp.ExecuteReturnValue<int>() > 0;
-        }
-
-        public static bool CleanUserAssetHistory(List<string> assetHistoryKeys)
-        {
-            try
-            {
-                var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-
-                Random r = new Random();
-
-                foreach (string documentKey in assetHistoryKeys)
-                {
-                    bool markResult = mediaMarkManager.Remove(documentKey);
-                    Thread.Sleep(r.Next(50));
-
-                    if (!markResult)
-                    {
-                        log.ErrorFormat("Failed to remove asset history key = {0}, markResult = {1}", documentKey, markResult);
-                    }
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                log.Error("", ex);
-                return false;
-            }
         }
 
         public static DrmAdapter GetDrmAdapter(int adapterId, bool shouldGetOnlyActive = true)

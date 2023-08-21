@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using OTT.Lib.Kafka;
+using OTT.Lib.Kafka.Extensions;
 using SchemaRegistryEvents.Catalog;
 
 namespace Phoenix.AsyncHandler.Kafka
@@ -8,15 +10,15 @@ namespace Phoenix.AsyncHandler.Kafka
     /// Long-running handler, which consumes CRUD kafka messages
     /// </summary>
     /// <typeparam name="T">CRUD message</typeparam>
-    public abstract class CrudHandler<T> : IHandler<T>
+    public abstract class CrudHandler<T> : IKafkaMessageHandler<T>
     {
-        public virtual HandleResult Handle(ConsumeResult<string, T> consumeResult)
+        public virtual Task<HandleResult> Handle(ConsumeResult<string, T> consumeResult)
         {
             switch (GetOperation(consumeResult.Result.Message.Value))
             {
-                case CrudOperationType.CREATE_OPERATION: return Create(consumeResult);
-                case CrudOperationType.UPDATE_OPERATION: return Update(consumeResult);
-                case CrudOperationType.DELETE_OPERATION: return Delete(consumeResult);
+                case CrudOperationType.CREATE_OPERATION: return Task.FromResult(Create(consumeResult));
+                case CrudOperationType.UPDATE_OPERATION: return Task.FromResult(Update(consumeResult));
+                case CrudOperationType.DELETE_OPERATION: return Task.FromResult(Delete(consumeResult));
                 default: throw new NotImplementedException("unknown crud operation");
             }
         }

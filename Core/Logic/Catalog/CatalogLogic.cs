@@ -2330,7 +2330,7 @@ namespace Core.Catalog
             // If this group has regionalization enabled at all
             if (isRegionalizationEnabled)
             {
-                var regionId = GetRegionIdOfUser(groupId, domainId, siteGuid, defaultRegion);
+                var regionId = GetRegionIdOfUser(groupId, domainId, defaultRegion);
                 // Get the region of the requesting domain
                 if (regionId == -1 && defaultRegion != 0)
                 {
@@ -2351,64 +2351,43 @@ namespace Core.Catalog
                 }
             }
         }
-
-        public static int GetRegionIdOfUser(int groupId, int domainId, string siteGuid, int defaultRegion = -1)
+        
+        public static bool IsRegionalizationEnabled(int groupId, out int partnerDefaultRegionId)
         {
-            int regionId = -1;
-            bool isRegionalizationEnabled = false;
-
-            if (defaultRegion > -1)
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
-                isRegionalizationEnabled = true;
+                if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId,
+                        out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
+                {
+                    partnerDefaultRegionId = catalogGroupCache.DefaultRegion;
+                    return true;
+                }
             }
             else
             {
-                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
+                var group = GroupsCache.Instance().GetGroup(groupId);
+                if (group != null && group.isRegionalizationEnabled)
                 {
-                    if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId,
-                        out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
-                    {
-                        isRegionalizationEnabled = true;
-                        defaultRegion = catalogGroupCache.DefaultRegion;
-                    }
-                }
-                else
-                {
-                    var group = GroupsCache.Instance().GetGroup(groupId);
-                    if (group != null && group.isRegionalizationEnabled)
-                    {
-                        isRegionalizationEnabled = true;
-                        defaultRegion = group.defaultRegion;
-                    }
+                    partnerDefaultRegionId = group.defaultRegion;
+                    return true;
                 }
             }
-
-            if (isRegionalizationEnabled)
-            {
-                regionId = RequestContextUtilsInstance.Get().GetRegionId() ?? GetRegionByDomain(groupId, domainId, defaultRegion);
-            }
-
-            return regionId;
+            
+            partnerDefaultRegionId = -1;
+            return false;
         }
 
-        // Old standard - only if regionId from KS not working
-        private static int GetRegionByDomain(int groupId, int domainId, int defaultRegion)
+        public static int GetRegionIdOfUser(int groupId, int domainId, int partnerDefaultRegionId)
+        {
+            return RequestContextUtilsInstance.Get().GetRegionId() ?? GetRegionByDomain(groupId, domainId, partnerDefaultRegionId);;
+        }
+        
+        public static int GetRegionByDomain(int groupId, int domainId, int defaultRegion)
         {
             var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
-            if (domainRes != null && domainRes.Status.IsOkStatusCode())
-            {
-                // If the domain is not associated to a region - get default region
-                if (domainRes.Domain.m_nRegion > 0)
-                {
-                    return domainRes.Domain.m_nRegion;
-                }
-                else
-                {
-                    return defaultRegion;
-                }
-            }
-
-            return -1;
+            return domainRes != null && domainRes.Status.IsOkStatusCode() && domainRes.Domain.m_nRegion > 0 // If the domain is not associated to a region - get default region
+                ? domainRes.Domain.m_nRegion
+                : defaultRegion;
         }
 
         /*Build Full search object*/
@@ -5417,7 +5396,7 @@ namespace Core.Catalog
             var assetToBookmarks = new Dictionary<AssetBookmarkRequest, List<Bookmark>>(assetBookmarkRequestEqualityComparer);
             foreach (var userId in usersToGetLastPosition.Distinct())
             {
-                var userMediaMarks = GetUserMediaMarks(groupId, userId, numOfDays: 0);
+                var userMediaMarks = UserWatchHistoryManager.Instance.GetUserMediaMarks(groupId, userId, numOfDays: 0);
                 var user = usersDictionary[userId.ToString()];
                 var userType = defaultUsers.Contains(userId)
                     ? eUserType.HOUSEHOLD
@@ -6437,7 +6416,7 @@ namespace Core.Catalog
 
                             if (group != null && group.isRegionalizationEnabled)
                             {
-                                int regionId = GetRegionIdOfUser(request.m_nGroupID, request.domainId, request.m_sSiteGuid, group.defaultRegion);
+                                int regionId = GetRegionIdOfUser(request.m_nGroupID, request.domainId, group.defaultRegion);
 
                                 DataRow regionRow =
                                 ODBCWrapper.Utils.GetTableSingleRow("linear_channels_regions", regionId);
@@ -9238,469 +9217,6 @@ namespace Core.Catalog
             }
         }
 
-        public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, int domainId,
-            List<int> assetTypes,
-            List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays,
-            ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, bool suppress, string filterQuery,
-            out int totalItems)
-        {
-            log.DebugFormat("Start GetUserWatchHistory for user {0} in groupId {1}", siteGuid, groupId);
-
-            List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
-
-            totalItems = 0;
-
-            try
-            {
-                if (!string.IsNullOrEmpty(filterQuery)) //BEO - 9621.use filterQuery
-                {
-                    assetTypes = assetTypes ?? new List<int>();
-                    assetIds = assetIds ?? new List<string>();
-                }
-
-                var unFilteredresult = GetRawUserWatchHistory(groupId, siteGuid, assetTypes, assetIds,
-                    excludedAssetTypes, filterStatus, numOfDays);
-                Dictionary<string, WatchHistory> seriesMap = new Dictionary<string, WatchHistory>();
-
-                if (unFilteredresult != null && unFilteredresult.Count > 0)
-                {
-                    unFilteredresult = unFilteredresult.Where(x => x.AssetTypeId != (int) eAssetTypes.UNKNOWN).ToList();
-
-                    GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                    Group group = groupManager.GetGroup(groupId);
-
-                    string watchRules = string.Empty;
-                    bool isOPC = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
-
-                    if ((group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0) || isOPC)
-                    {
-                        if (!isOPC)
-                        {
-                            watchRules = string.Join(" ", group.m_sPermittedWatchRules);
-                        }
-
-                        // validate media on ES
-                        UnifiedSearchDefinitions searchDefinitions = new UnifiedSearchDefinitions()
-                        {
-                            groupId = groupId,
-                            permittedWatchRules = watchRules,
-                            specificAssets = new Dictionary<eAssetTypes, List<string>>(),
-                            shouldAddIsActiveTerm = true,
-                            shouldIgnoreDeviceRuleID = true,
-                            extraReturnFields = new HashSet<string>()
-                        };
-
-                        if (!string.IsNullOrEmpty(filterQuery)) //BEO - 9621.use filterQuery
-                        {
-                            string filter = filterQuery;
-                            BooleanPhraseNode filterTree = null;
-                            var status = BooleanPhraseNode.ParseSearchExpression(filter, ref filterTree);
-
-                            searchDefinitions.filterPhrase = filterTree;
-
-                            BaseRequest request = new BaseRequest()
-                            {
-                                m_sSiteGuid = siteGuid,
-                                m_nGroupID = groupId,
-                                m_dServerTime = DateTime.UtcNow
-                                //,m_sUserIP
-                            };
-
-                            UpdateNodeTreeFields(request, ref filterTree, searchDefinitions, group,
-                                groupId); //BEO-10234
-                        }
-
-                        int elasticSearchPageSize = 0;
-                        string seriesIdExtraReturnField = "metas.seriesid";
-
-                        List<string> listOfMedia = unFilteredresult.Where(x => x.AssetTypeId > 1)
-                            .Select(x => x.AssetId.ToString()).ToList();
-                        if (listOfMedia.Count > 0)
-                        {
-                            searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, listOfMedia);
-                            searchDefinitions.shouldSearchMedia = true;
-                            searchDefinitions.shouldUseFinalEndDate = true;
-                            searchDefinitions.shouldUseStartDateForMedia = true;
-                            elasticSearchPageSize += listOfMedia.Count;
-                            if (suppress)
-                            {
-                                if (!isOPC)
-                                {
-                                    string episodeAssociationTagName = NotificationCache.Instance().GetEpisodeAssociationTagName(groupId);
-
-                                    if (!string.IsNullOrEmpty(episodeAssociationTagName))
-                                    {
-                                        var prefix = GetElasticPrefixByFieldType(episodeAssociationTagName, group);
-                                        seriesIdExtraReturnField = $"{prefix}.{episodeAssociationTagName.ToLower()}";
-                                    }
-                                    else
-                                    {
-                                        suppress = false;
-                                    }
-                                }
-
-                                if (suppress)
-                                {
-                                    searchDefinitions.extraReturnFields.Add(seriesIdExtraReturnField);
-                                    searchDefinitions.extraReturnFields.Add("media_type_id");
-                                }
-                            }
-                        }
-
-                        List<string> listOfEpg = unFilteredresult.Where(x => x.AssetTypeId == (int) eAssetTypes.EPG)
-                            .Select(x => x.AssetId.ToString()).ToList();
-                        if (listOfEpg.Count > 0)
-                        {
-                            searchDefinitions.specificAssets.Add(eAssetTypes.EPG, listOfEpg);
-                            searchDefinitions.shouldSearchEpg = true;
-                            searchDefinitions.shouldUseSearchEndDate = true;
-                            searchDefinitions.shouldUseStartDateForEpg = false;
-                            searchDefinitions.shouldUseEndDateForEpg = false;
-                            elasticSearchPageSize += listOfEpg.Count;
-                        }
-
-                        searchDefinitions.pageSize = elasticSearchPageSize;
-                        searchDefinitions.shouldReturnExtendedSearchResult =
-                            searchDefinitions.extraReturnFields?.Count > 0;
-
-                        searchDefinitions.EpgFeatureVersion = GroupSettingsManager.Instance.GetEpgFeatureVersion(groupId);
-
-                        if (elasticSearchPageSize > 0)
-                        {
-                            List<int> activeMediaIds = new List<int>();
-                            List<int> activeEpg = new List<int>();
-
-                            int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
-                            var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
-                            int esTotalItems = 0;
-                            var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems);
-
-                            long? episodeStructId = 0;
-                            bool isEpisode = false;
-
-                            if (searchResults != null && searchResults.Count > 0)
-                            {
-                                foreach (var searchResult in searchResults)
-                                {
-                                    int assetId = int.Parse(searchResult.AssetId);
-
-                                    if (searchResult.AssetType == eAssetTypes.MEDIA)
-                                    {
-                                        bool addToList = true;
-                                        var watched = unFilteredresult.First(x =>
-                                            int.Parse(x.AssetId) == assetId && x.AssetTypeId > 1);
-                                        watched.UpdateDate = searchResult.m_dUpdateDate;
-
-                                        if (suppress)
-                                        {
-                                            ExtendedSearchResult ecr = (ExtendedSearchResult) searchResult;
-                                            string seriesId =
-                                                Api.api.GetStringParamFromExtendedSearchResult(ecr,
-                                                    seriesIdExtraReturnField);
-
-                                            if (!string.IsNullOrEmpty(seriesId))
-                                            {
-                                                if (episodeStructId == 0)
-                                                {
-                                                    if (isOPC)
-                                                    {
-                                                        CatalogGroupCache catalogGroupCache;
-                                                        if (CatalogManagement.CatalogManager.Instance
-                                                            .TryGetCatalogGroupCacheFromCache(groupId,
-                                                                out catalogGroupCache))
-                                                        {
-                                                            var seriesStructId = catalogGroupCache.AssetStructsMapById
-                                                                .Values.FirstOrDefault(x => x.IsSeriesAssetStruct)?.Id;
-
-                                                            episodeStructId = seriesStructId == null
-                                                                ? null
-                                                                : catalogGroupCache.AssetStructsMapById
-                                                                .Values.FirstOrDefault(x =>
-                                                                        x.ParentId > 0 && x.ParentId == seriesStructId)?.Id;
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        episodeStructId = NotificationCache.Instance()
-                                                            .GetEpisodeMediaTypeId(groupId);
-                                                    }
-                                                }
-
-                                                string mediaTypeIdValue =
-                                                    Api.api.GetStringParamFromExtendedSearchResult(ecr,
-                                                        "media_type_id");
-                                                long mediaTypeId;
-
-                                                if (long.TryParse(mediaTypeIdValue, out mediaTypeId) &&
-                                                    (mediaTypeId == episodeStructId ||
-                                                     (episodeStructId == null && IsMediaTypeEpisodeLike(isOPC, groupId, mediaTypeId))))
-                                                {
-                                                    if (!seriesMap.ContainsKey(seriesId))
-                                                    {
-                                                        seriesMap.Add(seriesId, watched);
-                                                    }
-                                                    else
-                                                    {
-                                                        if (watched.LastWatch > seriesMap[seriesId].LastWatch)
-                                                        {
-                                                            activeMediaIds.Remove(
-                                                                int.Parse(seriesMap[seriesId].AssetId));
-                                                            seriesMap[seriesId] = watched;
-                                                        }
-                                                        else
-                                                        {
-                                                            addToList = false;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        if (addToList)
-                                        {
-                                            activeMediaIds.Add(assetId);
-                                        }
-                                    }
-
-                                    if (searchResult.AssetType == eAssetTypes.EPG)
-                                    {
-                                        activeEpg.Add(assetId);
-                                        unFilteredresult.First(x =>
-                                                int.Parse(x.AssetId) == assetId &&
-                                                x.AssetTypeId == (int) eAssetTypes.EPG)
-                                            .UpdateDate = searchResult.m_dUpdateDate;
-                                    }
-                                }
-                            }
-
-                            //remove medias that are not active
-                            unFilteredresult.RemoveAll(x =>
-                                x.AssetTypeId > 1 && !activeMediaIds.Contains(int.Parse(x.AssetId)));
-
-                            //remove programs that are not active
-                            unFilteredresult.RemoveAll(x =>
-                                x.AssetTypeId == (int) eAssetTypes.EPG && !activeEpg.Contains(int.Parse(x.AssetId)));
-                        }
-
-                        var unFilteredRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int) eAssetTypes.NPVR);
-
-                        if (unFilteredRecordings != null)
-                        {
-                            var recordings = Core.ConditionalAccess.Module.SearchDomainRecordings(groupId, siteGuid,
-                                domainId, new TstvRecordingStatus[] {TstvRecordingStatus.Recorded}, string.Empty,
-                                0, 0,
-                                new OrderObj()
-                                    {m_eOrderBy = OrderBy.ID, m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC},
-                                true, null);
-
-                            if (recordings != null && recordings.Recordings?.Count > 0)
-                            {
-                                foreach (var item in unFilteredRecordings)
-                                {
-                                    var recording =
-                                        recordings.Recordings.FirstOrDefault(x => x.Id.ToString().Equals(item.AssetId));
-                                    if (recording != null)
-                                    {
-                                        item.EpgId = recording.EpgId;
-                                    }
-                                }
-                            }
-
-                            //remove recordings that are not active
-                            unFilteredresult.RemoveAll(x => x.AssetTypeId == (int) eAssetTypes.NPVR && x.EpgId == 0);
-                        }
-                    }
-
-                    // order list
-                    switch (orderDir)
-                    {
-                        case ApiObjects.SearchObjects.OrderDir.ASC:
-
-                            unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
-                            break;
-                        case ApiObjects.SearchObjects.OrderDir.DESC:
-                        case ApiObjects.SearchObjects.OrderDir.NONE:
-                        default:
-
-                            unFilteredresult = unFilteredresult.OrderByDescending(x => x.LastWatch).ToList();
-                            break;
-                    }
-
-                    // update total items
-                    totalItems = unFilteredresult.Count;
-
-                    // page index /size. if size and index are 0 return all
-                    if (pageSize == 0 && pageIndex == 0)
-                    {
-                        usersWatchHistory = unFilteredresult;
-                    }
-                    else
-                    {
-                        usersWatchHistory = unFilteredresult.Skip(pageSize * pageIndex).Take(pageSize).ToList();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Debug(
-                    $"An Exception was occurred in GetUserWatchHistory. groupId:{groupId}, siteGuid:{siteGuid}, filterStatus:{filterStatus}, numOfDays:{numOfDays}.",
-                    ex);
-                throw ex;
-            }
-
-            return usersWatchHistory;
-        }
-
-        private static bool IsMediaTypeEpisodeLike(bool isOpc, int groupId, long mediaTypeId)
-        {
-            if (isOpc && CatalogManagement.CatalogManager.Instance
-                .TryGetCatalogGroupCacheFromCache(groupId,
-                    out var catalogGroupCache))
-            {
-                if (!catalogGroupCache.AssetStructsMapById.ContainsKey(mediaTypeId))
-                {
-                    return false;
-                }
-
-                return catalogGroupCache.AssetStructsMapById[mediaTypeId].ParentId != null;
-            }
-
-            return false;
-        }
-
-        public static List<WatchHistory> GetRawUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes,
-            List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays)
-        {
-            List<WatchHistory> unFilteredresult = new List<WatchHistory>();
-
-            try
-            {
-                int userId = 0;
-                int.TryParse(siteGuid, out userId);
-
-                var mediaMarkLogs = GetUserMediaMarks(groupId, userId, numOfDays).ToList();
-                if (mediaMarkLogs.Count == 0) return unFilteredresult;
-
-                int finishedPercent = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
-                var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId);
-                if (generalPartnerConfig != null && generalPartnerConfig.FinishedPercentThreshold.HasValue)
-                {
-                    finishedPercent = generalPartnerConfig.FinishedPercentThreshold.Value;
-                }
-
-                unFilteredresult = mediaMarkLogs.Select(mediaMarkLog =>
-                {
-                    int recordingId = 0;
-                    int.TryParse(mediaMarkLog.NpvrID, out recordingId);
-
-                    return new WatchHistory()
-                    {
-                        AssetId = mediaMarkLog.AssetID.ToString(),
-                        Duration = mediaMarkLog.FileDuration,
-                        AssetTypeId = mediaMarkLog.AssetTypeId,
-                        LastWatch = mediaMarkLog.CreatedAtEpoch,
-                        Location = mediaMarkLog.AssetAction.ToLower().Equals("finish") ? mediaMarkLog.FileDuration : mediaMarkLog.Location,
-                        RecordingId = recordingId,
-                        UserID = userId,
-                        IsFinishedWatching = mediaMarkLog.IsFinished(finishedPercent)
-                    };
-                }).ToList();
-
-                // filter status
-                switch (filterStatus)
-                {
-                    case eWatchStatus.Progress:
-                        // remove all finished
-                        unFilteredresult.RemoveAll(x => x.IsFinishedWatching);
-                        break;
-                    case eWatchStatus.Done:
-                        // remove all in progress
-                        unFilteredresult.RemoveAll(x => !x.IsFinishedWatching);
-                        break;
-                    case eWatchStatus.All:
-                    default:
-                        break;
-                }
-
-                // filter asset types
-                if (assetTypes != null && assetTypes.Count > 0)
-                    unFilteredresult = unFilteredresult.Where(x => assetTypes.Contains(x.AssetTypeId)).ToList();
-
-                // filter asset ids
-                if (assetIds != null && assetIds.Count > 0)
-                    unFilteredresult = unFilteredresult.Where(x => assetIds.Contains(x.AssetId)).ToList();
-
-                // filter excluded asset types
-                if (excludedAssetTypes != null && excludedAssetTypes.Count > 0)
-                    unFilteredresult.RemoveAll(x => excludedAssetTypes.Contains(x.AssetTypeId));
-            }
-            catch (Exception ex)
-            {
-            }
-
-            return unFilteredresult;
-        }
-
-        private static IEnumerable<UserMediaMark> GetUserMediaMarks(int groupId, int userId, int numOfDays)
-        {
-            var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
-            var userAssetMarks = mediaMarksManager.Get<UserMediaMarks>(UtilsDal.GetUserAllAssetMarksDocKey(userId.ToString()));
-            if (userAssetMarks?.mediaMarks == null || userAssetMarks.mediaMarks.Count == 0)
-            {
-                return Enumerable.Empty<UserMediaMark>();
-            }
-
-            // build date filter
-            long minFilterdate = numOfDays > 0 ? DateTime.UtcNow.AddDays(-numOfDays).ToUtcUnixTimestampSeconds() : 0;
-            var utcNow = DateUtils.GetUtcUnixTimestampNow();
-
-            var dateFilteredResult = userAssetMarks.mediaMarks.Where(mark => mark.CreatedAt > minFilterdate && (mark.ExpiredAt == 0 || mark.ExpiredAt > utcNow));
-
-            return GetAssetMarks(dateFilteredResult, mediaMarksManager, userId, groupId);
-        }
-
-        // TODO agressive migration
-        private static IEnumerable<UserMediaMark> GetAssetMarks(IEnumerable<AssetAndLocation> mediaMarks, ICouchbaseManager mediaMarksManager, int userId, int groupId)
-        {
-            var oldModelMediaMarks = new List<AssetAndLocation>();
-            var mediaMarksNewModelEnabled = MediaMarksNewModel.Enabled(groupId);
-            foreach (var mediaMark in mediaMarks)
-            {
-                var e = mediaMark.Extra;
-                if (!mediaMarksNewModelEnabled || e == null)
-                {
-                    oldModelMediaMarks.Add(mediaMark);
-                    continue;
-                }
-
-                yield return new UserMediaMark
-                {
-                    UDID = e.UDID,
-                    AssetID = mediaMark.AssetId,
-                    UserID = userId,
-                    Location = e.Location,
-                    CreatedAt = DateTimeOffset.FromUnixTimeSeconds(mediaMark.CreatedAt).UtcDateTime,
-                    NpvrID = mediaMark.NpvrId,
-                    playType = e.PlayType.ToString(),
-                    FileDuration = e.FileDuration,
-                    AssetAction = e.AssetAction.ToString(),
-                    AssetTypeId = e.AssetTypeId,
-                    CreatedAtEpoch = mediaMark.CreatedAt,
-                    MediaConcurrencyRuleIds = null, // never read
-                    AssetType = mediaMark.AssetType,
-                    ExpiredAt = mediaMark.ExpiredAt,
-                    LocationTagValue = e.LocationTagValue
-                };
-            }
-
-            var mediaMarkKeys = CatalogDAL.ConvertUserMediaMarksToKeys(userId.ToString(), oldModelMediaMarks);
-            var mediaMarkLogsDictionary = mediaMarksManager.GetValues<MediaMarkLog>(mediaMarkKeys, true, true);
-            foreach (var kv in mediaMarkLogsDictionary)
-            {
-                yield return kv.Value.LastMark;
-            }
-        }
-
         public static void WriteNewWatcherMediaActionLog(int nWatcherID, string sSessionID, int nBillingTypeID,
             int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID, int nGroupID,
             int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform,
@@ -10169,20 +9685,6 @@ namespace Core.Catalog
             }
 
             return langContainers;
-        }
-
-        private static string GetElasticPrefixByFieldType(string fieldName, Group group)
-        {
-            var eFieldType = NextEpisodeService.GetFieldType(fieldName, group);
-            switch (eFieldType)
-            {
-                case eFieldType.Tag:
-                    return "tags";
-                case eFieldType.StringMeta:
-                    return "metas";
-                default:
-                    throw new Exception($"Unknown field type for fieldName={fieldName}");
-            }
         }
     }
 }

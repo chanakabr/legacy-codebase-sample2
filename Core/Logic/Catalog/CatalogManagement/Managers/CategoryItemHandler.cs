@@ -17,7 +17,7 @@ using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
-    // work with objects\categoeyitem - validate and logic  
+    // work with objects\categoeyitem - validate and logic
     public interface ICategoryItemManager
     {
         GenericResponse<CategoryTree> Duplicate(int groupId, long userId, long id, string name = null);
@@ -28,15 +28,15 @@ namespace Core.Catalog.CatalogManagement
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly Lazy<CategoryItemHandler> lazy = new Lazy<CategoryItemHandler>(() => 
-            new CategoryItemHandler(VirtualAssetPartnerConfigManager.Instance, 
-                                    api.Instance, 
+        private static readonly Lazy<CategoryItemHandler> lazy = new Lazy<CategoryItemHandler>(() =>
+            new CategoryItemHandler(VirtualAssetPartnerConfigManager.Instance,
+                                    api.Instance,
                                     ImageManager.Instance,
                                     CatalogManager.Instance,
                                     ChannelManager.Instance,
                                     ExternalChannelManager.Instance,
                                     CategoryCache.Instance,
-                                    CatalogPartnerConfigManager.Instance), 
+                                    CatalogPartnerConfigManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static CategoryItemHandler Instance { get { return lazy.Value; } }
@@ -51,10 +51,10 @@ namespace Core.Catalog.CatalogManagement
         private readonly ICatalogPartnerConfigManager _catalogPartnerConfig;
 
         public CategoryItemHandler(IVirtualAssetPartnerConfigManager virtualAssetPartnerManager,
-                                   IVirtualAssetManager virtualAssetManager, 
-                                   IImageManager imageManager, 
-                                   ICatalogManager catalogManager, 
-                                   IChannelManager channelManager, 
+                                   IVirtualAssetManager virtualAssetManager,
+                                   IImageManager imageManager,
+                                   ICatalogManager catalogManager,
+                                   IChannelManager channelManager,
                                    IExternalChannelManager externalChannelManager,
                                    ICategoryCache categoryCache,
                                    ICatalogPartnerConfigManager catalogPartnerConfig)
@@ -96,7 +96,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (objectToAdd.ChildrenIds?.Count > 0)
                 {
-                    var groupCategories = _categoryCache.GetGroupCategoriesIds(contextData.GroupId, objectToAdd.ChildrenIds);
+                    var groupCategories = _categoryCache.GetGroupCategoriesByIds(contextData.GroupId, objectToAdd.ChildrenIds);
 
                     if (groupCategories == null || groupCategories.Count != objectToAdd.ChildrenIds.Count)
                     {
@@ -160,7 +160,7 @@ namespace Core.Catalog.CatalogManagement
                 CategoryVersion categoryVersion = null;
                 if (!versionId.HasValue)
                 {
-                    // get default version 
+                    // get default version
                     long treeId = _catalogPartnerConfig.GetCategoryVersionTreeIdByDeviceFamilyId(contextData, deviceFamilyId);
                     var defaultList = _categoryCache.ListCategoryVersionDefaults(contextData);
                     if (defaultList.HasObjects())
@@ -220,7 +220,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                // if name change need to update virtualAsset                               
+                // if name change need to update virtualAsset
                 if (objectToUpdate.Name != null && objectToUpdate.Name.Trim() == "")
                 {
                     response.SetStatus(eResponseStatus.NameRequired, "Name Required");
@@ -242,7 +242,7 @@ namespace Core.Catalog.CatalogManagement
 
                 bool updateChildCategories = false;
                 List<long> categoriesToRemove = new List<long>();
-                var status = HandleCategoryChildUpdate(contextData.GroupId, objectToUpdate.Id, objectToUpdate.ChildrenIds, currentCategory.ChildrenIds, 
+                var status = HandleCategoryChildUpdate(contextData.GroupId, objectToUpdate.Id, objectToUpdate.ChildrenIds, currentCategory.ChildrenIds,
                                                        currentCategory.VersionId, ref categoriesToRemove, out updateChildCategories);
                 if (!status.IsOkStatusCode())
                 {
@@ -316,7 +316,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             response.SetStatus(eResponseStatus.Error, "Error while updating category.");
                         }
-                        
+
                         return response;
                     }
                 }
@@ -336,7 +336,14 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
 
-                    _categoryCache.InvalidateGroupCategory(contextData.GroupId);
+                    _categoryCache.InvalidateGroupCategoryForVersion(contextData.GroupId, currentCategory.VersionId);
+                    _categoryCache.InvalidateGroupCategoryForVersion(contextData.GroupId, objectToUpdate.VersionId);
+
+                    if (objectToUpdate.ParentId == 0 || currentCategory.ParentId == 0)
+                    {
+                        _categoryCache.InvalidateGroupRootCategories(contextData.GroupId);
+                    }
+
                     foreach (var item in categoriesToRemove)
                     {
                         _categoryCache.InvalidateCategoryItem(contextData.GroupId, item);
@@ -394,14 +401,15 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
+            // need to check if category is a root category. In case it is, all the sub categories should removed as well
+            var successors = _categoryCache.GetCategoryItemSuccessors(contextData.GroupId, item.Id);
+
             if (!DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, item.Id))
             {
                 response.Set(eResponseStatus.Error, $"Failed to delete categoryItem {item.Id}");
                 return response;
             }
 
-            // need to check if category is a root category. In case it is, all the sub categories should removed as well
-            var successors = _categoryCache.GetCategoryItemSuccessors(contextData.GroupId, item.Id);
             foreach (long successor in successors)
             {
                 DeleteCategoryItem(contextData.GroupId, contextData.UserId.Value, successor);
@@ -519,7 +527,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (filter.RootOnly)
             {
-                var groupCategories = _categoryCache.GetGroupCategoriesIds(contextData.GroupId, null, true);
+                var groupCategories = _categoryCache.GetGroupRootCategoriesIds(contextData.GroupId);
                 if (groupCategories?.Count > 0)
                 {
                     categoriesIds = groupCategories.Keys.ToList();
@@ -542,7 +550,7 @@ namespace Core.Catalog.CatalogManagement
 
             var categories = new HashSet<long>(categoriesIds);
             ObjectVirtualAssetFilter result;
-            // if order by update date need. Get all categories            
+            // if order by update date need. Get all categories
             if (filter.IsOrderByUpdateDate)
             {
                 result = _virtualAssetManager.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Category,
@@ -563,7 +571,7 @@ namespace Core.Catalog.CatalogManagement
             if (result.ObjectIds?.Count > 0)
             {
                 response.Objects = result.ObjectIds.Select(x => GetCategoryItem(contextData.GroupId, x)).Where(x => x != null).ToList();
-                
+
                 if (filter.IsOrderByUpdateDate)
                 {
                     if (filter.OrderBy.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
@@ -603,7 +611,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     copiedRoot.Name = name;
                 }
-                
+
                 Dictionary<long, long> newTreeMap = new Dictionary<long, long>();
 
                 bool result = DuplicateChildren(groupId, userId, copiedRoot, newTreeMap);
@@ -692,7 +700,7 @@ namespace Core.Catalog.CatalogManagement
         public Status RemoveChannelFromCategories(int groupId, int channelId, UnifiedChannelType unifiedChannelType, long userId)
         {
             Status status = new Status();
-            
+
             var categoriesIds = _categoryCache.GetCategoriesIdsByChannelId(groupId, channelId, unifiedChannelType);
             if (categoriesIds == null)
             {
@@ -731,7 +739,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             return status;
                         }
-                        
+
                         status.Set(eResponseStatus.OK);
                     }
                 }
@@ -810,7 +818,7 @@ namespace Core.Catalog.CatalogManagement
                         ct.Children = FindTreeChildren(groupId, ch, filter, onlyActive);
                     }
                 }
-                
+
                 response.Add(ct);
             }
 
@@ -991,17 +999,6 @@ namespace Core.Catalog.CatalogManagement
             return unifiedChannelsToUpdate;
         }
 
-        private bool IsCategoryExist(int groupId, long id)
-        {
-            var categories = _categoryCache.GetGroupCategoriesIds(groupId);
-            if (categories == null || !categories.ContainsKey(id))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         private CategoryItem GetCategoryItem(int groupId, long id, bool filter = false, bool onlyActive = false)
         {
             CategoryItem result = null;
@@ -1023,7 +1020,9 @@ namespace Core.Catalog.CatalogManagement
         {
             List<long> ancestors = new List<long>();
 
-            var categories = _categoryCache.GetGroupCategoriesIds(groupId);
+            var categoryItem = GetCategoryItem(groupId, id);
+
+            var categories = _categoryCache.GetGroupCategoriesIdsForVersion(groupId, categoryItem.VersionId);
             if (categories?.Count > 0 && categories.ContainsKey(id))
             {
                 long parentId = categories[id].ParentId;
@@ -1050,7 +1049,7 @@ namespace Core.Catalog.CatalogManagement
             return ancestors;
         }
 
-        private Status HandleCategoryChildUpdate(int groupId, long id, List<long> newChildCategoriesIds, List<long> oldChildCategoriesIds, 
+        private Status HandleCategoryChildUpdate(int groupId, long id, List<long> newChildCategoriesIds, List<long> oldChildCategoriesIds,
                                                  long? categoryVersionId, ref List<long> categoriesToRemove, out bool updateChildCategories)
         {
             updateChildCategories = false;
@@ -1074,7 +1073,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //validate ChildCategoriesIds
-                var groupChildCategories = _categoryCache.GetGroupCategoriesIds(groupId, newChildCategoriesIds);
+                var groupChildCategories = _categoryCache.GetGroupCategoriesByIds(groupId, newChildCategoriesIds);
 
                 if (groupChildCategories == null || groupChildCategories.Count != newChildCategoriesIds.Count)
                 {
@@ -1093,13 +1092,13 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else if (childCategory.Value.ParentId != id)
                     {
-                        return new Status(eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory, 
+                        return new Status(eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory,
                                           $"Child Category contains other parent. id = {childCategory.Key}");
                     }
 
                     if (childCategory.Value.VersionId.HasValue && childCategory.Value.VersionId != categoryVersionId)
                     {
-                        return new Status(eResponseStatus.CategoryIsAlreadyAssociatedToVersion, 
+                        return new Status(eResponseStatus.CategoryIsAlreadyAssociatedToVersion,
                                           $"Child Category {childCategory.Key} is already associated to version {childCategory.Value.VersionId}.");
                     }
                 }
@@ -1154,8 +1153,8 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                long id = _categoryCache.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, objectToAdd.UnifiedChannels, 
-                                                        objectToAdd.DynamicData, objectToAdd.IsActive, objectToAdd.TimeSlot, objectToAdd.Type, 
+                long id = _categoryCache.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, objectToAdd.UnifiedChannels,
+                                                        objectToAdd.DynamicData, objectToAdd.IsActive, objectToAdd.TimeSlot, objectToAdd.Type,
                                                         objectToAdd.VersionId, objectToAdd.ReferenceId);
                 if (id == 0)
                 {
@@ -1163,7 +1162,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                // Add VirtualAssetInfo for new category 
+                // Add VirtualAssetInfo for new category
                 var virtualAssetInfo = new VirtualAssetInfo()
                 {
                     Type = ObjectVirtualAssetInfoType.Category,
@@ -1203,7 +1202,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                _categoryCache.InvalidateGroupCategory(groupId);
+                _categoryCache.InvalidateGroupCategoryForVersion(groupId, objectToAdd.VersionId);
+                _categoryCache.InvalidateGroupRootCategories(groupId);
 
                 objectToAdd.UpdateDate = null;
                 objectToAdd.Id = id;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ApiLogic.Api.Managers;
 using ApiObjects;
 using AutoMapper;
@@ -9,6 +10,7 @@ using Core.Catalog;
 using EpgBL;
 using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
+using OTT.Lib.Kafka.Extensions;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.Generated.Api.Events.Logical.RebuildRecordingsIndex;
 using Phx.Lib.Appconfig;
@@ -16,7 +18,7 @@ using TVinciShared;
 
 namespace Phoenix.AsyncHandler.Recording
 {
-    public class RebuildRecordingsIndexHandler : IHandler<RebuildRecordingsIndex>
+    public class RebuildRecordingsIndexHandler : IKafkaMessageHandler<RebuildRecordingsIndex>
     {
         private readonly ILogger<RebuildRecordingsIndex > _logger;
         private IIndexManager indexManager;
@@ -29,12 +31,12 @@ namespace Phoenix.AsyncHandler.Recording
             _logger = logger;
         }
         
-        public HandleResult Handle(ConsumeResult<string, RebuildRecordingsIndex> consumeResult)
+        public Task<HandleResult> Handle(ConsumeResult<string, RebuildRecordingsIndex> consumeResult)
         {
             if (!consumeResult.Result.Message.Value.PartnerId.HasValue || !consumeResult.Result.Message.Value.SwitchIndexAlias.HasValue || !consumeResult.Result.Message.Value.DeleteOldIndices.HasValue)
             {
                 _logger.LogError("Wrong event body - must have partner id, switchIndexAlias and deleteOldIndices");
-                return Result.Ok;
+                return Task.FromResult(Result.Ok);
             }
             
             int partnerId = (int)consumeResult.Result.Message.Value.PartnerId.Value;
@@ -52,7 +54,7 @@ namespace Phoenix.AsyncHandler.Recording
             PopulateIndexPersonalizedRecording(newIndexName, languages, partnerId);
             indexManager.PublishEpgIndex(newIndexName, true, consumeResult.Result.Message.Value.SwitchIndexAlias.Value, consumeResult.Result.Message.Value.DeleteOldIndices.Value);
             
-            return Result.Ok;
+            return Task.FromResult(Result.Ok);
         }
         
         private void PopulateIndexPersonalizedRecording(string newIndexName, List<LanguageObj> languages, int groupId, int skip = 0)

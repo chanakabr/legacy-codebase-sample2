@@ -877,7 +877,7 @@ namespace Core.Catalog.CatalogManagement
                         res = true;
                     }
 
-                    if (res)
+                    if (res && mediaAssets != null)
                     {
                         result = mediaAssets.ToDictionary(x => LayeredCacheKeys.GetAssetKey(eAssetTypes.MEDIA.ToString(), x.Id), x => x);
 

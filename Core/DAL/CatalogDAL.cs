@@ -51,6 +51,9 @@ namespace Tvinci.Core.DAL
         bool DeleteCategory(int groupId, long? userId, long id);
         List<long> GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType);
         Dictionary<long, CategoryParentCache> GetCategories(int groupId);
+        Dictionary<long, CategoryParentCache> GetCategoriesByVersion(int groupId, long? versionId);
+        Dictionary<long, CategoryParentCache> GetCategoriesByIds(int groupId, List<long> ids);
+        Dictionary<long, CategoryParentCache> GetRootCategories(int groupId);
         Dictionary<string, string> GetCategoryDynamicData(long id);
         CategoryItemDTO GetCategoryItemDTO(int groupId, long id);
         bool UpdateCategoryVirtualAssetId(int groupId, long id, long? virtualAssetId, long updateDate, long userId);
@@ -86,7 +89,6 @@ namespace Tvinci.Core.DAL
         private static readonly string META_ID_FIELD = "META_ID";
         private static readonly string PARENT_META_ID_FIELD = "PARENT_META_ID";
         private static readonly string ENABLE_NOTIFICATION_FIELD = "ENABLE_NOTIFICATION";
-        private static readonly string MEDIA_MARK_KEY_FORMAT = "u{0}_{1}{2}";
 
         /// <summary>
         /// 5
@@ -1397,7 +1399,7 @@ namespace Tvinci.Core.DAL
         {
             Dictionary<string, int> dictMediaUsersCount = new Dictionary<string, int>(); // key: media id , value: users count
 
-            List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId.ToString())).ToList();
+            List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId)).ToList();
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var usersMediaMarks = cbManager.GetValues<UserMediaMarks>(keys, true, false);
@@ -1423,7 +1425,7 @@ namespace Tvinci.Core.DAL
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
-            List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId.ToString())).ToList();
+            List<string> keys = usersList.Select(userId => UtilsDal.GetUserAllAssetMarksDocKey(userId)).ToList();
 
             var res = cbManager.GetValues<UserMediaMarks>(keys, true, false);
 
@@ -2134,7 +2136,7 @@ namespace Tvinci.Core.DAL
         {
             bool success = false;
 
-            string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userMediaMark.UserID.ToString());
+            string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userMediaMark.UserID);
 
             var couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
@@ -6166,49 +6168,6 @@ namespace Tvinci.Core.DAL
 
         #endregion
 
-        public static List<string> ConvertUserMediaMarksToKeys(string userId, IEnumerable<AssetAndLocation> assetsAndLocations)
-        {
-            List<string> result = new List<string>();
-
-            foreach (var item in assetsAndLocations)
-            {
-                string assetType = ConvertAssetTypeIdToKeyPrefix((int)item.AssetType);
-                string key = string.Format(MEDIA_MARK_KEY_FORMAT, userId, assetType, item.AssetId);
-
-                result.Add(key);
-            }
-
-            return result;
-        }
-
-        public static string ConvertAssetTypeIdToKeyPrefix(int typeId)
-        {
-            string assetType;
-            switch (typeId)
-            {
-                case (int)eAssetTypes.EPG:
-                    {
-                        assetType = "epg";
-                        break;
-                    }
-
-                case (int)eAssetTypes.NPVR:
-                    {
-                        assetType = "n";
-                        break;
-                    }
-                case (int)eAssetTypes.MEDIA:
-                default:
-                    {
-                        assetType = "m";
-                        break;
-                    }
-
-            }
-
-            return assetType;
-        }
-
         public static bool SetMediaIsActiveToOff(int mediaId, long userId)
         {
             bool res = false;
@@ -6497,27 +6456,13 @@ namespace Tvinci.Core.DAL
 
         public Dictionary<long, CategoryParentCache> GetCategories(int groupId)
         {
-            Dictionary<long, CategoryParentCache> categoryItems = new Dictionary<long, CategoryParentCache>();
+            Dictionary<long, CategoryParentCache> categoryItems;
 
             try
             {
                 var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@onlyActive", 0 } };
                 var dt = UtilsDal.Execute("Get_CategoriesIds", parameters);
-                if (dt?.Rows?.Count > 0)
-                {
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                        CategoryParentCache categoryParentCache = new CategoryParentCache()
-                        {
-                            ParentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_CATEGORY_ID"),
-                            Order = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER_NUM"),
-                            VersionId = Utils.GetNullableLong(dr, "VERSION_ID")
-                        };
-
-                        categoryItems.Add(id, categoryParentCache);
-                    }
-                }
+                categoryItems = BuildCategoriesFromDataTable(dt);
             }
             catch (Exception ex)
             {
@@ -6526,6 +6471,98 @@ namespace Tvinci.Core.DAL
             }
 
             return categoryItems;
+        }
+
+        public Dictionary<long, CategoryParentCache> GetCategoriesByVersion(int groupId, long? versionId)
+        {
+            Dictionary<long, CategoryParentCache> categories;
+
+            try
+            {
+                var sp = new StoredProcedure("Get_CategoriesIdsByVersion");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@versionId", versionId);
+                sp.AddParameter("@onlyActive", 0);
+                var dt = sp.Execute();
+                categories = BuildCategoriesFromDataTable(dt);
+            }
+            catch (Exception ex)
+            {
+                categories = null;
+                log.Error($"Error while getting categories. groupId = {groupId}, versionId = {versionId}", ex);
+            }
+
+            return categories;
+        }
+
+        public Dictionary<long, CategoryParentCache> GetCategoriesByIds(int groupId, List<long> ids)
+        {
+            Dictionary<long, CategoryParentCache> categories;
+
+            try
+            {
+                var sp = new StoredProcedure("Get_CategoriesIdsByIds");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter("@ids", ids, "Id");
+                sp.AddParameter("@onlyActive", 0);
+                var dt = sp.Execute();
+                categories = BuildCategoriesFromDataTable(dt);
+            }
+            catch (Exception ex)
+            {
+                categories = null;
+                var idsString = ids == null ? "null" : $"[{string.Join(", ", ids)}]";
+                log.Error($"Error while getting root categories. groupId = {groupId}, ids: {idsString}", ex);
+            }
+
+            return categories;
+        }
+
+        public Dictionary<long, CategoryParentCache> GetRootCategories(int groupId)
+        {
+            Dictionary<long, CategoryParentCache> categories;
+
+            try
+            {
+                var sp = new StoredProcedure("Get_CategoriesRootIds");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@onlyActive", 0);
+                var dt = sp.Execute();
+                categories = BuildCategoriesFromDataTable(dt);
+            }
+            catch (Exception ex)
+            {
+                categories = null;
+                log.Error($"Error while getting root categories. groupId = {groupId}", ex);
+            }
+
+            return categories;
+        }
+
+        private Dictionary<long, CategoryParentCache> BuildCategoriesFromDataTable(DataTable dt)
+        {
+            var categories = new Dictionary<long, CategoryParentCache>();
+
+            if (dt?.Rows?.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    var id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    var categoryParentCache = new CategoryParentCache
+                    {
+                        ParentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_CATEGORY_ID"),
+                        Order = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER_NUM"),
+                        VersionId = Utils.GetNullableLong(dr, "VERSION_ID")
+                    };
+
+                    categories.Add(id, categoryParentCache);
+                }
+            }
+
+            return categories;
         }
 
         public static DataSet GetExternalChannelsByIds(int groupId, List<long> channelIds, bool getAlsoInactive)

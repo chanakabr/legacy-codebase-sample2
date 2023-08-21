@@ -9644,8 +9644,18 @@ namespace Core.Api
             var response = SearchAssetsExtended(groupID, filter, pageIndex, pageSize, OnlyIsActive, languageID, UseStartDate,
                                         Udid, UserIP, SiteGuid, DomainId, ExectGroupId, IgnoreDeviceRule, isAllowedToViewInactiveAssets,
                                         extraReturnFields, order);
+
             if (response != null)
             {
+                if (response.status == null)
+                {
+                    log.Error($"SearchAssetsExtended returned empty status");
+                }
+                else if (response.status.Code != (int)eResponseStatus.OK)
+                {
+                    log.Error($"SearchAssetsExtended returned error status code {response.status.Code} - {response.status.Message}");
+                }
+
                 unifiedSearchResult = response.searchResults.ToArray();
             }
 
@@ -9677,46 +9687,40 @@ namespace Core.Api
                     };
                 }
 
-                try
+                ExtendedSearchRequest assetRequest = new ExtendedSearchRequest()
                 {
-                    ExtendedSearchRequest assetRequest = new ExtendedSearchRequest()
+                    m_nGroupID = groupID,
+                    m_oFilter = new Filter()
                     {
-                        m_nGroupID = groupID,
-                        m_oFilter = new Filter()
-                        {
-                            m_bOnlyActiveMedia = OnlyIsActive,
-                            m_nLanguage = languageID,
-                            m_bUseStartDate = UseStartDate,
-                            m_sDeviceId = Udid,
-                        },
-                        m_sSignature = catalogSignature,
-                        m_sSignString = catalogSignString,
-                        m_nPageIndex = pageIndex,
-                        m_nPageSize = pageSize,
-                        m_sUserIP = UserIP,
-                        filterQuery = filter,
-                        exactGroupId = ExectGroupId,
-                        shouldIgnoreDeviceRuleID = IgnoreDeviceRule,
-                        order = order,
-                        orderingParameters = orderingParameters,
-                        m_sSiteGuid = SiteGuid,
-                        domainId = DomainId,
-                        isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                        ExtraReturnFields = extraReturnFields
-                    };
+                        m_bOnlyActiveMedia = OnlyIsActive,
+                        m_nLanguage = languageID,
+                        m_bUseStartDate = UseStartDate,
+                        m_sDeviceId = Udid,
+                    },
+                    m_sSignature = catalogSignature,
+                    m_sSignString = catalogSignString,
+                    m_nPageIndex = pageIndex,
+                    m_nPageSize = pageSize,
+                    m_sUserIP = UserIP,
+                    filterQuery = filter,
+                    exactGroupId = ExectGroupId,
+                    shouldIgnoreDeviceRuleID = IgnoreDeviceRule,
+                    order = order,
+                    orderingParameters = orderingParameters,
+                    m_sSiteGuid = SiteGuid,
+                    domainId = DomainId,
+                    isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                    ExtraReturnFields = extraReturnFields
+                };
 
-                    BaseResponse response = assetRequest.GetResponse(assetRequest);
-                    unifiedSearchResponse = (UnifiedSearchResponse)response;
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Error - " + string.Format("SearchAssets filter :{0}, languageID:{1}, Udid:{2}, UserIP:{3}, SiteGuid:{4}, DomainId:{5},OnlyIsActive:{6}, UseStartDate:{7},msg:{8}",
-                                                         filter, languageID, Udid, UserIP, SiteGuid, DomainId, OnlyIsActive, UseStartDate, ex.Message), ex);
-                }
+                BaseResponse response = assetRequest.GetResponse(assetRequest);
+                unifiedSearchResponse = (UnifiedSearchResponse)response;
             }
             catch (Exception ex)
             {
-                log.Error("Configuration Reading - Couldn't read values from configuration ", ex);
+                log.Error($"Error SearchAssets - filter: {filter}, languageID: {languageID}, Udid: {Udid}, UserIP: {UserIP}, SiteGuid: {SiteGuid}, " +
+                    $"DomainId: {DomainId}, OnlyIsActive: {OnlyIsActive}, UseStartDate: {UseStartDate}, msg: {ex.Message}", ex);
+                unifiedSearchResponse.status = new Status(eResponseStatus.Error, ex.Message);
             }
 
             return unifiedSearchResponse;
@@ -10423,67 +10427,6 @@ namespace Core.Api
             }
 
             return status;
-        }
-
-        //CleanUserAssetHistory - new method
-        internal static Status CleanUserAssetHistory(int groupId, string userId, List<KeyValuePair<int, eAssetTypes>> assets)
-        {
-            Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            try
-            {
-                if (MediaMarksNewModel.Enabled(groupId))
-                {
-                    var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-                    string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(userId);
-                    var userMarks = mediaMarkManager.Get<UserMediaMarks>(documentKey);
-                    if (userMarks?.mediaMarks != null && userMarks.mediaMarks.Count > 0)
-                    {
-                        userMarks.mediaMarks.RemoveAll(m => assets.Exists(MatchAssetIdAndType(m)));
-                        if (!mediaMarkManager.Set(documentKey, userMarks, UtilsDal.UserMediaMarksTtl))
-                        {
-                            return response;
-                        }
-                    }
-                }
-
-                List<string> assetHistoryKeys = new List<string>();
-
-                foreach (var asset in assets)
-                {
-                    switch (asset.Value)
-                    {
-                        case eAssetTypes.NPVR:
-                            assetHistoryKeys.Add(DAL.UtilsDal.GetUserNpvrMarkDocKey(int.Parse(userId), asset.Key.ToString()));
-                            break;
-                        case eAssetTypes.MEDIA:
-                            assetHistoryKeys.Add(DAL.UtilsDal.GetUserMediaMarkDocKey(userId, asset.Key));
-                            break;
-                        case eAssetTypes.EPG:
-                            assetHistoryKeys.Add(DAL.UtilsDal.GetUserEpgMarkDocKey(int.Parse(userId), asset.Key));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                if (DAL.ApiDAL.CleanUserAssetHistory(assetHistoryKeys))
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("CleanUserHistory - Error = " + ex.Message, ex);
-            }
-
-            return response;
-        }
-
-        private static Predicate<KeyValuePair<int, eAssetTypes>> MatchAssetIdAndType(AssetAndLocation m)
-        {
-            return kv => (kv.Value == eAssetTypes.NPVR && !string.IsNullOrEmpty(m.NpvrId) && kv.Key.ToString() == m.NpvrId) 
-                         || (kv.Value == m.AssetType && kv.Key == m.AssetId);
         }
 
         internal static DrmAdapterResponse SendDrmConfigurationToAdapter(int groupId, int adapterID)
@@ -12219,11 +12162,11 @@ namespace Core.Api
                 return segmentations;
             }
 
-            List<long> segmentsIds = new List<long>();
+            var segmentsIds = new HashSet<long>();
             var userSegments = UserSegmentLogic.List(groupId, userId, out int totalCount);
             if (totalCount > 0)
             {
-                segmentsIds.AddRange(userSegments);
+                segmentsIds.UnionWith(userSegments);
             }
 
             var user = Users.Module.GetUserData(groupId, userId, string.Empty);
@@ -12233,7 +12176,7 @@ namespace Core.Api
                 var householdSegments = HouseholdSegmentLogic.List(groupId, user.m_user.m_domianID, out totalCount);
                 if (totalCount > 0)
                 {
-                    segmentsIds.AddRange(householdSegments.ToList());
+                    segmentsIds.UnionWith(householdSegments);
                 }
             }
 

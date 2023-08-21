@@ -213,7 +213,7 @@ namespace Core.Catalog
             base.SetExcelValues(groupId, columnNamesToValues, columns, structureManager);
 
             // EXTERNAL_EPG_INGEST_ID
-            var columnName = ExcelColumn.GetFullColumnName(EXTERNAL_EPG_INGEST_ID);
+            var columnName = ExcelColumn.GetFullColumnName(EXTERNAL_EPG_INGEST_ID, isMandatory: true);
             if (columnNamesToValues.ContainsKey(columnName))
             {
                 this.ExternalEpgIngestId = columnNamesToValues[columnName].ToString();
@@ -225,7 +225,7 @@ namespace Core.Catalog
 
             if (!string.IsNullOrEmpty(this.ExternalEpgIngestId))
             {
-                var excelColumn = ExcelColumn.GetFullColumnName(EXTERNAL_EPG_INGEST_ID);
+                var excelColumn = ExcelColumn.GetFullColumnName(EXTERNAL_EPG_INGEST_ID, isMandatory: true);
                 excelValues.TryAdd(excelColumn, this.ExternalEpgIngestId);
             }
 

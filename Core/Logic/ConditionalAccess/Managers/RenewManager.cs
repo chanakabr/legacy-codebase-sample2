@@ -2010,27 +2010,21 @@ namespace Core.ConditionalAccess
                                     if (baseSetIds.Where(x => addOnSetIds.Contains(x)).Count() > 0)
                                     {
                                         canPurchaseAddOn = true;
+                                        break;
                                     }
                                 }
                             }
 
-                            if (!canPurchaseAddOn)
+                            if (!canPurchaseAddOn)  //BEO-12521
                             {
-                                // change is recurring to false and call event handle- this renew subscription failed!                        
-
-                                long nextEndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(processEndDate.Value);
                                 var subscriptionCode = int.Parse(subscription.m_SubscriptionCode);
                                 RenewDetails rsDetail = renewDetailsList.FirstOrDefault(x => x.ProductId == subscriptionCode);
-                                if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, householdId, subscription, rsDetail, 0, isKronos, "AddOn with no BaseSubscription valid",
-                                    string.Empty, nextEndDate))
-                                {
-                                    // save all SubscriptionCode to remove from subscription list 
-                                    removeSubscriptionCodes.Add(subscriptionCode);
-                                    // remove this renewDetails (its an AddOn)
-                                    renewDetailsList.Remove(rsDetail);
-                                }
 
-                                log.ErrorFormat("failed renew subscription subscriptionCode: {0}, CanPurchaseAddOn return status code = {1}, status message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
+                                // save all SubscriptionCode to remove from subscription list 
+                                removeSubscriptionCodes.Add(subscriptionCode);
+                                // remove this renewDetails (its an AddOn)
+                                renewDetailsList.Remove(rsDetail);
+
                             }
                         }
                     }

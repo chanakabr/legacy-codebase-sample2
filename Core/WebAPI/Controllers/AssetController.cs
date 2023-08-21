@@ -395,55 +395,12 @@ namespace WebAPI.Controllers
                 switch (assetReferenceType)
                 {
                     case KalturaAssetReferenceType.media:
-                        long mediaId;
-                        if (!long.TryParse(id, out mediaId))
+                        if (!long.TryParse(id, out var mediaId))
                         {
                             throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
                         }
 
-                        if (contextData.UserId.Value > 0)
-                        {                            
-                            var shopUserId = contextData.GetCallerUserId();
-                            var shopId = AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, shopUserId);
-                            if (shopId > 0)
-                            {
-                                var searchAssetsFilter = new SearchAssetsFilter
-                                {
-                                    GroupId = contextData.GroupId,
-                                    SiteGuid = contextData.UserId.ToString(),
-                                    DomainId = (int)contextData.DomainId,
-                                    Udid = contextData.Udid,
-                                    Language = contextData.Language,
-                                    PageIndex = 0,
-                                    PageSize = 1,
-                                    Filter = $"(and asset_type='media' media_id = '{id}')",
-                                    AssetTypes = null,
-                                    EpgChannelIds = null,
-                                    ManagementData = false,
-                                    GroupBy = null,
-                                    IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                                    IgnoreEndDate = true,
-                                    GroupByType = GroupingOption.Omit,
-                                    IsPersonalListSearch = false,
-                                    UseFinal = false,
-                                    OrderingParameters = KalturaOrderAdapter.Instance.MapToOrderingList(KalturaAssetOrderBy.RELEVANCY_DESC),
-                                    OriginalUserId = contextData.OriginalUserId
-                                };
-
-                                KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter);
-                                if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
-                                {
-                                    return assetListResponse.Objects[0];
-                                }
-                                else
-                                {
-                                    throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
-                                }
-                            }
-                        }
-
-                        asset = ClientsManager.CatalogClient().GetAsset
-                            (contextData.GroupId, mediaId, assetReferenceType, contextData.UserId.ToString(), (int)contextData.DomainId, contextData.Udid, contextData.Language, isAllowedToViewInactiveAssets, true);
+                        asset = GetMediaAsset(contextData, mediaId, assetReferenceType, isAllowedToViewInactiveAssets);
                         break;
                     case KalturaAssetReferenceType.epg_internal:
                         int epgId;
@@ -504,6 +461,63 @@ namespace WebAPI.Controllers
             }
 
             return asset;
+        }
+
+        private static KalturaAsset GetMediaAsset(
+            ContextData contextData,
+            long mediaId,
+            KalturaAssetReferenceType assetReferenceType,
+            bool isAllowedToViewInactiveAssets)
+        {
+            if (contextData.UserId.Value > 0)
+            {
+                var shopUserId = contextData.GetCallerUserId();
+                var shopId = AssetUserRuleManager.Instance.GetShopAssetUserRuleId(contextData.GroupId, shopUserId);
+                if (shopId > 0)
+                {
+                    var searchAssetsFilter = new SearchAssetsFilter
+                    {
+                        GroupId = contextData.GroupId,
+                        SiteGuid = contextData.UserId.ToString(),
+                        DomainId = (int)contextData.DomainId,
+                        Udid = contextData.Udid,
+                        Language = contextData.Language,
+                        PageIndex = 0,
+                        PageSize = 1,
+                        Filter = $"(and asset_type='media' media_id = '{mediaId}')",
+                        AssetTypes = null,
+                        EpgChannelIds = null,
+                        ManagementData = false,
+                        GroupBy = null,
+                        IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                        IgnoreEndDate = true,
+                        GroupByType = GroupingOption.Omit,
+                        IsPersonalListSearch = false,
+                        UseFinal = false,
+                        OrderingParameters = KalturaOrderAdapter.Instance.MapToOrderingList(KalturaAssetOrderBy.RELEVANCY_DESC),
+                        OriginalUserId = contextData.OriginalUserId
+                    };
+
+                    var assetListResponse = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter);
+                    if (assetListResponse?.TotalCount == 1 && assetListResponse.Objects.Count == 1)
+                    {
+                        return assetListResponse.Objects[0];
+                    }
+
+                    throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
+                }
+            }
+
+            return ClientsManager.CatalogClient().GetAsset(
+                contextData.GroupId,
+                mediaId,
+                assetReferenceType,
+                contextData.UserId.ToString(),
+                (int)contextData.DomainId,
+                contextData.Udid,
+                contextData.Language,
+                isAllowedToViewInactiveAssets,
+                true);
         }
 
         private static KalturaRecordingAsset GetRecordingAsset(long id, ContextData contextData, bool isAllowedToViewInactiveAssets)

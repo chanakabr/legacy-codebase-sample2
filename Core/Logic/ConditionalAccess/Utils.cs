@@ -9659,7 +9659,7 @@ namespace Core.ConditionalAccess
                 if (!LayeredCache.Instance.GetValues<SubscriptionSet>(keyToOriginalValueMap, ref subscriptionSetMap, GetSubscriptionSets,
                     new Dictionary<string, object>() { { "groupId", groupId }, { "setIds", setIds } },
                     groupId, LayeredCacheConfigNames.GET_SUBSCRIPTION_SETS_CACHE_CONFIG_NAME,
-                                                                        invalidationKeysMap))
+                                                                        invalidationKeysMap, true))
                 {
                     log.ErrorFormat("Failed getting SubscriptionSets from LayeredCache, groupId: {0}, setIds", groupId, string.Join(",", setIds));
                 }

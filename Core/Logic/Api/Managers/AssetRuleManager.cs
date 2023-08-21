@@ -1097,78 +1097,86 @@ namespace Core.Api.Managers
 
             try
             {
-                if (funcParams != null && funcParams.Count == 3)
+                if (funcParams == null || funcParams.Count != 3)
+                    return Tuple.Create<List<AssetRule>, bool>(null, false);
+
+                if (!funcParams.ContainsKey("allAssetRules") || !funcParams.ContainsKey("slimAsset") ||
+                    !funcParams.ContainsKey("groupId"))
+                    return Tuple.Create<List<AssetRule>, bool>(null, false);
+
+                if (!(funcParams["groupId"] is int groupId) || !(funcParams["slimAsset"] is SlimAsset slimAsset) ||
+                    !(funcParams["allAssetRules"] is List<AssetRule> allAssetRules))
+                    return Tuple.Create<List<AssetRule>, bool>(null, false);
+
+                // Determine which AssetRules contains Conditions that they are typeof AssetCondition (have Ksql).
+                var assetRulesWithKsql = allAssetRules.Where(x => x.Conditions.Any(y => y is AssetCondition));
+
+                int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+
+                if (maxDegreeOfParallelism == 0)
                 {
-                    if (funcParams.ContainsKey("allAssetRules") && funcParams.ContainsKey("slimAsset") && funcParams.ContainsKey("groupId"))
+                    maxDegreeOfParallelism = 5;
+                }
+
+                ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                LogContextData contextData = new LogContextData();
+                ConcurrentBag<AssetRule> assetRules = new ConcurrentBag<AssetRule>();
+
+                Parallel.ForEach(assetRulesWithKsql, options, (currAssetRuleWithKsql) =>
+                {
+                    contextData.Load();
+                    StringBuilder ksqlFilter = new StringBuilder();
+
+                    if (eAssetTypes.EPG == slimAsset.Type)
                     {
-                        int? groupId = funcParams["groupId"] as int?;
-                        SlimAsset slimAsset = funcParams["slimAsset"] as SlimAsset;
-                        List<AssetRule> allAssetRules = funcParams["allAssetRules"] as List<AssetRule>;
+                        ksqlFilter.AppendFormat(string.Format("(and asset_type='epg' epg_id = '{0}' (or", slimAsset.Id));
+                    }
+                    else if (eAssetTypes.MEDIA == slimAsset.Type)
+                    {
+                        ksqlFilter.AppendFormat(string.Format("(and asset_type='media' media_id = '{0}' (or", slimAsset.Id));
+                    }
+                    else if (eAssetTypes.NPVR == slimAsset.Type)
+                    {
+                        ksqlFilter.AppendFormat(string.Format("(and asset_type='recording' epg_id = '{0}' (or", slimAsset.Id));
+                    }
 
-                        if (slimAsset != null && allAssetRules != null && allAssetRules.Count > 0 && groupId.HasValue)
+                    foreach (var condition in currAssetRuleWithKsql.Conditions)
+                    {
+                        if (condition is AssetCondition)
                         {
-                            // Determine which AssetRules contains Conditions that they are typeof AssetCondition (have Ksql).
-                            var assetRulesWithKsql = allAssetRules.Where(x => x.Conditions.Any(y => y is AssetCondition));
-
-                            int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
-
-                            if (maxDegreeOfParallelism == 0)
-                            {
-                                maxDegreeOfParallelism = 5;
-                            }
-
-                            ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                            LogContextData contextData = new LogContextData();
-                            ConcurrentBag<AssetRule> assetRules = new ConcurrentBag<AssetRule>();
-
-                            Parallel.ForEach(assetRulesWithKsql, options, (currAssetRuleWithKsql) =>
-                            {
-                                contextData.Load();
-                                StringBuilder ksqlFilter = new StringBuilder();
-
-                                if (eAssetTypes.EPG == slimAsset.Type)
-                                {
-                                    ksqlFilter.AppendFormat(string.Format("(and asset_type='epg' epg_id = '{0}' (or", slimAsset.Id));
-                                }
-                                else if (eAssetTypes.MEDIA == slimAsset.Type)
-                                {
-                                    ksqlFilter.AppendFormat(string.Format("(and asset_type='media' media_id = '{0}' (or", slimAsset.Id));
-                                }
-                                else if (eAssetTypes.NPVR == slimAsset.Type)
-                                {
-                                    ksqlFilter.AppendFormat(string.Format("(and asset_type='recording' epg_id = '{0}' (or", slimAsset.Id));
-                                }
-
-                                foreach (var condition in currAssetRuleWithKsql.Conditions)
-                                {
-                                    if (condition is AssetCondition)
-                                    {
-                                        AssetCondition assetCondition = condition as AssetCondition;
-                                        ksqlFilter.AppendFormat(" {0}", assetCondition.Ksql);
-                                    }
-                                }
-
-                                ksqlFilter.Append("))");
-
-                                var assets = api.SearchAssets(groupId.Value, ksqlFilter.ToString(), 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
-
-                                // If there is a match, add rule to list
-                                if (assets != null && assets.Count() > 0)
-                                {
-                                    assetRules.Add(currAssetRuleWithKsql);
-                                }
-                            });
-
-                            if (assetRules?.Count > 0)
-                            {
-                                assetRulesByAsset = assetRules.ToList();
-                                assetRules = null;
-                            }
-
-                            log.Debug("GetAssetRulesByAsset - success");
+                            AssetCondition assetCondition = condition as AssetCondition;
+                            ksqlFilter.AppendFormat(" {0}", assetCondition.Ksql);
                         }
                     }
+
+                    ksqlFilter.Append("))");
+
+                    var searchResponse = api.SearchAssetsExtended(groupId, ksqlFilter.ToString(), 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
+
+                    if (searchResponse == null || searchResponse.status == null)
+                    {
+                        throw new Exception($"SearchAssetsExtended returned empty status");
+                    }
+                    if (searchResponse.status.Code != (int)eResponseStatus.OK)
+                    {
+                        throw new Exception($"SearchAssetsExtended returned error status code {searchResponse.status.Code} - {searchResponse.status.Message}");
+                    }
+
+                    var assets = searchResponse.searchResults;
+                    // If there is a match, add rule to list
+                    if (assets != null && assets.Count > 0)
+                    {
+                        assetRules.Add(currAssetRuleWithKsql);
+                    }
+                });
+
+                if (assetRules?.Count > 0)
+                {
+                    assetRulesByAsset = assetRules.ToList();
+                    assetRules = null;
                 }
+
+                log.Debug("GetAssetRulesByAsset - success");
             }
             catch (Exception ex)
             {

@@ -3,6 +3,7 @@ using System.Linq;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
+using Phx.Lib.Appconfig;
 
 namespace ApiLogic.Catalog.IndexManager.GroupBy
 {
@@ -53,6 +54,12 @@ namespace ApiLogic.Catalog.IndexManager.GroupBy
             queryBuilder.PageSize = 0;
             queryBuilder.From = 0;
             unifiedSearchDefinitions.topHitsCount = 1;
+
+            if (unifiedSearchDefinitions.GroupByOption == GroupingOption.Include)
+            {
+                unifiedSearchDefinitions.pageIndex = 0;
+                unifiedSearchDefinitions.pageSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
+            }
         }
     }
 }
