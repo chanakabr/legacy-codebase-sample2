@@ -889,6 +889,7 @@ namespace CachingProvider.LayeredCache
             }
             catch (Exception ex)
             {
+                insertToCacheConfig = new List<LayeredCacheConfig>(0);
                 log.Error(string.Format("Failed TryGetFromCacheByConfig with key {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}", key, GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
                         fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
@@ -1166,12 +1167,12 @@ namespace CachingProvider.LayeredCache
                                 foreach (string keyToGet in keys)
                                 {
                                     bool keyExistsInResult = resultMap.ContainsKey(keyToGet);
+                                    // in case invalidation key value wasn't found on CB, we know it was never set and we can put the value 0
+                                    long invalidationKeyValue = keyExistsInResult ? resultMap[keyToGet] : 0;
+                                    compeleteResultMap[keyToGet] = invalidationKeyValue;
 
                                     if (keyExistsInResult || notInMemoryInvalidationKey)
                                     {
-                                        // in case invalidation key value wasn't found on CB, we know it was never set and we can put the value 0
-                                        long invalidationKeyValue = keyExistsInResult ? resultMap[keyToGet] : 0;
-                                        compeleteResultMap[keyToGet] = invalidationKeyValue;
                                         keysToGet.Remove(keyToGet);
                                         maxExternalInvalidationDate = Math.Max(maxExternalInvalidationDate, invalidationKeyValue);
                                     }
@@ -1197,16 +1198,15 @@ namespace CachingProvider.LayeredCache
                             else
                             {
                                 insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
-                                continue;
                             }
-                        }
-
-                        if (!shouldGetExternalInvalidationKeyDate)
-                        {
-                            InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
                         }
                     }
 
+                    if (!shouldGetExternalInvalidationKeyDate)
+                    {
+                        InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
+                    }
+                    
                     if (!shouldGetExternalInvalidationKeyDate &&
                         insertToCacheConfig != null && insertToCacheConfig.Count > 0 && compeleteResultMap?.Count > 0)
                     {
@@ -1403,6 +1403,10 @@ namespace CachingProvider.LayeredCache
                         && layeredCacheTcmConfig.LayeredCacheInvalidationKeySettings.ContainsKey(configurationName) && !isPartner)
                     {
                         layeredCacheConfig = layeredCacheTcmConfig.LayeredCacheInvalidationKeySettings[configurationName];
+                    }
+                    else if (InternalLayeredCacheSettings.InvalidationCacheSettings != null && InternalLayeredCacheSettings.InvalidationCacheSettings.ContainsKey(configurationName))
+                    {
+                        layeredCacheConfig = InternalLayeredCacheSettings.InvalidationCacheSettings[configurationName];
                     }
                     else if (layeredCacheTcmConfig.InvalidationKeySettings != null && layeredCacheTcmConfig.InvalidationKeySettings.Count > 0)
                     {

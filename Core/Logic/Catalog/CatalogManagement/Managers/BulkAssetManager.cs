@@ -387,6 +387,10 @@ namespace Core.Catalog.CatalogManagement
                     int ppvID = GetPPVModuleID(ppvModuleName, groupId);
                     InsertFilePPVModule(ppvID, assetFileId, groupId, null, null, true);
                 }
+
+                //BEO-14429
+                string invalidationKey = LayeredCacheKeys.GetPPVsforFileInvalidationKey(groupId, assetFileId);
+                LayeredCache.Instance.SetInvalidationKey(invalidationKey);
             }
         }
 

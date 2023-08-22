@@ -3726,6 +3726,10 @@ namespace TvinciImporter
                         int ppvID = GetPPVModuleID(ppvModuleName, nGroupID, ref nCommerceGroupID);
                         InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, null, null, true);
                     }
+
+                    //BEO-14429
+                    string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetPPVsforFileInvalidationKey(nCommerceGroupID, nMediaFileID);
+                    CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey);
                 }
 
                 /*Insert Family Contract For File */
