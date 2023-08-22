@@ -1330,7 +1330,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null || response.Object == null)
+            if (response == null)
             {
                 throw new ClientException(StatusCode.Error);
             }
@@ -1338,6 +1338,11 @@ namespace WebAPI.Clients
             if (!response.IsOkStatusCode())
             {
                 throw new ClientException(response.Status);
+            }
+
+            if (response.Object == null)
+            {
+                throw new ClientException(StatusCode.Error);
             }
 
             KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object);
