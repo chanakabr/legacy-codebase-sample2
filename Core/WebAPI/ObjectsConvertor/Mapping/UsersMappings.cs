@@ -176,7 +176,11 @@ namespace ObjectsConvertor.Mapping
             cfg.CreateMap<FavoritObject, KalturaFavorite>()
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_sItemCode))
-                .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode))
+                .ForMember(dest => dest.Asset, opt => opt.ResolveUsing(src => new KalturaAssetInfo
+                {
+                    Id = ConvertToLong(src.m_sItemCode),
+                    Type = int.TryParse(src.m_sType, out var type) ? type : 0
+                }))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dCreateDate)));
 
             cfg.CreateMap<KalturaFavorite, FavoritObject>()
