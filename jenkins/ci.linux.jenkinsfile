@@ -211,13 +211,25 @@ stage('Unified-CI'){
                     STAGE = "release"
                     images = ['phoenix', 'tvpapi', 'wsingest', 'ingesthandlers']
                     sync_from="build"
+                    GHCLI_VERSION="1.0.0"
+                    sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
                     stage('Sync S3 Regression Folder'){
                         sh "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/${sync_from}/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/release/"
                     }
                     stage('Retag Regression Images'){
-                        for (image in images){
-                            def ecrRetagImagesToRcCommand = "aws ecr batch-delete-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-ids imageTag=release --output=json; MANIFEST=\$(aws ecr batch-get-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-ids imageTag=${sync_from} --query 'images[].imageManifest' --output text); aws ecr put-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-tag release --image-manifest \"\$MANIFEST\" --output=json"
-                            sh(label:"Retag ECR Regression Images", script: ecrRetagImagesToRcCommand, returnStdout: true)
+                        withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
+                            GHCLI="docker run -e GH_TOKEN=${TOKEN} 870777418594.dkr.ecr.us-west-2.amazonaws.com/ghcli:${GHCLI_VERSION}"
+                            latest_release = sh (script: "${GHCLI} release list --repo https://github.com/kaltura/ott-backend | grep Latest | awk '{print \$1}'",returnStdout: true).trim()
+                            if( "${latest_release}" == "${BRANCH_NAME}" ) {
+                                echo "this is the latest release => ${BRANCH_NAME}"
+                                for (image in images){
+                                    def ecrRetagImagesToRcCommand = "aws ecr batch-delete-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-ids imageTag=release --output=json; MANIFEST=\$(aws ecr batch-get-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-ids imageTag=${sync_from} --query 'images[].imageManifest' --output text); aws ecr put-image --region=us-west-2 --repository-name ${ECR_REPO_BRANCH}/${image} --image-tag release --image-manifest \"\$MANIFEST\" --output=json"
+                                    sh(label:"Retag ECR Regression Images", script: ecrRetagImagesToRcCommand, returnStdout: true)
+                                }
+                            }
+                            else {
+                                echo "${BRANCH_NAME} is not latest release. No need to retag images !!"
+                            }
                         }
                     }
                     stage("Report Release Stage And Trigger"){
@@ -430,9 +442,9 @@ def triggerWrappersWorkflow(){
 
 def reportRelease(){
     stage("Report Release"){
-        full_version = sh( script:"aws ecr describe-images --repository '${ECR_REPO_BRANCH}/phoenix' --image-ids imageTag=release --query 'imageDetails[0].imageTags' --region us-west-2 | egrep \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | tr -d '\"' | tr -d ' '" , returnStdout: true).trim()
-        ecrImageGitsha = sh( script:"set +x; aws ecr describe-images --repository ${ECR_REPO_BRANCH}/phoenix --image-ids imageTag=${full_version} --query 'imageDetails[0].imageTags' --region us-west-2 | grep -v '${BRANCH_NAME}\\|build\\|sanity\\|rc\\|regression\\|release' | egrep -v \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | jq .[0]  " , returnStdout: true).trim()  
-        sh "${PIPECLI} report release -b ${BRANCH_NAME} -v ${full_version} -g ${ecrImageGitsha} --commiter amitde7896 -j ${env.JOB_NAME}"
+        // full_version = sh( script:"aws ecr describe-images --repository '${ECR_REPO_BRANCH}/phoenix' --image-ids imageTag=release --query 'imageDetails[0].imageTags' --region us-west-2 | egrep \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | tr -d '\"' | tr -d ' '" , returnStdout: true).trim()
+        ecrImageGitsha = sh( script:"set +x; aws ecr describe-images --repository ${ECR_REPO_BRANCH}/phoenix --image-ids imageTag=${BRANCH_NAME} --query 'imageDetails[0].imageTags' --region us-west-2 | grep -v '${BRANCH_NAME}\\|build\\|sanity\\|rc\\|regression\\|release' | egrep -v \"([0-9]{1,}\\.)+[0-9]{1,}\" | tr -d ',' | jq .[0]  " , returnStdout: true).trim()  
+        sh "${PIPECLI} report release -b ${BRANCH_NAME} -v ${BRANCH_NAME} -g ${ecrImageGitsha} --commiter YousefKhK -j ${env.JOB_NAME}"
         TAG = "${BRANCH_NAME}"
         addToPlatform("backend", TAG, ECR_REPO_BRANCH)
     }
@@ -453,7 +465,7 @@ def triggerNugetPush() {
 def triggerClientLibs() {
     build job: 'OTT-Generate-ClientLibs', parameters: [
                                             string(name: 'PHOENIX_BRANCH', value: "${BRANCH_NAME}"),
-                                            string(name: 'tag_version', value: "${full_version}"),
+                                            string(name: 'tag_version', value: "${BRANCH_NAME}"),
                                             ], wait: false
 }
 
