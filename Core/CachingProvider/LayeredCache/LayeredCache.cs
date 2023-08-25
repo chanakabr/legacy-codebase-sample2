@@ -1160,12 +1160,12 @@ namespace CachingProvider.LayeredCache
                                 foreach (string keyToGet in keys)
                                 {
                                     bool keyExistsInResult = resultMap.ContainsKey(keyToGet);
-                                    // in case invalidation key value wasn't found on CB, we know it was never set and we can put the value 0
-                                    long invalidationKeyValue = keyExistsInResult ? resultMap[keyToGet] : 0;
-                                    compeleteResultMap[keyToGet] = invalidationKeyValue;
 
                                     if (keyExistsInResult || notInMemoryInvalidationKey)
                                     {
+                                        // in case invalidation key value wasn't found on CB, we know it was never set and we can put the value 0
+                                        long invalidationKeyValue = keyExistsInResult ? resultMap[keyToGet] : 0;
+                                        compeleteResultMap[keyToGet] = invalidationKeyValue;
                                         keysToGet.Remove(keyToGet);
                                         maxExternalInvalidationDate = Math.Max(maxExternalInvalidationDate, invalidationKeyValue);
                                     }
@@ -1191,15 +1191,16 @@ namespace CachingProvider.LayeredCache
                             else
                             {
                                 insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
+                                continue;
                             }
+                        }
+
+                        if (!shouldGetExternalInvalidationKeyDate)
+                        {
+                            InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
                         }
                     }
 
-                    if (!shouldGetExternalInvalidationKeyDate)
-                    {
-                        InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
-                    }
-                    
                     if (!shouldGetExternalInvalidationKeyDate &&
                         insertToCacheConfig != null && insertToCacheConfig.Count > 0 && compeleteResultMap?.Count > 0)
                     {
@@ -1220,7 +1221,7 @@ namespace CachingProvider.LayeredCache
                             }
                         }
                     }
-                }   
+                }
 
                 if (compeleteResultMap?.Count > 0)
                 {
