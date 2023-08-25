@@ -332,82 +332,6 @@ namespace CachingProvider
             return new List<string>();
         }
 
-        public override bool Get<T>(string key, ref T result)
-        {
-            bool res = false;
-
-            res = inMemoryCache.Get<T>(key, ref result);
-
-            if (!res)
-            {
-                res = couchbaseCache.Get<T>(key, ref result);
-
-                if (result != null)
-                {
-                    BaseModuleCache newBaseModule = new BaseModuleCache(result);
-                    inMemoryCache.Add(key, newBaseModule, this.secondsInMemory / 60);
-                }
-            }
-                        
-            return result != null;
-        }
-
-        public override bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
-        {
-            bool res = false;
-
-            res = inMemoryCache.Get<T>(key, ref result);
-
-            if (!res)
-            {
-                res = couchbaseCache.Get<T>(key, ref result, jsonSerializerSettings);
-
-                if (result != null)
-                {
-                    BaseModuleCache newBaseModule = new BaseModuleCache(result);
-                    inMemoryCache.Add(key, newBaseModule, this.secondsInMemory / 60);
-                }
-            }
-
-            return result != null;
-        }
-
-        public override bool GetWithVersion<T>(string key, out ulong version, ref T result)
-        {
-            bool res = inMemoryCache.Get<T>(key, ref result);
-            version = 0;
-            // If it isn't in in-memory, get it from couchbase and put in in-memory
-            if (!res)
-            {
-                res = couchbaseCache.GetWithVersion<T>(key, out version, ref result);
-
-                if (res)
-                {
-                    res = inMemoryCache.Get<T>(key, ref result);
-                }
-            }
-
-            return res;
-        }
-
-        public override bool GetWithVersion<T>(string key, out ulong version, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
-        {
-            bool res = inMemoryCache.Get<T>(key, ref result);
-            version = 0;
-            // If it isn't in in-memory, get it from couchbase and put in in-memory
-            if (!res)
-            {
-                res = couchbaseCache.GetWithVersion<T>(key, out version, ref result, jsonSerializerSettings);
-
-                if (res)
-                {
-                    res = inMemoryCache.Get<T>(key, ref result);
-                }
-            }
-
-            return res;
-        }
-
         public override bool RemoveKey(string key)
         {
             return this.couchbaseCache.RemoveKey(key) && this.inMemoryCache.RemoveKey(key);
@@ -416,17 +340,6 @@ namespace CachingProvider
         public override bool Add<T>(string key, T value, uint expirationInSeconds)
         {
             return this.couchbaseCache.Add<T>(key, value, expirationInSeconds) && this.inMemoryCache.Add<T>(key, value, expirationInSeconds);
-        }
-
-        public override bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
-        {
-            return this.couchbaseCache.SetWithVersion<T>(key, value, version, expirationInSeconds) && this.inMemoryCache.Add<T>(key, value, expirationInSeconds);
-        }
-
-        public override bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
-        {
-
-            return this.couchbaseCache.SetWithVersion<T>(key, value, version, expirationInSeconds, jsonSerializerSettings) && this.inMemoryCache.Add<T>(key, value, expirationInSeconds);
         }
 
         public override bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)

@@ -6,6 +6,7 @@ using System.Text;
 
 namespace CachingProvider
 {
+    // TODO could be removed
     public abstract class OutOfProcessCache : ICachingService
     {       
      
@@ -41,21 +42,9 @@ namespace CachingProvider
 
         public abstract List<string> GetKeys();
 
-        public abstract bool Get<T>(string key, ref T result);
-
-        public abstract bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings);
-
-        public abstract bool GetWithVersion<T>(string key, out ulong version, ref T result);
-
-        public abstract bool GetWithVersion<T>(string key, out ulong version, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings);
-
         public abstract bool RemoveKey(string key);
 
         public abstract bool Add<T>(string key, T value, uint expirationInSeconds);
-
-        public abstract bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds);
-
-        public abstract bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings);
 
         public abstract bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false);
 

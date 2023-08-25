@@ -59,8 +59,8 @@
     <Reference Include="Confluent.Kafka, Version=1.9.2.0, Culture=neutral, PublicKeyToken=12c514ca49093d1e, processorArchitecture=MSIL">
       <HintPath>..\packages\Confluent.Kafka.1.9.2\lib\net462\Confluent.Kafka.dll</HintPath>
     </Reference>
-    <Reference Include="Couchbase.NetClient, Version=2.7.16.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <HintPath>..\packages\CouchbaseNetClient.2.7.16\lib\net452\Couchbase.NetClient.dll</HintPath>
+    <Reference Include="Couchbase.NetClient, Version=2.7.27.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <HintPath>..\packages\CouchbaseNetClient.2.7.27\lib\net452\Couchbase.NetClient.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf, Version=3.18.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Protobuf.3.18.0\lib\net45\Google.Protobuf.dll</HintPath>

@@ -19,10 +19,10 @@ namespace CachingProvider
             _compressionCouchbaseManager = new CompressionCouchbaseManager(new CouchbaseManager.CouchbaseManager(_bucket));
         }
 
-        public bool Get<T>(string key, ref T result, JsonSerializerSettings jsonSerializerSettings = null)
+        public GetOperationStatus Get<T>(string key, ref T result, JsonSerializerSettings jsonSerializerSettings)
         {
             result = _compressionCouchbaseManager.Get<T>(key, out var status, jsonSerializerSettings);
-            return status == eResultStatus.SUCCESS;
+            return status.ToGetOperationStatus();
         }
 
         public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, JsonSerializerSettings jsonSerializerSettings = null, bool shouldAllowPartialQuery = false)

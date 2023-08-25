@@ -315,10 +315,9 @@ namespace CachingProvider
             return keys;
         }
 
-        public bool Get<T>(string key, ref T result)
+        public GetOperationStatus Get<T>(string key, ref T result, JsonSerializerSettings jsonSerializerSettings)
         {
             result = default(T);
-            bool res = false;
             try
             {
                 if (!string.IsNullOrEmpty(key))
@@ -327,42 +326,17 @@ namespace CachingProvider
                     if (cacheResult != null)
                     {
                         result = (T) cacheResult;
-                        res = result != null;
+                        return result != null ? GetOperationStatus.Success : GetOperationStatus.NotFound;
                     }
                 }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed Get<T> with key: {0}", key), ex);
+                return GetOperationStatus.Error;
             }
 
-            return res;
-        }
-
-        public bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
-        {
-            return Get(key, ref result);
-        }
-
-        public bool GetWithVersion<T>(string key, out ulong version, ref T result)
-        {            
-            bool res = false;
-            version = 0;
-            try
-            {
-                res = Get<T>(key, ref result);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetWithVersion<T> with key: {0}", key), ex);
-            }
-
-            return res;
-        }
-
-        public bool GetWithVersion<T>(string key, out ulong version, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
-        {
-            return GetWithVersion(key, out version, ref result);
+            return GetOperationStatus.NotFound;
         }
 
         public bool RemoveKey(string sKey)
@@ -370,35 +344,6 @@ namespace CachingProvider
             bool? result = false;
             result = cache.Remove(sKey) as bool?;
             return result.HasValue && result.Value;
-        }
-
-        public bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
-        {
-            bool bRes = false;
-            try
-            {
-                T getResult = default(T);
-                if (!GetWithVersion<T>(key, out version, ref getResult) || getResult == null)
-                {
-                    DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60);
-                    cache.Set(key, value, dtExpiresAt);
-                }
-
-                bRes = true;
-            }
-
-            catch (Exception ex)
-            {
-                log.Error("SetWithVersion<T>", ex);
-                return false;
-            }
-
-            return bRes;
-        }
-
-        public bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
-        {
-            return SetWithVersion(key, value, version, expirationInSeconds);
         }
 
         public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)

@@ -1054,14 +1054,7 @@ namespace CachingProvider.LayeredCache
                     Dictionary<string, string> keysMapping = GetVersionKeyToOriginalKeyMap(new List<string>() { key }, groupId);
                     if (keysMapping != null && keysMapping.Count > 0)
                     {
-                        if (shouldUseAutoNameTypeHandling)
-                        {
-                            res = cache.Get<Tuple<T, long>>(keysMapping.Keys.First(), ref tupleResult, jsonSerializerSettings);
-                        }
-                        else
-                        {
-                            res = cache.Get<Tuple<T, long>>(keysMapping.Keys.First(), ref tupleResult);
-                        }
+                        res = cache.Get(keysMapping.Keys.First(), ref tupleResult, shouldUseAutoNameTypeHandling ? jsonSerializerSettings : null) == GetOperationStatus.Success;
                     }
                 }
             }
@@ -1332,12 +1325,14 @@ namespace CachingProvider.LayeredCache
                     return true;
                 }
 
+                var getOperationStatus = GetOperationStatus.NotFound;
                 foreach (LayeredCacheConfig cacheConfig in GroupCacheSettings)
                 {
                     ILayeredCacheService cache = cacheConfig.GetILayeredCachingService();
                     if (cache != null)
                     {
-                        if (cache.Get<LayeredCacheGroupConfig>(key, ref groupConfig) && groupConfig != null)
+                        getOperationStatus = cache.Get(key, ref groupConfig, null);
+                        if (getOperationStatus == GetOperationStatus.Success && groupConfig != null)
                         {
                             res = true;
                             Dictionary<string, LayeredCacheGroupConfig> groupConfigToAdd = new Dictionary<string, LayeredCacheGroupConfig>();
@@ -1360,7 +1355,7 @@ namespace CachingProvider.LayeredCache
                     }
                 }
 
-                if (shouldCreateIfNoneExists && !res && groupConfig == null)
+                if (shouldCreateIfNoneExists && getOperationStatus == GetOperationStatus.NotFound && groupConfig == null)
                 {
                     groupConfig = new LayeredCacheGroupConfig()
                     {
