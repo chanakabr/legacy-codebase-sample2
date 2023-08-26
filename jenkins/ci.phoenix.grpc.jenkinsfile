@@ -34,7 +34,7 @@ node('Linux') {
 	
 	stage('Build and Publish') {
         buildArgs = ["BUILD_IMAGE":"ott-be-base-build:${GIT_COMMIT}", "RUN_IMAGE":"ott-be-base-runtime:${GIT_COMMIT}"]
-        dockerRet = dockerBuildAndPublishToEcr("ott-service-phoenix-api-grpc","./Docker/Phoenix.Api.Grpc.Dockerfile", [], buildArgs)
+        dockerRet = dockerBuildAndPublishToEcr("ott-service-phoenix-api-grpc","./Docker/Phoenix.Api.Grpc.Dockerfile", [], buildArgs, true)
 	}
 
     stage("Build and Publish Interservice Clients") {

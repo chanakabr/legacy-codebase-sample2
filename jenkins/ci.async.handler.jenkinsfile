@@ -34,7 +34,7 @@ node('Linux') {
 	
 	stage('Build and Publish') {
         buildArgs = ["BUILD_IMAGE":"ott-be-base-build:${GIT_COMMIT}", "RUN_IMAGE":"ott-be-base-runtime:${GIT_COMMIT}"]
-        dockerRet = dockerBuildAndPublishToEcr("ott-service-phoenix-async-handler","./Docker/Phoenix.Async.Handler.Dockerfile", [], buildArgs)
+        dockerRet = dockerBuildAndPublishToEcr("ott-service-phoenix-async-handler","./Docker/Phoenix.Async.Handler.Dockerfile", [], buildArgs, true)
 	}
 
 	additionalMsg = "${dockerRet}"
