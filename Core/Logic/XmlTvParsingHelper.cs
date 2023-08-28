@@ -1,19 +1,18 @@
-﻿using ApiObjects.BulkUpload;
-using ApiObjects.Response;
-using Phx.Lib.Log;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
-using System.Text;
+using ApiObjects.BulkUpload;
+using ApiObjects.Response;
+using Microsoft.Extensions.Logging;
+using Phx.Lib.Log;
 using TVinciShared;
 
 namespace ApiLogic
 {
     public static class XmlTvParsingHelper
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger Logger = new KLogger(nameof(XmlTvParsingHelper));
         public const string XML_TV_DATE_FORMAT = "yyyyMMddHHmmss";
         private const string ExternalOfferIdsTagName = "Offers";
 
@@ -21,7 +20,6 @@ namespace ApiLogic
             this programme prog,
             string langCode,
             string defaultLangCode,
-            BulkUploadProgramAssetResult response,
             bool isMultilingualFallback)
         {
             var tagsToSet = new Dictionary<string, List<string>>();
@@ -29,18 +27,14 @@ namespace ApiLogic
 
             foreach (var tag in prog.tags)
             {
-                var tagValue = GetMetaByLanguage(tag.TagValues,
+                var tagValue = GetMetaValuesByLanguage(tag.TagValues,
                     tv => tv.lang,
                     tv => tv.Value,
                     langCode,
                     defaultLangCode,
-                    out var tagParsingStatus,
                     isMultilingualFallback);
-                if (tagParsingStatus != eResponseStatus.OK)
-                {
-                    response.AddError(tagParsingStatus, $"Error parsing meta:[{tag.TagType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
-                }
-                else if (tagValue.Count > 0)
+
+                if (tagValue.Count > 0)
                 {
                     tagsToSet[tag.TagType] = tagValue;
                 }
@@ -53,7 +47,6 @@ namespace ApiLogic
             this programme prog,
             string langCode,
             string defaultLangCode,
-            BulkUploadProgramAssetResult response,
             bool isMultilingualFallback)
         {
             var metasToSet = new Dictionary<string, List<string>>();
@@ -61,20 +54,16 @@ namespace ApiLogic
 
             foreach (var meta in prog.metas)
             {
-                var metaValue = GetMetaByLanguage(meta.MetaValues,
+                var metaValue = GetMetaValueByLanguage(meta.MetaValues,
                     mv => mv.lang,
                     mv => mv.Value,
                     langCode,
                     defaultLangCode,
-                    out var metaParsingStatus,
                     isMultilingualFallback);
-                if (metaParsingStatus != eResponseStatus.OK)
+
+                if (!string.IsNullOrEmpty(metaValue))
                 {
-                    response.AddError(metaParsingStatus, $"Error parsing meta:[{meta.MetaType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
-                }
-                else if (metaValue.Count > 0)
-                {
-                    metasToSet[meta.MetaType] = metaValue;
+                    metasToSet[meta.MetaType] = new List<string> { metaValue };
                 }
             }
 
@@ -113,16 +102,41 @@ namespace ApiLogic
             return result;
         }
 
-        private static List<string> GetMetaByLanguage<T>(
+        private static string GetMetaValueByLanguage<T>(
             this IEnumerable<T> metaValues,
             Func<T, string> langRetriever,
             Func<T, string> valueRetriever,
             string language,
             string defaultLanguage,
-            out eResponseStatus parsingStatus,
             bool isMultilingualFallback)
         {
-            parsingStatus = eResponseStatus.OK;
+            var parsedValues = metaValues.GetMetaValuesByLanguage(
+                langRetriever,
+                valueRetriever,
+                language,
+                defaultLanguage,
+                isMultilingualFallback);
+
+            if (parsedValues.Count > 1)
+            {
+                var languages = new List<string> { language, defaultLanguage }.Distinct();
+
+                Logger.LogWarning("Meta value for one of languages: [{languages}] must be specified only once. Taking the first value: {value}",
+                    string.Join(",", languages),
+                    parsedValues.First());
+            }
+
+            return parsedValues.FirstOrDefault();
+        }
+
+        private static List<string> GetMetaValuesByLanguage<T>(
+            this IEnumerable<T> metaValues,
+            Func<T, string> langRetriever,
+            Func<T, string> valueRetriever,
+            string language,
+            string defaultLanguage,
+            bool isMultilingualFallback)
+        {
             var valuesByLang = metaValues.Where(t => langRetriever(t).Equals(language, StringComparison.OrdinalIgnoreCase) && valueRetriever(t) != null);
             if (valuesByLang.IsEmpty() && isMultilingualFallback)
             {
@@ -200,17 +214,12 @@ namespace ApiLogic
 
             foreach (var tags in prog.tags.Where(t => t.TagType == ExternalOfferIdsTagName))
             {
-                var tagValues = GetMetaByLanguage(tags.TagValues,
+                var tagValues = GetMetaValuesByLanguage(tags.TagValues,
                     tv => tv.lang,
                     tv => tv.Value,
                     langCode,
                     defaultLangCode,
-                    out var tagParsingStatus,
                     true);
-                if (tagParsingStatus != eResponseStatus.OK)
-                {
-                    response.AddError(tagParsingStatus, $"Error parsing tags:[{ExternalOfferIdsTagName}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
-                }
 
                 results.AddRange(tagValues);
             }
