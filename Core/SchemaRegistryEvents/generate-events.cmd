@@ -5,7 +5,7 @@ SET ARG=%1
 SET ARG2=%2
 
 SET UpdateTool=1
-SET SCHEMA_BRANCH=master
+SET SCHEMA_BRANCH=BEO-12337_recordings_cleanup
 
 IF DEFINED ARG (
     IF "%ARG%"=="/nu" (

@@ -2691,21 +2691,21 @@ namespace Core.ConditionalAccess
         public static bool CleanupRecordings(bool isTest = false)
         {
             BaseConditionalAccess t = new TvinciConditionalAccess(0);
-            return t.CleanupRecordings(isTest);
+            return t.CleanupRecordingsCelery(isTest);
         }
 
 
         public static bool HandleRecordingsLifetime()
         {
             BaseConditionalAccess t = new TvinciConditionalAccess(0);
-            return t.HandleRecordingsLifetime();
+            return t.HandleRecordingsLifetimeCelery();
         }
 
 
         public static bool HandleRecordingsScheduledTasks()
         {
             BaseConditionalAccess t = new TvinciConditionalAccess(0);
-            return t.HandleRecordingsScheduledTasks();
+            return t.HandleRecordingsScheduledTasksCelery();
         }
 
 

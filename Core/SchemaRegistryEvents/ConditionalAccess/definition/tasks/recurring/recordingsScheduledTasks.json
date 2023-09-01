@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/tasks/recurring/recordingsScheduledTasks",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RecordingsScheduledTasks",
+  "type": "object",
+  "description": "recordings scheduled tasks recurring task definition.",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/tasks/recurring/recordingsScheduledTasks"
+    }
+  ]
+}
