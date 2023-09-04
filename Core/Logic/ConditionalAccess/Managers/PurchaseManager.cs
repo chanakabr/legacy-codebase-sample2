@@ -951,7 +951,12 @@ namespace Core.ConditionalAccess
                 var fullPrice = Utils.GetCollectionFinalPrice(contextData.GroupId, productId.ToString(), siteguid, coupon,
                                                               ref collection, country, string.Empty, contextData.Udid, string.Empty, contextData.UserIp, currency);
 
-                if (fullPrice.PriceReason == PriceReason.ForPurchase)
+                if (collection == null)
+                {
+                    response.Status = new Status(eResponseStatus.CollectionNotExist, "Collection does not exist");
+                    log.Debug($"PurchaseCollection: collection with id {productId} was not found");
+                }
+                else if (fullPrice.PriceReason == PriceReason.ForPurchase)
                 {
                     // item is for purchase
                     if ((fullPrice.FinalPrice != null && fullPrice.FinalPrice.m_dPrice == price && fullPrice.FinalPrice.m_oCurrency.m_sCurrencyCD3 == currency) ||
@@ -996,7 +1001,7 @@ namespace Core.ConditionalAccess
                                     handleBillingPassed = cas.HandleCollectionBillingSuccess(ref response, siteguid, contextData.DomainId.Value, collection,
                                         price, currency, coupon, contextData.UserIp, country, contextData.Udid, long.Parse(response.TransactionID), customData, productId,
                                         billingGuid, false, entitlementDate, ref purchaseID, endDate, true);
-                                    
+
                                     // Pending failed
                                     if (!handleBillingPassed)
                                     {
@@ -1021,7 +1026,7 @@ namespace Core.ConditionalAccess
 
                                     // entitlement passed - build notification message
                                     var dicData = new Dictionary<string, object>(){
-                                        {"CollectionCode", productId}, 
+                                        {"CollectionCode", productId},
                                         {"BillingTransactionID", response.TransactionID},
                                         {"SiteGUID", siteguid},
                                         {"PurchaseID", purchaseID},
