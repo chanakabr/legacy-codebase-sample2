@@ -69,10 +69,15 @@ namespace Core.Pricing
                 var groupId = m_nGroupID > 0 ?  m_nGroupID : originalBasePPVModule.GroupID;
                 var mediaFileIds = nMediaFileIDs.ToHashSet();
                 var cacheKeys = new Dictionary<string, string>();
+                var invalidationKeysMap = new Dictionary<string, List<string>>(); //BEO-14429
+
                 foreach (var mediaFileId in mediaFileIds)
                 {
                     if (mediaFileId < 1) continue;
-                    cacheKeys.Add(LayeredCacheKeys.GetPPVsforFileKey(mediaFileId), mediaFileId.ToString());
+
+                    string key = LayeredCacheKeys.GetPPVsforFileKey(mediaFileId);
+                    cacheKeys.Add(key, mediaFileId.ToString());
+                    invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetPPVsforFileInvalidationKey(groupId, mediaFileId) });
                 }
 
                 var results = new Dictionary<string, MediaFilePPVContainer>();
@@ -85,7 +90,7 @@ namespace Core.Pricing
                 if (LayeredCache.Instance.GetValues(cacheKeys, ref results,
                         GetPPVsForMediaFileIdsDB, parameters,
                         groupId,
-                        LayeredCacheConfigNames.GET_PPV_FOR_FILE) &&
+                        LayeredCacheConfigNames.GET_PPV_FOR_FILE, invalidationKeysMap) &&
                     results != null)
                 {
                     var mediaFilesContainer = new MediaFilePPVContainer[results.Values.Count];

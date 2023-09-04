@@ -395,8 +395,8 @@ namespace IngestHandler
                 bulkUploadResultItem.AddError(nameParsingStatus, $"Error parsing description for programExternalId:[{parsedProg.external_id}], langCode:[{langCode}], defaultLang:[{defaultLangCode}]");
             }
 
-            epgItem.Metas = parsedProg.ParseMetas(langCode, defaultLangCode, bulkUploadResultItem, isMultilingualFallback);
-            epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, bulkUploadResultItem, isMultilingualFallback);
+            epgItem.Metas = parsedProg.ParseMetas(langCode, defaultLangCode, isMultilingualFallback);
+            epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, isMultilingualFallback);
             epgItem.regions = GetRegions(epgItem.LinearMediaId);
 
             epgItem.ExternalOfferIds = parsedProg.ParseExternalOfferIds(langCode, defaultLangCode, bulkUploadResultItem);

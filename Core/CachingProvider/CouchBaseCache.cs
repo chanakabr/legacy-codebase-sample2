@@ -232,24 +232,12 @@ namespace CachingProvider
             return new List<string>();
         }
 
-        public override bool Get<T>(string key, ref T result)
+        public GetOperationStatus Get<T>(string key, ref T result, JsonSerializerSettings jsonSerializerSettings)
         {
-            return new CouchbaseManager.CouchbaseManager(bucket).Get<T>(key, ref result);
-        }
-
-        public override bool Get<T>(string key, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings = null)
-        {
-            return new CouchbaseManager.CouchbaseManager(bucket).Get<T>(key, ref result, jsonSerializerSettings);
-        }
-
-        public override bool GetWithVersion<T>(string key, out ulong version, ref T result)
-        {
-            return new CouchbaseManager.CouchbaseManager(bucket).GetWithVersion<T>(key, out version, ref result);
-        }
-
-        public override bool GetWithVersion<T>(string key, out ulong version, ref T result, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
-        {
-            return new CouchbaseManager.CouchbaseManager(bucket).GetWithVersion<T>(key, out version, ref result, jsonSerializerSettings);
+            result = jsonSerializerSettings == null 
+                ? new CouchbaseManager.CouchbaseManager(bucket).Get<T>(key, out var status)
+                : new CouchbaseManager.CouchbaseManager(bucket).Get<T>(key, out status, jsonSerializerSettings);
+            return status.ToGetOperationStatus();
         }
 
         public override bool RemoveKey(string key)
@@ -260,16 +248,6 @@ namespace CachingProvider
         public override bool Add<T>(string key, T value, uint expirationInSeconds)
         {
             return new CouchbaseManager.CouchbaseManager(bucket).Add<T>(key, value);
-        }
-
-        public override bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
-        {
-            return new CouchbaseManager.CouchbaseManager(bucket).SetWithVersionWithRetry<T>(key, value, version, RETRY_LIMIT, RETRY_INTERVAL, expirationInSeconds);
-        }
-
-        public override bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds, Newtonsoft.Json.JsonSerializerSettings jsonSerializerSettings)
-        {
-            return new CouchbaseManager.CouchbaseManager(bucket).SetWithVersionWithRetry<T>(key, value, version, RETRY_LIMIT, RETRY_INTERVAL, jsonSerializerSettings, expirationInSeconds);
         }
 
         public override bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
@@ -298,6 +276,21 @@ namespace CachingProvider
             else
             {
                 return new CouchbaseManager.CouchbaseManager(bucket).Set<T>(key, value, ttlInSeconds);
+            }
+        }
+    }
+    
+    public static class EResultStatusExtensions
+    {
+        public static GetOperationStatus ToGetOperationStatus(this eResultStatus s)
+        {
+            switch (s)
+            {
+                case eResultStatus.ERROR: return GetOperationStatus.Error;
+                case eResultStatus.SUCCESS: return GetOperationStatus.Success;
+                case eResultStatus.KEY_NOT_EXIST: return GetOperationStatus.NotFound;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(s), s, null);
             }
         }
     }

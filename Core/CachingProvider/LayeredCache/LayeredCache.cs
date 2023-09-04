@@ -889,6 +889,7 @@ namespace CachingProvider.LayeredCache
             }
             catch (Exception ex)
             {
+                insertToCacheConfig = new List<LayeredCacheConfig>(0);
                 log.Error(string.Format("Failed TryGetFromCacheByConfig with key {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}", key, GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
                         fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
@@ -1053,14 +1054,7 @@ namespace CachingProvider.LayeredCache
                     Dictionary<string, string> keysMapping = GetVersionKeyToOriginalKeyMap(new List<string>() { key }, groupId);
                     if (keysMapping != null && keysMapping.Count > 0)
                     {
-                        if (shouldUseAutoNameTypeHandling)
-                        {
-                            res = cache.Get<Tuple<T, long>>(keysMapping.Keys.First(), ref tupleResult, jsonSerializerSettings);
-                        }
-                        else
-                        {
-                            res = cache.Get<Tuple<T, long>>(keysMapping.Keys.First(), ref tupleResult);
-                        }
+                        res = cache.Get(keysMapping.Keys.First(), ref tupleResult, shouldUseAutoNameTypeHandling ? jsonSerializerSettings : null) == GetOperationStatus.Success;
                     }
                 }
             }
@@ -1165,13 +1159,16 @@ namespace CachingProvider.LayeredCache
                             {
                                 foreach (string keyToGet in keys)
                                 {
+                                    if (compeleteResultMap.ContainsKey(keyToGet))
+                                        continue;
+
                                     bool keyExistsInResult = resultMap.ContainsKey(keyToGet);
+                                    // in case invalidation key value wasn't found on CB, we know it was never set and we can put the value 0
+                                    long invalidationKeyValue = keyExistsInResult ? resultMap[keyToGet] : 0;
+                                    compeleteResultMap[keyToGet] = invalidationKeyValue;
 
                                     if (keyExistsInResult || notInMemoryInvalidationKey)
                                     {
-                                        // in case invalidation key value wasn't found on CB, we know it was never set and we can put the value 0
-                                        long invalidationKeyValue = keyExistsInResult ? resultMap[keyToGet] : 0;
-                                        compeleteResultMap[keyToGet] = invalidationKeyValue;
                                         keysToGet.Remove(keyToGet);
                                         maxExternalInvalidationDate = Math.Max(maxExternalInvalidationDate, invalidationKeyValue);
                                     }
@@ -1197,14 +1194,13 @@ namespace CachingProvider.LayeredCache
                             else
                             {
                                 insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
-                                continue;
                             }
                         }
+                    }
 
-                        if (!shouldGetExternalInvalidationKeyDate)
-                        {
-                            InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
-                        }
+                    if (!shouldGetExternalInvalidationKeyDate)
+                    {
+                        InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
                     }
 
                     if (!shouldGetExternalInvalidationKeyDate &&
@@ -1227,7 +1223,7 @@ namespace CachingProvider.LayeredCache
                             }
                         }
                     }
-                }   
+                }
 
                 if (compeleteResultMap?.Count > 0)
                 {
@@ -1332,12 +1328,14 @@ namespace CachingProvider.LayeredCache
                     return true;
                 }
 
+                var getOperationStatus = GetOperationStatus.NotFound;
                 foreach (LayeredCacheConfig cacheConfig in GroupCacheSettings)
                 {
                     ILayeredCacheService cache = cacheConfig.GetILayeredCachingService();
                     if (cache != null)
                     {
-                        if (cache.Get<LayeredCacheGroupConfig>(key, ref groupConfig) && groupConfig != null)
+                        getOperationStatus = cache.Get(key, ref groupConfig, null);
+                        if (getOperationStatus == GetOperationStatus.Success && groupConfig != null)
                         {
                             res = true;
                             Dictionary<string, LayeredCacheGroupConfig> groupConfigToAdd = new Dictionary<string, LayeredCacheGroupConfig>();
@@ -1360,7 +1358,7 @@ namespace CachingProvider.LayeredCache
                     }
                 }
 
-                if (shouldCreateIfNoneExists && !res && groupConfig == null)
+                if (shouldCreateIfNoneExists && getOperationStatus == GetOperationStatus.NotFound && groupConfig == null)
                 {
                     groupConfig = new LayeredCacheGroupConfig()
                     {
@@ -1403,6 +1401,10 @@ namespace CachingProvider.LayeredCache
                         && layeredCacheTcmConfig.LayeredCacheInvalidationKeySettings.ContainsKey(configurationName) && !isPartner)
                     {
                         layeredCacheConfig = layeredCacheTcmConfig.LayeredCacheInvalidationKeySettings[configurationName];
+                    }
+                    else if (InternalLayeredCacheSettings.InvalidationCacheSettings != null && InternalLayeredCacheSettings.InvalidationCacheSettings.ContainsKey(configurationName))
+                    {
+                        layeredCacheConfig = InternalLayeredCacheSettings.InvalidationCacheSettings[configurationName];
                     }
                     else if (layeredCacheTcmConfig.InvalidationKeySettings != null && layeredCacheTcmConfig.InvalidationKeySettings.Count > 0)
                     {

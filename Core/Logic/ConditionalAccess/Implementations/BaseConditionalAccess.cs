@@ -15848,7 +15848,7 @@ namespace Core.ConditionalAccess
             return true;
         }
 
-        public bool CleanupRecordings(bool isTest = false)
+        public bool CleanupRecordingsCelery(bool isTest = false)
         {
             if (isTest)
             {
@@ -15864,7 +15864,7 @@ namespace Core.ConditionalAccess
                 BaseScheduledTaskLastRunDetails cleanupScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.recordingsCleanup);
                 ScheduledTaskLastRunDetails lastRunDetails = cleanupScheduledTask.GetLastRunDetails();
                 cleanupScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
-                if (cleanupScheduledTask != null && cleanupScheduledTask.Status.Code == (int)eResponseStatus.OK && cleanupScheduledTask.NextRunIntervalInSeconds > 0)
+                if (cleanupScheduledTask != null && cleanupScheduledTask.Status?.Code == (int)eResponseStatus.OK && cleanupScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     recordingCleanupIntervalSec = cleanupScheduledTask.NextRunIntervalInSeconds;
                     if (cleanupScheduledTask.LastRunDate.AddSeconds(recordingCleanupIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
@@ -15882,85 +15882,7 @@ namespace Core.ConditionalAccess
                     recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
                 }
 
-                int totalRecordingsToCleanup = 0;
-                int totalRecordingsDeleted = 0;
-                // dictionary of <groupId, <adapterId, isPrivateCopy>>
-                var groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
-                var groupIdToPrivateMap = new System.Collections.Concurrent.ConcurrentDictionary<int, bool>();
-
-                System.Collections.Concurrent.ConcurrentDictionary<long, long> recordingsThatFailedDeletion = new System.Collections.Concurrent.ConcurrentDictionary<long, long>();
-
-                // get first batch
-                Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(0);
-                var domains = new List<long>();
-
-                while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
-                {
-                    long maxRecordingId = recordingsForDeletion.Keys.Max();
-                    totalRecordingsToCleanup += recordingsForDeletion.Count;
-                    List<long> deletedRecordingIds = new List<long>();
-                    int adapterId = 0;
-                    // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
-
-                    if (maxDegreeOfParallelism == 0)
-                    {
-                        maxDegreeOfParallelism = 5;
-                    }
-                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                    LogContextData contextData = new LogContextData();
-                    Parallel.ForEach(recordingsForDeletion.Values.AsEnumerable(), options, (pair) =>
-                    {
-                        try
-                        {
-                            contextData.Load();
-
-                            // get adapter data of current group, if we don't have
-                            // pair.key = groupId
-                            if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
-                            {
-                                adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
-                                if (groupIdToAdapterIdMap.TryAdd(pair.Key, adapterId))
-                                {
-                                    log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
-                                }
-
-                                groupIdToPrivateMap.TryAdd(pair.Key, Utils.GetTimeShiftedTvPartnerSettings(pair.Key).IsPrivateCopyEnabled.Value);
-                            }
-
-                            // Try to delete the current recording
-                            ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, groupIdToPrivateMap[pair.Key], false, domains, groupIdToAdapterIdMap[pair.Key]);
-
-                            if (deleteStatus.Code != (int)eResponseStatus.OK)
-                            {
-                                if (!recordingsThatFailedDeletion.ContainsKey(pair.Value.Id))
-                                {
-                                    recordingsThatFailedDeletion.TryAdd(pair.Value.Id, pair.Value.Id);
-                                }
-
-                                log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}, code: {2}, message: {3}", pair.Value.Id, pair.Key, deleteStatus.Code, deleteStatus.Message);
-                            }
-                            else
-                            {
-                                deletedRecordingIds.Add(pair.Value.Id);
-                                log.DebugFormat("recordingID {0} has been successfully cleaned up for groupID {1}", pair.Value.Id, pair.Key);
-                            }
-                        }
-                        catch (AggregateException ex)
-                        {
-                            log.Error(string.Format("AggregateException when trying to delete recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key), ex);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error(string.Format("Exception when trying to delete recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key), ex);
-                        }
-                    });
-
-                    totalRecordingsDeleted += deletedRecordingIds.Count;
-
-                    recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(maxRecordingId);
-                    //recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.ContainsKey(x.Key)).ToDictionary(x => x.Key, x => x.Value);
-                }
+                var totalRecordingsDeleted = CleanupRecordings();
                 
                 // update last run date
                 cleanupScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, totalRecordingsDeleted, recordingCleanupIntervalSec, ScheduledTaskType.recordingsCleanup);
@@ -15971,15 +15893,6 @@ namespace Core.ConditionalAccess
                 else
                 {
                     log.Debug("Successfully updated recordings cleanup date");
-                }
-                
-                if (totalRecordingsDeleted > 0)
-                {
-                    log.DebugFormat("Successfully deleted {0} recordings out of {1} that were found on the cleanup process", totalRecordingsDeleted, totalRecordingsToCleanup);
-                }
-                else
-                {
-                    log.DebugFormat("Did not find any recordings to cleanup");
                 }
             }
             catch (Exception ex)
@@ -16006,7 +15919,100 @@ namespace Core.ConditionalAccess
             return true; 
         }
 
-        public bool HandleRecordingsLifetime()
+        public int CleanupRecordings()
+        {
+            int totalRecordingsToCleanup = 0;
+            int totalRecordingsDeleted = 0;
+            // dictionary of <groupId, <adapterId, isPrivateCopy>>
+            var groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
+            var groupIdToPrivateMap = new System.Collections.Concurrent.ConcurrentDictionary<int, bool>();
+
+            System.Collections.Concurrent.ConcurrentDictionary<long, long> recordingsThatFailedDeletion = new System.Collections.Concurrent.ConcurrentDictionary<long, long>();
+            // get first batch
+            Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(0);
+            var domains = new List<long>();
+
+            while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
+            {
+                long maxRecordingId = recordingsForDeletion.Keys.Max();
+                totalRecordingsToCleanup += recordingsForDeletion.Count;
+                List<long> deletedRecordingIds = new List<long>();
+                int adapterId = 0;
+                // set max amount of concurrent tasks
+                int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+
+                if (maxDegreeOfParallelism == 0)
+                {
+                    maxDegreeOfParallelism = 5;
+                }
+                ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                LogContextData contextData = new LogContextData();
+                Parallel.ForEach(recordingsForDeletion.Values.AsEnumerable(), options, (pair) =>
+                {
+                    try
+                    {
+                        contextData.Load();
+
+                        // get adapter data of current group, if we don't have
+                        // pair.key = groupId
+                        if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
+                        {
+                            adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
+                            if (groupIdToAdapterIdMap.TryAdd(pair.Key, adapterId))
+                            {
+                                log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
+                            }
+
+                            groupIdToPrivateMap.TryAdd(pair.Key, Utils.GetTimeShiftedTvPartnerSettings(pair.Key).IsPrivateCopyEnabled.Value);
+                        }
+
+                        // Try to delete the current recording
+                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, groupIdToPrivateMap[pair.Key], false, domains, groupIdToAdapterIdMap[pair.Key]);
+
+                        if (deleteStatus.Code != (int)eResponseStatus.OK)
+                        {
+                            if (!recordingsThatFailedDeletion.ContainsKey(pair.Value.Id))
+                            {
+                                recordingsThatFailedDeletion.TryAdd(pair.Value.Id, pair.Value.Id);
+                            }
+
+                            log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}, code: {2}, message: {3}", pair.Value.Id, pair.Key, deleteStatus.Code, deleteStatus.Message);
+                        }
+                        else
+                        {
+                            deletedRecordingIds.Add(pair.Value.Id);
+                            log.DebugFormat("recordingID {0} has been successfully cleaned up for groupID {1}", pair.Value.Id, pair.Key);
+                        }
+                    }
+                    catch (AggregateException ex)
+                    {
+                        log.Error(string.Format("AggregateException when trying to delete recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key), ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Format("Exception when trying to delete recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key), ex);
+                    }
+                });
+
+                totalRecordingsDeleted += deletedRecordingIds.Count;
+
+                recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(maxRecordingId);
+                //recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.ContainsKey(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+
+                if (totalRecordingsDeleted > 0)
+                {
+                    log.DebugFormat("Successfully deleted {0} recordings out of {1} that were found on the cleanup process", totalRecordingsDeleted, totalRecordingsToCleanup);
+                }
+                else
+                {
+                    log.DebugFormat("Did not find any recordings to cleanup");
+                }
+            }
+
+            return totalRecordingsDeleted;
+        }
+        
+        public bool HandleRecordingsLifetimeCelery()
         {
             double scheduledTaskIntervalSec = 0;
             bool shouldInsertToQueue = false;
@@ -16035,11 +16041,8 @@ namespace Core.ConditionalAccess
                     scheduledTaskIntervalSec = HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC;
                 }
 
-                // get current utc epoch
-                long utcNowEpoch = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
-                // get first batch
-                int totalRecordingsExpired = RecordingsDAL.InsertExpiredRecordingsTasks(utcNowEpoch);
-
+                int totalRecordingsExpired = HandleRecordingsLifetime();
+                
                 // update successful run date
                 if (totalRecordingsExpired > -1)
                 {
@@ -16082,7 +16085,15 @@ namespace Core.ConditionalAccess
             return true;
         }
 
-        public bool HandleRecordingsScheduledTasks()
+        public int HandleRecordingsLifetime()
+        {
+            // get current utc epoch
+            long utcNowEpoch = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
+            // get first batch
+            return RecordingsDAL.InsertExpiredRecordingsTasks(utcNowEpoch);
+        }
+        
+        public bool HandleRecordingsScheduledTasksCelery()
         {
             double scheduledTaskIntervalSec = 0;
             bool shouldInsertToQueue = false;
@@ -16111,26 +16122,10 @@ namespace Core.ConditionalAccess
                     scheduledTaskIntervalSec = HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                // get current utc epoch
-                long utcNowEpoch = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
-                // get first batch
-                Dictionary<long, HandleDomainQuataByRecordingTask> expiredRecordingsToSchedule = Utils.UpdateAndGetExpiredRecordingsTasks(utcNowEpoch);
-                // update successful run date
-                List<HandleDomainQuataByRecordingTask> alreadyDeletedOrCanceledRecordings = new List<HandleDomainQuataByRecordingTask>();
-                if (expiredRecordingsToSchedule != null)
+                int expiredRecordingsToScheduleCount = HandleRecordingsScheduledTasks();
+                if(expiredRecordingsToScheduleCount >0)
                 {
-                    foreach (var expiredRecording in expiredRecordingsToSchedule.Values)
-                    {
-                        var queue = new GenericCeleryQueue();
-                        var data = new RecordingModificationData(expiredRecording.GroupId, expiredRecording.Id, expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch) { ETA = DateTime.UtcNow };
-                        bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, expiredRecording.GroupId));
-                        if (!queueExpiredRecordingResult)
-                        {
-                            log.ErrorFormat("Failed to queue ExpiredRecordingScheduledTask: {0}", expiredRecording.ToString());
-                        }
-                    }
-
-                    recordingsScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec, ScheduledTaskType.recordingsScheduledTasks);
+                    recordingsScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, expiredRecordingsToScheduleCount, scheduledTaskIntervalSec, ScheduledTaskType.recordingsScheduledTasks);
                     if (!recordingsScheduledTask.SetLastRunDetails())
                     {
                         log.ErrorFormat("Failed updating recording scheduled tasks last run details, RecordingsScheduledTask: {0}", recordingsScheduledTask.ToString());
@@ -16177,6 +16172,39 @@ namespace Core.ConditionalAccess
             }
 
             return true;
+        }
+
+
+        public int HandleRecordingsScheduledTasks()
+        {
+            // get current utc epoch
+            long utcNowEpoch = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
+            // get first batch
+            Dictionary<long, HandleDomainQuataByRecordingTask> expiredRecordingsToSchedule =
+                Utils.UpdateAndGetExpiredRecordingsTasks(utcNowEpoch);
+            // update successful run date
+            List<HandleDomainQuataByRecordingTask> alreadyDeletedOrCanceledRecordings =
+                new List<HandleDomainQuataByRecordingTask>();
+            if (expiredRecordingsToSchedule != null)
+            {
+                foreach (var expiredRecording in expiredRecordingsToSchedule.Values)
+                {
+                    var queue = new GenericCeleryQueue();
+                    var data = new RecordingModificationData(expiredRecording.GroupId, expiredRecording.Id,
+                            expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch)
+                        {ETA = DateTime.UtcNow};
+                    bool queueExpiredRecordingResult = queue.Enqueue(data,
+                        string.Format(ROUTING_KEY_MODIFIED_RECORDING, expiredRecording.GroupId));
+                    if (!queueExpiredRecordingResult)
+                    {
+                        log.ErrorFormat("Failed to queue ExpiredRecordingScheduledTask: {0}",
+                            expiredRecording.ToString());
+                    }
+                }
+
+                return expiredRecordingsToSchedule.Count;
+            }
+            return 0;
         }
 
         /// <summary>

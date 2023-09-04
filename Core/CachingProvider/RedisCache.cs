@@ -13,25 +13,16 @@ namespace CachingProvider
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public bool Get<T>(string key, ref T result, JsonSerializerSettings jsonSerializerSettings = null)
+        public GetOperationStatus Get<T>(string key, ref T result, JsonSerializerSettings jsonSerializerSettings)
         {
-            bool res = false;
-            try
+            RedisClientResponse<T> getResponse = RedisClientManager.CacheInstance.Get<T>(key, jsonSerializerSettings);
+            if (getResponse.IsSuccess)
             {
-                RedisClientResponse<T> getResponse = RedisClientManager.CacheInstance.Get<T>(key, jsonSerializerSettings);
-                if (getResponse.IsSuccess)
-                {
-                    res = true;
-                    result = getResponse.Result;
-                }
-            }
-            catch (Exception ex)
-            {
-                string jsonSerializerSettingsNull = jsonSerializerSettings != null ? "not null" : "null";
-                log.Error($"Failed Get<T> for key {key}, jsonSerializerSettings are {jsonSerializerSettingsNull}", ex);
+                result = getResponse.Result;
+                return GetOperationStatus.Success;
             }
 
-            return res;
+            return GetOperationStatus.NotFound;
         }
 
         public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, JsonSerializerSettings jsonSerializerSettings = null, bool shouldAllowPartialQuery = false)

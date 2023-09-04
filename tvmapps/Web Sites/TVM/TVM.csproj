@@ -57,8 +57,8 @@
     <Reference Include="Confluent.Kafka, Version=1.9.2.0, Culture=neutral, PublicKeyToken=12c514ca49093d1e, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Confluent.Kafka.1.9.2\lib\net462\Confluent.Kafka.dll</HintPath>
     </Reference>
-    <Reference Include="Couchbase.NetClient, Version=2.7.16.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\CouchbaseNetClient.2.7.16\lib\net452\Couchbase.NetClient.dll</HintPath>
+    <Reference Include="Couchbase.NetClient, Version=2.7.27.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\CouchbaseNetClient.2.7.27\lib\net452\Couchbase.NetClient.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf, Version=3.18.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Google.Protobuf.3.18.0\lib\net45\Google.Protobuf.dll</HintPath>
@@ -199,8 +199,8 @@
     <Reference Include="OpenTracing, Version=0.12.1.0, Culture=neutral, PublicKeyToken=61503406977abdaf, processorArchitecture=MSIL">
       <HintPath>..\..\packages\OpenTracing.0.12.1\lib\net45\OpenTracing.dll</HintPath>
     </Reference>
-    <Reference Include="OTT.Lib.Kafka, Version=1.5.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\OTT.Lib.Kafka.1.5.4\lib\netstandard2.0\OTT.Lib.Kafka.dll</HintPath>
+    <Reference Include="OTT.Lib.Kafka, Version=1.5.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\OTT.Lib.Kafka.1.5.5\lib\netstandard2.0\OTT.Lib.Kafka.dll</HintPath>
     </Reference>
     <Reference Include="OTT.Lib.Tracing, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\OTT.Lib.Tracing.1.0.3\lib\netstandard2.0\OTT.Lib.Tracing.dll</HintPath>

@@ -1804,6 +1804,11 @@ namespace CachingProvider.LayeredCache
             return $"invalidationKey_mediaAssetUserRules_groupId_{groupId}_mediaId_{mediaId}";
         }
 
+        public static string GetPPVsforFileInvalidationKey(int groupId, long fileId)
+        {
+            return $"invalidationKey_file_to_ppvs_{groupId}_{fileId}";
+        }
+
         #endregion
 
         #region Invalidation keys functions

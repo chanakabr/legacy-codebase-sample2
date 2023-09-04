@@ -90,6 +90,7 @@ namespace Core.Pricing
                 response.Status.Message = eResponseStatus.OK.ToString();
 
                 InvalidateAsset(contextData.GroupId, assetFileResponse.Object.AssetId);
+                InvalidatePpvToFile(contextData.GroupId, assetFilePpv.AssetFileId);
             }
             catch (Exception ex)
             {
@@ -107,6 +108,13 @@ namespace Core.Pricing
             {
                 log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", assetId, groupId);
             }
+        }
+
+        private void InvalidatePpvToFile(int groupId, long fileId)
+        {
+            //BEO-14429
+            string invalidationKey = LayeredCacheKeys.GetPPVsforFileInvalidationKey(groupId, fileId);
+            LayeredCache.Instance.SetInvalidationKey(invalidationKey);
         }
 
         public GenericResponse<AssetFilePpv> UpdateAssetFilePPV(ContextData contextData, AssetFilePpv request)
@@ -162,6 +170,7 @@ namespace Core.Pricing
                 response.Status.Message = eResponseStatus.OK.ToString();
 
                 InvalidateAsset(contextData.GroupId, assetFileResponse.Object.AssetId);
+                InvalidatePpvToFile(contextData.GroupId, request.AssetFileId);
             }
             catch (Exception ex)
             {
@@ -201,6 +210,7 @@ namespace Core.Pricing
                 }
 
                 InvalidateAsset(contextData.GroupId, assetFileResponse.Object.AssetId);
+                InvalidatePpvToFile(contextData.GroupId, mediaFileId);
 
                 return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

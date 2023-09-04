@@ -10,6 +10,7 @@ using Moq;
 using NUnit.Framework;
 using OTT.Lib.Kafka;
 using OTT.Service.TaskScheduler.Extensions.TaskHandler;
+using Phoenix.AsyncHandler.Couchbase;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.AsyncHandler.Kronos;
 
@@ -28,7 +29,8 @@ namespace Phoenix.AsyncHandler.Tests
                 .Replace(ServiceDescriptor.Singleton((Func<IServiceProvider, IKafkaProducerClientFactory>) (
                     provider => new KafkaProducerClientFactory(
                         new Dictionary<string, string>(),
-                        provider.GetService<ILogger<IKafkaProducerClientFactory>>()))));
+                        provider.GetService<ILogger<IKafkaProducerClientFactory>>()))))
+                .Replace(ServiceDescriptor.Singleton(new Mock<ICouchbaseWorker>().Object));
 
             var assembly = typeof(HouseholdNpvrAccountHandler).Assembly;
             var handlers = assembly.GetTypes()

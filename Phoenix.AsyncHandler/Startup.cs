@@ -15,11 +15,12 @@ using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
+// using Phx.Lib.Couchbase;
 using Core.GroupManagers;
 using Core.Notification;
 using Core.Pricing;
 using Core.Users.Cache;
-using CouchbaseManager;
+// using CouchbaseManager;
 using DAL;
 using DAL.MongoDB;
 using ElasticSearch.Utilities;
@@ -43,6 +44,7 @@ using OTT.Service.TaskScheduler.Extensions.TaskHandler;
 using Phoenix.AsyncHandler.Catalog;
 using Phoenix.AsyncHandler.ConditionalAccess;
 using Phoenix.AsyncHandler.Couchbase;
+// using Phoenix.AsyncHandler.Couchbase;
 using Phoenix.AsyncHandler.Gdpr;
 using Phoenix.AsyncHandler.Kafka;
 using Phoenix.AsyncHandler.Kronos;
@@ -61,13 +63,16 @@ using Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup;
 using Phoenix.Generated.Api.Events.Logical.RebuildRecordingsIndex;
 using Phoenix.Generated.Tasks.Recurring.EpgV3Cleanup;
 using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
+using Phoenix.Generated.Tasks.Recurring.RecordingsCleanup;
+using Phoenix.Generated.Tasks.Recurring.RecordingsLifetime;
+using Phoenix.Generated.Tasks.Recurring.RecordingsScheduledTasks;
 using Phoenix.Generated.Tasks.Recurring.ScheduleRecordingEvictions;
 using Phoenix.Generated.Tasks.Scheduled.EvictRecording;
 using Phoenix.Generated.Tasks.Scheduled.renewSubscription;
 using Phoenix.Generated.Tasks.Scheduled.RetryRecording;
 using Phoenix.Generated.Tasks.Scheduled.VerifyRecordingFinalStatus;
 using Phx.Lib.Appconfig;
-using Phx.Lib.Couchbase.IoC;
+// using Phx.Lib.Couchbase.IoC;
 using Phx.Lib.Log;
 using WebAPI.Filters;
 using Module = Core.Pricing.Module;
@@ -107,6 +112,9 @@ namespace Phoenix.AsyncHandler
             services.AddScoped<IKafkaContextProvider, AsyncHandlerKafkaContextProvider>();
             services.AddKafkaConsumerInterceptor<KafkaConsumerInterceptor>();
 
+            //Pending CB library fix
+            //services.AddPhoenixCouchbase();
+
             services.AddKronosHandlers(kafkaConfig[KafkaConfigKeys.BootstrapServers],
                 p => p
                     .AddHandler<ScheduleRecordingEvictionsHandler>(ScheduleRecordingEvictions.ScheduleRecordingEvictionsQualifiedName)
@@ -116,6 +124,9 @@ namespace Phoenix.AsyncHandler
                     .AddHandler<VerifyRecordingFinalStatusHandler>(VerifyRecordingFinalStatus.VerifyRecordingFinalStatusQualifiedName)
                     .AddHandler<RetryRecordingHandler>(RetryRecording.RetryRecordingQualifiedName)
                     .AddHandler<EvictRecordingHandler>(EvictRecording.EvictRecordingQualifiedName)
+                    .AddHandler<RecordingsCleanupHandler>(RecordingsCleanup.RecordingsCleanupQualifiedName)
+                    .AddHandler<RecordingsLifetimeHandler>(RecordingsLifetime.RecordingsLifetimeQualifiedName)
+                    .AddHandler<RecordingsScheduledTasksHandler>(RecordingsScheduledTasks.RecordingsScheduledTasksQualifiedName)
             );
 
             services.AddKafkaProducerFactory(kafkaConfig);
@@ -171,7 +182,7 @@ namespace Phoenix.AsyncHandler
                 .AddScoped<IMediaMarksDAL, MediaMarksDAL>()
                 .AddScoped<NotificationCache>()
                 .AddSingleton<ICatalogCache, CatalogCache>()
-                //.AddSingleton<ICouchbaseWorker, CouchbaseWorker>()
+                .AddSingleton<ICouchbaseWorker, CouchbaseWorker>()
                 // live to vod
                 .AddScoped<IConnectionStringHelper, TcmConnectionStringHelper>()
                 .AddScoped<IClientFactoryBuilder, ClientFactoryBuilder>()
@@ -198,12 +209,12 @@ namespace Phoenix.AsyncHandler
             return services;
         }
         
-        public static IServiceCollection AddCouchbase(this IServiceCollection services)
-        {
-            services.AddCouchbase();
-            services.AddCouchbaseClient<IScheduledTasks>(eCouchbaseBucket.SCHEDULED_TASKS.ToString());
-            return services;
-        }
+        // public static IServiceCollection AddPhoenixCouchbase(this IServiceCollection services)
+        // {
+        //     services.AddCouchbase();
+        //     services.AddCouchbaseClient<IScheduledTasks>(eCouchbaseBucket.SCHEDULED_TASKS.ToString().ToLower());
+        //     return services;
+        // }
 
         private static IServiceCollection AddKronosHandlers(this IServiceCollection services,
             string brokerConnectionString,

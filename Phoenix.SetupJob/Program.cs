@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 using OTT.Service.Kronos;
 using Phoenix.Generated.Tasks.Recurring.EpgV3Cleanup;
 using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
+using Phoenix.Generated.Tasks.Recurring.RecordingsCleanup;
+using Phoenix.Generated.Tasks.Recurring.RecordingsLifetime;
+using Phoenix.Generated.Tasks.Recurring.RecordingsScheduledTasks;
 using Phoenix.Generated.Tasks.Recurring.ScheduleRecordingEvictions;
 using Phoenix.SetupJob.Configuration;
 using Phx.Lib.Log;
@@ -45,11 +48,36 @@ namespace Phoenix.SetupJob
                 Tasks =
                 {
                     {
+                        // 1m, recording cleanup
+                        RecordingsScheduledTasks.RecordingsScheduledTasksQualifiedName,
+                        new RegisterServiceRecurrenceTaskItem
+                        {
+                            CronExpression = "@every 1m",
+                            TimeoutSecs = 100
+                        }
+                    },
+                    { 
                         LiveToVodTearDown.LiveToVodTearDownQualifiedName,
                         new RegisterServiceRecurrenceTaskItem
                         {
                             CronExpression = "@every 1h",
                             TimeoutSecs = 600
+                        }
+                    },
+                    { //1d, recording cleanup
+                        RecordingsCleanup.RecordingsCleanupQualifiedName,
+                        new RegisterServiceRecurrenceTaskItem
+                        {
+                            CronExpression = "@every 1d",
+                            TimeoutSecs = 200
+                        }
+                    },
+                    { //1h, recording cleanup
+                        RecordingsLifetime.RecordingsLifetimeQualifiedName,
+                        new RegisterServiceRecurrenceTaskItem
+                        {
+                            CronExpression = "@every 1h",
+                            TimeoutSecs = 200
                         }
                     },
                     {

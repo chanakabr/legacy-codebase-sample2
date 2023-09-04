@@ -180,8 +180,8 @@
     <Reference Include="MongoDB.Libmongocrypt, Version=1.2.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MongoDB.Libmongocrypt.1.2.2\lib\net452\MongoDB.Libmongocrypt.dll</HintPath>
     </Reference>
-    <Reference Include="OTT.Lib.Kafka, Version=1.5.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OTT.Lib.Kafka.1.5.4\lib\netstandard2.0\OTT.Lib.Kafka.dll</HintPath>
+    <Reference Include="OTT.Lib.Kafka, Version=1.5.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OTT.Lib.Kafka.1.5.5\lib\netstandard2.0\OTT.Lib.Kafka.dll</HintPath>
     </Reference>
     <Reference Include="OTT.Lib.Metrics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\OTT.Lib.Metrics.1.1.2\lib\netstandard2.0\OTT.Lib.Metrics.dll</HintPath>
