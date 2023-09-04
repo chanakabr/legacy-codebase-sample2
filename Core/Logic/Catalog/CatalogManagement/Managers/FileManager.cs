@@ -972,6 +972,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Objects != null)
                 {
+                    response.Objects = response.Objects.Where(o => o != null).ToList();
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
