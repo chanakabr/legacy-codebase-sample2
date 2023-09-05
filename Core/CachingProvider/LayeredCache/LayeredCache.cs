@@ -139,13 +139,15 @@ namespace CachingProvider.LayeredCache
 
                 // save data in cache only if result is true!!!!
                 result = TryGetFromCacheByConfig<T>(key, ref tuple, layeredCacheConfigName, out insertToCacheConfig, fillObjectMethod, funcParameters, groupId, inValidationKeys, shouldUseAutoNameTypeHandling);
-                genericParameter = tuple != null && tuple.Item1 != null ? tuple.Item1 : genericParameter;
+                genericParameter = tuple != null ? tuple.Item1 : genericParameter;
 
                 // if we successfully got data from cache / delegate, insert results to current request items
                 if (result)
                 {
-                    Dictionary<string, T> resultsToAdd = new Dictionary<string, T>();
-                    resultsToAdd.Add(key, genericParameter);
+                    Dictionary<string, T> resultsToAdd = new Dictionary<string, T>
+                    {
+                        { key, genericParameter }
+                    };
                     Dictionary<string, List<string>> invalidationKeyToAdd = null;
 
                     if (inValidationKeys != null && inValidationKeys.Count > 0)
@@ -161,7 +163,7 @@ namespace CachingProvider.LayeredCache
                     InsertResultsToCurrentRequest(resultsToAdd, invalidationKeyToAdd);
                 }
 
-                if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null &&
+                if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null &&
                     // insert to cache only if no errors during session
                     !(HttpContext.Current != null && HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) &&
                     HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
@@ -953,7 +955,7 @@ namespace CachingProvider.LayeredCache
                                 {
                                     Tuple<T, long> tuple = resultsToAdd[keyToGet];
                                     long maxInValidationDate = inValidationKeysMaxDateMapping != null && inValidationKeysMaxDateMapping.Count > 0 && inValidationKeysMaxDateMapping.ContainsKey(keyToGet) ? inValidationKeysMaxDateMapping[keyToGet] + 1 : 0;
-                                    if (tuple != null && tuple.Item1 != null && tuple.Item2 > maxInValidationDate)
+                                    if (tuple != null && tuple.Item2 > maxInValidationDate)
                                     {
                                         tupleResults.Add(keyToGet, new Tuple<T, long>(tuple.Item1, tuple.Item2));
                                         isKeyInTupleResult = true;
