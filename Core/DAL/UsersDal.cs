@@ -2408,6 +2408,23 @@ namespace DAL
             sp.AddParameter("@externalId", externalId);
             return sp.ExecuteReturnValue<long>();
         }
+        
+        public static string GetExternalIdByUserId(int groupId, long userId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExternalIdByUserId");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@userId", userId);
+            
+            var result = sp.ExecuteDataSet();
+            var tbl = result.Tables[0];
+            if (tbl != null && tbl.Rows?.Count > 0)
+            {
+                return (string)result.Tables[0].Rows[0][0];
+            }
+
+            return string.Empty;
+        }
 
         public static int GetGroupAdapterId(int groupId)
         {

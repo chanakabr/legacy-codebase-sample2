@@ -9,6 +9,9 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
 
     /// <summary>
     /// contains status information relating to an attempt to import a household recording from
+    /// legacy system to KTP via previous HouseholdRecordingCreate event
+    ///
+    /// contains status information relating to an attempt to import a household recording from
     /// legacy system to KTP via previous partnerMigrationHouseholdRecording event
     ///
     /// A base event for all Logical events, contains common properties
@@ -40,6 +43,13 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
 
         [JsonProperty("recordingId", NullValueHandling = NullValueHandling.Ignore)]
         public long? RecordingId { get; set; }
+
+        /// <summary>
+        /// Identifies whether this message is in response to a previously received
+        /// householdRecordingCreate/householdRecordingDelete message
+        /// </summary>
+        [JsonProperty("requestType", NullValueHandling = NullValueHandling.Ignore)]
+        public RequestType? RequestType { get; set; }
     }
 
     public partial class Schema
@@ -52,7 +62,14 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
     }
 
     [JsonConverter(typeof(CodeConverter))]
-    public enum Code { The0, The1, The1006, The11003, The2000, The2038, The3040, The3043, The3094, The3095, The4028, The4033, The4038, The4039, The4040, The4041, The4064, The4078, The4111, The4122, The4123, The4124, The4125, The4126, The5005, The5022, The5033, The5097, The9011 };
+    public enum Code { The0, The1, The10000, The10001, The1006, The11003, The2000, The2038, The3033, The3039, The3040, The3043, The3094, The3095, The4028, The4033, The4038, The4039, The4040, The4041, The4064, The4074, The4111, The4122, The4123, The4124, The4125, The4126, The5005, The5022, The5033, The5098, The7013, The9011 };
+
+    /// <summary>
+    /// Identifies whether this message is in response to a previously received
+    /// householdRecordingCreate/householdRecordingDelete message
+    /// </summary>
+    [JsonConverter(typeof(RequestTypeConverter))]
+    public enum RequestType { Create, Delete };
 
     internal static class Converter
     {
@@ -63,6 +80,7 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
             Converters =
             {
                 CodeConverter.Singleton,
+                RequestTypeConverter.Singleton,
                 new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
             },
         };
@@ -82,6 +100,10 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                     return Code.The0;
                 case "1":
                     return Code.The1;
+                case "10000":
+                    return Code.The10000;
+                case "10001":
+                    return Code.The10001;
                 case "1006":
                     return Code.The1006;
                 case "11003":
@@ -90,6 +112,10 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                     return Code.The2000;
                 case "2038":
                     return Code.The2038;
+                case "3033":
+                    return Code.The3033;
+                case "3039":
+                    return Code.The3039;
                 case "3040":
                     return Code.The3040;
                 case "3043":
@@ -112,8 +138,8 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                     return Code.The4041;
                 case "4064":
                     return Code.The4064;
-                case "4078":
-                    return Code.The4078;
+                case "4074":
+                    return Code.The4074;
                 case "4111":
                     return Code.The4111;
                 case "4122":
@@ -132,8 +158,10 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                     return Code.The5022;
                 case "5033":
                     return Code.The5033;
-                case "5097":
-                    return Code.The5097;
+                case "5098":
+                    return Code.The5098;
+                case "7013":
+                    return Code.The7013;
                 case "9011":
                     return Code.The9011;
             }
@@ -156,6 +184,12 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                 case Code.The1:
                     serializer.Serialize(writer, "1");
                     return;
+                case Code.The10000:
+                    serializer.Serialize(writer, "10000");
+                    return;
+                case Code.The10001:
+                    serializer.Serialize(writer, "10001");
+                    return;
                 case Code.The1006:
                     serializer.Serialize(writer, "1006");
                     return;
@@ -167,6 +201,12 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                     return;
                 case Code.The2038:
                     serializer.Serialize(writer, "2038");
+                    return;
+                case Code.The3033:
+                    serializer.Serialize(writer, "3033");
+                    return;
+                case Code.The3039:
+                    serializer.Serialize(writer, "3039");
                     return;
                 case Code.The3040:
                     serializer.Serialize(writer, "3040");
@@ -201,8 +241,8 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                 case Code.The4064:
                     serializer.Serialize(writer, "4064");
                     return;
-                case Code.The4078:
-                    serializer.Serialize(writer, "4078");
+                case Code.The4074:
+                    serializer.Serialize(writer, "4074");
                     return;
                 case Code.The4111:
                     serializer.Serialize(writer, "4111");
@@ -231,8 +271,11 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
                 case Code.The5033:
                     serializer.Serialize(writer, "5033");
                     return;
-                case Code.The5097:
-                    serializer.Serialize(writer, "5097");
+                case Code.The5098:
+                    serializer.Serialize(writer, "5098");
+                    return;
+                case Code.The7013:
+                    serializer.Serialize(writer, "7013");
                     return;
                 case Code.The9011:
                     serializer.Serialize(writer, "9011");
@@ -242,5 +285,46 @@ namespace Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus
         }
 
         public static readonly CodeConverter Singleton = new CodeConverter();
+    }
+
+    internal class RequestTypeConverter : JsonConverter
+    {
+        public override bool CanConvert(Type t) => t == typeof(RequestType) || t == typeof(RequestType?);
+
+        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return null;
+            var value = serializer.Deserialize<string>(reader);
+            switch (value)
+            {
+                case "Create":
+                    return RequestType.Create;
+                case "Delete":
+                    return RequestType.Delete;
+            }
+            throw new Exception("Cannot unmarshal type RequestType");
+        }
+
+        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
+        {
+            if (untypedValue == null)
+            {
+                serializer.Serialize(writer, null);
+                return;
+            }
+            var value = (RequestType)untypedValue;
+            switch (value)
+            {
+                case RequestType.Create:
+                    serializer.Serialize(writer, "Create");
+                    return;
+                case RequestType.Delete:
+                    serializer.Serialize(writer, "Delete");
+                    return;
+            }
+            throw new Exception("Cannot marshal type RequestType");
+        }
+
+        public static readonly RequestTypeConverter Singleton = new RequestTypeConverter();
     }
 }

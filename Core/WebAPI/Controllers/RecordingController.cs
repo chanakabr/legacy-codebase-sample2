@@ -509,6 +509,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidParameters)]
         [Throws(eResponseStatus.RecordingExceededConcurrency)]
         [Throws(eResponseStatus.ExceedingAllowedImmediateRecordingAttempts)]
+        [Throws(eResponseStatus.PersonalizedRecordingDisabled)]
         [Throws(eResponseStatus.NotAllowed)]
         public static KalturaImmediateRecording ImmediateRecord(long assetId, int? endPadding = null)
         {
@@ -530,7 +531,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    throw new ClientException((int)eResponseStatus.NotAllowed, "PersonalizedRecording isn't Enabled");
+                    throw new ClientException((int)eResponseStatus.PersonalizedRecordingDisabled, "PersonalizedRecording isn't Enabled");
                 }
             }
             catch (ClientException ex)

@@ -5205,7 +5205,8 @@ namespace Core.ConditionalAccess
                             int personalizedRecordingEnable = ODBCWrapper.Utils.GetIntSafeVal(dr, "personalized_recording_enable", 0);
                             int maxRecordingConcurrency = ODBCWrapper.Utils.GetIntSafeVal(dr, "max_recording_concurrency", 0);
                             int maxConcurrencyMargin = ODBCWrapper.Utils.GetIntSafeVal(dr, "max_concurrency_margin", 0);
-                            
+                            int cdvrAdapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "adapter_id", 0);
+
                             if (defaultQuota == 0 && quotaModuleId != 0)
                             {
                                 int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id", 0);
@@ -5221,12 +5222,16 @@ namespace Core.ConditionalAccess
                                             trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
                                             protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
                                             recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy,
-                                            recoveryGracePeriod, privateCopy == 1, defaultQuota, personalizedRecordingEnable == 1, maxRecordingConcurrency, maxConcurrencyMargin);
+                                            recoveryGracePeriod, privateCopy == 1, defaultQuota, personalizedRecordingEnable == 1, maxRecordingConcurrency, maxConcurrencyMargin, cdvrAdapterId, false);
                             }
                         }
                         else
                         {
-                            tstvAccountSettings = new TimeShiftedTvPartnerSettings(false, false, false, false, false, 7, 1, 0, 0, 0, false, 90, 25, 182, 7, true, false, false, 0, 0, 0, false, 0, false, 0, 0);
+                            tstvAccountSettings = new TimeShiftedTvPartnerSettings(false, false, false, false, false, 7, 1, 0, 0, 
+                                0, false, 90, 25, 182, 7, 
+                                true, false, false, 0,
+                                0, 0, false, 0, false, 0, 0,
+                                0, true);
                         }
                     }
                 }

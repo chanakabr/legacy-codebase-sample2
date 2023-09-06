@@ -3,7 +3,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "HouseholdRecordingMigrationStatus",
   "type": "object",
-  "description": "contains status information relating to an attempt to import a household recording from legacy system to KTP via previous partnerMigrationHouseholdRecording event",
+  "description": "contains status information relating to an attempt to import a household recording from legacy system to KTP via previous HouseholdRecordingCreate event",
   "allOf": [
     {
       "$ref": "ott-schema-registry/events/logical/householdRecordingMigrationStatus"

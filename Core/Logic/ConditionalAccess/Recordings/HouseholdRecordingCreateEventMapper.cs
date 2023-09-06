@@ -3,20 +3,20 @@ using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using Core.Catalog;
 using DAL;
-using Phoenix.Generated.Api.Events.Crud.PartnerMigrationHouseholdRecording;
 using Phx.Lib.Appconfig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Phoenix.Generated.Api.Events.Logical.Recordings.Partnermigrations.HouseholdRecordingCreate;
 using TVinciShared;
 
 namespace ApiLogic.ConditionalAccess.Recordings
 {
-    public class PartnerMigrationHouseholdRecordingCrudEventMapper
+    public class HouseholdRecordingCreateEventMapper
     {
         private static readonly double EXPIRY_DATE_DELTA = ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0 ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
 
-        public static EpgAsset MapToEpgAsset(PartnerMigrationHouseholdRecording householdRecording, long linearAssetId, CatalogGroupCache cache, string name, List<LanguageContainer> nameTranslations)
+        public static EpgAsset MapToEpgAsset(HouseholdRecordingCreate householdRecording, long linearAssetId, CatalogGroupCache cache, string name, List<LanguageContainer> nameTranslations)
         {
             var epgAsset = new EpgAsset()
             {
@@ -30,7 +30,8 @@ namespace ApiLogic.ConditionalAccess.Recordings
                 Metas = MapToMetas(householdRecording.ProgramAssetMetas, cache),
                 Tags = MapToTags(householdRecording.ProgramAssetTags),
                 Name = name,
-                NamesWithLanguages = nameTranslations
+                NamesWithLanguages = nameTranslations/*,
+                CdvrEnabled = true*/
             };
 
             var (description, descriptionTranslations) = GetMultilingual(householdRecording.ProgramAssetmultilingualDescription, cache);

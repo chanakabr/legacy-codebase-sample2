@@ -28,6 +28,7 @@ using Synchronizer;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Status = ApiObjects.Response.Status;
+using Code = Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus.Code;
 
 namespace Core.Recordings
 {
@@ -149,9 +150,16 @@ namespace Core.Recordings
             return null;
         }
 
-        public HouseholdRecording GetHouseholdRecordingByRecordingId(int groupId, long id, long householdId)
+        public HouseholdRecording GetHouseholdRecordingByRecordingId(int groupId, long id, long? householdId)
         {
-            return _repository.GetHouseholdRecordingById(groupId, id, householdId, DomainRecordingStatus.OK.ToString());
+            if (householdId.HasValue)
+            {
+                return _repository.GetHouseholdRecordingById(groupId, id, householdId.Value, DomainRecordingStatus.OK.ToString());
+            }
+            else
+            {
+                return _repository.GetHouseholdRecording(groupId, id, DomainRecordingStatus.OK.ToString());
+            }
         }
 
         public Recording GetHouseholdRecordingById(int groupId, long id, long householdId)
@@ -365,13 +373,12 @@ namespace Core.Recordings
             return reIssueStatuses.Contains(timeBasedRecording.Status);
         }
 
-        public Status DeleteRecording(int groupId, Recording slimRecording)
+        public Status DeleteRecording(int groupId, Recording slimRecording, int maximumRequiredHhRecordings = 2)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             if (slimRecording?.Id > 0 && slimRecording?.EpgId > 0)
             {
-                bool isLastPaddedRecording;
                 string recordingKey = "";
 
                 if (slimRecording.AbsoluteStartTime.HasValue)
@@ -386,9 +393,8 @@ namespace Core.Recordings
                         slimRecording.EndPadding.Value);
                 }
 
-                isLastPaddedRecording =
-                    _repository.GetTop2HouseholdRecordingsByKey(groupId, recordingKey,
-                        RecordingInternalStatus.OK.ToString()).Count < 2;
+                var isLastPaddedRecording = _repository.GetTopHouseholdRecordingsByKey(groupId, recordingKey, maximumRequiredHhRecordings,
+                    RecordingInternalStatus.OK.ToString()).Count < maximumRequiredHhRecordings;
 
                 // if last recording then update ES and CB
                 if (isLastPaddedRecording)
@@ -470,7 +476,7 @@ namespace Core.Recordings
         }
 
         public GenericResponse<Recording> DeleteHouseholdRecordings(int partnerId, long domainRecordingId,
-            string userId)
+            string userId, bool deleteViaMigration = false)
         {
             var response = new GenericResponse<Recording>();
             response.Status.Set(new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()));
@@ -486,7 +492,7 @@ namespace Core.Recordings
             }
 
             var recording = GetHouseholdRecordingById(partnerId, domainRecordingId, householdId);
-            status = ValidateDeleteRecording(partnerId, recording);
+            status = ValidateDeleteRecording(partnerId, recording, deleteViaMigration);
             if (!status.IsOkStatusCode())
             {
                 log.Debug(
@@ -500,20 +506,25 @@ namespace Core.Recordings
                 LayeredCache.Instance.SetInvalidationKey(
                     LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(partnerId,
                         householdId));
-                DeleteRecording(partnerId, recording);
+                DeleteRecording(partnerId, recording, 1);//don't delete if any other hh is following the same permutation
             }
 
             response.Object = recording;
             return response;
         }
 
-        public Status ValidateDeleteRecording(int partnerId, Recording recording)
+        public Status ValidateDeleteRecording(int partnerId, Recording recording, bool deleteViaMigration)
         {
             Status status = new Status(eResponseStatus.OK);
             if (recording == null)
             {
                 status = new Status(eResponseStatus.RecordingNotFound,
                     "Recording not found");
+            }
+            else if (deleteViaMigration)
+            {
+                //ASU-023 
+                return status;
             }
             else if (recording.AbsoluteEndTime.HasValue 
                      && recording.AbsoluteEndTime.Value < DateTime.UtcNow)//BEO-14119, stopped in the past
@@ -1535,7 +1546,7 @@ namespace Core.Recordings
             TimeBasedRecording timeBasedRecording =
                 _repository.GetRecordingByKey(partnerId, currentHhRecording.RecordingKey);
             List<HouseholdRecording> hhRecording =
-                _repository.GetTop2HouseholdRecordingsByKey(partnerId, timeBasedRecording.Key);
+                _repository.GetTopHouseholdRecordingsByKey(partnerId, timeBasedRecording.Key);
             Program program = _repository.GetProgramByEpg(partnerId, timeBasedRecording.EpgId);
             Recording recording =
                 RecordingsUtils.BuildRecordingFromTBRecording(partnerId, timeBasedRecording, program,
@@ -2957,6 +2968,49 @@ namespace Core.Recordings
             {
                 return endDate.AddSeconds(GetImportedRecordingMinimumRetentionPeriodSecondsValue(accountSettings));
             }
+        }
+        
+        public Code MapResponseStatusToCode(eResponseStatus responseStatus)
+        {
+            switch (responseStatus)
+            {
+                case eResponseStatus.OK: return Code.The0;
+                case eResponseStatus.Error: return Code.The1;
+                case eResponseStatus.DomainNotExists: return Code.The1006;
+                case eResponseStatus.UserDoesNotExist: return Code.The2000;
+                case eResponseStatus.AccountCdvrNotEnabled: return Code.The3033;
+                case eResponseStatus.TopicNotFound: return Code.The2038;
+                case eResponseStatus.RecordingNotFound: return Code.The3039;
+                case eResponseStatus.RecordingFailed: return Code.The3040;
+                case eResponseStatus.RecordingStatusNotValid: return Code.The3043;
+                case eResponseStatus.RecordingExceededConcurrency: return Code.The3094;
+                case eResponseStatus.ExceedingAllowedImmediateRecordingAttempts: return Code.The3095;
+                case eResponseStatus.AssetStructDoesNotExist: return Code.The4028;
+                case eResponseStatus.MetaDoesNotExist: return Code.The4033;
+                case eResponseStatus.AssetExternalIdMustBeUnique: return Code.The4038;
+                case eResponseStatus.AssetDoesNotExist: return Code.The4039;
+                case eResponseStatus.InvalidMetaType: return Code.The4040;
+                case eResponseStatus.InvalidValueSentForMeta: return Code.The4041;
+                case eResponseStatus.ChannelDoesNotExist: return Code.The4064;
+                case eResponseStatus.AccountIsNotOpcSupported: return Code.The4074;
+                case eResponseStatus.StartDateShouldBeLessThanEndDate: return Code.The4111;
+                case eResponseStatus.LiveAssetToProgramAssetMismatch: return Code.The4122;
+                case eResponseStatus.EpgStartDateToProgramAssetMismatch: return Code.The4123;
+                case eResponseStatus.EpgEndDateToProgramAssetMismatch: return Code.The4124;
+                case eResponseStatus.CridToProgramAssetMismatch: return Code.The4125;
+                case eResponseStatus.CannotImportRecordingWithinCatchUpBuffer: return Code.The4126;
+                case eResponseStatus.NameRequired: return Code.The5005;
+                case eResponseStatus.TimeShiftedTvPartnerSettingsNotFound: return Code.The5022;
+                case eResponseStatus.AssetUserRulesOperationsDisable: return Code.The5033;
+                case eResponseStatus.PersonalizedRecordingDisabled: return Code.The5098;
+                case eResponseStatus.NotAllowed: return Code.The7013;
+                case eResponseStatus.MandatoryField: return Code.The9011;
+                case eResponseStatus.AdapterNotExists: return Code.The10000;
+                case eResponseStatus.AdapterIdentifierRequired: return Code.The10001;
+                case eResponseStatus.EPGSProgramDatesError: return Code.The11003;
+            }
+
+            throw new NotImplementedException($"Mapping for eResponseStatus {responseStatus} to Code was not implemented");
         }
     }
 }
