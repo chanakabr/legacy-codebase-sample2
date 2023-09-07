@@ -15,6 +15,7 @@ namespace Core.Pricing
         public DateTime EndDate { get; set; }
         public WhenAlgoType WhenAlgoType { get; set; }
         public int WhenAlgoTimes { get; set; }
+        public RelationTypes RelationType;
 
         public DiscountDetails()
         {
@@ -88,6 +89,7 @@ namespace Core.Pricing
     public class Discount : Price
     {
         public double Percentage { get; set; }
+        public bool IsDeafult { get; set; }
     }
 
 }

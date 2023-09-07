@@ -230,7 +230,11 @@ namespace CachingProvider.LayeredCache
             // },
             {
                 LayeredCacheConfigNames.GET_PPV_FOR_FILE, INMEM_10M
-            }
+            },
+            {
+                 LayeredCacheConfigNames.GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME,
+                 INMEM_10M
+            },
         });
     }
 }

@@ -198,11 +198,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("priceCodeByCountryAndCurrency_g_{0}_pc_{1}_co_{2}_cu_{3}", groupId, priceCodeId, countryCode, currencyCode);
         }
 
-        public static string GetDiscountModuleCodeByCountryAndCurrencyKey(int groupId, int discountCodeId, string countryCode, string currencyCode)
-        {
-            return string.Format("discountModuleByCountryAndCurrency_g_{0}_dm_{1}_co_{2}_cu_{3}", groupId, discountCodeId, countryCode, currencyCode);
-        }
-
         public static string GetRoleIdKey(int roleId)
         {
             return string.Format("roleId_{0}", roleId);
@@ -495,7 +490,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDiscountsKey(int groupId)
         {
-            return string.Format("discounts_groupId_{0}", groupId);
+            return string.Format("discounts_v1_groupId_{0}", groupId);
         }
 
         public static string GetUsageModulesKey(int groupId)

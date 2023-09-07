@@ -27,7 +27,6 @@
         public const string CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME = "GetMediaChannels";
         public const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
         public const string PRICE_CODE_LOCALE_LAYERED_CACHE_CONFIG_NAME = "GetPriceCodeByCountyAndCurrency";
-        public const string DISCOUNT_MODULE_LOCALE_LAYERED_CACHE_CONFIG_NAME = "GetDiscountModuleByCountyAndCurrency";
         public const string GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME = "GetAllCurrencies";
         public const string GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME = "GetGroupDefaultCurrency";
         public const string GET_GROUP_ADS_CONTROL_CACHE_CONFIG_NAME = "GetGroupAdsControl";

@@ -98,6 +98,7 @@ namespace Core.ConditionalAccess
         private static readonly string BASIC_LINK_GROUP = "!--group--";
         private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";
         private static readonly int RECOVERY_GRACE_PERIOD = 864000;
+        private static readonly int MAX_REASONABLE_USAGE = 50; 
 
         public const string ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION = "PROCESS_UNIFIED_RENEW_SUBSCRIPTION\\{0}";
 
@@ -1262,14 +1263,17 @@ namespace Core.ConditionalAccess
 
         internal static Price CalculateMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, Price pModule,
             DiscountModule discModule, CouponsGroup oCouponsGroup, string sSiteGUID,
-            string sCouponCode, Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd, long domainId, string countryCode)
+            string sCouponCode, Int32 nGroupID, string subCode, out DateTime? dtDiscountEnd, long domainId, string countryCode, bool ppvSubOnly = false)
         {
             dtDiscountEnd = null;
             Price p = CopyPrice(pModule);
-            if (discModule != null)
+            if (discModule != null && !ppvSubOnly)
             {
                 int nPPVPurchaseCount = 0;
-                if (discModule.m_oWhenAlgo.m_nNTimes > 0)
+                
+                bool skipCount = discModule.m_oWhenAlgo.m_eAlgoType == WhenAlgoType.EVERY_N_TIMES && discModule.m_oWhenAlgo.m_nNTimes == 1;
+
+                if (discModule.m_oWhenAlgo.m_nNTimes > 0 && discModule.m_oWhenAlgo.m_nNTimes < MAX_REASONABLE_USAGE && !skipCount)
                 {
                     if (discModule.m_dPercent == 100 && !string.IsNullOrEmpty(subCode))
                     {
@@ -1351,8 +1355,10 @@ namespace Core.ConditionalAccess
             DiscountModule discModule = Extensions.Clone(ppvModule.m_oDiscountModule);
             CouponsGroup couponGroups = Extensions.Clone(ppvModule.m_oCouponsGroup);
 
+            bool ppvSubOnly = string.IsNullOrEmpty(subCode) && ppvModule.m_bSubscriptionOnly;
+
             return CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID, sCouponCode, nGroupID, subCode, 
-                out dtDiscountEnd, domainId, countryCode);
+                out dtDiscountEnd, domainId, countryCode, ppvSubOnly);
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription subscription,
