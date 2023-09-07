@@ -161,6 +161,7 @@
 
         public const string GET_EPG_V2_PARTNER_CONFIGURATION = "GetEpgV2PartnerConfiguration";
         public const string GET_EPG_V3_PARTNER_CONFIGURATION = "GetEpgV3PartnerConfiguration";
+        public const string GET_EPG_V3_ALIAS_INDEX_BINDING_CONFIGURATION = "GetEpgV3IndexAliasBindingConfiguration";
 
         public const string GET_PROGRAM_ASSET_GROUP_OFFERS = "GetProgramAssetGroupOffers";
         public const string GET_MEDIA_SUPPRESSED_INDEXES = "GetMediaSuppressedIndexesDB";

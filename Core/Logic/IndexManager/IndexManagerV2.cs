@@ -1171,7 +1171,7 @@ namespace Core.Catalog
 
 
             var queryFilter = new QueryFilter { FilterSettings = filterCompositeType };
-            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _groupSettingsManager);
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _groupSettingsManager, _elasticSearchApi);
 
             query.Filter = queryFilter;
 
@@ -1246,7 +1246,7 @@ namespace Core.Catalog
 
 
             var queryFilter = new QueryFilter() { FilterSettings = filterCompositeType };
-            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _groupSettingsManager);
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _groupSettingsManager, _elasticSearchApi);
             query.Filter = queryFilter;
 
             query.ReturnFields.Clear();
@@ -5151,7 +5151,7 @@ namespace Core.Catalog
                 }
             }
 
-            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _groupSettingsManager);
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, queryFilter, _groupSettingsManager, _elasticSearchApi);
 
             // get the epg document ids from elasticsearch
             var searchQuery = query.ToString();
@@ -5203,7 +5203,7 @@ namespace Core.Catalog
             composite.AddChild(terms);
 
             filter.FilterSettings = composite;
-            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, filter);
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, filter, esApi: _elasticSearchApi);
             query.Filter = filter;
 
             string searchQuery = query.ToString();
