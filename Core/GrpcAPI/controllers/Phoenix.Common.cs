@@ -2,6 +2,8 @@
 using GrpcAPI.Services;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using CachingProvider.LayeredCache;
+using MoreLinq.Extensions;
 
 namespace Grpc.controllers
 {
@@ -34,12 +36,12 @@ namespace Grpc.controllers
             _assetUserRuleService = assetUserRuleService;
         }
 
-        private static Metadata GetInvalidationKeysHeader(List<string> invalidationKeys)
+        private static Metadata GetInvalidationKeysHeader(HashSet<string> invalidationKeys)
         {
             var headers = new Metadata();
             invalidationKeys?.ForEach(x =>
             {
-                if (!string.IsNullOrEmpty(x))
+                if (!string.IsNullOrEmpty(x) && !x.Equals(LayeredCacheKeys.GetProceduresRoutingInvalidationKey()))
                     headers.Add(new Metadata.Entry(InvalidationKey, x));
             });
             return headers;

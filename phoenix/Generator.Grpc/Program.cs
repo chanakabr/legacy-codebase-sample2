@@ -34,7 +34,7 @@ namespace Generator.Grpc
         {
             string protoSyntx = "syntax = \"proto3\";";
             string namespacePhoenix = "option csharp_namespace = \"phoenix\";";
-            string goPackage = "option go_package = \"./models\";";
+            string goPackage = "option go_package = \"./phoenix\";";
             string packagePhoenix = "package phoenix;";
             
             var objectType = typeof(T);

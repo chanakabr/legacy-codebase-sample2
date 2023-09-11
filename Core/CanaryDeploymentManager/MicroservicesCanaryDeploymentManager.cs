@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using ApiObjects.CanaryDeployment.Microservices;
@@ -128,7 +129,7 @@ namespace CanaryDeploymentManager
                 {
                     // if enableMs is true take routingService from RoutingActionsToMsRoutingService, otherwise set to phoenix
                     MicroservicesCanaryDeploymentRoutingService routingService = enableMs
-                        ? CanaryDeploymentRoutingActionLists.RoutingActionsToMsRoutingService[routingAction]
+                        ? CanaryDeploymentRoutingActionLists.RoutingActionsToMsRoutingService[routingAction].FirstOrDefault()
                         : MicroservicesCanaryDeploymentRoutingService.Phoenix;
                     res = ValidateAndSetRoutingAction(groupId, routingAction, routingService);
                     if (res.Code != (int)eResponseStatus.OK)
@@ -384,69 +385,108 @@ namespace CanaryDeploymentManager
             }
 
             Status res = new Status(eResponseStatus.Error, "Failed updating CanaryDeploymentConfiguration");
-            List<string> apisToRoute = new List<string>();
+            Dictionary<string, MicroservicesCanaryDeploymentRoutingService> apisToRoute = new Dictionary<string, MicroservicesCanaryDeploymentRoutingService>(StringComparer.OrdinalIgnoreCase);
+            
             switch (routingAction)
             {
                 case CanaryDeploymentRoutingAction.AppTokenController:
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.AppTokenControllerRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.AppTokenControllerRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.UserLoginPinController:
                     cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory = isRoutingToPhoenixRestProxy;
                     cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory = isRoutingToPhoenixRestProxy;
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.UserLoginPinControllerRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.UserLoginPinControllerRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.SsoAdapterProfileController:
                     cdc.DataOwnership.AuthenticationMsOwnership.SSOAdapterProfiles = isRoutingToPhoenixRestProxy;
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.SsoAdapterProfileControllerRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.SsoAdapterProfileControllerRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.SessionController:
                     cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory = isRoutingToPhoenixRestProxy;
                     cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory = isRoutingToPhoenixRestProxy;
                     cdc.DataOwnership.AuthenticationMsOwnership.SessionRevocation = isRoutingToPhoenixRestProxy;
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.SessionControllerRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.SessionControllerRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.HouseHoldDevicePinActions:
                     cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginPin = isRoutingToPhoenixRestProxy;
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.HouseHoldDevicePinActionsRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.HouseHoldDevicePinActionsRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.RefreshSession:
                     cdc.DataOwnership.AuthenticationMsOwnership.RefreshToken = isRoutingToPhoenixRestProxy;
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.RefreshSessionRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.RefreshSessionRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.Login:
                     cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory = isRoutingToPhoenixRestProxy;
                     cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory = isRoutingToPhoenixRestProxy;
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.LoginRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.LoginRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.Logout:
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.LogoutRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.LogoutRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.AnonymousLogin:
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.AnonymousLoginRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.AnonymousLoginRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.MultiRequestController:
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.MultiRequestControllerRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.MultiRequestControllerRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.HouseholdUser:
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.HouseholdUserRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.HouseholdUserRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 case CanaryDeploymentRoutingAction.PlaybackController:
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.PlaybackControllerRouting);
+                    if (routingService == MicroservicesCanaryDeploymentRoutingService.PlaybackService) {
+                        apisToRoute =
+                            CanaryDeploymentRoutingActionLists.PlaybackControllerRouting.ToDictionary(key => key,
+                                value => routingService);
+                        foreach (var api in CanaryDeploymentRoutingActionLists.PlaybackV2ControllerRouting.Except(
+                                     CanaryDeploymentRoutingActionLists.PlaybackControllerRouting))
+                        {
+                            apisToRoute[api] = MicroservicesCanaryDeploymentRoutingService.Phoenix;
+                        }
+                    } else {
+                        //Phoenix/Playback V2
+                        apisToRoute =
+                            CanaryDeploymentRoutingActionLists.PlaybackV2ControllerRouting.ToDictionary(key => key,
+                                value => routingService);
+                    }
                     break;
                 case CanaryDeploymentRoutingAction.Segmentation:
                     cdc.DataOwnership.SegmentationMsOwnership.Segmentation = isRoutingToPhoenixRestProxy;
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.SegmentationRouting);
+                    apisToRoute =
+                        CanaryDeploymentRoutingActionLists.SegmentationRouting.ToDictionary(key => key,
+                            value => routingService);
                     break;
                 default:
                     break;
             }
-
+            
             if (cdc.RoutingConfiguration == null)
                 cdc.RoutingConfiguration = new Dictionary<string, MicroservicesCanaryDeploymentRoutingService>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (string api in apisToRoute)
+            foreach(KeyValuePair<string, MicroservicesCanaryDeploymentRoutingService> route in apisToRoute)
             {
-                cdc.RoutingConfiguration[api] = routingService;
+                cdc.RoutingConfiguration[route.Key] = route.Value;
             }
 
             if (SetCanaryDeploymentConfiguration(groupId, cdc))
@@ -465,9 +505,9 @@ namespace CanaryDeploymentManager
             Status okStatus = new Status(eResponseStatus.OK);
 
             var expectedService = CanaryDeploymentRoutingActionLists.RoutingActionsToMsRoutingService[routingAction];
-            if (routingService != MicroservicesCanaryDeploymentRoutingService.Phoenix && expectedService != routingService)
+            if (routingService != MicroservicesCanaryDeploymentRoutingService.Phoenix && !expectedService.Contains(routingService))
             {
-                return new Status(eResponseStatus.FailedToSetAllRoutingActions, $"{routingAction} could be routed to {expectedService} or Phoenix");
+                return new Status(eResponseStatus.FailedToSetAllRoutingActions, $"{routingAction} could be routed to {routingService} or Phoenix");
             }
 
             switch (routingAction)

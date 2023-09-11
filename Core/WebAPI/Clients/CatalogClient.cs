@@ -2343,8 +2343,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId,
-                                  int Position, string action, int averageBitRate, int totalBitRate, int currentBitRate, long programId = 0, bool isReportingMode = false)
+        public bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId,
+                                  int Position, string action, int averageBitRate, int totalBitRate, int currentBitRate, long programId = 0, bool isReportingMode = false, string userIp = null)
         {
             int t;
 
@@ -2374,7 +2374,7 @@ namespace WebAPI.Clients
                 domainId = householdId,
                 m_nGroupID = groupId,
                 m_sSiteGuid = siteGuid,
-                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_sUserIP = userIp ?? Utils.Utils.GetClientIP(),
                 m_oMediaPlayRequestData = new MediaPlayRequestData()
                 {
                     m_eAssetType = CatalogAssetType,

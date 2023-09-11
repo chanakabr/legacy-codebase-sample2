@@ -10,13 +10,13 @@ namespace Grpc.controllers
 {
     public partial class PhoenixController : phoenix.Phoenix.PhoenixBase
     {
-        public override Task<BoolValue> HasVirtualAssetType(HasVirtualAssetTypeRequest request,
+        public override async Task<BoolValue> HasVirtualAssetType(HasVirtualAssetTypeRequest request,
             ServerCallContext context)
         {
             var response = _catalogService.HasVirtualAssetType(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(new BoolValue{Value = response});
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return new BoolValue{Value = response};
         }
 
         public override Task<HandleBlockingSegmentResponse> HandleBlockingSegment(HandleBlockingSegmentRequest request,
@@ -25,14 +25,14 @@ namespace Grpc.controllers
             return Task.FromResult(_catalogService.HandleBlockingSegment(request));
         }
 
-        public override Task<StringValue>
+        public override async Task<StringValue>
             GetEpgChannelId(
                 GetEpgChannelIdRequest request, ServerCallContext context)
         {
             var response = _catalogService.GetEpgChannelId(request) ?? String.Empty;
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(new StringValue{Value = response});
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return new StringValue{Value = response};
         }
 
         public override Task<GetAssetsForValidationResponse>
@@ -42,36 +42,36 @@ namespace Grpc.controllers
             return Task.FromResult(_catalogService.GetAssetsForValidation(request));
         }
 
-        public override Task<GetMediaFilesResponse> GetMediaFiles(GetMediaFilesRequest request,
+        public override async Task<GetMediaFilesResponse> GetMediaFiles(GetMediaFilesRequest request,
             ServerCallContext context)
         {
             var response = _catalogService.GetMediaFiles(request);
-            var invalidationKeyFromRequest = new List<string>
+            var invalidationKeyFromRequest = new HashSet<string>
                 {LayeredCacheKeys.GetMediaInvalidationKey(request.GroupId, request.MediaId)};
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<GetMediaByIdResponse>
+        public override async Task<GetMediaByIdResponse>
             GetMediaById(
                 GetMediaByIdRequest request, ServerCallContext context)
         {
             
             var response =_catalogService.GetMediaById(request);
-            var invalidationKeyFromRequest = new List<string>
+            var invalidationKeyFromRequest = new HashSet<string>
                 {LayeredCacheKeys.GetMediaInvalidationKey(request.GroupId, request.MediaId)};
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<GetMediaInfoResponse>
+        public override async Task<GetMediaInfoResponse>
             GetMediaInfo(
                 GetMediaInfoRequest request, ServerCallContext context)
         {
             var response = _catalogService.GetMediaInfo(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
         public override Task<GetProgramScheduleResponse>
@@ -81,14 +81,14 @@ namespace Grpc.controllers
             return Task.FromResult(_catalogService.GetProgramSchedule(request));
         }
 
-        public override Task<GetDomainRecordingsResponse>
+        public override async Task<GetDomainRecordingsResponse>
             GetDomainRecordings(
                 GetDomainRecordingsRequest request, ServerCallContext context)
         {
             var response = _catalogService.GetDomainRecordings(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
         public override Task<GetEpgsByIdsResponse>
@@ -105,13 +105,13 @@ namespace Grpc.controllers
             return Task.FromResult(_catalogService.GetLinearMediaInfoByEpgChannelIdAndFileType(request));
         }
 
-        public override Task<MapMediaFilesResponse> MapMediaFiles(
+        public override async Task<MapMediaFilesResponse> MapMediaFiles(
             MapMediaFilesRequest request, ServerCallContext context)
         {
             var response = _catalogService.MapMediaFiles(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
         public override Task<StringValue> GetEPGChannelCDVRId(
@@ -126,13 +126,32 @@ namespace Grpc.controllers
             return Task.FromResult(_catalogService.GetRecordingLinkByFileType(request));
         }
         
-        public override Task<GetGroupMediaFileTypesResponse> GetGroupMediaFileTypes(GetGroupMediaFileTypesRequest request,
+        public override async Task<GetGroupMediaFileTypesResponse> GetGroupMediaFileTypes(GetGroupMediaFileTypesRequest request,
             ServerCallContext context)
         {
             var response = _catalogService.GetGroupMediaFileTypes(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);        
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;        
         }
+        
+        public override async Task<GetProgramsByChannelIdResponse> GetProgramsByChannelId(GetProgramsByChannelIdRequest request,
+            ServerCallContext context)
+        {
+            var response = _catalogService.GetProgramsByChannelId(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;        
+        }
+        
+        public override async Task<GetChannelIdsResponse> GetChannelIds(GetChannelIdsRequest request,
+            ServerCallContext context)
+        {
+            var response = _catalogService.GetChannelIds(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;        
+        }
+        
     }
 }

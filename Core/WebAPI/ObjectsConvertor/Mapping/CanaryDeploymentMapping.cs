@@ -140,6 +140,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     return MicroservicesCanaryDeploymentRoutingService.HouseholdService;
                 case KalturaCanaryDeploymentMicroservicesRoutingService.PLAYBACK:
                     return MicroservicesCanaryDeploymentRoutingService.PlaybackService;
+                case KalturaCanaryDeploymentMicroservicesRoutingService.PLAYBACK_V2:
+                    return MicroservicesCanaryDeploymentRoutingService.PlaybackV2Service;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentRoutingService type");
             }

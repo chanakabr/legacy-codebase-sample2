@@ -27,12 +27,12 @@ namespace Grpc.controllers
             return Task.FromResult(new BoolValue {Value = response});
         }
         
-        public override Task<BoolValue> IsMediaFileFree(IsMediaFileFreeRequest request, ServerCallContext context)
+        public override async Task<BoolValue> IsMediaFileFree(IsMediaFileFreeRequest request, ServerCallContext context)
         {
             var response = _pricingService.IsMediaFileFree(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest)); 
-            return Task.FromResult(new BoolValue { Value =  response});
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest)); 
+            return new BoolValue { Value =  response};
         }
     }
 }

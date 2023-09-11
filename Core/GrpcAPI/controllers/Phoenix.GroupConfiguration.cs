@@ -2,6 +2,7 @@
 using Grpc.Core;
 using phoenix;
 using System.Threading.Tasks;
+using CachingProvider.LayeredCache;
 
 namespace Grpc.controllers
 {
@@ -37,6 +38,26 @@ namespace Grpc.controllers
             ServerCallContext context)
         {
             return Task.FromResult(_groupAndConfigurationService.GetNotificationPartnerSettings(request));
+        }
+        
+        public override async Task<GetConcurrencyMilliThresholdResponse> GetConcurrencyMilliThreshold(
+            GetConcurrencyMilliThresholdRequest request,
+            ServerCallContext context)
+        {
+            var response = _groupAndConfigurationService.GetConcurrencyMilliThreshold(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
+        }
+        
+        public override async Task<GetGeneralPartnerConfigResponse> GetGeneralPartnerConfig(
+            GetGeneralPartnerConfigRequest request,
+            ServerCallContext context)
+        {
+            var response = _groupAndConfigurationService.GetGeneralPartnerConfig(request);
+            var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
     }
 }

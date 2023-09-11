@@ -395,7 +395,7 @@ namespace Core.Users
             return DomainResponseStatus.ConcurrencyLimitation;
         }
 
-        internal static uint GetDevicePlayDataExpirationTTL(int groupId, eExpirationTTL ttl)
+        public static uint GetDevicePlayDataExpirationTTL(int groupId, eExpirationTTL ttl)
         {
             uint expirationTTL = 0;
             if (ttl == eExpirationTTL.Long)

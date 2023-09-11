@@ -16,13 +16,13 @@ namespace Grpc.controllers
             });
         }
 
-        public override Task<GetDomainAdsControlResponse> GetDomainAdsControl(GetDomainAdsControlRequest request,
+        public override async Task<GetDomainAdsControlResponse> GetDomainAdsControl(GetDomainAdsControlRequest request,
             ServerCallContext context)
         {
             var response = _entitlementService.GetDomainAdsControl(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
         public override Task<GetPPVModuleDataResponse> GetPPVModuleData(GetPPVModuleDataRequest request,
@@ -37,13 +37,13 @@ namespace Grpc.controllers
             return Task.FromResult(_entitlementService.HandlePlayUses(request));
         }
 
-        public override Task<BoolValue> CheckProgramAssetGroupExistence(CheckProgramAssetGroupExistenceRequest request,
+        public override async Task<BoolValue> CheckProgramAssetGroupExistence(CheckProgramAssetGroupExistenceRequest request,
             ServerCallContext context)
         {
             var response = _entitlementService.CheckProgramAssetGroupExistence(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(new BoolValue{Value = response});        
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return new BoolValue{Value = response};        
         }
         
         public override Task<GetEntitledPagoWindowResponse> GetEntitledPagoWindow(GetEntitledPagoWindowRequest request,

@@ -9921,13 +9921,18 @@ namespace Core.ConditionalAccess
             return assetMediaRuleIds;
         }
 
-        public static List<long> GetAssetEpgRuleIds(int groupId, int mediaId, ref long programId)
+        public static List<long> GetAssetEpgRuleIds(int groupId, int mediaId, ref long programId, ref DateTime programEndDate)
         {
             List<long> assetEpgRuleIds = new List<long>();
 
             if (programId == 0)
             {
-                programId = GetCurrentProgramByMediaId(groupId, mediaId);
+                var program = GetCurrentProgramByMediaId(groupId, mediaId);
+                if (program != null)
+                {
+                    programId = long.Parse(program.AssetId);
+                    programEndDate = program.EndDate;
+                }
             }
 
             if (programId > 0)
@@ -9943,18 +9948,47 @@ namespace Core.ConditionalAccess
             return assetEpgRuleIds;
         }
 
-        internal static long GetCurrentProgramByMediaId(int groupId, int mediaId)
+        
+        public static List<long> GetAssetEpgRuleIds(int groupId, int mediaId, ref long programId)
         {
-            long programId = 0;
+            List<long> assetEpgRuleIds = new List<long>();
+
+            if (programId == 0)
+            {
+                programId = GetCurrentProgramIdByMediaId(groupId, mediaId);
+            }
+
+            if (programId > 0)
+            {
+                GenericListResponse<AssetRule> assetRulesEpgResponse =
+                    AssetRuleManager.Instance.GetAssetRules(RuleConditionType.Concurrency, groupId, new SlimAsset(programId, eAssetTypes.EPG));
+                if (assetRulesEpgResponse != null && assetRulesEpgResponse.HasObjects())
+                {
+                    assetEpgRuleIds.AddRange(assetRulesEpgResponse.Objects.Select(x => x.Id));
+                }
+            }
+
+            return assetEpgRuleIds;
+        }
+
+        internal static long GetCurrentProgramIdByMediaId(int groupId, int mediaId)
+        {
+            var program = GetCurrentProgramByMediaId(groupId, mediaId);
+            return program != null ? long.Parse(program.AssetId) : 0;
+        }
+
+        internal static ExtendedSearchResult GetCurrentProgramByMediaId(int groupId, int mediaId)
+        {
+            ExtendedSearchResult program = null;
             string epgChannelId = APILogic.Api.Managers.EpgManager.GetEpgChannelId(mediaId, groupId);
             if (!string.IsNullOrEmpty(epgChannelId))
             {
-                programId = APILogic.Api.Managers.EpgManager.GetCurrentProgram(groupId, epgChannelId);
+                program = APILogic.Api.Managers.EpgManager.GetCurrentProgram(groupId, epgChannelId);
             }
 
-            return programId;
+            return program;
         }
-
+        
         private static List<ExtendedSearchResult> GetProgramsByMediaId(int groupId, int mediaId, int numberOfProgram)
         {
             List<ExtendedSearchResult> programs = new List<ExtendedSearchResult>();

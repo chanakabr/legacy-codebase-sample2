@@ -130,6 +130,7 @@ namespace CachingProvider.LayeredCache
             List<LayeredCacheConfig> insertToCacheConfig = null;
             try
             {
+                InsertRequestedInvalidationKeys(inValidationKeys);
                 if (TryGetKeyFromCurrentRequest(key, ref genericParameter))
                 {
                     return true;
@@ -222,7 +223,7 @@ namespace CachingProvider.LayeredCache
             try
             {
                 Dictionary<string, string> keyToOriginalValueMapAfterCurrentRequest = new Dictionary<string, string>(keyToOriginalValueMap);
-
+                InsertRequestedInvalidationKeys(inValidationKeysMap?.SelectMany(x => x.Value).ToList());
                 if (TryGetKeysFromCurrentRequest<T>(keyToOriginalValueMap.Keys.ToList(), ref currentRequestResultMapping))
                 {
                     shouldAddCurrentRequestResults = true;
@@ -233,6 +234,7 @@ namespace CachingProvider.LayeredCache
                     }
                 }
 
+                
                 if (keyToOriginalValueMapAfterCurrentRequest.Count > 0)
                 {
                     res = TryGetValuesFromCacheByConfig<T>(keyToOriginalValueMapAfterCurrentRequest, ref resultsMapping, layeredCacheConfigName, out insertToCacheConfigMappings, fillObjectsMethod,
@@ -592,7 +594,7 @@ namespace CachingProvider.LayeredCache
             return success;
         }
 
-        public static List<string> GetInvalidationKeyFromRequest()
+        public static HashSet<string> GetInvalidationKeyFromRequest()
         {
             RequestLayeredCache requestLayeredCache = null;
             if (DoesHttpContextContainsRequestLayeredCache())
@@ -600,8 +602,42 @@ namespace CachingProvider.LayeredCache
                 requestLayeredCache = HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
             }
 
-            return requestLayeredCache?.invalidationKeysToKeys?.Keys.ToList();
+            return requestLayeredCache?.InvalidationKeysRequested;
         }
+
+        public void InsertRequestedInvalidationKeys(List<string> invalidationKeys)
+        {
+            if (invalidationKeys != null && invalidationKeys.Count > 0)
+            {
+                RequestLayeredCache requestLayeredCache;
+                if (DoesHttpContextContainsRequestLayeredCache())
+                {
+                    requestLayeredCache =
+                        HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
+                }
+                else
+                {
+                    requestLayeredCache = new RequestLayeredCache();
+                }
+
+                if (requestLayeredCache != null)
+                {
+                    foreach (var invalidationKey in invalidationKeys)
+                    {
+                        if(!requestLayeredCache.InvalidationKeysRequested.Contains(invalidationKey))
+                        {
+                            requestLayeredCache.InvalidationKeysRequested.Add(invalidationKey);
+                        }
+                    }
+
+                    if (HttpContext.Current?.Items != null)
+                    {
+                        HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] = requestLayeredCache;
+                    }
+                }
+            }
+        }
+
 
         public void InsertResultsToCurrentRequest<T>(Dictionary<string, T> results, Dictionary<string, List<string>> invalidationKeysToKeys)
         {
