@@ -169,6 +169,9 @@
         public const string GET_USER_MESSAGES_STATUS = "GetUserMessagesStatus";
         public const string GET_MESSAGE_FOLLOW_ANNOUNCEMENT_DB = "GetMessageFollowAnnouncementDB";
 
+        public const string GET_ASSETFILE_BY_ID = "GetAssetFileById";
+        public const string GET_ASSETFILES_BY_ASSETID = "GetAssetFilesByAssetId";
+
         #endregion
 
         #region Constant Invalidation Keys

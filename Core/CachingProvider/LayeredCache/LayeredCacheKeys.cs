@@ -258,7 +258,7 @@ namespace CachingProvider.LayeredCache
             return string.Format("AliasMappingFields_groupId_{0}", groupId);
         }
 
-        public static string GetPPVsforFileKey(int fileId)
+        public static string GetPPVsforFileKey(long fileId)
         {
             return $"file_to_ppvs_{fileId}";
         }
@@ -963,6 +963,12 @@ namespace CachingProvider.LayeredCache
 
         public static string GetLiveToVodFullConfigurationKey(long groupId)
             => $"live_to_vod_full_configuration_{groupId}";
+
+        public static string GetAssetFileKey(int groupId, long assetFileId) =>
+            $"asset_file_{groupId}_{assetFileId}";
+
+        public static string GetAssetFilesByAssetIdKey(int groupId, long assetId) =>
+            $"asset_file_by_asset_{groupId}_{assetId}";
 
         #endregion
 
@@ -1813,6 +1819,12 @@ namespace CachingProvider.LayeredCache
         {
             return $"invalidationKey_file_to_ppvs_{groupId}_{fileId}";
         }
+
+        public static string GetAssetFileInvalidationKey(int groupId, long assetFileId) =>
+            $"invalidationKey_asset_file_{groupId}_{assetFileId}";
+
+        public static string GetAssetFilesByAssetIdInvalidationKey(int groupId, long assetId) =>
+            $"invalidationKey_asset_file_by_asset_{groupId}_{assetId}";
 
         #endregion
 

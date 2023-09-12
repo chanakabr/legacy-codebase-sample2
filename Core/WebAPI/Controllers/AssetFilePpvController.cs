@@ -30,9 +30,6 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetDoesNotExist)]
         public static KalturaAssetFilePpvListResponse List(KalturaAssetFilePpvFilter filter)
         {
-            KalturaAssetFilePpvListResponse response = null;
-            int groupId = KS.GetFromRequest().GroupId;
-
             if (filter == null)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "filter");
@@ -40,17 +37,9 @@ namespace WebAPI.Controllers
 
             filter.Validate();
 
-            try
-            {
-                long userId = KS.GetFromRequest().UserId.ParseUserId();
-                var contextData = new ContextData(groupId) { UserId = userId };
-                response = ClientsManager.PricingClient().GetAssetFilePPVList(contextData,
-                    filter.AssetIdEqual.GetValueOrDefault(), filter.AssetFileIdEqual.GetValueOrDefault());
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
+            var contextData = KS.GetContextData();
+            var response = ClientsManager.PricingClient().GetAssetFilePPVList(contextData,
+                filter.AssetIdEqual.GetValueOrDefault(), filter.AssetFileIdEqual.GetValueOrDefault());
 
             return response;
         }
@@ -65,39 +54,29 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
         public static KalturaAssetFilePpv Add(KalturaAssetFilePpv assetFilePpv)
         {
-            KalturaAssetFilePpv response = null;
-
-            try
+            if (assetFilePpv.AssetFileId < 0)
             {
-                if (assetFilePpv.AssetFileId < 0)
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "assetFileId");
-                }
-
-                if (assetFilePpv.PpvModuleId < 0)
-                {
-                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "ppvModuleId");
-                }
-
-                if (assetFilePpv.StartDate.HasValue && assetFilePpv.EndDate.HasValue &&
-                    assetFilePpv.StartDate >= assetFilePpv.EndDate)
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate",
-                        "endDate");
-                }
-
-                int groupId = KS.GetFromRequest().GroupId;
-                long userId = KS.GetFromRequest().UserId.ParseUserId();
-                var contextData = new ContextData(groupId) { UserId = userId };
-
-                // call client                
-                response = ClientsManager.PricingClient().AddAssetFilePpv(contextData, assetFilePpv);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "assetFileId");
             }
 
+            if (assetFilePpv.PpvModuleId < 0)
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "ppvModuleId");
+            }
+
+            if (assetFilePpv.StartDate.HasValue && assetFilePpv.EndDate.HasValue &&
+                assetFilePpv.StartDate >= assetFilePpv.EndDate)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate",
+                    "endDate");
+            }
+
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = KS.GetFromRequest().UserId.ParseUserId();
+            var contextData = new ContextData(groupId) { UserId = userId };
+
+            // call client                
+            var response = ClientsManager.PricingClient().AddAssetFilePpv(contextData, assetFilePpv);
             return response;
         }
 

@@ -597,8 +597,7 @@ namespace Core.ConditionalAccess
         public static bool IsMediaFileFree(int groupId, long mediaFileId)
         {
             bool isFree = false;
-            MediaFilePPVContainer[] modules = Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(
-                groupId, new int[] { (int)mediaFileId });
+            MediaFilePPVContainer[] modules = Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(groupId, new int[] { (int)mediaFileId }, true);
 
             // if we successfully got the modules CONTAINERS for this file - but there is no module assigned to this file, it's free
             if (modules != null && modules.Length > 0 &&

@@ -545,14 +545,13 @@ namespace Core.Pricing
             }
         }
 
-        // TODO: check if country / language / udid are needed
-        public static MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int nGroupID, Int32[] nMediaFileIDs)
+        public static MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int nGroupID, Int32[] nMediaFileIDs, bool shouldGetOnlyValidForPurchase)
         {
             BasePPVModule t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new PPVModuleCacheWrapper(t)).GetPPVModuleListForMediaFilesWithExpiry(nMediaFileIDs);
+                return (new PPVModuleCacheWrapper(t)).GetPPVModuleListForMediaFilesWithExpiry(nMediaFileIDs, shouldGetOnlyValidForPurchase);
             }
             else
             {
