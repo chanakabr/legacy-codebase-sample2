@@ -165,6 +165,9 @@ namespace CachingProvider.LayeredCache
                 }
 
                 if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null &&
+                    // store in cache if we have invalidation keys or if item is not null
+                    // DO NOT store in cache if it's null AND we don't have invalidation keys
+                    (inValidationKeys?.Count > 0 || tuple.Item1 != null) &&
                     // insert to cache only if no errors during session
                     !(HttpContext.Current != null && HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) &&
                     HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
