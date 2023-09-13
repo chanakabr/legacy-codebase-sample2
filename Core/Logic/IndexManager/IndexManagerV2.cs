@@ -5203,7 +5203,7 @@ namespace Core.Catalog
             composite.AddChild(terms);
 
             filter.FilterSettings = composite;
-            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, filter, esApi: _elasticSearchApi);
+            Helper.WrapFilterWithCommittedOnlyTransactionsForEpgV3(_partnerId, filter, _groupSettingsManager, _elasticSearchApi);
             query.Filter = filter;
 
             string searchQuery = query.ToString();

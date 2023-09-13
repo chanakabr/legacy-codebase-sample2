@@ -93,7 +93,7 @@ namespace Core.Catalog.Searchers
                 return;
             }
 
-            var epgV3IndexName = GetEpgV3IndexName(partnerId, esApi ?? new ElasticSearchApi(ApplicationConfiguration.Current), layeredCache ?? LayeredCache.Instance);
+            var epgV3IndexName = GetEpgV3IndexName(partnerId, esApi ?? ElasticSearchApi.Instance, layeredCache ?? LayeredCache.Instance);
 
             var epgIndexTerm = ESTerms.GetSimpleStringTerm("_index", new[] {epgV3IndexName});
             var hasTransactionParentDocument =
