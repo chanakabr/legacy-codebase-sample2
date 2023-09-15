@@ -316,9 +316,9 @@ namespace Core.ConditionalAccess
 
             // purchase new subscription
 
-            if (couponData != null && couponData.m_CouponStatus == CouponsStatus.Valid && couponData.m_oCouponGroup != null 
-                && couponData.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard && 
-                ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == couponData.m_oCouponGroup.m_sGroupCode) 
+            if (couponData != null && couponData.m_CouponStatus == CouponsStatus.Valid && couponData.m_oCouponGroup != null
+                && couponData.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
+                ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == couponData.m_oCouponGroup.m_sGroupCode)
                 || (subscription.GetValidSubscriptionCouponGroup(couponData.m_oCouponGroup.m_sGroupCode)?.Count > 0)))
             {
                 isGiftCard = true;
@@ -399,7 +399,7 @@ namespace Core.ConditionalAccess
 
                                 if (subscription.m_bIsRecurring)
                                 {
-                                    //DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default  
+                                    //DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default
 
                                     long endDateUnix = 0;
 
@@ -415,7 +415,7 @@ namespace Core.ConditionalAccess
                                         // call billing process renewal
                                         try
                                         {
-                                            nextRenewalDate = endDate.Value.AddMinutes(-5); // default  
+                                            nextRenewalDate = endDate.Value.AddMinutes(-5); // default
 
                                             PaymentGateway paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, domainId, billingGuid);
 
@@ -448,7 +448,7 @@ namespace Core.ConditionalAccess
                                     if (PhoenixFeatureFlagInstance.Get().IsRenewUseKronos())
                                     {
                                         ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseID);
-                                        
+
                                         log.Debug($"Kronos - Renew purchaseID:{purchaseID}");
                                         RenewManager.addEventToKronos(groupId, data);
                                     }
@@ -592,7 +592,7 @@ namespace Core.ConditionalAccess
             // enqueue scheduled purchase transaction
             var queue = new GenericCeleryQueue();
             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-            
+
             if (!enqueueSuccessful)
             {
                 log.ErrorFormat("Failed enqueue of subscription set downgrade scheduled purchase {0}", data);
@@ -614,7 +614,7 @@ namespace Core.ConditionalAccess
                 if (!ConditionalAccessDAL.ValidateSubscriptionSetModifyDetailsById(subscriptionSetModifyDetailsId))
                 {
                     log.ErrorFormat("Downgrade details is no longer valid, groupId: {0}, userId: {1}, subscriptionSetModifyDetailsId: {2}", groupId, userId, subscriptionSetModifyDetailsId);
-                    // if modify subscription set is no longer valid, return true to stop remote task from retrying                    
+                    // if modify subscription set is no longer valid, return true to stop remote task from retrying
                     return true;
                 }
 
@@ -649,7 +649,7 @@ namespace Core.ConditionalAccess
                                         groupId, userId, subscriptionSetModifyDetailsId);
                     }
 
-                    // update old subscription with end_date = now                
+                    // update old subscription with end_date = now
                     bool result = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(downgradeDetails.UserId, downgradeDetails.PreviousSubscriptionId,
                                                                                                 (int)downgradeDetails.DomainId, (int)SubscriptionPurchaseStatus.Switched);
                     if (!result)
@@ -664,7 +664,7 @@ namespace Core.ConditionalAccess
                 {
                     bool enqueueSuccessful = true;
 
-                    
+
                     var data = new RenewTransactionData(groupId, downgradeDetails.UserId, subscriptionSetModifyDetailsId, string.Empty, 0,
                             nextAttempt, eSubscriptionRenewRequestType.Downgrade);
                     var queue = new GenericCeleryQueue();
@@ -812,7 +812,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                // check purchase permissions 
+                // check purchase permissions
                 RolePermissions rolePermission = RolePermissions.PURCHASE_PPV;
                 switch (transactionType)
                 {
@@ -824,20 +824,37 @@ namespace Core.ConditionalAccess
                         break;
                     case eTransactionType.Collection:
                         rolePermission = RolePermissions.PURCHASE_COLLECTION;
-                        break;                   
+                        break;
                     default:
                         break;
                 }
 
-                if (!RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(contextData.GroupId, contextData.UserId.Value)
-                    && !RolesPermissionsManager.Instance.IsPermittedPermission(contextData.GroupId, contextData.UserId.ToString(), rolePermission))
+                var userId = contextData.UserId.Value.ToString();
+                var domainId = 0;
+                var suspendStatus = DomainSuspentionStatus.OK;
+
+                if (!Utils.IsUserValid(userId, contextData.GroupId, ref domainId, ref suspendStatus))
+                {
+                    log.ErrorFormat("Invalid user, userId = {0}", userId);
+                    response.Status = new Status((int)eResponseStatus.InvalidUser, "Invalid user");
+                    return response;
+                }
+
+                bool PurchaseAllowed() =>
+                    RolesPermissionsManager.Instance.IsPermittedPermission(contextData.GroupId, userId, rolePermission);
+
+                bool ActionAllowed() =>
+                    suspendStatus != DomainSuspentionStatus.Suspended ||
+                    RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(contextData.GroupId, contextData.UserId.Value);
+
+                if (!ActionAllowed() || !PurchaseAllowed())
                 {
                     response.Status = RolesPermissionsManager.GetSuspentionStatus(contextData.GroupId, (int)contextData.DomainId.Value);
                     log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }
 
-                // validate user           
+                // validate user
                 ResponseStatus userValidStatus = ResponseStatus.OK;
                 Core.Users.User user;
                 var householdId = contextData.DomainId.Value;
@@ -1145,7 +1162,7 @@ namespace Core.ConditionalAccess
                     coupon = null;
                 }
 
-                // check permission for subscription with premium services - by roles 
+                // check permission for subscription with premium services - by roles
                 if (subscription.m_lServices != null && subscription.m_lServices.Count() > 0)
                 {
                     if (!RolesPermissionsManager.Instance.IsPermittedPermission(contextData.GroupId, userId, RolePermissions.PURCHASE_SERVICE))
@@ -1163,7 +1180,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                // if unified billing cycle is in the "history" ignore it in purchase! 
+                // if unified billing cycle is in the "history" ignore it in purchase!
                 if (subscriptionCycle.UnifiedBillingCycle != null && subscriptionCycle.UnifiedBillingCycle.endDate < DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
                 {
                     subscriptionCycle.UnifiedBillingCycle = null;
@@ -1254,7 +1271,7 @@ namespace Core.ConditionalAccess
                 bool IsDoublePurchase = false;
 
                 // in case Subscription purchased, and subscription is non Recurring
-                // check "Block double purchase" account configuration 
+                // check "Block double purchase" account configuration
                 if (priceReason == PriceReason.SubscriptionPurchased && !subscription.m_bIsRecurring)
                 {
                     object dbBlockDoublePurchase = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "BLOCK_DOUBLE_PURCHASE", "GROUP_ID", "=", contextData.GroupId, 60 * 60 * 24, "billing_connection");
@@ -1324,7 +1341,7 @@ namespace Core.ConditionalAccess
 
                                 if (response.State.Equals(eTransactionState.Pending.ToString()) & paymentGateway != null && paymentGateway.IsAsyncPolicy)
                                 {
-                                    int pendingInMinutes = paymentGateway.GetAsyncPendingMinutes();                                   
+                                    int pendingInMinutes = paymentGateway.GetAsyncPendingMinutes();
                                     endDate = entitlementDate.AddMinutes(pendingInMinutes);
 
                                     handleBillingPassed =
@@ -1449,7 +1466,7 @@ namespace Core.ConditionalAccess
                                     {
                                         HandelCampaignMessageDetailsAfterPurchase(contextData, fullPrice.CampaignDetails, eTransactionType.Subscription, productId);
                                     }
-                                    
+
                                     long endDateUnix = endDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value) : 0;
 
                                     // If the subscription if recurring, put a message for renewal and all that...
@@ -1514,9 +1531,9 @@ namespace Core.ConditionalAccess
                                         #region Renew transaction message in queue
                                         /*
                                          check from configuration if unified cycle
-                                            if      message not exists in queue – add new message 
+                                            if      message not exists in queue – add new message
                                             else    message exists yet – do nothing
-                                        create new queue with new messages for each Payment Gateway 
+                                        create new queue with new messages for each Payment Gateway
                                         */
                                         if (isNew) // need to insert new unified billing message to queue
                                         {
@@ -1525,7 +1542,7 @@ namespace Core.ConditionalAccess
                                         }
                                         else if (subscriptionCycle.UnifiedBillingCycle == null || ((entitleToPreview || !string.IsNullOrEmpty(couponCode)) && !isNew))
                                         {
-                                            // insert regular message 
+                                            // insert regular message
                                             RenewTransactionMessageInQueue(contextData.GroupId, userId, billingGuid, purchaseID, endDateUnix, nextRenewalDate,PhoenixFeatureFlagInstance.Get().IsRenewUseKronosPog(), householdId);
                                         }
 
@@ -1596,7 +1613,7 @@ namespace Core.ConditionalAccess
                         // incorrect price
                         response.Status = new Status((int)eResponseStatus.IncorrectPrice, BaseConditionalAccess.INCORRECT_PRICE);
                         log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
-                    } 
+                    }
                 }
                 else
                 {
@@ -1676,7 +1693,7 @@ namespace Core.ConditionalAccess
                             RenewTransactionsQueue queue = new RenewTransactionsQueue();
                             enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
                         }
-                        
+
                         if (!enqueueSuccessful)
                         {
                             log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
@@ -1796,7 +1813,7 @@ namespace Core.ConditionalAccess
                         {
                             enqueueSuccessful = queue.Enqueue(newData, string.Format(Utils.ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION, data.GroupId));
                         }
-                        
+
                         if (!enqueueSuccessful)
                         {
                             log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
@@ -1822,7 +1839,7 @@ namespace Core.ConditionalAccess
             if (isKronos)
             {
                 ConditionalAccessDAL.Insert_SubscriptionsPurchasesKronos(purchaseID);
-                
+
                 log.Info($"Kronos - Renewal purchaseID:{purchaseID}");
                 RenewManager.addEventToKronos(groupId, data);
             }
@@ -1960,7 +1977,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                // validate PPV 
+                // validate PPV
                 PPVModule ppvModule = null;
                 Status status = Utils.ValidatePPVModuleCode(contextData.GroupId, productId, contentId, ref ppvModule);
                 if (status.Code != (int)eResponseStatus.OK)
@@ -2065,14 +2082,14 @@ namespace Core.ConditionalAccess
                                 }
 
                                 bool handleBillingPassed = false;
-                                DateTime? endDate = null;    
+                                DateTime? endDate = null;
                                 if (response.State.Equals(eTransactionState.Pending.ToString()) & paymentGateway != null && paymentGateway.IsAsyncPolicy)
-                                {                                    
+                                {
                                     int pendingInMinutes = paymentGateway.GetAsyncPendingMinutes();
                                     endDate = entitlementDate.AddMinutes(pendingInMinutes);
 
-                                    handleBillingPassed = cas.HandlePPVBillingSuccess(ref response, siteguid, contextData.DomainId.Value, relevantSub, price, 
-                                        currency, couponCode, contextData.UserIp, country, contextData.Udid, long.Parse(response.TransactionID), customData, 
+                                    handleBillingPassed = cas.HandlePPVBillingSuccess(ref response, siteguid, contextData.DomainId.Value, relevantSub, price,
+                                        currency, couponCode, contextData.UserIp, country, contextData.Udid, long.Parse(response.TransactionID), customData,
                                         ppvModule, productId, contentId, billingGuid, entitlementDate, ref purchaseId, endDate, true);
 
                                     // Pending failed
@@ -2327,7 +2344,7 @@ namespace Core.ConditionalAccess
 
                 if (!PagoManager.Instance.IsPagoAllowed(pago))
                 {
-                    response.Status = Utils.SetResponseStatus(PriceReason.NotForPurchase);                    
+                    response.Status = Utils.SetResponseStatus(PriceReason.NotForPurchase);
                     log.Warn($"Warning: This programAssetGroupOffer is NotForPurchase , data: {logString}");
                     return response;
                 }
