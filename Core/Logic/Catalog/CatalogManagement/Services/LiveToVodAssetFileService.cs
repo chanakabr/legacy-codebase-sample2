@@ -3,6 +3,7 @@ using System.Linq;
 using ApiLogic.Catalog.CatalogManagement.Models;
 using ApiObjects;
 using ApiObjects.Base;
+using ApiObjects.Roles;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
@@ -254,7 +255,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Services
 
         private ILookup<long, AssetFilePpv> GetPpvModules(long partnerId, long assetId)
         {
-            var contextData = new ContextData((int)partnerId);
+            var contextData = new ContextData((int)partnerId){ UserRoleIds = new []{ PredefinedRoleId.ADMINISTRATOR }};
             var existingPpvModulesResponse = _priceManager.GetAssetFilePPVList(contextData, assetId, 0);
 
             return existingPpvModulesResponse.IsOkStatusCode()
