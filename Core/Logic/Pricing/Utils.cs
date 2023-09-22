@@ -340,7 +340,7 @@ namespace Core.Pricing
 
                         if (discountModule == null && withDefaultFallback)
                         {
-                            var defaultDiscount = discount.MultiCurrencyDiscounts.FirstOrDefault(x => x.IsDeafult);
+                            var defaultDiscount = discount.MultiCurrencyDiscounts[0]; //default = first item in MultiCurrencyDiscounts
 
                             discountModule = new DiscountModule();
                             discountModule.Initialize(discount.Name, defaultDiscount, descriptions, discountCodeId,
@@ -1036,7 +1036,6 @@ namespace Core.Pricing
                         m_dPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "price"),
                         m_oCurrency = new Currency(),
                         Percentage = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "DISCOUNT_PERCENT"),
-                        IsDeafult = ODBCWrapper.Utils.GetIntSafeVal(dr, "dcl_id") == 0
                     };
 
                     var currencyId = ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD");

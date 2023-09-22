@@ -89,7 +89,6 @@ namespace Core.Pricing
     public class Discount : Price
     {
         public double Percentage { get; set; }
-        public bool IsDeafult { get; set; }
     }
 
 }
