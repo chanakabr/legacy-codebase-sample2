@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
@@ -47,6 +48,8 @@ namespace GrpcAPI.Services
 
         public GetRecordingLinkByFileTypeResponse GetRecordingLinkByFileType(GetRecordingLinkByFileTypeRequest request);
         public GetGroupMediaFileTypesResponse GetGroupMediaFileTypes(GetGroupMediaFileTypesRequest request);
+        public GetProgramsByChannelIdResponse GetProgramsByChannelId(GetProgramsByChannelIdRequest request);
+        public GetChannelIdsResponse GetChannelIds(GetChannelIdsRequest request);
     }
 
     public class CatalogService : ICatalogService
@@ -60,10 +63,12 @@ namespace GrpcAPI.Services
 
         public bool HasVirtualAssetType(HasVirtualAssetTypeRequest request)
         {
-            var objectVirtualAssetInfo = VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetInfo(request.GroupId, (ObjectVirtualAssetInfoType) request.VirtualAssetInfoType);
+            var objectVirtualAssetInfo =
+                VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetInfo(request.GroupId,
+                    (ObjectVirtualAssetInfoType)request.VirtualAssetInfoType);
             return objectVirtualAssetInfo != null;
         }
-        
+
         public HandleBlockingSegmentResponse HandleBlockingSegment(HandleBlockingSegmentRequest request)
         {
             try
@@ -73,7 +78,7 @@ namespace GrpcAPI.Services
                         request.UserId.ToString(),
                         request.Udid,
                         request.Ip, (int)request.DomainId,
-                        (ApiObjects.ObjectVirtualAssetInfoType) request.VirtualAssetInfoType,
+                        (ApiObjects.ObjectVirtualAssetInfoType)request.VirtualAssetInfoType,
                         request.SubscriptionId);
                 return new HandleBlockingSegmentResponse()
                 {
@@ -93,7 +98,7 @@ namespace GrpcAPI.Services
             try
             {
                 var SlimAsset = AssetRuleManager.GetAssetsForValidation(
-                    (ApiObjects.eAssetTypes) getAssetsForValidationRequest.AssetType,
+                    (ApiObjects.eAssetTypes)getAssetsForValidationRequest.AssetType,
                     getAssetsForValidationRequest.GroupId,
                     getAssetsForValidationRequest.AssetId);
 
@@ -122,7 +127,8 @@ namespace GrpcAPI.Services
 
                 if (mediaFiles != null)
                 {
-                    mediaFiles = Core.ConditionalAccess.Utils.ValidateMediaFilesUponSecurity(mediaFiles, request.GroupId);
+                    mediaFiles =
+                        Core.ConditionalAccess.Utils.ValidateMediaFilesUponSecurity(mediaFiles, request.GroupId);
                     return new GetMediaFilesResponse()
                     {
                         MediaFiles =
@@ -146,7 +152,7 @@ namespace GrpcAPI.Services
             try
             {
                 ApiObjects.Response.Status status =
-                    new ApiObjects.Response.Status((int) eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 long mediaId;
                 ApiObjects.TimeShiftedTv.Recording recording = null;
                 EPGChannelProgrammeObject program = null;
@@ -169,7 +175,7 @@ namespace GrpcAPI.Services
                     }
 
                     status = Core.ConditionalAccess.Utils.GetMediaIdForAsset(request.GroupId, request.AssetId,
-                        (ApiObjects.eAssetTypes) request.AssetType, request.UserId.ToString(), domain, request.Udid,
+                        (ApiObjects.eAssetTypes)request.AssetType, request.UserId.ToString(), domain, request.Udid,
                         out mediaId, out recording, out program);
                 }
                 else
@@ -178,20 +184,21 @@ namespace GrpcAPI.Services
                 }
 
                 // Allow to continue for external recording (and asset type = NPVR) since we may not be updated on them in real time
-                if (status.Code != (int) eResponseStatus.OK)
+                if (status.Code != (int)eResponseStatus.OK)
                 {
                     if (isExternalRecordingIgnoreMode && request.MediaFileId > 0)
                     {
-                        status = new ApiObjects.Response.Status((int) eResponseStatus.OK,
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.OK,
                             eResponseStatus.OK.ToString());
                         mediaId = Core.ConditionalAccess.Utils.GetMediaIdByFileId(request.GroupId, request.MediaFileId);
 
                         if (request.ProgramId > 0)
                         {
-                            recording = new ApiObjects.TimeShiftedTv.Recording() {EpgId = request.ProgramId};
+                            recording = new ApiObjects.TimeShiftedTv.Recording() { EpgId = request.ProgramId };
                         }
                     }
                 }
+
                 return new GetMediaInfoResponse()
                 {
                     MediaId = mediaId,
@@ -229,7 +236,9 @@ namespace GrpcAPI.Services
             try
             {
                 var program = Core.Api.Module.GetProgramSchedule(request.GroupId, request.ProgramId);
-                return program != null ? Mapper.Map<GetProgramScheduleResponse>(program) : new GetProgramScheduleResponse();
+                return program != null
+                    ? Mapper.Map<GetProgramScheduleResponse>(program)
+                    : new GetProgramScheduleResponse();
             }
             catch (Exception e)
             {
@@ -244,7 +253,9 @@ namespace GrpcAPI.Services
             {
                 var recording = Core.ConditionalAccess.Utils.GetDomainRecordings(request.GroupId,
                     request.DomainId, request.ShouldFilterViewableRecordingsOnly);
-                return recording != null ? Mapper.Map<GetDomainRecordingsResponse>(recording) : new GetDomainRecordingsResponse();
+                return recording != null
+                    ? Mapper.Map<GetDomainRecordingsResponse>(recording)
+                    : new GetDomainRecordingsResponse();
             }
             catch (Exception e)
             {
@@ -319,7 +330,8 @@ namespace GrpcAPI.Services
         {
             try
             {
-                var recording = RecordingsDAL.GetRecordingLinkByFileType(request.GroupId, request.RecordingId, request.FileType);
+                var recording =
+                    RecordingsDAL.GetRecordingLinkByFileType(request.GroupId, request.RecordingId, request.FileType);
                 return new GetRecordingLinkByFileTypeResponse
                 {
                     RecordingUrl = recording.Url
@@ -331,7 +343,7 @@ namespace GrpcAPI.Services
                 return null;
             }
         }
-        
+
         public GetGroupMediaFileTypesResponse GetGroupMediaFileTypes(GetGroupMediaFileTypesRequest request)
         {
             try
@@ -342,7 +354,11 @@ namespace GrpcAPI.Services
                 {
                     MediaFileType =
                     {
-                        new RepeatedField<MediaFileType> {mediaFileType.Objects.Select(x => MediaFileType.Parser.ParseFrom(GrpcSerialize.ProtoSerialize(x)))}   
+                        new RepeatedField<MediaFileType>
+                        {
+                            mediaFileType.Objects.Select(x =>
+                                MediaFileType.Parser.ParseFrom(GrpcSerialize.ProtoSerialize(x)))
+                        }
                     },
                     Status = Mapper.Map<phoenix.Status>(mediaFileType.Status),
                     TotalCount = mediaFileType.TotalItems
@@ -353,6 +369,31 @@ namespace GrpcAPI.Services
                 Logger.LogError(e, $"Error while calling GetGroupMediaFileTypes GRPC service {e.Message}");
                 return null;
             }
+        }
+
+        public GetProgramsByChannelIdResponse GetProgramsByChannelId(GetProgramsByChannelIdRequest request)
+        {
+            var programs = EpgManager.GetPrograms(request.GroupId, request.ChannelId, 0);
+            return new GetProgramsByChannelIdResponse
+            {
+                Programs =
+                {
+                    programs.Select(x => new Program
+                    {
+                        Id = x.AssetId,
+                        StartDate = Timestamp.FromDateTime(DateTime.SpecifyKind(x.StartDate, DateTimeKind.Utc)),
+                        EndDate = Timestamp.FromDateTime(DateTime.SpecifyKind(x.EndDate, DateTimeKind.Utc)),
+                    })
+                }
+            };
+        }
+
+        public GetChannelIdsResponse GetChannelIds(GetChannelIdsRequest request)
+        {
+            return new GetChannelIdsResponse
+            {
+                Channels = { EpgManager.GetChannelIds(request.GroupId) }
+            };
         }
     }
 }

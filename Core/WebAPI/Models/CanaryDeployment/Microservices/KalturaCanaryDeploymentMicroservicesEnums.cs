@@ -7,7 +7,8 @@
         PHOENIX_REST_PROXY = 1,
         //MULTIREQUEST = 2,
         HOUSEHOLD = 3,
-        PLAYBACK = 4
+        PLAYBACK = 4,
+        PLAYBACK_V2 = 5
     }
 
     public enum KalturaCanaryDeploymentMicroservicesRoutingAction

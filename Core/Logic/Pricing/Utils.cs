@@ -299,89 +299,65 @@ namespace Core.Pricing
             return new Tuple<PriceCode, bool>(priceCode, res);
         }
 
-        internal static Tuple<DiscountModule, bool> GetDiscountModuleByCountryAndCurrency(Dictionary<string, object> funcParams)
+        internal static DiscountModule GetDiscountModuleByCountryAndCurrency(int groupId, int discountCodeId, string countryCode, string currencyCode, bool withDefaultFallback)
         {
-            bool res = false;
             DiscountModule discountModule = null;
-
             try
             {
-                if (funcParams != null && funcParams.Count == 4)
+                var discountDetails = ApiLogic.Pricing.Handlers.DiscountDetailsManager.Instance.GetDiscountDetails(groupId);
+                if (discountDetails?.Count > 0)
                 {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("discountCodeId") && funcParams.ContainsKey("countryCode") && funcParams.ContainsKey("currencyCode"))
+                    var discount = discountDetails.FirstOrDefault(d => d.Id == (long)discountCodeId);
+
+                    if (discount != null && discount.MultiCurrencyDiscounts?.Count > 0)
                     {
-                        int? groupId = funcParams["groupId"] as int?;
-                        int? discountCodeId = funcParams["discountCodeId"] as int?;
-                        string countryCode = funcParams["countryCode"].ToString();
-                        string currencyCode = funcParams["currencyCode"].ToString();
-                        if (groupId.HasValue && discountCodeId.HasValue && !string.IsNullOrEmpty(countryCode) && !string.IsNullOrEmpty(currencyCode))
+                        LanguageContainer[] descriptions = null; //not in use anywhere, so no reason to query db
+
+                        if (!string.IsNullOrEmpty(currencyCode))
                         {
-                            var _discountModule = GetDiscountModuleByCountryAndCurrency(discountCodeId.Value, countryCode, currencyCode);
-                            if (_discountModule.Success)
+                            int countryId = 0;
+                            if (!string.IsNullOrEmpty(countryCode) && !countryCode.Equals("--"))
                             {
-                                res = true;
-                                discountModule = _discountModule.Module;
+                                var country = Api.Module.GetCountryByCountryName(groupId, countryCode);
+                                if (country != null)
+                                {
+                                    countryId = country.Id;
+                                }
                             }
+
+                            var localizationDiscount = discount.MultiCurrencyDiscounts.Where(x => x.m_oCurrency.m_sCurrencyCD3 == currencyCode
+                                                                       && (x.countryId == 0 || x.countryId == countryId))
+                                                                .OrderByDescending(y => y.countryId).FirstOrDefault();
+
+                            if (localizationDiscount != null)
+                            {
+                                discountModule = new DiscountModule();
+                                discountModule.Initialize(discount.Name, localizationDiscount, descriptions, discountCodeId,
+                                                          localizationDiscount.Percentage, discount.RelationType, discount.StartDate,
+                                                          discount.EndDate, new WhenAlgo() { m_eAlgoType = discount.WhenAlgoType, m_nNTimes = discount.WhenAlgoTimes });
+                            }
+                        }
+
+                        if (discountModule == null && withDefaultFallback)
+                        {
+                            var defaultDiscount = discount.MultiCurrencyDiscounts[0]; //default = first item in MultiCurrencyDiscounts
+
+                            discountModule = new DiscountModule();
+                            discountModule.Initialize(discount.Name, defaultDiscount, descriptions, discountCodeId,
+                                                      defaultDiscount.Percentage, discount.RelationType, discount.StartDate,
+                                                      discount.EndDate, new WhenAlgo() { m_eAlgoType = discount.WhenAlgoType, m_nNTimes = discount.WhenAlgoTimes });
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetDiscountModuleByCountryAndCurrency failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error($"Failed GetDiscountModuleByCountryAndCurrency, discountCodeId: {discountCodeId}, " +
+                    $"countryCode: {countryCode ?? string.Empty}, currencyCode: {currencyCode ?? string.Empty}", ex);
+                discountModule = null;
             }
 
-            return new Tuple<DiscountModule, bool>(discountModule, res);
-        }
-
-        private static (DiscountModule Module, bool Success) GetDiscountModuleByCountryAndCurrency(int discountCodeId, string countryCode, string currencyCode)
-        {
-            DiscountModule discountModule = null;
-            try
-            {
-                DataSet ds = DAL.PricingDAL.GetDiscountModuleLocale(discountCodeId, countryCode, currencyCode);
-                DataRow dr = null;
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                {
-                    if (ds.Tables.Count == 2)
-                    {
-                        dr = ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count == 1 ? ds.Tables[1].Rows[0] : null;
-                    }
-                    else
-                    {
-                        dr = ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count == 1 ? ds.Tables[0].Rows[0] : null;
-                    }
-                }
-                if (dr != null)
-                {
-                    int currencyId = ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD");
-                    string discountCodeName = ODBCWrapper.Utils.GetSafeStr(dr, "CODE");
-                    double price = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "PRICE");
-                    double discountPercent = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "DISCOUNT_PERCENT");
-                    RelationTypes theRelationType = (RelationTypes)ODBCWrapper.Utils.GetIntSafeVal(dr, "RELATION_TYPE");
-                    Price localPrice = new Price();
-                    localPrice.InitializeByCodeID(currencyId, price);
-                    DateTime? startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "START_DATE");
-                    startDate = startDate.HasValue ? startDate : new DateTime(2000, 1, 1);
-                    DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "END_DATE");
-                    endDate = endDate.HasValue ? endDate : new DateTime(2099, 1, 1);
-                    WhenAlgoType oWhenAlgoType = (WhenAlgoType)ODBCWrapper.Utils.GetIntSafeVal(dr, "WHENALGO_TYPE");
-                    int nWhenAlgoTimes = ODBCWrapper.Utils.GetIntSafeVal(dr, "WHENALGO_TIMES");
-                    WhenAlgo wa = new WhenAlgo();
-                    wa.Initialize(oWhenAlgoType, nWhenAlgoTimes);
-                    discountModule = new DiscountModule();
-                    discountModule.Initialize(discountCodeName, localPrice, DiscountModule.GetDiscountCodeDescription(discountCodeId), discountCodeId,
-                                              discountPercent, theRelationType, startDate.Value, endDate.Value, wa);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetDiscountModuleByCountryAndCurrency, discountCodeId: {0}, countryCode: {1}, currencyCode: {2}",
-                            discountCodeId, countryCode, !string.IsNullOrEmpty(currencyCode) ? currencyCode : string.Empty), ex);
-                return (discountModule, false);
-            }
-
-            return (discountModule, true);
+            return discountModule;
         }
 
         internal static Tuple<APILogic.ConditionalAccess.AdsControlData, bool> GetGetGroupAdsControl(Dictionary<string, object> funcParams)
@@ -1023,18 +999,23 @@ namespace Core.Pricing
             return null;
         }
 
-        internal static List<DiscountDetails> BuildDiscountsFromDataTable(DataTable discounts)
+        internal static List<DiscountDetails> BuildDiscountsFromDataTable(int groupId, DataTable discounts)
         {
             Dictionary<long, DiscountDetails> discountsMap = new Dictionary<long, DiscountDetails>();
 
             if (discounts != null && discounts.Rows != null && discounts.Rows.Count > 0)
             {
+                CurrencyResponse result = new CurrencyResponse();
+                result.Currencies = ApiLogic.Api.Managers.GeneralPartnerConfigManager.Instance.GetCurrencyList(groupId);
+
                 foreach (DataRow dr in discounts.Rows)
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
 
                     if (!discountsMap.ContainsKey(id))
                     {
+                        RelationTypes relationTypes = (RelationTypes)ODBCWrapper.Utils.GetIntSafeVal(dr, "RELATION_TYPE");
+
                         DiscountDetails pd = new DiscountDetails()
                         {
                             Id = id,
@@ -1043,10 +1024,12 @@ namespace Core.Pricing
                             EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "end_date"),
                             MultiCurrencyDiscounts = new List<Discount>(),
                             WhenAlgoTimes = ODBCWrapper.Utils.GetIntSafeVal(dr, "WHENALGO_TIMES"),
-                            WhenAlgoType = (WhenAlgoType)Enum.Parse(typeof(WhenAlgoType), ODBCWrapper.Utils.GetSafeStr(dr, "WHENALGO_TYPE"))
+                            WhenAlgoType = (WhenAlgoType)Enum.Parse(typeof(WhenAlgoType), ODBCWrapper.Utils.GetSafeStr(dr, "WHENALGO_TYPE")),
+                            RelationType = relationTypes
                         };
                         discountsMap.Add(id, pd);
                     }
+
                     Discount discount = new Discount()
                     {
                         countryId = ODBCWrapper.Utils.GetIntSafeVal(dr, "country_id"),
@@ -1055,7 +1038,12 @@ namespace Core.Pricing
                         Percentage = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "DISCOUNT_PERCENT"),
                     };
 
-                    discount.m_oCurrency.InitializeById(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD"));
+                    var currencyId = ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD");
+                    var currency = result.Currencies.FirstOrDefault(c => c.m_nCurrencyID == currencyId);
+                    if (currency != null)
+                    {
+                        discount.m_oCurrency = currency;
+                    }
 
                     discountsMap[id].MultiCurrencyDiscounts.Add(discount);
 

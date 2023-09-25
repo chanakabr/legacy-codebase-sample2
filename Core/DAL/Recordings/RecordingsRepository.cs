@@ -59,7 +59,7 @@ namespace DAL.Recordings
         List<HouseholdRecording> ListHouseholdRecordingsByRecordingKey(int partnerId, string recordingKey,
             List<string> recordingStatuses);
 
-        List<HouseholdRecording> GetTop2HouseholdRecordingsByKey(int partnerId, string key, string status = "");
+        List<HouseholdRecording> GetTopHouseholdRecordingsByKey(int partnerId, string key, int maximumRequiredHhRecordings = 2, string status = "");
         List<HouseholdRecording> GetHouseholdProtectedRecordings(int partnerId, long householdId, long time);
 
         bool DeleteHouseholdRecording(int partnerId, string recordingKey, long householdId);
@@ -83,6 +83,7 @@ namespace DAL.Recordings
 
         List<Program> GetAllRecordedPrograms(int partnerId, int limit, int skip);
         HouseholdRecording GetHouseholdRecording(int partnerId, long id, long householdId);
+        HouseholdRecording GetHouseholdRecording(int partnerId, long id, string status);
 
         List<long> GetAllPartnerIds();
         
@@ -267,6 +268,15 @@ namespace DAL.Recordings
                 f.And(Builders<HouseholdRecording>.Filter.Eq(o => o.Id, id),
                     Builders<HouseholdRecording>.Filter.Eq(o => o.HouseholdId, householdId))).SingleOrDefault();
         }
+        
+        //For recording migration delete, get hh recording only by hh recording id
+        public HouseholdRecording GetHouseholdRecording(int partnerId, long householdRecordingId, string status)
+        {
+            var factory = _recordingsService.NewMongoDbClient(partnerId, log);
+            return factory.Find<HouseholdRecording>(RecordingsDbProperties.HOUSEHOLD_RECORDINGS_COLLECTION, f =>
+                f.And(Builders<HouseholdRecording>.Filter.Eq(o => o.Id, householdRecordingId),
+                    Builders<HouseholdRecording>.Filter.Eq(o => o.Status, status))).SingleOrDefault();
+        }
 
         public bool DeleteHouseholdRecording(int partnerId, string recordingKey, long householdId)
         {
@@ -309,12 +319,12 @@ namespace DAL.Recordings
                     Builders<HouseholdRecording>.Filter.Eq(o => o.Status, status))).SingleOrDefault();
         }
 
-        public List<HouseholdRecording> GetTop2HouseholdRecordingsByKey(int partnerId, string key, string status = "")
+        public List<HouseholdRecording> GetTopHouseholdRecordingsByKey(int partnerId, string key, int maximumRequiredHhRecordings = 2, string status = "")
         {
             var factory = _recordingsService.NewMongoDbClient(partnerId, log);
             var option = new MongoDbFindOptions<HouseholdRecording>()
             {
-                Limit = 2,
+                Limit = maximumRequiredHhRecordings,
                 Sort = s => s.Ascending(v => v.Id)
             };
             if (string.IsNullOrEmpty(status))

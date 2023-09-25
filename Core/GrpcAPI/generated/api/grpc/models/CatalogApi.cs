@@ -87,30 +87,34 @@ namespace phoenix {
             "bGVJRHMYAiADKAUiQwoVTWFwTWVkaWFGaWxlc1Jlc3BvbnNlEioKDG1lZGlh",
             "TWFwcGVycxgBIAMoCzIULnBob2VuaXguTWVkaWFNYXBwZXIiQwoaR2V0RVBH",
             "Q2hhbm5lbENEVlJJZFJlcXVlc3QSDwoHZ3JvdXBJZBgBIAEoBRIUCgxlcGdD",
-            "aGFubmVsSWQYAiABKAMiPQoZR2V0QXNzZXRFcGdSdWxlSWRzUmVxdWVzdBIP",
-            "Cgdncm91cElkGAEgASgFEg8KB21lZGlhSWQYAiABKAUiPAoaR2V0QXNzZXRF",
-            "cGdSdWxlSWRzUmVzcG9uc2USCwoDaWRzGAEgAygDEhEKCXByb2dyYW1JZBgC",
-            "IAEoAyJbCiFHZXRSZWNvcmRpbmdMaW5rQnlGaWxlVHlwZVJlcXVlc3QSDwoH",
-            "Z3JvdXBJZBgBIAEoBRITCgtyZWNvcmRpbmdJZBgCIAEoAxIQCghmaWxlVHlw",
-            "ZRgDIAEoCSI6CiJHZXRSZWNvcmRpbmdMaW5rQnlGaWxlVHlwZVJlc3BvbnNl",
-            "EhQKDHJlY29yZGluZ1VybBgBIAEoCSIwCh1HZXRHcm91cE1lZGlhRmlsZVR5",
-            "cGVzUmVxdWVzdBIPCgdncm91cElkGAEgASgFIoQBCh5HZXRHcm91cE1lZGlh",
-            "RmlsZVR5cGVzUmVzcG9uc2USHwoGc3RhdHVzGAEgASgLMg8ucGhvZW5peC5T",
-            "dGF0dXMSLQoNbWVkaWFGaWxlVHlwZRgCIAMoCzIWLnBob2VuaXguTWVkaWFG",
-            "aWxlVHlwZRISCgp0b3RhbENvdW50GAMgASgFImIKGkFkZFZpcnR1YWxBc3Nl",
-            "dEluZm9SZXF1ZXN0Eg8KB2dyb3VwSWQYASABKAUSMwoQdmlydHVhbEFzc2V0",
-            "SW5mbxgCIAEoCzIZLnBob2VuaXguVmlydHVhbEFzc2V0SW5mbyJPChtBZGRW",
-            "aXJ0dWFsQXNzZXRJbmZvUmVzcG9uc2USHwoGc3RhdHVzGAEgASgLMg8ucGhv",
-            "ZW5peC5TdGF0dXMSDwoHYXNzZXRJZBgCIAEoAyJlCh1VcGRhdGVWaXJ0dWFs",
-            "QXNzZXRJbmZvUmVxdWVzdBIPCgdncm91cElkGAEgASgFEjMKEHZpcnR1YWxB",
-            "c3NldEluZm8YAiABKAsyGS5waG9lbml4LlZpcnR1YWxBc3NldEluZm8iUgoe",
-            "VXBkYXRlVmlydHVhbEFzc2V0SW5mb1Jlc3BvbnNlEh8KBnN0YXR1cxgBIAEo",
-            "CzIPLnBob2VuaXguU3RhdHVzEg8KB2Fzc2V0SWQYAiABKAMibwodRGVsZXRl",
-            "VmlydHVhbEFzc2V0SW5mb1JlcXVlc3QSDwoHZ3JvdXBJZBgBIAEoBRIKCgJp",
-            "ZBgCIAEoAxIxCgR0eXBlGAMgASgOMiMucGhvZW5peC5PYmplY3RWaXJ0dWFs",
-            "QXNzZXRJbmZvVHlwZSJBCh5EZWxldGVWaXJ0dWFsQXNzZXRJbmZvUmVzcG9u",
-            "c2USHwoGc3RhdHVzGAEgASgLMg8ucGhvZW5peC5TdGF0dXNCFFoILi9tb2Rl",
-            "bHOqAgdwaG9lbml4YgZwcm90bzM="));
+            "aGFubmVsSWQYAiABKAMiWwohR2V0UmVjb3JkaW5nTGlua0J5RmlsZVR5cGVS",
+            "ZXF1ZXN0Eg8KB2dyb3VwSWQYASABKAUSEwoLcmVjb3JkaW5nSWQYAiABKAMS",
+            "EAoIZmlsZVR5cGUYAyABKAkiOgoiR2V0UmVjb3JkaW5nTGlua0J5RmlsZVR5",
+            "cGVSZXNwb25zZRIUCgxyZWNvcmRpbmdVcmwYASABKAkiMAodR2V0R3JvdXBN",
+            "ZWRpYUZpbGVUeXBlc1JlcXVlc3QSDwoHZ3JvdXBJZBgBIAEoBSKEAQoeR2V0",
+            "R3JvdXBNZWRpYUZpbGVUeXBlc1Jlc3BvbnNlEh8KBnN0YXR1cxgBIAEoCzIP",
+            "LnBob2VuaXguU3RhdHVzEi0KDW1lZGlhRmlsZVR5cGUYAiADKAsyFi5waG9l",
+            "bml4Lk1lZGlhRmlsZVR5cGUSEgoKdG90YWxDb3VudBgDIAEoBSJiChpBZGRW",
+            "aXJ0dWFsQXNzZXRJbmZvUmVxdWVzdBIPCgdncm91cElkGAEgASgFEjMKEHZp",
+            "cnR1YWxBc3NldEluZm8YAiABKAsyGS5waG9lbml4LlZpcnR1YWxBc3NldElu",
+            "Zm8iTwobQWRkVmlydHVhbEFzc2V0SW5mb1Jlc3BvbnNlEh8KBnN0YXR1cxgB",
+            "IAEoCzIPLnBob2VuaXguU3RhdHVzEg8KB2Fzc2V0SWQYAiABKAMiZQodVXBk",
+            "YXRlVmlydHVhbEFzc2V0SW5mb1JlcXVlc3QSDwoHZ3JvdXBJZBgBIAEoBRIz",
+            "ChB2aXJ0dWFsQXNzZXRJbmZvGAIgASgLMhkucGhvZW5peC5WaXJ0dWFsQXNz",
+            "ZXRJbmZvIlIKHlVwZGF0ZVZpcnR1YWxBc3NldEluZm9SZXNwb25zZRIfCgZz",
+            "dGF0dXMYASABKAsyDy5waG9lbml4LlN0YXR1cxIPCgdhc3NldElkGAIgASgD",
+            "Im8KHURlbGV0ZVZpcnR1YWxBc3NldEluZm9SZXF1ZXN0Eg8KB2dyb3VwSWQY",
+            "ASABKAUSCgoCaWQYAiABKAMSMQoEdHlwZRgDIAEoDjIjLnBob2VuaXguT2Jq",
+            "ZWN0VmlydHVhbEFzc2V0SW5mb1R5cGUiQQoeRGVsZXRlVmlydHVhbEFzc2V0",
+            "SW5mb1Jlc3BvbnNlEh8KBnN0YXR1cxgBIAEoCzIPLnBob2VuaXguU3RhdHVz",
+            "IkMKHUdldFByb2dyYW1zQnlDaGFubmVsSWRSZXF1ZXN0Eg8KB2dyb3VwSWQY",
+            "ASABKAUSEQoJY2hhbm5lbElkGAIgASgJIkQKHkdldFByb2dyYW1zQnlDaGFu",
+            "bmVsSWRSZXNwb25zZRIiCghwcm9ncmFtcxgBIAMoCzIQLnBob2VuaXguUHJv",
+            "Z3JhbSInChRHZXRDaGFubmVsSWRzUmVxdWVzdBIPCgdncm91cElkGAEgASgF",
+            "IogBChVHZXRDaGFubmVsSWRzUmVzcG9uc2USPgoIY2hhbm5lbHMYASADKAsy",
+            "LC5waG9lbml4LkdldENoYW5uZWxJZHNSZXNwb25zZS5DaGFubmVsc0VudHJ5",
+            "Gi8KDUNoYW5uZWxzRW50cnkSCwoDa2V5GAEgASgDEg0KBXZhbHVlGAIgASgJ",
+            "OgI4AUIUWgguL21vZGVsc6oCB3Bob2VuaXhiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::phoenix.StatusReflection.Descriptor, global::phoenix.AssetReflection.Descriptor, global::phoenix.MediaFileTypeReflection.Descriptor, global::phoenix.CatalogReflection.Descriptor, global::phoenix.EPGChannelProgrammeObjectReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -137,8 +141,6 @@ namespace phoenix {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.MapMediaFilesRequest), global::phoenix.MapMediaFilesRequest.Parser, new[]{ "GroupId", "MediaFileIDs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.MapMediaFilesResponse), global::phoenix.MapMediaFilesResponse.Parser, new[]{ "MediaMappers" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetEPGChannelCDVRIdRequest), global::phoenix.GetEPGChannelCDVRIdRequest.Parser, new[]{ "GroupId", "EpgChannelId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetAssetEpgRuleIdsRequest), global::phoenix.GetAssetEpgRuleIdsRequest.Parser, new[]{ "GroupId", "MediaId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetAssetEpgRuleIdsResponse), global::phoenix.GetAssetEpgRuleIdsResponse.Parser, new[]{ "Ids", "ProgramId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetRecordingLinkByFileTypeRequest), global::phoenix.GetRecordingLinkByFileTypeRequest.Parser, new[]{ "GroupId", "RecordingId", "FileType" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetRecordingLinkByFileTypeResponse), global::phoenix.GetRecordingLinkByFileTypeResponse.Parser, new[]{ "RecordingUrl" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetGroupMediaFileTypesRequest), global::phoenix.GetGroupMediaFileTypesRequest.Parser, new[]{ "GroupId" }, null, null, null, null),
@@ -148,7 +150,11 @@ namespace phoenix {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.UpdateVirtualAssetInfoRequest), global::phoenix.UpdateVirtualAssetInfoRequest.Parser, new[]{ "GroupId", "VirtualAssetInfo" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.UpdateVirtualAssetInfoResponse), global::phoenix.UpdateVirtualAssetInfoResponse.Parser, new[]{ "Status", "AssetId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.DeleteVirtualAssetInfoRequest), global::phoenix.DeleteVirtualAssetInfoRequest.Parser, new[]{ "GroupId", "Id", "Type" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.DeleteVirtualAssetInfoResponse), global::phoenix.DeleteVirtualAssetInfoResponse.Parser, new[]{ "Status" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.DeleteVirtualAssetInfoResponse), global::phoenix.DeleteVirtualAssetInfoResponse.Parser, new[]{ "Status" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetProgramsByChannelIdRequest), global::phoenix.GetProgramsByChannelIdRequest.Parser, new[]{ "GroupId", "ChannelId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetProgramsByChannelIdResponse), global::phoenix.GetProgramsByChannelIdResponse.Parser, new[]{ "Programs" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetChannelIdsRequest), global::phoenix.GetChannelIdsRequest.Parser, new[]{ "GroupId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.GetChannelIdsResponse), global::phoenix.GetChannelIdsResponse.Parser, new[]{ "Channels" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
     }
     #endregion
@@ -5964,413 +5970,6 @@ namespace phoenix {
 
   }
 
-  public sealed partial class GetAssetEpgRuleIdsRequest : pb::IMessage<GetAssetEpgRuleIdsRequest>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<GetAssetEpgRuleIdsRequest> _parser = new pb::MessageParser<GetAssetEpgRuleIdsRequest>(() => new GetAssetEpgRuleIdsRequest());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<GetAssetEpgRuleIdsRequest> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[23]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetAssetEpgRuleIdsRequest() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetAssetEpgRuleIdsRequest(GetAssetEpgRuleIdsRequest other) : this() {
-      groupId_ = other.groupId_;
-      mediaId_ = other.mediaId_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetAssetEpgRuleIdsRequest Clone() {
-      return new GetAssetEpgRuleIdsRequest(this);
-    }
-
-    /// <summary>Field number for the "groupId" field.</summary>
-    public const int GroupIdFieldNumber = 1;
-    private int groupId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int GroupId {
-      get { return groupId_; }
-      set {
-        groupId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "mediaId" field.</summary>
-    public const int MediaIdFieldNumber = 2;
-    private int mediaId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int MediaId {
-      get { return mediaId_; }
-      set {
-        mediaId_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as GetAssetEpgRuleIdsRequest);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(GetAssetEpgRuleIdsRequest other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (GroupId != other.GroupId) return false;
-      if (MediaId != other.MediaId) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (GroupId != 0) hash ^= GroupId.GetHashCode();
-      if (MediaId != 0) hash ^= MediaId.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (GroupId != 0) {
-        output.WriteRawTag(8);
-        output.WriteInt32(GroupId);
-      }
-      if (MediaId != 0) {
-        output.WriteRawTag(16);
-        output.WriteInt32(MediaId);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (GroupId != 0) {
-        output.WriteRawTag(8);
-        output.WriteInt32(GroupId);
-      }
-      if (MediaId != 0) {
-        output.WriteRawTag(16);
-        output.WriteInt32(MediaId);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      if (GroupId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GroupId);
-      }
-      if (MediaId != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(MediaId);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(GetAssetEpgRuleIdsRequest other) {
-      if (other == null) {
-        return;
-      }
-      if (other.GroupId != 0) {
-        GroupId = other.GroupId;
-      }
-      if (other.MediaId != 0) {
-        MediaId = other.MediaId;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            GroupId = input.ReadInt32();
-            break;
-          }
-          case 16: {
-            MediaId = input.ReadInt32();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            GroupId = input.ReadInt32();
-            break;
-          }
-          case 16: {
-            MediaId = input.ReadInt32();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  public sealed partial class GetAssetEpgRuleIdsResponse : pb::IMessage<GetAssetEpgRuleIdsResponse>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<GetAssetEpgRuleIdsResponse> _parser = new pb::MessageParser<GetAssetEpgRuleIdsResponse>(() => new GetAssetEpgRuleIdsResponse());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<GetAssetEpgRuleIdsResponse> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[24]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetAssetEpgRuleIdsResponse() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetAssetEpgRuleIdsResponse(GetAssetEpgRuleIdsResponse other) : this() {
-      ids_ = other.ids_.Clone();
-      programId_ = other.programId_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public GetAssetEpgRuleIdsResponse Clone() {
-      return new GetAssetEpgRuleIdsResponse(this);
-    }
-
-    /// <summary>Field number for the "ids" field.</summary>
-    public const int IdsFieldNumber = 1;
-    private static readonly pb::FieldCodec<long> _repeated_ids_codec
-        = pb::FieldCodec.ForInt64(10);
-    private readonly pbc::RepeatedField<long> ids_ = new pbc::RepeatedField<long>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<long> Ids {
-      get { return ids_; }
-    }
-
-    /// <summary>Field number for the "programId" field.</summary>
-    public const int ProgramIdFieldNumber = 2;
-    private long programId_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public long ProgramId {
-      get { return programId_; }
-      set {
-        programId_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as GetAssetEpgRuleIdsResponse);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(GetAssetEpgRuleIdsResponse other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if(!ids_.Equals(other.ids_)) return false;
-      if (ProgramId != other.ProgramId) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      hash ^= ids_.GetHashCode();
-      if (ProgramId != 0L) hash ^= ProgramId.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      ids_.WriteTo(output, _repeated_ids_codec);
-      if (ProgramId != 0L) {
-        output.WriteRawTag(16);
-        output.WriteInt64(ProgramId);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      ids_.WriteTo(ref output, _repeated_ids_codec);
-      if (ProgramId != 0L) {
-        output.WriteRawTag(16);
-        output.WriteInt64(ProgramId);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      size += ids_.CalculateSize(_repeated_ids_codec);
-      if (ProgramId != 0L) {
-        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ProgramId);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(GetAssetEpgRuleIdsResponse other) {
-      if (other == null) {
-        return;
-      }
-      ids_.Add(other.ids_);
-      if (other.ProgramId != 0L) {
-        ProgramId = other.ProgramId;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10:
-          case 8: {
-            ids_.AddEntriesFrom(input, _repeated_ids_codec);
-            break;
-          }
-          case 16: {
-            ProgramId = input.ReadInt64();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 10:
-          case 8: {
-            ids_.AddEntriesFrom(ref input, _repeated_ids_codec);
-            break;
-          }
-          case 16: {
-            ProgramId = input.ReadInt64();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
   public sealed partial class GetRecordingLinkByFileTypeRequest : pb::IMessage<GetRecordingLinkByFileTypeRequest>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -6383,7 +5982,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[25]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[23]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6627,7 +6226,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[26]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[24]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6799,7 +6398,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[27]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[25]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6971,7 +6570,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[28]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[26]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7213,7 +6812,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[29]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[27]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7430,7 +7029,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[30]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[28]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7647,7 +7246,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[31]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[29]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7864,7 +7463,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[32]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[30]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8081,7 +7680,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[33]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[31]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8325,7 +7924,7 @@ namespace phoenix {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[34]; }
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[32]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8485,6 +8084,708 @@ namespace phoenix {
               Status = new global::phoenix.Status();
             }
             input.ReadMessage(Status);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class GetProgramsByChannelIdRequest : pb::IMessage<GetProgramsByChannelIdRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<GetProgramsByChannelIdRequest> _parser = new pb::MessageParser<GetProgramsByChannelIdRequest>(() => new GetProgramsByChannelIdRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<GetProgramsByChannelIdRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[33]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetProgramsByChannelIdRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetProgramsByChannelIdRequest(GetProgramsByChannelIdRequest other) : this() {
+      groupId_ = other.groupId_;
+      channelId_ = other.channelId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetProgramsByChannelIdRequest Clone() {
+      return new GetProgramsByChannelIdRequest(this);
+    }
+
+    /// <summary>Field number for the "groupId" field.</summary>
+    public const int GroupIdFieldNumber = 1;
+    private int groupId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int GroupId {
+      get { return groupId_; }
+      set {
+        groupId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "channelId" field.</summary>
+    public const int ChannelIdFieldNumber = 2;
+    private string channelId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string ChannelId {
+      get { return channelId_; }
+      set {
+        channelId_ = value == null ? "" : value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as GetProgramsByChannelIdRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(GetProgramsByChannelIdRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (GroupId != other.GroupId) return false;
+      if (ChannelId != other.ChannelId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (GroupId != 0) hash ^= GroupId.GetHashCode();
+      if (ChannelId.Length != 0) hash ^= ChannelId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (ChannelId.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(ChannelId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (ChannelId.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(ChannelId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (GroupId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GroupId);
+      }
+      if (ChannelId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(ChannelId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(GetProgramsByChannelIdRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.GroupId != 0) {
+        GroupId = other.GroupId;
+      }
+      if (other.ChannelId.Length != 0) {
+        ChannelId = other.ChannelId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            ChannelId = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            ChannelId = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class GetProgramsByChannelIdResponse : pb::IMessage<GetProgramsByChannelIdResponse>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<GetProgramsByChannelIdResponse> _parser = new pb::MessageParser<GetProgramsByChannelIdResponse>(() => new GetProgramsByChannelIdResponse());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<GetProgramsByChannelIdResponse> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[34]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetProgramsByChannelIdResponse() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetProgramsByChannelIdResponse(GetProgramsByChannelIdResponse other) : this() {
+      programs_ = other.programs_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetProgramsByChannelIdResponse Clone() {
+      return new GetProgramsByChannelIdResponse(this);
+    }
+
+    /// <summary>Field number for the "programs" field.</summary>
+    public const int ProgramsFieldNumber = 1;
+    private static readonly pb::FieldCodec<global::phoenix.Program> _repeated_programs_codec
+        = pb::FieldCodec.ForMessage(10, global::phoenix.Program.Parser);
+    private readonly pbc::RepeatedField<global::phoenix.Program> programs_ = new pbc::RepeatedField<global::phoenix.Program>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::phoenix.Program> Programs {
+      get { return programs_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as GetProgramsByChannelIdResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(GetProgramsByChannelIdResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!programs_.Equals(other.programs_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= programs_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      programs_.WriteTo(output, _repeated_programs_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      programs_.WriteTo(ref output, _repeated_programs_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += programs_.CalculateSize(_repeated_programs_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(GetProgramsByChannelIdResponse other) {
+      if (other == null) {
+        return;
+      }
+      programs_.Add(other.programs_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            programs_.AddEntriesFrom(input, _repeated_programs_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            programs_.AddEntriesFrom(ref input, _repeated_programs_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class GetChannelIdsRequest : pb::IMessage<GetChannelIdsRequest>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<GetChannelIdsRequest> _parser = new pb::MessageParser<GetChannelIdsRequest>(() => new GetChannelIdsRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<GetChannelIdsRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[35]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetChannelIdsRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetChannelIdsRequest(GetChannelIdsRequest other) : this() {
+      groupId_ = other.groupId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetChannelIdsRequest Clone() {
+      return new GetChannelIdsRequest(this);
+    }
+
+    /// <summary>Field number for the "groupId" field.</summary>
+    public const int GroupIdFieldNumber = 1;
+    private int groupId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int GroupId {
+      get { return groupId_; }
+      set {
+        groupId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as GetChannelIdsRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(GetChannelIdsRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (GroupId != other.GroupId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (GroupId != 0) hash ^= GroupId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (GroupId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(GroupId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (GroupId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GroupId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(GetChannelIdsRequest other) {
+      if (other == null) {
+        return;
+      }
+      if (other.GroupId != 0) {
+        GroupId = other.GroupId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            GroupId = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class GetChannelIdsResponse : pb::IMessage<GetChannelIdsResponse>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<GetChannelIdsResponse> _parser = new pb::MessageParser<GetChannelIdsResponse>(() => new GetChannelIdsResponse());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<GetChannelIdsResponse> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.CatalogApiReflection.Descriptor.MessageTypes[36]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetChannelIdsResponse() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetChannelIdsResponse(GetChannelIdsResponse other) : this() {
+      channels_ = other.channels_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public GetChannelIdsResponse Clone() {
+      return new GetChannelIdsResponse(this);
+    }
+
+    /// <summary>Field number for the "channels" field.</summary>
+    public const int ChannelsFieldNumber = 1;
+    private static readonly pbc::MapField<long, string>.Codec _map_channels_codec
+        = new pbc::MapField<long, string>.Codec(pb::FieldCodec.ForInt64(8, 0L), pb::FieldCodec.ForString(18, ""), 10);
+    private readonly pbc::MapField<long, string> channels_ = new pbc::MapField<long, string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::MapField<long, string> Channels {
+      get { return channels_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as GetChannelIdsResponse);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(GetChannelIdsResponse other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!Channels.Equals(other.Channels)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= Channels.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      channels_.WriteTo(output, _map_channels_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      channels_.WriteTo(ref output, _map_channels_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += channels_.CalculateSize(_map_channels_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(GetChannelIdsResponse other) {
+      if (other == null) {
+        return;
+      }
+      channels_.Add(other.channels_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            channels_.AddEntriesFrom(input, _map_channels_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            channels_.AddEntriesFrom(ref input, _map_channels_codec);
             break;
           }
         }

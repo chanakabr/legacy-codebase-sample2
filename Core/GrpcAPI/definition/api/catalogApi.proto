@@ -153,15 +153,6 @@ message GetEPGChannelCDVRIdRequest{
   int64 epgChannelId = 2;
 }
 
-message GetAssetEpgRuleIdsRequest {
-  int32 groupId = 1;
-  int32 mediaId = 2;
-}
-message GetAssetEpgRuleIdsResponse {
-  repeated int64 ids = 1;
-  int64 programId = 2;
-}
-
 message GetRecordingLinkByFileTypeRequest{
   int32 groupId = 1;
   int64 recordingId = 2;
@@ -211,4 +202,21 @@ message DeleteVirtualAssetInfoRequest{
 
 message DeleteVirtualAssetInfoResponse{
     Status status = 1;
+}
+
+message GetProgramsByChannelIdRequest{
+  int32 groupId = 1;
+  string channelId = 2;
+}
+
+message GetProgramsByChannelIdResponse{
+  repeated Program programs = 1;
+}
+
+message GetChannelIdsRequest{
+  int32 groupId = 1;
+}
+
+message GetChannelIdsResponse{
+  map<int64, string> channels = 1;
 }

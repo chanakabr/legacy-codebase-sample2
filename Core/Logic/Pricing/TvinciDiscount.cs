@@ -50,88 +50,30 @@ namespace Core.Pricing
 
         public override DiscountModule GetDiscountCodeData(string sDC, string currency = "")
         {
-            DiscountModule tmp = null;
-            if (!int.TryParse(sDC, out int nDiscountCodeID) || nDiscountCodeID <= 0)
+            DiscountModule discountModule = null;
+
+            if (int.TryParse(sDC, out int discountId) && discountId > 0)
             {
-                return tmp;
+                discountModule = GetDiscountByCountryAndCurrency(discountId, "--", currency, withDefaultFallback: true);
             }
 
-            if (GroupSettingsManager.Instance.IsOpc(m_nGroupID))
-            {
-                tmp = GetDiscountCodeDataByCountryAndCurrency(nDiscountCodeID, "--", currency);
-                if (tmp != null)
-                {
-                    return tmp;
-                }
-            }
-            
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
-
-            try
-            {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("PRICING_CONNECTION");
-                selectQuery += "select * from discount_codes with (nolock) where is_active=1 and status=1 and ";
-                selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nDiscountCodeID);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        tmp = new DiscountModule();
-                        string sCode = selectQuery.Table("query").DefaultView[0].Row["CODE"].ToString(); ;
-                        Int32 nPriceCodeID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString()); ;
-                        double dPrice = double.Parse(selectQuery.Table("query").DefaultView[0].Row["PRICE"].ToString());
-                        double dDiscountPercent = double.Parse(selectQuery.Table("query").DefaultView[0].Row["DISCOUNT_PERCENT"].ToString());
-                        RelationTypes theRelationType = ((RelationTypes)(int.Parse(selectQuery.Table("query").DefaultView[0].Row["RELATION_TYPE"].ToString())));
-                        Int32 nCurrency = int.Parse(selectQuery.Table("query").DefaultView[0].Row["CURRENCY_CD"].ToString());
-                        Price oPrise = new Price();
-                        oPrise.InitializeByCodeID(nCurrency, dPrice);
-                        DateTime dStart = new DateTime(2000, 1, 1);
-                        DateTime dEnd = new DateTime(2099, 1, 1);
-                        if (selectQuery.Table("query").DefaultView[0].Row["START_DATE"] != null &&
-                            selectQuery.Table("query").DefaultView[0].Row["START_DATE"] != DBNull.Value)
-                            dStart = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["START_DATE"]);
-
-                        if (selectQuery.Table("query").DefaultView[0].Row["END_DATE"] != null &&
-                            selectQuery.Table("query").DefaultView[0].Row["END_DATE"] != DBNull.Value)
-                            dEnd = (DateTime)(selectQuery.Table("query").DefaultView[0].Row["END_DATE"]);
-
-                        WhenAlgoType oWhenAlgoType = (WhenAlgoType)(int.Parse(selectQuery.Table("query").DefaultView[0].Row["WHENALGO_TYPE"].ToString()));
-                        Int32 nWhenAlgoTimes = int.Parse(selectQuery.Table("query").DefaultView[0].Row["WHENALGO_TIMES"].ToString());
-                        WhenAlgo wa = new WhenAlgo();
-                        wa.Initialize(oWhenAlgoType, nWhenAlgoTimes);
-
-                        tmp.Initialize(sCode, oPrise, DiscountModule.GetDiscountCodeDescription(nPriceCodeID), nPriceCodeID, dDiscountPercent, theRelationType, dStart, dEnd, wa);
-                    }
-                }
-            }
-            finally
-            {
-                if (selectQuery != null)
-                {
-                    selectQuery.Finish();
-                }
-            }
-
-            return tmp;
+            return discountModule;
         }
 
         public override DiscountModule GetDiscountCodeDataByCountryAndCurrency(int discountCodeId, string countryCode, string currencyCode)
         {
+            DiscountModule discountModule = GetDiscountByCountryAndCurrency(discountCodeId, countryCode, currencyCode, withDefaultFallback: false);
+            
+            return discountModule;
+        }
+
+        private DiscountModule GetDiscountByCountryAndCurrency(int discountCodeId, string countryCode, string currencyCode, bool withDefaultFallback)
+        {
             DiscountModule discountModule = null;
+
             if (discountCodeId > 0)
             {
-                string key = LayeredCacheKeys.GetDiscountModuleCodeByCountryAndCurrencyKey(m_nGroupID, discountCodeId, countryCode, currencyCode);
-                if (!LayeredCache.Instance.Get<DiscountModule>(key, ref discountModule, Utils.GetDiscountModuleByCountryAndCurrency, new Dictionary<string, object>() { { "groupId", m_nGroupID },
-                                                            { "discountCodeId", discountCodeId }, { "countryCode", countryCode }, { "currencyCode", currencyCode } },
-                                                            m_nGroupID, LayeredCacheConfigNames.DISCOUNT_MODULE_LOCALE_LAYERED_CACHE_CONFIG_NAME))
-                {
-                    log.ErrorFormat("Failed getting discountModule by countryCode and currencyCode from LayeredCache, priceCodeId: {0}, countryCode: {1},currencyCode: {2}, key: {3}",
-                                    discountCodeId, countryCode, currencyCode, key);
-                }
+                discountModule = Utils.GetDiscountModuleByCountryAndCurrency(m_nGroupID, discountCodeId, countryCode, currencyCode, withDefaultFallback);
             }
 
             return discountModule;

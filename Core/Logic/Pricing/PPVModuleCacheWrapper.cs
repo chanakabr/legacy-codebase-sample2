@@ -62,7 +62,7 @@ namespace Core.Pricing
             return Tuple.Create(fileMap, true);
         }
 
-        public override MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int[] nMediaFileIDs)
+        public override MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int[] nMediaFileIDs, bool shouldGetOnlyValidForPurchase)
         {
             if (nMediaFileIDs.Any())
             {
@@ -77,7 +77,11 @@ namespace Core.Pricing
 
                     string key = LayeredCacheKeys.GetPPVsforFileKey(mediaFileId);
                     cacheKeys.Add(key, mediaFileId.ToString());
-                    invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetPPVsforFileInvalidationKey(groupId, mediaFileId) });
+                    invalidationKeysMap.Add(key, new List<string>() 
+                    { 
+                        LayeredCacheKeys.GetPPVsforFileInvalidationKey(groupId, mediaFileId),
+                        LayeredCacheKeys.GetAssetFileInvalidationKey(groupId, mediaFileId)
+                    });
                 }
 
                 var results = new Dictionary<string, MediaFilePPVContainer>();
@@ -97,9 +101,12 @@ namespace Core.Pricing
                     var i = 0;
                     foreach (var mediaFileContainer in results.Values)
                     {
-                        var validForPurchase = mediaFileContainer.m_oPPVModules?.Where(y => y.IsValidForPurchase).ToArray();
-                        mediaFilesContainer[i] = new MediaFilePPVContainer
-                            { m_oPPVModules = validForPurchase, m_nMediaFileID = mediaFileContainer.m_nMediaFileID, m_sProductCode = mediaFileContainer.m_sProductCode };
+                        var validForPurchase = mediaFileContainer.m_oPPVModules?.Where(y => !shouldGetOnlyValidForPurchase || y.IsValidForPurchase).ToArray();
+                        mediaFilesContainer[i] = new MediaFilePPVContainer { 
+                            m_oPPVModules = validForPurchase, 
+                            m_nMediaFileID = mediaFileContainer.m_nMediaFileID, 
+                            m_sProductCode = mediaFileContainer.m_sProductCode 
+                        };
                         i++;
                     }
                     return mediaFilesContainer;

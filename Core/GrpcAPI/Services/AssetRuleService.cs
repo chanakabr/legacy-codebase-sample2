@@ -7,7 +7,6 @@ using phoenix;
 using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using AssetRuleOrderBy = ApiObjects.AssetRuleOrderBy;
@@ -82,19 +81,16 @@ namespace GrpcAPI.Services
         public GetAssetEpgRuleIdsResponse GetAssetEpgRuleIds(GetAssetEpgRuleIdsRequest request)
         {
             long programId = 0;
+            DateTime programEndDate = default;
             var assetEpgRuleIds = Core.ConditionalAccess.Utils.GetAssetEpgRuleIds(request.GroupId,
-                request.MediaId, ref programId);
+                request.MediaId, ref programId, ref programEndDate);
 
-            if (assetEpgRuleIds != null)
+            return new GetAssetEpgRuleIdsResponse()
             {
-                return new GetAssetEpgRuleIdsResponse()
-                {
-                    Ids = {assetEpgRuleIds},
-                    ProgramId = programId
-                };
-            }
-
-            return new GetAssetEpgRuleIdsResponse();
+                Ids = {assetEpgRuleIds ?? new List<long>()},
+                ProgramId = programId,
+                ProgramIdEndDate = programEndDate != default ? new DateTimeOffset(programEndDate).ToUnixTimeMilliseconds() : 0
+            };
         }
 
         public GetMediaConcurrencyRulesResponse GetMediaConcurrencyRules(GetMediaConcurrencyRulesRequest request)

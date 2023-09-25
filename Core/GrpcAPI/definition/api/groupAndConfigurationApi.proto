@@ -47,3 +47,20 @@ message GetNotificationPartnerSettingsRequest{
 message GetNotificationPartnerSettingsResponse{
   NotificationPartnerSettings setting = 1;
 }
+
+message GetConcurrencyMilliThresholdRequest{
+  int32 groupId = 1;
+}
+
+message GetConcurrencyMilliThresholdResponse{
+  int64 bookmarkInterval = 1;
+}
+
+message GetGeneralPartnerConfigRequest {
+  int32 groupId = 1;
+}
+
+message GetGeneralPartnerConfigResponse{
+  //could be extended whenever it's needed
+  int32 LinearWatchHistoryThreshold = 1;
+}

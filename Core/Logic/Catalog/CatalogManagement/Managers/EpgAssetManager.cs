@@ -41,6 +41,7 @@ namespace Core.Catalog.CatalogManagement
 
         private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
         private const string META_DOES_NOT_EXIST = "{0}: {1} does not exist for this group";
+        private const string META_TYPE_DOES_NOT_EXIST = "{0} type: {1} does not exist";
         private const string INVALID_LANGUAGE = "Invalid language: {0}. Only languages specified in the name of the asset can be associated.";
         private const string DUPLICATE_VALUE = "Duplicate {0}:{1} sent for {2}.";
         private const string EXTERNAL_ID_META_NAME = "External Asset ID";
@@ -210,7 +211,7 @@ namespace Core.Catalog.CatalogManagement
                     newEpgId = EpgDal.InsertEpgToDB(epgCbToAdd, userId, dateTimeNow, epgMetaIdToValues, catalogGroupCache.GetDefaultLanguage().ID, epgTagsIds);
                     if (newEpgId == 0)
                     {
-                        log.Error("Inesrt epg to epg_channels_schedule failed");
+                        log.Error("Insert epg to epg_channels_schedule failed");
                         return result;
                     }
                 }
@@ -256,7 +257,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error($"Failed AddEpgAsset for groupId: {groupId}, epg ExternalId: {epgAssetToAdd.EpgIdentifier}, Exception: [{ex}].");
+                log.Error($"Failed AddEpgAsset for groupId: {groupId}, epg ExternalId: {epgAssetToAdd.EpgIdentifier}, Exception: [{ex}].", ex);
             }
 
             return result;
@@ -1439,7 +1440,15 @@ namespace Core.Catalog.CatalogManagement
                 return new Status((int)eResponseStatus.MetaDoesNotExist, errorMsg);
             }
 
-            Topic topic = catalogGroupCache.TopicsMapBySystemNameAndByType[tagMeta.m_sName][tagMeta.m_sType];
+            //BEO-14550
+            var topicDictionary = catalogGroupCache.TopicsMapBySystemNameAndByType[tagMeta.m_sName];
+            if (!topicDictionary.ContainsKey(tagMeta.m_sType))
+            {
+                var errorMsg = string.Format(META_TYPE_DOES_NOT_EXIST, topicType, tagMeta.m_sType);
+                return new Status((int)eResponseStatus.InvalidMetaType, errorMsg);
+            }
+            
+            Topic topic = topicDictionary[tagMeta.m_sType];
 
             // validate meta exists on asset struct
             if (!programAssetStruct.AssetStructMetas.ContainsKey(topic.Id))
@@ -1454,7 +1463,8 @@ namespace Core.Catalog.CatalogManagement
                 (metaType != MetaType.Tag && (sentMetaType == MetaType.All || sentMetaType == MetaType.Tag)) ||
                 (metaType == MetaType.Tag && sentMetaType != MetaType.Tag))
             {
-                var errorMsg = string.Format("{0} was sent for {1}: {2}", eResponseStatus.InvalidMetaType.ToString(), topicType, tagMeta.m_sName);
+                var errorMsg =
+                    $"{eResponseStatus.InvalidMetaType.ToString()} was sent for {topicType}: {tagMeta.m_sName}";
                 return new Status((int)eResponseStatus.InvalidMetaType, errorMsg);
             }
 

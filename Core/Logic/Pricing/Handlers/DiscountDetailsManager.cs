@@ -296,7 +296,7 @@ namespace ApiLogic.Pricing.Handlers
                         // set order multi pricing
                         discountsDt.DefaultView.Sort = "dcl_id asc";
                         discountsDt = discountsDt.DefaultView.ToTable();
-                        discountDetails = Utils.BuildDiscountsFromDataTable(discountsDt);
+                        discountDetails = Utils.BuildDiscountsFromDataTable(groupId.Value, discountsDt);
                     }
                 }
             }

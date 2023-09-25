@@ -79,10 +79,12 @@ namespace phoenix {
             "CgpDb2xsZWN0aW9uEAIilgEKEFZpcnR1YWxBc3NldEluZm8SMQoEdHlwZRgB",
             "IAEoDjIjLnBob2VuaXguT2JqZWN0VmlydHVhbEFzc2V0SW5mb1R5cGUSCgoC",
             "aWQYAiABKAMSDAoEbmFtZRgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRIO",
-            "CgZ1c2VySWQYBSABKAMSEAoIaXNBY3RpdmUYBiABKAgqSQoaT2JqZWN0Vmly",
-            "dHVhbEFzc2V0SW5mb1R5cGUSEAoMU3Vic2NyaXB0aW9uEAASCwoHU2VnbWVu",
-            "dBABEgwKCENhdGVnb3J5EAJCFFoILi9tb2RlbHOqAgdwaG9lbml4YgZwcm90",
-            "bzM="));
+            "CgZ1c2VySWQYBSABKAMSEAoIaXNBY3RpdmUYBiABKAgicQoHUHJvZ3JhbRIK",
+            "CgJpZBgBIAEoCRItCglzdGFydERhdGUYAiABKAsyGi5nb29nbGUucHJvdG9i",
+            "dWYuVGltZXN0YW1wEisKB2VuZERhdGUYAyABKAsyGi5nb29nbGUucHJvdG9i",
+            "dWYuVGltZXN0YW1wKkkKGk9iamVjdFZpcnR1YWxBc3NldEluZm9UeXBlEhAK",
+            "DFN1YnNjcmlwdGlvbhAAEgsKB1NlZ21lbnQQARIMCghDYXRlZ29yeRACQhRa",
+            "CC4vbW9kZWxzqgIHcGhvZW5peGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::phoenix.StatusReflection.Descriptor, global::phoenix.AdsPolicyReflection.Descriptor, global::phoenix.StreamerTypeReflection.Descriptor, global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, global::phoenix.ListOfStringsReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::phoenix.ObjectVirtualAssetInfoType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -90,7 +92,8 @@ namespace phoenix {
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.BusinessModuleDetails), global::phoenix.BusinessModuleDetails.Parser, new[]{ "BusinessModuleId", "BusinessModuleType" }, null, new[]{ typeof(global::phoenix.BusinessModuleDetails.Types.TransactionType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.Recording), global::phoenix.Recording.Parser, new[]{ "Status", "Id", "EpgId", "ChannelId", "RecordingStatus", "ExternalRecordingId", "EpgStartDate", "EpgEndDate", "Type", "GetStatusRetries", "ProtectedUntilDate", "ViewableUntilDate", "CreateDate", "UpdateDate", "Crid", "IsExternalRecording", "IsProtected", "UserId" }, null, new[]{ typeof(global::phoenix.Recording.Types.TstvRecordingStatus), typeof(global::phoenix.Recording.Types.RecordingType) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.DevicePlayData), global::phoenix.DevicePlayData.Parser, new[]{ "UDID", "AssetId", "UserId", "PlayType", "AssetAction", "TimeStamp", "CreatedAt", "MediaConcurrencyRuleIds", "AssetMediaConcurrencyRuleIds", "AssetEpgConcurrencyRuleIds", "DeviceFamilyId", "NpvrId", "ProgramId", "DomainId", "PlayCycleKey", "BookmarkEventThreshold", "ProductType", "ProductId", "Revoke", "LinearWatchHistoryThreshold" }, null, new[]{ typeof(global::phoenix.DevicePlayData.Types.eTransactionType) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.VirtualAssetInfo), global::phoenix.VirtualAssetInfo.Parser, new[]{ "Type", "Id", "Name", "Description", "UserId", "IsActive" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.VirtualAssetInfo), global::phoenix.VirtualAssetInfo.Parser, new[]{ "Type", "Id", "Name", "Description", "UserId", "IsActive" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::phoenix.Program), global::phoenix.Program.Parser, new[]{ "Id", "StartDate", "EndDate" }, null, null, null, null)
           }));
     }
     #endregion
@@ -3295,6 +3298,268 @@ namespace phoenix {
           }
           case 48: {
             IsActive = input.ReadBool();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class Program : pb::IMessage<Program>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<Program> _parser = new pb::MessageParser<Program>(() => new Program());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<Program> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::phoenix.CatalogReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Program() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Program(Program other) : this() {
+      id_ = other.id_;
+      startDate_ = other.startDate_ != null ? other.startDate_.Clone() : null;
+      endDate_ = other.endDate_ != null ? other.endDate_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Program Clone() {
+      return new Program(this);
+    }
+
+    /// <summary>Field number for the "id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private string id_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Id {
+      get { return id_; }
+      set {
+        id_ = value == null ? "" : value;
+      }
+    }
+
+    /// <summary>Field number for the "startDate" field.</summary>
+    public const int StartDateFieldNumber = 2;
+    private global::Google.Protobuf.WellKnownTypes.Timestamp startDate_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Google.Protobuf.WellKnownTypes.Timestamp StartDate {
+      get { return startDate_; }
+      set {
+        startDate_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "endDate" field.</summary>
+    public const int EndDateFieldNumber = 3;
+    private global::Google.Protobuf.WellKnownTypes.Timestamp endDate_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Google.Protobuf.WellKnownTypes.Timestamp EndDate {
+      get { return endDate_; }
+      set {
+        endDate_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as Program);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(Program other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Id != other.Id) return false;
+      if (!object.Equals(StartDate, other.StartDate)) return false;
+      if (!object.Equals(EndDate, other.EndDate)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Id.Length != 0) hash ^= Id.GetHashCode();
+      if (startDate_ != null) hash ^= StartDate.GetHashCode();
+      if (endDate_ != null) hash ^= EndDate.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Id.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Id);
+      }
+      if (startDate_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(StartDate);
+      }
+      if (endDate_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(EndDate);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Id.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteString(Id);
+      }
+      if (startDate_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(StartDate);
+      }
+      if (endDate_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(EndDate);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (Id.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Id);
+      }
+      if (startDate_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(StartDate);
+      }
+      if (endDate_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(EndDate);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(Program other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Id.Length != 0) {
+        Id = other.Id;
+      }
+      if (other.startDate_ != null) {
+        if (startDate_ == null) {
+          StartDate = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+        }
+        StartDate.MergeFrom(other.StartDate);
+      }
+      if (other.endDate_ != null) {
+        if (endDate_ == null) {
+          EndDate = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+        }
+        EndDate.MergeFrom(other.EndDate);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            Id = input.ReadString();
+            break;
+          }
+          case 18: {
+            if (startDate_ == null) {
+              StartDate = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(StartDate);
+            break;
+          }
+          case 26: {
+            if (endDate_ == null) {
+              EndDate = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(EndDate);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            Id = input.ReadString();
+            break;
+          }
+          case 18: {
+            if (startDate_ == null) {
+              StartDate = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(StartDate);
+            break;
+          }
+          case 26: {
+            if (endDate_ == null) {
+              EndDate = new global::Google.Protobuf.WellKnownTypes.Timestamp();
+            }
+            input.ReadMessage(EndDate);
             break;
           }
         }

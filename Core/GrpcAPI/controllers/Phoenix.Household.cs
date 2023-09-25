@@ -8,67 +8,67 @@ namespace Grpc.controllers
 {
     public partial class PhoenixController : phoenix.Phoenix.PhoenixBase
     {
-        public override Task<BoolValue> IsPermittedPermission(IsPermittedPermissionRequest request,
+        public override async Task<BoolValue> IsPermittedPermission(IsPermittedPermissionRequest request,
             ServerCallContext context)
         {
             var response = _householdService.IsPermittedPermission(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(new BoolValue {Value = response});
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return new BoolValue {Value = response};
         }
 
-        public override Task<GetSuspensionStatusResponse> GetSuspensionStatus(GetSuspensionStatusRequest request,
+        public override async Task<GetSuspensionStatusResponse> GetSuspensionStatus(GetSuspensionStatusRequest request,
             ServerCallContext context)
         {
             var response = _householdService.GetSuspensionStatus(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<ValidateUserResponse> ValidateUser(ValidateUserRequest request, ServerCallContext context)
+        public override async Task<ValidateUserResponse> ValidateUser(ValidateUserRequest request, ServerCallContext context)
         {
             var response = _householdService.ValidateUser(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<GetDomainDataResponse> GetDomainData(GetDomainDataRequest request,
+        public override async Task<GetDomainDataResponse> GetDomainData(GetDomainDataRequest request,
             ServerCallContext context)
         {
             var response = _householdService.GetDomainData(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<GetMediaConcurrencyRulesByDomainLimitationModuleResponse>
+        public override async Task<GetMediaConcurrencyRulesByDomainLimitationModuleResponse>
             GetMediaConcurrencyRulesByDomainLimitationModule(
                 GetMediaConcurrencyRulesByDomainLimitationModuleRequest request, ServerCallContext context)
         {
             var response = _householdService.GetMediaConcurrencyRulesByDomainLimitationModule(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
         
-        public override Task<Int32Value> IsDevicePlayValid(
+        public override async Task<Int32Value> IsDevicePlayValid(
             IsDevicePlayValidRequest request, ServerCallContext context)
         {
             var response = _householdService.IsDevicePlayValid(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(new Int32Value {Value = response});
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return new Int32Value {Value = response};
         }
 
-        public override Task<BoolValue> AllowActionInSuspendedDomain(
+        public override async Task<BoolValue> AllowActionInSuspendedDomain(
             AllowActionInSuspendedDomainRequest request, ServerCallContext context)
         {
             var response = _householdService.AllowActionInSuspendedDomain(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(new BoolValue {Value = response});
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return new BoolValue {Value = response};
         }
         
         public override Task<BoolValue> IsValidDeviceFamily(

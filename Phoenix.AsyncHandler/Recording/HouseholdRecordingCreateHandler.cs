@@ -11,36 +11,40 @@ using IngestHandler;
 using Microsoft.Extensions.Logging;
 using OTT.Lib.Kafka;
 using Phoenix.AsyncHandler.Kafka;
-using Phoenix.Generated.Api.Events.Crud.PartnerMigrationHouseholdRecording;
 using Phoenix.Generated.Api.Events.Logical.HouseholdRecordingMigrationStatus;
 using Phx.Lib.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ApiLogic.ConditionalAccess.Recordings;
 using ApiObjects.Epg;
+using CachingHelpers;
+using Core.GroupManagers;
 using ElasticSearch.Utilities;
 using EpgBL;
+using Phoenix.Generated.Api.Events.Logical.Recordings.Partnermigrations.HouseholdRecordingCreate;
+using SchemaRegistryEvents.Catalog;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using Mapper = ApiLogic.ConditionalAccess.Recordings.PartnerMigrationHouseholdRecordingCrudEventMapper;
 
 namespace Phoenix.AsyncHandler.Recording
 {
-    public class PartnerMigrationHouseholdRecordingHandler : CrudHandler<PartnerMigrationHouseholdRecording>
+    public class HouseholdRecordingCreateHandler : CrudHandler<HouseholdRecordingCreate>
     {
-        private readonly ILogger<PartnerMigrationHouseholdRecordingHandler> _logger;
+        private readonly ILogger<HouseholdRecordingCreateHandler> _logger;
         private readonly IHouseholdRecordingMigrationPublisher _publisher;
+        private static readonly string NotAllowedError = "Import of recordings not allowed for this account";
 
-        public PartnerMigrationHouseholdRecordingHandler(ILogger<PartnerMigrationHouseholdRecordingHandler> logger, IHouseholdRecordingMigrationPublisher publisher)
+        public HouseholdRecordingCreateHandler(ILogger<HouseholdRecordingCreateHandler> logger, IHouseholdRecordingMigrationPublisher publisher)
         {
             _logger = logger;
             _publisher = publisher;
         }
 
-        protected override long GetOperation(PartnerMigrationHouseholdRecording value) => value.Operation;
+        protected override long GetOperation(HouseholdRecordingCreate value) => CrudOperationType.CREATE_OPERATION;
 
-        protected override HandleResult Create(ConsumeResult<string, PartnerMigrationHouseholdRecording> consumeResult)
+        protected override HandleResult Create(ConsumeResult<string, HouseholdRecordingCreate> consumeResult)
         {
             _logger.LogDebug($"**Handler:[{GetType().Name}], Event:[{consumeResult?.Value}], Action: Create");
 
@@ -64,18 +68,19 @@ namespace Phoenix.AsyncHandler.Recording
             return Result.Ok;
         }
 
-        protected override HandleResult Update(ConsumeResult<string, PartnerMigrationHouseholdRecording> consumeResult) => Result.Ok;
+        protected override HandleResult Update(ConsumeResult<string, HouseholdRecordingCreate> consumeResult) => Result.Ok;
 
-        protected override HandleResult Delete(ConsumeResult<string, PartnerMigrationHouseholdRecording> consumeResult) => Result.Ok;
+        protected override HandleResult Delete(ConsumeResult<string, HouseholdRecordingCreate> consumeResult) => Result.Ok;
 
-        private bool ValidateAndGetProgramAsset(PartnerMigrationHouseholdRecording householdRecording, out long userId, out long domainId, out bool isPadded, out EpgAsset epgAsset)
+        private bool ValidateAndGetProgramAsset(HouseholdRecordingCreate householdRecording, out long userId, out long domainId, out bool isPadded, out EpgAsset epgAsset)
         {   
             userId = 0;
             domainId = 0;
             isPadded = true;
             epgAsset = null;
 
-            if (householdRecording.PartnerId < 1 ||
+            if (!householdRecording.PartnerId.HasValue || 
+                householdRecording.PartnerId < 1 ||
                 householdRecording.OttUserExternalId.IsNullOrEmpty() ||
                 householdRecording.ProgramAssetExternalId.IsNullOrEmpty())
             {
@@ -87,6 +92,13 @@ namespace Phoenix.AsyncHandler.Recording
 
             var groupId = (int)householdRecording.PartnerId;
 
+            if (!GroupSettingsManager.Instance.IsOpc(groupId))
+            {
+                LogWarning(householdRecording, "Account Is Not OPC Supported");
+                PublishError(householdRecording, eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
+                return false;
+            }
+            
             CatalogGroupCache cache;
             if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out cache))
             {
@@ -96,7 +108,7 @@ namespace Phoenix.AsyncHandler.Recording
             }
             
             var partnerSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
-            if (partnerSettings == null)
+            if (partnerSettings == null || !partnerSettings.IsDefault.HasValue ||  partnerSettings.IsDefault.Value)
             {
                 LogWarning(householdRecording, "TimeShiftedTvPartnerSettings does not exist");
                 PublishError(householdRecording, eResponseStatus.TimeShiftedTvPartnerSettingsNotFound, "Time Shifted Tv Partner Settings Not Found");
@@ -106,17 +118,43 @@ namespace Phoenix.AsyncHandler.Recording
             if (partnerSettings.PersonalizedRecordingEnable == false)
             {
                 LogWarning(householdRecording, "TimeShiftedTvPartnerSettings PersonalizedRecordingEnable is false - Import of recordings not allowed");
-                PublishError(householdRecording, eResponseStatus.PersonalizedRecordingDisabled, "Import of recordings not allowed for this account");
+                PublishError(householdRecording, eResponseStatus.PersonalizedRecordingDisabled, NotAllowedError);
                 return false;
             }
 
             if (partnerSettings.IsPrivateCopyEnabled == true)
             {
                 LogWarning(householdRecording, "TimeShiftedTvPartnerSettings IsPrivateCopyEnabled is true - Import of recordings not allowed");
-                PublishError(householdRecording, eResponseStatus.PersonalizedRecordingDisabled, "Import of recordings not allowed for this account");
+                PublishError(householdRecording, eResponseStatus.PersonalizedRecordingDisabled, NotAllowedError);
+                return false;
+            }
+            
+            if (partnerSettings.IsCdvrEnabled == null || partnerSettings?.IsCdvrEnabled.Value == false)
+            {
+                var msg = "Account Cdvr Not Enabled";
+                LogWarning(householdRecording, msg);
+                PublishError(householdRecording, eResponseStatus.AccountCdvrNotEnabled, msg);
                 return false;
             }
 
+            // var adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+            if (!partnerSettings.AdapterId.HasValue || partnerSettings.AdapterId < 1)
+            {
+                var msg = "Cdvr Adapter Identifier Required";
+                LogWarning(householdRecording, msg);
+                PublishError(householdRecording, eResponseStatus.AdapterIdentifierRequired, msg);
+                return false;
+            }
+            
+            var adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(groupId, partnerSettings.AdapterId.Value);
+            if (adapter == null || string.IsNullOrEmpty(adapter.AdapterUrl))
+            {
+                var msg = "Cdvr Adapter Not Exists";
+                LogWarning(householdRecording, msg);
+                PublishError(householdRecording, eResponseStatus.AdapterNotExists, msg);
+                return false;
+            }
+            
             userId = UsersDal.GetUserIDByExternalId(groupId, householdRecording.OttUserExternalId);
             if (userId < 1)
             {
@@ -133,7 +171,8 @@ namespace Phoenix.AsyncHandler.Recording
                 return false;
             }
 
-            if (householdRecording.AbsoluteStartDateTime.HasValue && householdRecording.AbsoluteStartDateTime.Value > 0 &&
+            //BEO-14336 - make immediate if any of the ABS dates exists
+            if (householdRecording.AbsoluteStartDateTime.HasValue && householdRecording.AbsoluteStartDateTime.Value > 0 ||
                 householdRecording.AbsoluteEndDateTime.HasValue && householdRecording.AbsoluteEndDateTime.Value > 0)
             {
                 isPadded = false;
@@ -149,7 +188,7 @@ namespace Phoenix.AsyncHandler.Recording
             return true;
         }
 
-        private EpgAsset GetOrCreateProgramAsset(PartnerMigrationHouseholdRecording householdRecording, long userId, TimeShiftedTvPartnerSettings partnerSettings, CatalogGroupCache cache)
+        private EpgAsset GetOrCreateProgramAsset(HouseholdRecordingCreate householdRecording, long userId, TimeShiftedTvPartnerSettings partnerSettings, CatalogGroupCache cache)
         {
             var groupId = (int)householdRecording.PartnerId;
 
@@ -176,7 +215,7 @@ namespace Phoenix.AsyncHandler.Recording
                 return null;
             }
 
-            var (name, nameTranslations) = Mapper.GetMultilingual(householdRecording.ProgramAssetmultilingualName, cache);
+            var (name, nameTranslations) = HouseholdRecordingCreateEventMapper.GetMultilingual(householdRecording.ProgramAssetmultilingualName, cache);
             if (name.IsNullOrEmpty())
             {
                 LogWarning(householdRecording, "Wrong event body - must have ProgramAssetmultilingualName");
@@ -191,9 +230,26 @@ namespace Phoenix.AsyncHandler.Recording
                 PublishError(householdRecording, eResponseStatus.ChannelDoesNotExist, "Live channel does not exist");
                 return null;
             }
+            
+            // var linearAssetResponse = AssetManager.Instance.GetAsset(groupId, linearAssetId, eAssetTypes.MEDIA, true);
+            // if (!linearAssetResponse.IsOkStatusCode() ||
+            //     !(linearAssetResponse.Object is LiveAsset)||
+            //     !(linearAssetResponse.Object as LiveAsset).CdvrEnabled)
+            // {
+            //     LogWarning(householdRecording, $"LinearAssetId [{linearAssetId}] does not allow recordings");
+            //     PublishError(householdRecording, eResponseStatus.ProgramCdvrNotEnabled, "Linear Asset does not allow recordings");
+            //     return null;
+            // }
 
-            var epgAsset = Mapper.MapToEpgAsset(householdRecording, linearAssetId, cache, name, nameTranslations);
+            var epgAsset = HouseholdRecordingCreateEventMapper.MapToEpgAsset(householdRecording, linearAssetId, cache, name, nameTranslations);
 
+            // if (epgAsset.CdvrEnabled == null || !epgAsset.CdvrEnabled.Value)
+            // {
+            //     LogWarning(householdRecording, $"LiveAssetExternalId [{householdRecording.LiveAssetExternalId}] does not allow recordings");
+            //     PublishError(householdRecording, eResponseStatus.ProgramCdvrNotEnabled, "Live channel does not allow recordings");
+            //     return null;
+            // }
+            
             var catchUpBufferTime = DateTime.UtcNow.AddMinutes(-partnerSettings.CatchUpBufferLength ?? 0);
             
             if (epgAsset.EndDate >= catchUpBufferTime)
@@ -202,7 +258,7 @@ namespace Phoenix.AsyncHandler.Recording
                 PublishError(householdRecording, eResponseStatus.CannotImportRecordingWithinCatchUpBuffer, "Cannot import time-based recording within catch up buffer window");
                 return null;
             }
-
+            
             var addAssetResponse = AssetManager.Instance.AddAsset(groupId, epgAsset, userId, isFromIngest: true);
             if (!addAssetResponse.IsOkStatusCode())
             {
@@ -218,11 +274,11 @@ namespace Phoenix.AsyncHandler.Recording
             return epgAsset;
         }
 
-        private void AddEpgAssetImages(PartnerMigrationHouseholdRecording householdRecording, int groupId, EpgAsset epgAsset)
+        private void AddEpgAssetImages(HouseholdRecordingCreate householdRecording, int groupId, EpgAsset epgAsset)
         {
             if (householdRecording.ProgramAssetImages != null && householdRecording.ProgramAssetImages.Length > 0)
             {
-                var epgPictures = Mapper.MapToEpgPictures(groupId, householdRecording.ProgramAssetImages, epgAsset);
+                var epgPictures = HouseholdRecordingCreateEventMapper.MapToEpgPictures(groupId, householdRecording.ProgramAssetImages, epgAsset);
                 var uploadImageResult = EpgImageManager.UploadEPGPictures(groupId, epgPictures).ConfigureAwait(false).GetAwaiter().GetResult().ToList();
                 if (uploadImageResult.Any(x => !x.IsOkStatusCode()))
                 {
@@ -251,8 +307,15 @@ namespace Phoenix.AsyncHandler.Recording
             }
         }
 
-        private EpgAsset ValidateExistEpg(PartnerMigrationHouseholdRecording householdRecording, int groupId, EpgAsset existEpg)
+        private EpgAsset ValidateExistEpg(HouseholdRecordingCreate householdRecording, int groupId, EpgAsset existEpg)
         {
+            // if(existEpg.CdvrEnabled == null || existEpg.CdvrEnabled.Value == false)
+            // {
+            //     LogWarning(householdRecording, $"LiveAssetExternalId [{householdRecording.LiveAssetExternalId}] does not allow recordings");
+            //     PublishError(householdRecording, eResponseStatus.ProgramCdvrNotEnabled, "Live channel does not allow recordings");
+            //     return null;
+            // }
+            
             if (householdRecording.ProgramAssetStartDateTime.HasValue && householdRecording.ProgramAssetStartDateTime.Value > 0)
             {
                 var existStartDate = existEpg.StartDate.Value.ToUtcUnixTimestampSeconds();
@@ -318,7 +381,7 @@ namespace Phoenix.AsyncHandler.Recording
             return long.Parse(result[0].AssetId);
         }
 
-        private void AddPaddedRecording(int groupId, PartnerMigrationHouseholdRecording householdRecording, long userId, long domainId, EpgAsset epgAsset)
+        private void AddPaddedRecording(int groupId, HouseholdRecordingCreate householdRecording, long userId, long domainId, EpgAsset epgAsset)
         {
             var accountSettings = Core.ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
             
@@ -332,10 +395,10 @@ namespace Phoenix.AsyncHandler.Recording
 
             var eventBeforeMinutes =
                 Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(
-                    Mapper.GetNullableValueIfExist(householdRecording.PaddingStartSeconds ?? 0));
+                    HouseholdRecordingCreateEventMapper.GetNullableValueIfExist(householdRecording.PaddingStartSeconds ?? 0));
             var eventAfterMinutes =
                 Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(
-                    Mapper.GetNullableValueIfExist(householdRecording.PaddingEndSeconds ?? 0));
+                    HouseholdRecordingCreateEventMapper.GetNullableValueIfExist(householdRecording.PaddingEndSeconds ?? 0));
             
             var recording = PaddedRecordingsManager.Instance.Record(
                 groupId: groupId,
@@ -350,7 +413,7 @@ namespace Phoenix.AsyncHandler.Recording
                 paddingAfter: householdRecording.EndPaddingIsPersonal == true ? eventAfterMinutes : defaultAfterMinutes,
                 recordingContext: RecordingContext.Regular);
 
-            if (recording == null || recording.Id == 0)
+            if (recording == null || recording.Id == 0 || recording.RecordingStatus == TstvRecordingStatus.Failed)
             {
                 LogWarning(householdRecording, "Failed to add recording");
                 PublishError(householdRecording, eResponseStatus.RecordingFailed, "Failed to record padding recording");
@@ -367,9 +430,9 @@ namespace Phoenix.AsyncHandler.Recording
                 status: TstvRecordingStatus.OK,
                 scheduledSaved: false,
                 originalStartPadding: householdRecording.StartPaddingIsPersonal == true ? 
-                    Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(Mapper.GetNullableValueIfExist(householdRecording.PaddingStartSeconds)) : (int?)null,
+                    Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(HouseholdRecordingCreateEventMapper.GetNullableValueIfExist(householdRecording.PaddingStartSeconds)) : (int?)null,
                 originalEndPadding: householdRecording.EndPaddingIsPersonal == true ? 
-                    Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(Mapper.GetNullableValueIfExist(householdRecording.PaddingEndSeconds)) : (int?)null);
+                    Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(HouseholdRecordingCreateEventMapper.GetNullableValueIfExist(householdRecording.PaddingEndSeconds)) : (int?)null);
 
             if (!insertResult.Success || insertResult.HouseholdRecordingId < 1)
             {
@@ -383,13 +446,13 @@ namespace Phoenix.AsyncHandler.Recording
             }
         }
 
-        private void AddImmediateRecording(int groupId, PartnerMigrationHouseholdRecording householdRecording, long userId, long domainId, EpgAsset epgAsset)
+        private void AddImmediateRecording(int groupId, HouseholdRecordingCreate householdRecording, long userId, long domainId, EpgAsset epgAsset)
         {
-            var endPadding = Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(Mapper.GetNullableValueIfExist(householdRecording.PaddingEndSeconds));
+            var endPadding = Core.ConditionalAccess.Utils.ConvertSecondsToMinutes(HouseholdRecordingCreateEventMapper.GetNullableValueIfExist(householdRecording.PaddingEndSeconds));
             var program = new ApiObjects.Recordings.Program(epgAsset.Id, epgAsset.StartDate.Value, epgAsset.EndDate.Value, epgAsset.EpgChannelId.Value, epgAsset.Crid);
             var result = PaddedRecordingsManager.Instance.ImmediateRecord(groupId, userId, domainId, epgAsset.Id, endPadding, program, householdRecording.AbsoluteStartDateTime, householdRecording.AbsoluteEndDateTime);
 
-            if (result.HasObject() && result.Object.Id > 0)
+            if (result.HasObject() && result.Object.Id > 0 && result.Object.RecordingStatus != TstvRecordingStatus.Failed)
             {
                 PublishSuccess(householdRecording, result.Object.Id);
             }
@@ -401,6 +464,14 @@ namespace Phoenix.AsyncHandler.Recording
                     LogWarning(householdRecording, "Failed to add recording");
                     PublishError(householdRecording, eResponseStatus.RecordingFailed, $"Failed to record immediate recording");
                 }
+                //BEO-14412 open issue
+                // else if (statusCode == eResponseStatus.RecordingStatusNotValid)
+                // {
+                    //var customErrorMessage =
+                    // var customErrorMessage = "Unable to perform the action requested because of the current recording status. Actions are only allowed for these statuses:Recorded, Recording, Scheduled";
+                    // LogWarning(householdRecording, $"Failed to add recording, {customErrorMessage}");
+                    // PublishError(householdRecording, eResponseStatus.RecordingStatusNotValid, customErrorMessage);
+                // }
                 else
                 {
                     LogWarning(householdRecording, result.ToStringStatus());
@@ -409,59 +480,26 @@ namespace Phoenix.AsyncHandler.Recording
             }
         }
 
-        private Code MapResponseStatusToCode(eResponseStatus responseStatus)
+        private void PublishError(HouseholdRecordingCreate householdRecording, eResponseStatus responseStatus, string message)
         {
-            switch (responseStatus)
-            {
-                case eResponseStatus.OK: return Code.The0;
-                case eResponseStatus.Error: return Code.The1;
-                case eResponseStatus.DomainNotExists: return Code.The1006;
-                case eResponseStatus.UserDoesNotExist: return Code.The2000;
-                case eResponseStatus.TopicNotFound: return Code.The2038;
-                case eResponseStatus.RecordingFailed: return Code.The3040;
-                case eResponseStatus.RecordingStatusNotValid: return Code.The3043;
-                case eResponseStatus.RecordingExceededConcurrency: return Code.The3094;
-                case eResponseStatus.ExceedingAllowedImmediateRecordingAttempts: return Code.The3095;
-                case eResponseStatus.AssetStructDoesNotExist: return Code.The4028;
-                case eResponseStatus.MetaDoesNotExist: return Code.The4033;
-                case eResponseStatus.AssetExternalIdMustBeUnique: return Code.The4038;
-                case eResponseStatus.AssetDoesNotExist: return Code.The4039;
-                case eResponseStatus.InvalidMetaType: return Code.The4040;
-                case eResponseStatus.InvalidValueSentForMeta: return Code.The4041;
-                case eResponseStatus.ChannelDoesNotExist: return Code.The4064;
-                case eResponseStatus.GroupDoesNotContainLanguage: return Code.The4078;
-                case eResponseStatus.StartDateShouldBeLessThanEndDate: return Code.The4111;
-                case eResponseStatus.LiveAssetToProgramAssetMismatch: return Code.The4122;
-                case eResponseStatus.EpgStartDateToProgramAssetMismatch: return Code.The4123;
-                case eResponseStatus.EpgEndDateToProgramAssetMismatch: return Code.The4124;
-                case eResponseStatus.CridToProgramAssetMismatch: return Code.The4125;
-                case eResponseStatus.CannotImportRecordingWithinCatchUpBuffer: return Code.The4126;
-                case eResponseStatus.NameRequired: return Code.The5005;
-                case eResponseStatus.TimeShiftedTvPartnerSettingsNotFound: return Code.The5022;
-                case eResponseStatus.AssetUserRulesOperationsDisable: return Code.The5033;
-                case eResponseStatus.PersonalizedRecordingDisabled: return Code.The5097;
-                case eResponseStatus.MandatoryField: return Code.The9011;
-                case eResponseStatus.EPGSProgramDatesError: return Code.The11003;
-            }
+            _logger.LogWarning($"Published at: {DateTime.UtcNow}, message: {message}");
 
-            throw new NotImplementedException($"Mapping for eResponseStatus {responseStatus} to Code was not implemented");
-        }
-
-        private void PublishError(PartnerMigrationHouseholdRecording householdRecording, eResponseStatus responseStatus, string message)
-        {
             var status = new HouseholdRecordingMigrationStatus
             {
                 PartnerId = householdRecording.PartnerId,
                 Message = message,
-                Code = MapResponseStatusToCode(responseStatus),
+                Code = PaddedRecordingsManager.Instance.MapResponseStatusToCode(responseStatus),
                 OttUserExternalId = householdRecording.OttUserExternalId,
-                ProgramAssetExternalId = householdRecording.ProgramAssetExternalId
+                ProgramAssetExternalId = householdRecording.ProgramAssetExternalId,
+                RequestType = RequestType.Create
             };
             _publisher.Publish(status);
         }
 
-        private void PublishSuccess(PartnerMigrationHouseholdRecording householdRecording, long recordingId)
+        private void PublishSuccess(HouseholdRecordingCreate householdRecording, long recordingId)
         {
+            _logger.LogWarning($"Published at: {DateTime.UtcNow}, recordingId: {recordingId}");
+
             var status = new HouseholdRecordingMigrationStatus
             {
                 PartnerId = householdRecording.PartnerId,
@@ -469,12 +507,13 @@ namespace Phoenix.AsyncHandler.Recording
                 Code = Code.The0,
                 OttUserExternalId = householdRecording.OttUserExternalId,
                 ProgramAssetExternalId = householdRecording.ProgramAssetExternalId,
-                RecordingId = recordingId
+                RecordingId = recordingId,
+                RequestType = RequestType.Create
             };
             _publisher.Publish(status);
         }
 
-        private void LogWarning(PartnerMigrationHouseholdRecording householdRecording, string message)
+        private void LogWarning(HouseholdRecordingCreate householdRecording, string message)
         {
             _logger.LogWarning($"{message} - PartnerId [{householdRecording.PartnerId}], OttUserExternalId [{householdRecording.OttUserExternalId}] and ProgramAssetExternalId [{householdRecording.ProgramAssetExternalId}].");
         }

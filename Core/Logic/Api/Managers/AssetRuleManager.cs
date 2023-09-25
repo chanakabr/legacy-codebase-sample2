@@ -833,7 +833,7 @@ namespace Core.Api.Managers
             // check the program of the linear asset
             if (assetType == eAssetTypes.MEDIA)
             {
-                long programId = ConditionalAccess.Utils.GetCurrentProgramByMediaId(groupId, (int)assetId);
+                long programId = ConditionalAccess.Utils.GetCurrentProgramIdByMediaId(groupId, (int)assetId);
                 if (programId != 0)
                 {
                     assetsToCheck.Add(new SlimAsset(programId, eAssetTypes.EPG));

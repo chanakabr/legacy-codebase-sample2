@@ -131,7 +131,7 @@ namespace Core.Catalog
                 
                 default:
                     var indexManagerV2 = new IndexManagerV2(partnerId,
-                        new ElasticSearchApi(ApplicationConfiguration.Current),
+                        ElasticSearchApi.Instance,
                         new GroupsCacheManager.GroupManager(),
                         new ESSerializerV2(),
                         CatalogManager.Instance,

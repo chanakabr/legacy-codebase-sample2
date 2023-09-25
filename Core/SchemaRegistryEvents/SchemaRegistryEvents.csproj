@@ -11,6 +11,7 @@
     <ItemGroup>
       <Folder Include="ConditionalAccess\generated\tasks\scheduled" />
       <Folder Include="Recording\generated\api\events\extensions" />
+      <Folder Include="Recording\generated\api\events\logical\recordings\" />
     </ItemGroup>
 
 </Project>

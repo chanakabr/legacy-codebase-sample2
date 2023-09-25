@@ -24,21 +24,28 @@ namespace APILogic.Api.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static string GetEpgChannelId(int mediaId, int groupId)
+        public static Dictionary<long, string> GetChannelIds(int groupId)
         {
             string allLinearMediaIdsKey = LayeredCacheKeys.GetAllLinearMediaKey(groupId);
             Dictionary<long, string> allLinearMedia = null;
 
             if (!LayeredCache.Instance.Get<Dictionary<long, string>>(allLinearMediaIdsKey,
-                                                                    ref allLinearMedia,
-                                                                    GetAllLinearMedia,
-                                                                    new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                    groupId,
-                                                                    LayeredCacheConfigNames.GET_ALL_LINEAR_MEDIA))
+                    ref allLinearMedia,
+                    GetAllLinearMedia,
+                    new Dictionary<string, object>() { { "groupId", groupId } },
+                    groupId,
+                    LayeredCacheConfigNames.GET_ALL_LINEAR_MEDIA))
             {
                 log.ErrorFormat("GetEpgChannelId - GetAllLinearMedia - Failed get data from cache. groupId: {0}", groupId);
+                return allLinearMedia;
             }
 
+            return allLinearMedia;
+        }
+        
+        public static string GetEpgChannelId(int mediaId, int groupId)
+        {
+            Dictionary<long, string> allLinearMedia = GetChannelIds(groupId);
             long lMediaId = long.Parse(mediaId.ToString());
             if (allLinearMedia != null && allLinearMedia.ContainsKey(lMediaId))
             {
@@ -110,7 +117,7 @@ namespace APILogic.Api.Managers
             return adjacentPrograms;
         }
 
-        internal static List<ExtendedSearchResult> GetPrograms(int groupId, string epgChannelId, int numberOfProgram = 1, bool isRetry = false)
+        public static List<ExtendedSearchResult> GetPrograms(int groupId, string epgChannelId, int numberOfProgram = 1, bool isRetry = false)
         {
             var invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId);
             List<ExtendedSearchResult> adjacentPrograms = GetFuturePrograms(groupId, epgChannelId);
@@ -132,20 +139,20 @@ namespace APILogic.Api.Managers
             return null;
         }
 
-        internal static long GetCurrentProgram(int groupId, string epgChannelId, bool isRetry = false)
+        internal static ExtendedSearchResult GetCurrentProgram(int groupId, string epgChannelId, bool isRetry = false)
         {
             var invalidationKey = LayeredCacheKeys.GetAdjacentProgramsInvalidationKey(groupId, epgChannelId);
             List<ExtendedSearchResult> adjacentPrograms = GetFuturePrograms(groupId, epgChannelId);
-
+        
             if (adjacentPrograms != null && adjacentPrograms.Count > 0)
             {
                 var currentProgram = adjacentPrograms.FirstOrDefault(x => x.StartDate <= DateTime.UtcNow && x.EndDate >= DateTime.UtcNow && !string.IsNullOrEmpty(x.AssetId));
                 if (currentProgram != null)
                 {
                     log.Debug($"GetCurrentProgram - found program: {currentProgram.AssetId}");
-                    return long.Parse(currentProgram.AssetId);
+                    return currentProgram;
                 }
-
+        
                 if (!isRetry && !adjacentPrograms.Any(x => x.EndDate >= DateTime.UtcNow))
                 {
                     log.Debug($"GetCurrentProgram - need to refresh LayeredCache. Invalidating by key: {invalidationKey}.");
@@ -153,8 +160,8 @@ namespace APILogic.Api.Managers
                     return GetCurrentProgram(groupId, epgChannelId, true);
                 }
             }
-
-            return 0;
+        
+            return null;
         }
 
         /// <summary>

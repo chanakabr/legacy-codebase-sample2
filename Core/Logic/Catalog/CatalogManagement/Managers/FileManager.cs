@@ -218,35 +218,53 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static GenericResponse<AssetFile> CreateAssetFileResponseFromDataSet(int groupId, DataSet ds, bool shouldAddBaseUrl = true)
+        private static List<AssetFile> CreateAssetFilesFromDataSet(int groupId, DataSet ds, bool shouldAddBaseUrl = true)
         {
-            GenericResponse<AssetFile> response = new GenericResponse<AssetFile>();
-
-            if (ds != null && ds.Tables.Count > 0)
+            var response = new List<AssetFile>();
+            if (ds?.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows.Count == 1)
+                var assetsTable = ds.Tables[0];
+                var labelsTable = ds.Tables.Count > 1 ? ds.Tables[1] : null;
+                var dynamicDataTable = ds.Tables.Count > 2 ? ds.Tables[2] : null;
+                response = CreateAssetFilesFromDataTables(groupId, assetsTable, labelsTable, dynamicDataTable, shouldAddBaseUrl);
+            }
+
+            return response;
+        }
+
+        public static List<AssetFile> CreateAssetFilesFromDataTables(int groupId, DataTable dt, DataTable labelsTable, DataTable dynamicDataTable, bool shouldAddBaseUrl = true)
+        {
+            var response = new List<AssetFile>();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
                 {
-                    var assetFileRow = dt.Rows[0];
-                    var labelsTable = ds.Tables.Count > 1 ? ds.Tables[1] : null;
-                    var dynamicDataTable = ds.Tables.Count > 2 ? ds.Tables[2] : null;
-                    response.Object = CreateAssetFile(groupId, assetFileRow, labelsTable, dynamicDataTable, shouldAddBaseUrl);
-                    if (response.Object != null)
+                    AssetFile assetFile = CreateAssetFile(groupId, dr, labelsTable, dynamicDataTable);
+                    if (shouldAddBaseUrl)
                     {
-                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        SetAssetFileBaseUrl(assetFile);
                     }
-                }
-                /// AssetFile does not exist
-                else
-                {
-                    response.SetStatus(eResponseStatus.MediaFileDoesNotExist, eResponseStatus.MediaFileDoesNotExist.ToString());
+                    response.Add(assetFile);
                 }
             }
 
             return response;
         }
 
-        private static AssetFile CreateAssetFile(int groupId, DataRow dr, DataTable labelsTable, DataTable dynamicDataTable, bool shouldAddBaseUrl)
+        private static void SetAssetFileBaseUrl(AssetFile assetFile)
+        {
+            if (!assetFile.Url.StartsWith(assetFile.BaseUrl))
+            {
+                assetFile.Url = string.Concat(assetFile.BaseUrl, assetFile.Url);
+            }
+
+            if (!assetFile.AltStreamingCode.StartsWith(assetFile.AltBaseUrl))
+            {
+                assetFile.AltStreamingCode = string.Concat(assetFile.AltBaseUrl, assetFile.AltStreamingCode);
+            }
+        }
+
+        private static AssetFile CreateAssetFile(int groupId, DataRow dr, DataTable labelsTable, DataTable dynamicDataTable)
         {
             string typeName = string.Empty;
             int typeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
@@ -282,7 +300,9 @@ namespace Core.Catalog.CatalogManagement
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1,
                 CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate : new DateTime(2099, 1, 1),
                 Opl = ODBCWrapper.Utils.GetSafeStr(dr, "opl"),
-                UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE")
+                UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE"),
+                BaseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "BASE_URL"),
+                AltBaseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_BASE_URL")
             };
 
             if (labelsTable != null)
@@ -310,23 +330,7 @@ namespace Core.Catalog.CatalogManagement
                         x => x.Select(_ => _.Value).ToArray().AsEnumerable());
             }
 
-            if (shouldAddBaseUrl)
-            {
-                var baseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "BASE_URL");
-                if (!res.Url.StartsWith(baseUrl))
-                {
-                    res.Url = string.Concat(baseUrl, res.Url);
-                }
-
-                var altBaseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_BASE_URL");
-                if (!res.AltStreamingCode.StartsWith(altBaseUrl))
-                {
-                    res.AltStreamingCode = string.Concat(altBaseUrl, res.AltStreamingCode);
-                }
-            }
-
             return res;
-            ;
         }
 
         public Status InvalidateAssetAfterFilesUpdated(int groupId, long assetId, long userId)
@@ -355,6 +359,14 @@ namespace Core.Catalog.CatalogManagement
 
                 return Status.Error;
             }
+        }
+
+        private void InvalidateAssetFile(int groupId, long assetFileId, long assetId)
+        {
+            var assetFileKey = LayeredCacheKeys.GetAssetFileInvalidationKey(groupId, assetFileId);
+            LayeredCache.Instance.SetInvalidationKey(assetFileKey);
+            var assetFilesByAssetIdKey = LayeredCacheKeys.GetAssetFilesByAssetIdInvalidationKey(groupId, assetId);
+            LayeredCache.Instance.SetInvalidationKey(assetFilesByAssetIdKey);
         }
 
         public void DoFreeItemIndexUpdateIfNeeded(int groupId, int assetId, DateTime? previousStartDate, DateTime? startDate, DateTime? previousEndDate, DateTime? endDate)
@@ -507,47 +519,75 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(int groupId, DataTable dt, DataTable labelsTable, DataTable dynamicDataTable, bool shouldAddBaseUrl = true)
+        public AssetFile GetAssetFileById(int groupId, long id, bool shouldAddBaseUrl = true)
         {
-            var response = new List<AssetFile>();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                foreach (DataRow dr in dt.Rows)
+            AssetFile response = null;
+            var cacheResult = LayeredCache.Instance.Get(
+                LayeredCacheKeys.GetAssetFileKey(groupId, id),
+                ref response,
+                arg =>
                 {
-                    AssetFile assetFile = CreateAssetFile(groupId, dr, labelsTable, dynamicDataTable, shouldAddBaseUrl);
-                    if (assetFile != null)
-                    {
-                        response.Add(assetFile);
-                    }
-                }
+                    var ds = CatalogDAL.GetMediaFile(groupId, id);
+                    var assetFile = CreateAssetFilesFromDataSet(groupId, ds, false).FirstOrDefault();
+                    return Tuple.Create(assetFile, assetFile != null);
+                },
+                null,
+                groupId,
+                LayeredCacheConfigNames.GET_ASSETFILE_BY_ID,
+                new List<string>() { LayeredCacheKeys.GetAssetFileInvalidationKey(groupId, id) },
+                true);
+
+            if (!cacheResult)
+            {
+                log.Info($"unable to GetAssetFileById from cache. groupId:[{groupId}], assetFileId:[{id}]");
+            }
+            else if (shouldAddBaseUrl && response != null)
+            {
+                SetAssetFileBaseUrl(response);
             }
 
             return response;
         }
 
-        internal static AssetFile GetAssetFileById(int groupId, long id, bool shouldAddBaseUrl = true)
+        public static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId, bool shouldAddBaseUrl = true)
         {
-            var ds = CatalogDAL.GetMediaFile(groupId, id);
-            var result = CreateAssetFileResponseFromDataSet(groupId, ds, shouldAddBaseUrl);
+            List<AssetFile> response = null;
+            var cacheResult = LayeredCache.Instance.Get(
+                LayeredCacheKeys.GetAssetFilesByAssetIdKey(groupId, assetId),
+                ref response,
+                arg =>
+                {
+                    DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long> { assetId });
+                    List<AssetFile> files = CreateAssetFilesFromDataSet(groupId, ds, false);
+                    return Tuple.Create(files, files != null);
+                },
+                null,
+                groupId,
+                LayeredCacheConfigNames.GET_ASSETFILES_BY_ASSETID,
+                new List<string>() 
+                {
+                    LayeredCacheKeys.GetAssetFilesByAssetIdInvalidationKey(groupId, assetId),
+                    LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetId),
+                    LayeredCacheKeys.GetAssetInvalidationKey(groupId, eAssetTypes.MEDIA.ToString(), assetId)
+                },
+                true);
 
-            return result?.IsOkStatusCode() == false
-                ? null
-                : result.Object;
-        }
-
-        internal static List<AssetFile> GetAssetFilesByAssetId(int groupId, long assetId, bool shouldAddBaseUrl = true)
-        {
-            List<AssetFile> files = new List<AssetFile>();
-            DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long> { assetId });
-            if (ds?.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            if (!cacheResult)
             {
-                var assetsTable = ds.Tables[0];
-                var labelsTable = ds.Tables.Count > 1 ? ds.Tables[1] : null;
-                var dynamicDataTable = ds.Tables.Count > 2 ? ds.Tables[2] : null;
-                files = CreateAssetFileListResponseFromDataTable(groupId, assetsTable, labelsTable, dynamicDataTable, shouldAddBaseUrl);
+                log.Info($"unable to GetAssetFilesByAssetId from cache. groupId:[{groupId}], assetId:[{assetId}]");
+            }
+            else if (shouldAddBaseUrl && response.Count > 0)
+            {
+                response.ForEach(assetFile =>
+                {
+                    if (shouldAddBaseUrl)
+                    {
+                        SetAssetFileBaseUrl(assetFile);
+                    }
+                });
             }
 
-            return files;
+            return response;
         }
         #endregion
 
@@ -766,10 +806,12 @@ namespace Core.Catalog.CatalogManagement
                                                         assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, startDate, assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId,
                                                         assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive, assetFileToAdd.CatalogEndDate, GetValidLabelValues(assetFileToAdd.Labels),
                                                         GetValidDynamicDataList(assetFileToAdd.DynamicData), assetFileToAdd.Opl);
-                result = CreateAssetFileResponseFromDataSet(groupId, ds);
-
-                if (result.Status.Code == (int)eResponseStatus.OK)
+                var assetFile = CreateAssetFilesFromDataSet(groupId, ds).FirstOrDefault();
+                if (assetFile != null)
                 {
+                    result.Object = assetFile;
+                    result.SetStatus(eResponseStatus.OK);
+
                     string errorMsg = string.Empty;
                     ImporterImpl.SetPolicyToFile(assetFileToAdd.OutputProtecationLevel, groupId, assetFileToAdd.ExternalId, ref errorMsg);
                     if (!string.IsNullOrEmpty(errorMsg))
@@ -789,6 +831,11 @@ namespace Core.Catalog.CatalogManagement
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToAdd.AssetId, null, assetFileToAdd.StartDate, null, assetFileToAdd.EndDate);
 
                     TryInvalidateLabels(groupId, result.Object);
+                    InvalidateAssetFile(groupId, assetFile.Id, assetFile.AssetId);
+                }
+                else
+                {
+                    result.SetStatus(eResponseStatus.MediaFileDoesNotExist);
                 }
             }
             catch (Exception ex)
@@ -805,11 +852,11 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                DataSet ds = CatalogDAL.GetMediaFile(groupId, id);
-                GenericResponse<AssetFile> assetFileResponse = CreateAssetFileResponseFromDataSet(groupId, ds);
-                if (assetFileResponse != null && assetFileResponse.Status != null && assetFileResponse.Status.Code != (int)eResponseStatus.OK)
+                var assetFile = GetAssetFileById(groupId, id);
+                if (assetFile == null)
                 {
-                    return assetFileResponse.Status;
+                    result.Set(eResponseStatus.MediaFileDoesNotExist);
+                    return result;
                 }
 
                 if (CatalogDAL.DeleteMediaFile(groupId, userId, id))
@@ -818,11 +865,13 @@ namespace Core.Catalog.CatalogManagement
 
                     if (!isFromIngest)
                     {
-                        InvalidateAssetAfterFilesUpdated(groupId, assetFileResponse.Object.AssetId, userId);
+                        InvalidateAssetAfterFilesUpdated(groupId, assetFile.AssetId, userId);
 
                         // publish asset updated event to Kafka
-                        MediaAssetCrudMessageService.Instance.PublishKafkaUpdateEvent(groupId, assetFileResponse.Object.AssetId, userId);
+                        MediaAssetCrudMessageService.Instance.PublishKafkaUpdateEvent(groupId, assetFile.AssetId, userId);
                     }
+
+                    InvalidateAssetFile(groupId, id, assetFile.AssetId);
                 }
             }
             catch (Exception ex)
@@ -840,17 +889,14 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (!isFromIngest || currentAssetFile == null)
                 {
-                    DataSet dsCurrMediaFile = CatalogDAL.GetMediaFile(groupId, assetFileToUpdate.Id);
-                    GenericResponse<AssetFile> currentAssetFileResponse = CreateAssetFileResponseFromDataSet(groupId, dsCurrMediaFile);
-
-                    if (currentAssetFileResponse != null && currentAssetFileResponse.Status != null && currentAssetFileResponse.Status.Code != (int)eResponseStatus.OK)
+                    currentAssetFile = GetAssetFileById(groupId, assetFileToUpdate.Id);
+                    if (currentAssetFile == null)
                     {
-                        return currentAssetFileResponse;
+                        result.SetStatus(eResponseStatus.MediaFileDoesNotExist);
+                        return result;
                     }
 
-                    currentAssetFile = currentAssetFileResponse.Object;
-
-                    if (currentAssetFile != null && currentAssetFile.AssetId != assetFileToUpdate.AssetId)
+                    if (currentAssetFile.AssetId != assetFileToUpdate.AssetId)
                     {
                         result.SetStatus(eResponseStatus.MediaFileNotBelongToAsset, eResponseStatus.MediaFileNotBelongToAsset.ToString());
                         return result;
@@ -928,10 +974,13 @@ namespace Core.Catalog.CatalogManagement
                                                     assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive, assetFileToUpdate.CatalogEndDate,
                                                     assetFileToUpdate.Opl, GetValidLabelValues(assetFileToUpdate.Labels), GetValidDynamicDataList(assetFileToUpdate.DynamicData));
 
-                result = CreateAssetFileResponseFromDataSet(groupId, ds);
+                var assetFile = CreateAssetFilesFromDataSet(groupId, ds).FirstOrDefault();
 
-                if (result.Status.Code == (int)eResponseStatus.OK)
+                if (assetFile != null)
                 {
+                    result.Object = assetFile;
+                    result.SetStatus(eResponseStatus.OK);
+
                     string errorMsg = string.Empty;
                     ImporterImpl.SetPolicyToFile(assetFileToUpdate.OutputProtecationLevel, groupId, assetFileToUpdate.ExternalId, ref errorMsg);
                     if (!string.IsNullOrEmpty(errorMsg))
@@ -951,6 +1000,11 @@ namespace Core.Catalog.CatalogManagement
                                                   currentAssetFile.EndDate, assetFileToUpdate.EndDate);
 
                     TryInvalidateLabels(groupId, result.Object);
+                    InvalidateAssetFile(groupId, assetFileToUpdate.Id, assetFileToUpdate.AssetId);
+                }
+                else
+                {
+                    result.SetStatus(eResponseStatus.MediaFileDoesNotExist);
                 }
             }
             catch (Exception ex)
@@ -972,6 +1026,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Objects != null)
                 {
+                    response.Objects = response.Objects.Where(o => o != null).ToList();
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }

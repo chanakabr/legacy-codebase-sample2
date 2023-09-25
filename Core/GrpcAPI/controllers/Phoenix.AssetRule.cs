@@ -9,41 +9,41 @@ namespace Grpc.controllers
 {
     public partial class PhoenixController : phoenix.Phoenix.PhoenixBase
     {
-        public override Task<GetAssetMediaRuleIdsResponse> GetAssetMediaRuleIds(GetAssetMediaRuleIdsRequest request,
+        public override async Task<GetAssetMediaRuleIdsResponse> GetAssetMediaRuleIds(GetAssetMediaRuleIdsRequest request,
             ServerCallContext context)
         {
             var response = _assetRuleService.GetAssetMediaRuleIds(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<GetAssetEpgRuleIdsResponse> GetAssetEpgRuleIds(GetAssetEpgRuleIdsRequest request,
+        public override async Task<GetAssetEpgRuleIdsResponse> GetAssetEpgRuleIds(GetAssetEpgRuleIdsRequest request,
             ServerCallContext context)
         {
             var response = _assetRuleService.GetAssetEpgRuleIds(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<GetMediaConcurrencyRulesResponse> GetMediaConcurrencyRules(
+        public override async Task<GetMediaConcurrencyRulesResponse> GetMediaConcurrencyRules(
             GetMediaConcurrencyRulesRequest request, ServerCallContext context)
         {
             var response = _assetRuleService.GetMediaConcurrencyRules(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<BoolValue>
+        public override async Task<BoolValue>
             HasAssetRules(
                 HasAssetRulesRequest request, ServerCallContext context)
         {
             var response = _assetRuleService.HasAssetRules(request);
-            var invalidationKeyFromRequest = new List<string>{LayeredCacheKeys.GetAllAssetRulesGroupInvalidationKey(request.GroupId)};
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(new BoolValue{Value = response});
+            var invalidationKeyFromRequest = new HashSet<string>{LayeredCacheKeys.GetAllAssetRulesGroupInvalidationKey(request.GroupId)};
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return new BoolValue{Value = response};
         }
 
         public override Task<CheckNetworkRulesResponse>
@@ -54,34 +54,34 @@ namespace Grpc.controllers
             return Task.FromResult(response);
         }
 
-        public override Task<GetAssetRulesResponse>
+        public override async Task<GetAssetRulesResponse>
             GetAssetRules(
                 GetAssetRulesRequest request, ServerCallContext context)
         {
             var response = _assetRuleService.GetAssetRules(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<GetGroupMediaConcurrencyRulesResponse>
+        public override async Task<GetGroupMediaConcurrencyRulesResponse>
             GetGroupMediaConcurrencyRules(
                 GetGroupMediaConcurrencyRulesRequest request, ServerCallContext context)
         {
             var response = _assetRuleService.GetGroupMediaConcurrencyRules(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
 
-        public override Task<GetMediaConcurrencyByIdResponse>
+        public override async Task<GetMediaConcurrencyByIdResponse>
             GetMediaConcurrencyRule(
                 GetMediaConcurrencyByIdRequest request, ServerCallContext context)
         {
             var response = _assetRuleService.GetMediaConcurrencyRule(request);
             var invalidationKeyFromRequest = LayeredCache.GetInvalidationKeyFromRequest();
-            context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
-            return Task.FromResult(response);
+            await context.WriteResponseHeadersAsync(GetInvalidationKeysHeader(invalidationKeyFromRequest));
+            return response;
         }
     }
 }

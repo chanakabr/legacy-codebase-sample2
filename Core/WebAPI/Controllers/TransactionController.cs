@@ -168,6 +168,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PurchasePassedEntitlementFailed)]
         [Throws(eResponseStatus.PurchaseFailed)]
         [Throws(eResponseStatus.UnableToPurchaseProgramAssetGroupOfferPurchased)]
+        [Throws(eResponseStatus.CollectionNotExist)]        
         static public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();

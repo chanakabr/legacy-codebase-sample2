@@ -41,6 +41,7 @@ using OTT.Lib.Kafka;
 using OTT.Lib.Kafka.Extensions;
 using OTT.Lib.Metrics.Extensions;
 using OTT.Service.TaskScheduler.Extensions.TaskHandler;
+using Phoenix.AsyncHandler.Bookmark;
 using Phoenix.AsyncHandler.Catalog;
 using Phoenix.AsyncHandler.ConditionalAccess;
 using Phoenix.AsyncHandler.Couchbase;
@@ -52,7 +53,6 @@ using Phoenix.AsyncHandler.Pricing;
 using Phoenix.AsyncHandler.Recording;
 using Phoenix.Generated.Api.Events.Crud.Household;
 using Phoenix.Generated.Api.Events.Crud.OttUser;
-using Phoenix.Generated.Api.Events.Crud.PartnerMigrationHouseholdRecording;
 using Phoenix.Generated.Api.Events.Crud.ProgramAsset;
 using Phoenix.Generated.Api.Events.Extensions.RecordingFailed;
 using Phoenix.Generated.Api.Events.Logical.appstoreNotification;
@@ -60,7 +60,10 @@ using Phoenix.Generated.Api.Events.Logical.Gdpr.HouseholdRetentionPeriodExpired;
 using Phoenix.Generated.Api.Events.Logical.Gdpr.OttUserRetentionPeriodExpired;
 using Phoenix.Generated.Api.Events.Logical.IndexRecording;
 using Phoenix.Generated.Api.Events.Logical.PersonalActivityCleanup;
+using Phoenix.Generated.Api.Events.Logical.mediaMark;
 using Phoenix.Generated.Api.Events.Logical.RebuildRecordingsIndex;
+using Phoenix.Generated.Api.Events.Logical.Recordings.Partnermigrations.HouseholdRecordingCreate;
+using Phoenix.Generated.Api.Events.Logical.Recordings.Partnermigrations.HouseholdRecordingDelete;
 using Phoenix.Generated.Tasks.Recurring.EpgV3Cleanup;
 using Phoenix.Generated.Tasks.Recurring.LiveToVodTearDown;
 using Phoenix.Generated.Tasks.Recurring.RecordingsCleanup;
@@ -195,6 +198,7 @@ namespace Phoenix.AsyncHandler
 
         public static IServiceCollection AddKafkaHandlers(this IServiceCollection services)
         {
+            services.AddKafkaConsumer<MediaMarkHandler, MediaMark>("media-mark-event", MediaMark.GetTopic());
             services.AddKafkaConsumer<IndexRecordingHandler, IndexRecording>(KafkaConfig.GetConsumerGroup("Index-Recording"), IndexRecording.GetTopic());
             services.AddKafkaConsumer<RebuildRecordingsIndexHandler, RebuildRecordingsIndex>(KafkaConfig.GetConsumerGroup("rebuild-recordings-index"), RebuildRecordingsIndex.GetTopic());
             services.AddKafkaConsumer<HouseholdNpvrAccountHandler, Household>(KafkaConfig.GetConsumerGroup("household-npvr-account"), Household.GetTopic());
@@ -204,8 +208,9 @@ namespace Phoenix.AsyncHandler
             services.AddKafkaConsumer<RecordingFailedHandler, RecordingFailed>(KafkaConfig.GetConsumerGroup("recording-failed"), RecordingFailed.GetTopic());
             services.AddKafkaConsumer<PersonalActivityCleanupHandler, PersonalActivityCleanup>(KafkaConfig.GetConsumerGroup("personal-activity-cleanup"), PersonalActivityCleanup.GetTopic());
             services.AddKafkaConsumer<Recording.HouseholdRetentionPeriodExpiredHandler, HouseholdRetentionPeriodExpired>(KafkaConfig.GetConsumerGroup("gdpr-recording"), HouseholdRetentionPeriodExpired.GetTopic());
-            services.AddKafkaConsumer<PartnerMigrationHouseholdRecordingHandler, PartnerMigrationHouseholdRecording>(KafkaConfig.GetConsumerGroup("partner-migration-household-recording"), PartnerMigrationHouseholdRecording.GetTopic());
             services.AddKafkaConsumer<OttUserRetentionPeriodExpiredHandler, OttUserRetentionPeriodExpired>("gdpr-ott-user", OttUserRetentionPeriodExpired.GetTopic());
+            services.AddKafkaConsumer<HouseholdRecordingCreateHandler, HouseholdRecordingCreate>(KafkaConfig.GetConsumerGroup("household-recording-create"), HouseholdRecordingCreate.GetTopic());
+            services.AddKafkaConsumer<HouseholdRecordingDeleteHandler, HouseholdRecordingDelete>(KafkaConfig.GetConsumerGroup("household-recording-delete"), HouseholdRecordingDelete.GetTopic());
             return services;
         }
         

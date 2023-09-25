@@ -2,8 +2,10 @@ using System;
 using System.Reflection;
 using ApiLogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Notification;
+using Core.Users;
 using DAL;
 using GrpcAPI.Utils;
 using Microsoft.Extensions.Logging;
@@ -21,6 +23,12 @@ namespace GrpcAPI.Services
 
         GetNotificationPartnerSettingsResponse GetNotificationPartnerSettings(
             GetNotificationPartnerSettingsRequest request);
+
+        GetConcurrencyMilliThresholdResponse GetConcurrencyMilliThreshold(
+            GetConcurrencyMilliThresholdRequest request);
+
+        GetGeneralPartnerConfigResponse GetGeneralPartnerConfig(
+            GetGeneralPartnerConfigRequest request);
     }
 
     public class GroupAndConfigurationService : IGroupAndConfigurationService
@@ -65,12 +73,12 @@ namespace GrpcAPI.Services
 
             return null;
         }
-        
+
         public bool IsRegionalization(IsRegionalizationRequest request)
         {
             return CatalogManager.Instance.IsRegionalizationEnabled(request.GroupId);
         }
-        
+
         public GetDefaultRegionIdResponse GetDefaultRegionId(GetDefaultRegionIdRequest request)
         {
             var regionId = RegionManager.Instance.GetDefaultRegionId(request.GroupId);
@@ -89,7 +97,27 @@ namespace GrpcAPI.Services
             GetNotificationPartnerSettingsRequest request)
         {
             var notificationSettings = NotificationCache.Instance().GetPartnerNotificationSettings(request.GroupId);
-            return new GetNotificationPartnerSettingsResponse{Setting = NotificationPartnerSettings.Parser.ParseFrom(GrpcSerialize.ProtoSerialize(notificationSettings.settings))};
+            return new GetNotificationPartnerSettingsResponse
+            {
+                Setting = NotificationPartnerSettings.Parser.ParseFrom(
+                    GrpcSerialize.ProtoSerialize(notificationSettings.settings))
+            };
+        }
+
+        public GetConcurrencyMilliThresholdResponse GetConcurrencyMilliThreshold(
+            GetConcurrencyMilliThresholdRequest request)
+        {
+            var ttl = ConcurrencyManager.GetDevicePlayDataExpirationTTL(request.GroupId, eExpirationTTL.Short);
+            return new GetConcurrencyMilliThresholdResponse
+                {BookmarkInterval = ttl};
+        }
+        
+        public GetGeneralPartnerConfigResponse GetGeneralPartnerConfig(
+            GetGeneralPartnerConfigRequest request)
+        {
+            var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(request.GroupId);
+            return new GetGeneralPartnerConfigResponse
+                {LinearWatchHistoryThreshold = generalPartnerConfig.LinearWatchHistoryThreshold ?? 0};
         }
     }
 }

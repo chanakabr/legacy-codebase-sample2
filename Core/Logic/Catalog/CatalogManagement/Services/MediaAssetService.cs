@@ -96,7 +96,7 @@ namespace Core.Catalog.CatalogManagement
             List<AssetFile> files = null;
             if (!isForIndex && filesTable != null && filesTable.Rows.Count > 0)
             {
-                files = FileManager.CreateAssetFileListResponseFromDataTable((int)groupId, filesTable, labelsTable, mediaFileDynamicDataTable);
+                files = FileManager.CreateAssetFilesFromDataTables((int)groupId, filesTable, labelsTable, mediaFileDynamicDataTable);
                 // get only active files
                 files = files.Where(x => x.IsActive.HasValue && x.IsActive.Value).ToList();
 

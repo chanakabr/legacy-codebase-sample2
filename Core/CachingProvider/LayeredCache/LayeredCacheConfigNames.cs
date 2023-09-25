@@ -27,7 +27,6 @@
         public const string CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME = "GetMediaChannels";
         public const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
         public const string PRICE_CODE_LOCALE_LAYERED_CACHE_CONFIG_NAME = "GetPriceCodeByCountyAndCurrency";
-        public const string DISCOUNT_MODULE_LOCALE_LAYERED_CACHE_CONFIG_NAME = "GetDiscountModuleByCountyAndCurrency";
         public const string GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME = "GetAllCurrencies";
         public const string GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME = "GetGroupDefaultCurrency";
         public const string GET_GROUP_ADS_CONTROL_CACHE_CONFIG_NAME = "GetGroupAdsControl";
@@ -161,6 +160,7 @@
 
         public const string GET_EPG_V2_PARTNER_CONFIGURATION = "GetEpgV2PartnerConfiguration";
         public const string GET_EPG_V3_PARTNER_CONFIGURATION = "GetEpgV3PartnerConfiguration";
+        public const string GET_EPG_V3_ALIAS_INDEX_BINDING_CONFIGURATION = "GetEpgV3IndexAliasBindingConfiguration";
 
         public const string GET_PROGRAM_ASSET_GROUP_OFFERS = "GetProgramAssetGroupOffers";
         public const string GET_MEDIA_SUPPRESSED_INDEXES = "GetMediaSuppressedIndexesDB";
@@ -168,6 +168,9 @@
         public const string GET_ALL_MESSAGE_ANNOUNCEMENTS = "GetAllMessageAnnouncements";
         public const string GET_USER_MESSAGES_STATUS = "GetUserMessagesStatus";
         public const string GET_MESSAGE_FOLLOW_ANNOUNCEMENT_DB = "GetMessageFollowAnnouncementDB";
+
+        public const string GET_ASSETFILE_BY_ID = "GetAssetFileById";
+        public const string GET_ASSETFILES_BY_ASSETID = "GetAssetFilesByAssetId";
 
         #endregion
 

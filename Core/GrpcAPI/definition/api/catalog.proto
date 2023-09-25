@@ -136,3 +136,9 @@ message VirtualAssetInfo {
     int64 userId = 5;
     bool isActive = 6;
 }
+
+message Program{
+  string id = 1;
+  google.protobuf.Timestamp startDate = 2;
+  google.protobuf.Timestamp endDate = 3;
+}

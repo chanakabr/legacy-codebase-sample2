@@ -37,5 +37,25 @@ namespace Core.Pricing
         {
             return dtStartDate <= DateTime.UtcNow && dtEndDate >= DateTime.UtcNow;
         }
+
+        public DateTime? GetStartDate() 
+        {
+            if (_startDate == DateTime.MinValue)
+            {
+                return null;
+            }
+
+            return _startDate;
+        }
+
+        public DateTime? GetEndDate()
+        {
+            if (_endDate == DateTime.MaxValue)
+            {
+                return null;
+            }
+
+            return _endDate;
+        }
     }
 }

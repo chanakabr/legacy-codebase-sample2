@@ -77,3 +77,13 @@ message GetMediaConcurrencyRulesRequest {
 message GetMediaConcurrencyRulesResponse {
   repeated MediaConcurrencyRule mediaConcurrencyRules = 1;
 }
+
+message GetAssetEpgRuleIdsRequest {
+  int32 groupId = 1;
+  int32 mediaId = 2;
+}
+message GetAssetEpgRuleIdsResponse {
+  repeated int64 ids = 1;
+  int64 programId = 2;
+  int64 programIdEndDate = 3;
+}

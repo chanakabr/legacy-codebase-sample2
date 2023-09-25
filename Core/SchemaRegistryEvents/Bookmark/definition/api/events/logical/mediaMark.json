@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/api/events/logical/mediaMark",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "mediaMark",
+  "type": "object",
+  "description": "mediaMark",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/logical/bookmark/mediaMark"
+    }
+  ]
+}

@@ -31,6 +31,8 @@ service Phoenix {
   rpc IsRegionalization (IsRegionalizationRequest) returns (google.protobuf.BoolValue);
   rpc GetDefaultRegionId (GetDefaultRegionIdRequest) returns (GetDefaultRegionIdResponse);
   rpc GetNotificationPartnerSettings (GetNotificationPartnerSettingsRequest) returns (GetNotificationPartnerSettingsResponse);
+  rpc GetConcurrencyMilliThreshold (GetConcurrencyMilliThresholdRequest) returns (GetConcurrencyMilliThresholdResponse);
+  rpc GetGeneralPartnerConfig (GetGeneralPartnerConfigRequest) returns (GetGeneralPartnerConfigResponse);
   
   //pricing
   rpc GetItemsPrices (GetItemsPricesRequest) returns (GetItemsPricesResponse);
@@ -79,7 +81,8 @@ service Phoenix {
   rpc AddVirtualAssetInfo(AddVirtualAssetInfoRequest) returns (AddVirtualAssetInfoResponse);
   rpc UpdateVirtualAssetInfo(UpdateVirtualAssetInfoRequest) returns (UpdateVirtualAssetInfoResponse);
   rpc DeleteVirtualAssetInfo(DeleteVirtualAssetInfoRequest) returns (DeleteVirtualAssetInfoResponse);
-
+  rpc GetProgramsByChannelId(GetProgramsByChannelIdRequest) returns (GetProgramsByChannelIdResponse);
+  rpc GetChannelIds(GetChannelIdsRequest) returns (GetChannelIdsResponse);
   // segment
   rpc IsSegmentUsed (IsSegmentUsedRequest) returns (IsSegmentUsedResponse);
 }

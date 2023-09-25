@@ -11,9 +11,12 @@ using ApiLogic.IndexManager.Transaction;
 using ApiObjects;
 using ApiObjects.SearchObjects;
 using CachingProvider;
+using CachingProvider.LayeredCache;
 using Core.Catalog.Cache;
 using Core.GroupManagers;
+using ElasticSearch.Common;
 using ElasticSearch.Searcher;
+using Phx.Lib.Appconfig;
 using Phx.Lib.Log;
 using ESUtils = ElasticSearch.Common.Utils;
 
@@ -77,19 +80,26 @@ namespace Core.Catalog.Searchers
                 channel.Abort();
             }
         }
-        
-        public static void WrapFilterWithCommittedOnlyTransactionsForEpgV3(int partnerId, QueryFilter originalQuery, IGroupSettingsManager groupSettingsManager = null)
+
+        public static void WrapFilterWithCommittedOnlyTransactionsForEpgV3(
+            int partnerId,
+            QueryFilter originalQuery,
+            IGroupSettingsManager groupSettingsManager = null,
+            IElasticSearchApi esApi = null,
+            ILayeredCache layeredCache = null)
         {
             if ((groupSettingsManager ?? GroupSettingsManager.Instance).GetEpgFeatureVersion(partnerId) != EpgFeatureVersion.V3)
             {
                 return;
             }
 
-            var epgV3IndexName = $"{partnerId}_epg_v3";
-            var epgIndexTerm = ESTerms.GetSimpleStringTerm("_index", new[] { epgV3IndexName });
-            var hasTransactionParentDocument = new ESCustomQuery($"{{\"has_parent\":{{\"parent_type\":\"{NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME}\",\"query\":{{\"match_all\":{{}}}}}}}}");
-            var insertingStatusTerm = ESTerms.GetSimpleStringTerm(ESUtils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME, new[] { eTransactionOperation.INSERTING.ToString() });
-            var deletingStatusTerm = ESTerms.GetSimpleStringTerm(ESUtils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME, new[] { eTransactionOperation.DELETING.ToString() });
+            var epgV3IndexName = GetEpgV3IndexName(partnerId, esApi ?? ElasticSearchApi.Instance, layeredCache ?? LayeredCache.Instance);
+
+            var epgIndexTerm = ESTerms.GetSimpleStringTerm("_index", new[] {epgV3IndexName});
+            var hasTransactionParentDocument =
+                new ESCustomQuery($"{{\"has_parent\":{{\"parent_type\":\"{NamingHelper.EPG_V3_TRANSACTION_DOCUMENT_TYPE_NAME}\",\"query\":{{\"match_all\":{{}}}}}}}}");
+            var insertingStatusTerm = ESTerms.GetSimpleStringTerm(ESUtils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME, new[] {eTransactionOperation.INSERTING.ToString()});
+            var deletingStatusTerm = ESTerms.GetSimpleStringTerm(ESUtils.ES_DOCUMENT_TRANSACTIONAL_STATUS_FIELD_NAME, new[] {eTransactionOperation.DELETING.ToString()});
 
             var insertingAndCommitted = BoolQuery.Must(hasTransactionParentDocument, insertingStatusTerm);
             var deletingAndNotCommitted = BoolQuery.MustNot(hasTransactionParentDocument).AddMust(deletingStatusTerm);
@@ -101,6 +111,42 @@ namespace Core.Catalog.Searchers
             compositeFilter.AddChild(new ESCustomQuery($"{{{originalFilter.ToString()}}}"));
             compositeFilter.AddChild(BoolQuery.Should(epgv3CommittedOnly, BoolQuery.MustNot(epgIndexTerm)));
             originalQuery.FilterSettings = compositeFilter;
+        }
+
+        private static string GetEpgV3IndexName(int partnerId, IElasticSearchApi esApi, ILayeredCache layeredCache)
+        {
+            var key = LayeredCacheKeys.GetEpgV3IndexAliasBinding(partnerId);
+            var invalidationKeys = new List<string>
+            {
+                LayeredCacheKeys.GetEpgV3IndexAliasBindingInvalidationKey(partnerId)
+            };
+            var parameters = new Dictionary<string, object>
+            {
+                {"partnerId", partnerId},
+                {"esApi", esApi}
+            };
+
+            string epgV3IndexName = null;
+            var res = layeredCache.Get(key,
+                ref epgV3IndexName,
+                GetEpgV3AliasIndexBinding,
+                parameters,
+                partnerId,
+                LayeredCacheConfigNames.GET_EPG_V3_ALIAS_INDEX_BINDING_CONFIGURATION,
+                inValidationKeys: invalidationKeys,
+                shouldUseAutoNameTypeHandling: false);
+            return !res ? null : epgV3IndexName;
+        }
+
+        private static Tuple<string, bool> GetEpgV3AliasIndexBinding(Dictionary<string, object> parameters)
+        {
+            var partnerId = (int)parameters["partnerId"];
+            var esApi = (IElasticSearchApi)parameters["esApi"];
+
+            var epgAlias = NamingHelper.GetEpgIndexAlias(partnerId);
+            var indices = esApi.ListIndicesByAlias(epgAlias);
+            var indexName = indices.FirstOrDefault()?.Name;
+            return string.IsNullOrEmpty(indexName) ? new Tuple<string, bool>(null, false) : new Tuple<string, bool>(indexName, true);
         }
     }
 }

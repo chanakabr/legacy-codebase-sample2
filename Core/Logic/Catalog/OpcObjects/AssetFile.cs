@@ -50,6 +50,9 @@ namespace Core.Catalog
         [JsonProperty("Url")]
         public string Url { get; set; }
 
+        [JsonProperty("BaseUrl")]
+        public string BaseUrl { get; set; }
+
         [ExcelColumn(ExcelColumnType.File, DURATION)]
         [JsonProperty("Duration")]
         public long? Duration { get; set; }
@@ -72,6 +75,9 @@ namespace Core.Catalog
         [ExcelColumn(ExcelColumnType.File, ALTERNATIVE_CDN_LOCATION)]
         [JsonProperty("AltStreamingCode")]
         public string AltStreamingCode { get; set; }
+
+        [JsonProperty("AltBaseUrl")]
+        public string AltBaseUrl { get; set; }
 
         [ExcelColumn(ExcelColumnType.File, ALTERNATIVE_CDN)]
         [JsonProperty("AlternativeCdnAdapaterProfileId")]

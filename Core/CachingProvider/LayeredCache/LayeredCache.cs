@@ -130,6 +130,7 @@ namespace CachingProvider.LayeredCache
             List<LayeredCacheConfig> insertToCacheConfig = null;
             try
             {
+                InsertRequestedInvalidationKeys(inValidationKeys);
                 if (TryGetKeyFromCurrentRequest(key, ref genericParameter))
                 {
                     return true;
@@ -139,13 +140,15 @@ namespace CachingProvider.LayeredCache
 
                 // save data in cache only if result is true!!!!
                 result = TryGetFromCacheByConfig<T>(key, ref tuple, layeredCacheConfigName, out insertToCacheConfig, fillObjectMethod, funcParameters, groupId, inValidationKeys, shouldUseAutoNameTypeHandling);
-                genericParameter = tuple != null && tuple.Item1 != null ? tuple.Item1 : genericParameter;
+                genericParameter = tuple != null ? tuple.Item1 : genericParameter;
 
                 // if we successfully got data from cache / delegate, insert results to current request items
                 if (result)
                 {
-                    Dictionary<string, T> resultsToAdd = new Dictionary<string, T>();
-                    resultsToAdd.Add(key, genericParameter);
+                    Dictionary<string, T> resultsToAdd = new Dictionary<string, T>
+                    {
+                        { key, genericParameter }
+                    };
                     Dictionary<string, List<string>> invalidationKeyToAdd = null;
 
                     if (inValidationKeys != null && inValidationKeys.Count > 0)
@@ -161,7 +164,10 @@ namespace CachingProvider.LayeredCache
                     InsertResultsToCurrentRequest(resultsToAdd, invalidationKeyToAdd);
                 }
 
-                if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null &&
+                if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null &&
+                    // store in cache if we have invalidation keys or if item is not null
+                    // DO NOT store in cache if it's null AND we don't have invalidation keys
+                    (inValidationKeys?.Count > 0 || tuple.Item1 != null) &&
                     // insert to cache only if no errors during session
                     !(HttpContext.Current != null && HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) &&
                     HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
@@ -220,7 +226,7 @@ namespace CachingProvider.LayeredCache
             try
             {
                 Dictionary<string, string> keyToOriginalValueMapAfterCurrentRequest = new Dictionary<string, string>(keyToOriginalValueMap);
-
+                InsertRequestedInvalidationKeys(inValidationKeysMap?.SelectMany(x => x.Value).ToList());
                 if (TryGetKeysFromCurrentRequest<T>(keyToOriginalValueMap.Keys.ToList(), ref currentRequestResultMapping))
                 {
                     shouldAddCurrentRequestResults = true;
@@ -231,6 +237,7 @@ namespace CachingProvider.LayeredCache
                     }
                 }
 
+                
                 if (keyToOriginalValueMapAfterCurrentRequest.Count > 0)
                 {
                     res = TryGetValuesFromCacheByConfig<T>(keyToOriginalValueMapAfterCurrentRequest, ref resultsMapping, layeredCacheConfigName, out insertToCacheConfigMappings, fillObjectsMethod,
@@ -590,7 +597,7 @@ namespace CachingProvider.LayeredCache
             return success;
         }
 
-        public static List<string> GetInvalidationKeyFromRequest()
+        public static HashSet<string> GetInvalidationKeyFromRequest()
         {
             RequestLayeredCache requestLayeredCache = null;
             if (DoesHttpContextContainsRequestLayeredCache())
@@ -598,8 +605,42 @@ namespace CachingProvider.LayeredCache
                 requestLayeredCache = HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
             }
 
-            return requestLayeredCache?.invalidationKeysToKeys?.Keys.ToList();
+            return requestLayeredCache?.InvalidationKeysRequested;
         }
+
+        public void InsertRequestedInvalidationKeys(List<string> invalidationKeys)
+        {
+            if (invalidationKeys != null && invalidationKeys.Count > 0)
+            {
+                RequestLayeredCache requestLayeredCache;
+                if (DoesHttpContextContainsRequestLayeredCache())
+                {
+                    requestLayeredCache =
+                        HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
+                }
+                else
+                {
+                    requestLayeredCache = new RequestLayeredCache();
+                }
+
+                if (requestLayeredCache != null)
+                {
+                    foreach (var invalidationKey in invalidationKeys)
+                    {
+                        if(!requestLayeredCache.InvalidationKeysRequested.Contains(invalidationKey))
+                        {
+                            requestLayeredCache.InvalidationKeysRequested.Add(invalidationKey);
+                        }
+                    }
+
+                    if (HttpContext.Current?.Items != null)
+                    {
+                        HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] = requestLayeredCache;
+                    }
+                }
+            }
+        }
+
 
         public void InsertResultsToCurrentRequest<T>(Dictionary<string, T> results, Dictionary<string, List<string>> invalidationKeysToKeys)
         {
@@ -953,7 +994,7 @@ namespace CachingProvider.LayeredCache
                                 {
                                     Tuple<T, long> tuple = resultsToAdd[keyToGet];
                                     long maxInValidationDate = inValidationKeysMaxDateMapping != null && inValidationKeysMaxDateMapping.Count > 0 && inValidationKeysMaxDateMapping.ContainsKey(keyToGet) ? inValidationKeysMaxDateMapping[keyToGet] + 1 : 0;
-                                    if (tuple != null && tuple.Item1 != null && tuple.Item2 > maxInValidationDate)
+                                    if (tuple != null && tuple.Item2 > maxInValidationDate)
                                     {
                                         tupleResults.Add(keyToGet, new Tuple<T, long>(tuple.Item1, tuple.Item2));
                                         isKeyInTupleResult = true;

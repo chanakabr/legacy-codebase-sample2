@@ -123,6 +123,17 @@ namespace GrpcAPI.Services
                     }
                 }
 
+                if (domainId <= 0)
+                {
+                    BaseDomain d = null;
+                    Core.Users.Utils.GetBaseImpl(ref d, request.GroupId);
+                    if (d != null)
+                    {
+                        var domain = d.GetDomainByUser(request.GroupId, request.UserId.ToString());
+                        domainId = domain?.m_nDomainID ?? 0;
+                    }
+                }
+
                 return new ValidateUserResponse
                     { Status = status, DomainId = domainId, DynamicData = { dynamicData } };
             }

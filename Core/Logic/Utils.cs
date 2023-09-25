@@ -887,6 +887,24 @@ namespace APILogic
             return new Tuple<List<ApiObjects.Country>, bool>(countriesResult, res);
         }
 
+        internal static List<ApiObjects.Country> GetAllCountries(int groupId)
+        {
+            List<ApiObjects.Country> countries = null;
+            string key = LayeredCacheKeys.GetAllCountryListKey();
+
+            if (!LayeredCache.Instance.Get<List<ApiObjects.Country>>(key,
+                                                          ref countries,
+                                                          APILogic.Utils.GetAllCountryList,
+                                                          new Dictionary<string, object>(),
+                                                          groupId,
+                                                          LayeredCacheConfigNames.GET_ALL_COUNTRY_LIST_LAYERED_CACHE_CONFIG_NAME))
+            {
+                log.Error($"Failed getting country list from LayeredCache, groupId: {groupId}, key: {key}");
+            }
+
+            return countries;
+        }
+
         internal static Tuple<List<LanguageObj>, bool> GetAllLanguagesList(Dictionary<string, object> funcParams)
         {
             bool res = false;

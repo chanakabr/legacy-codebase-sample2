@@ -11,6 +11,7 @@ using System.Reflection;
 using Phx.Lib.Appconfig;
 using ElasticSearch.Searcher;
 using System.Net.Http;
+using System.Threading;
 using TVinciShared;
 
 namespace ElasticSearch.Common
@@ -19,6 +20,11 @@ namespace ElasticSearch.Common
     {
         private readonly IApplicationConfiguration _applicationConfiguration;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly Lazy<IElasticSearchApi> LazyInstance =
+            new Lazy<IElasticSearchApi>(() => new ElasticSearchApi(ApplicationConfiguration.Current), LazyThreadSafetyMode.ExecutionAndPublication);
+
+        public static readonly IElasticSearchApi Instance = LazyInstance.Value;
         
         private const string ES_LOG_FILENAME = "Elasticsearch";
 

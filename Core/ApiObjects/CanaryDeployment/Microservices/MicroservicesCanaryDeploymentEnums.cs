@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using static ApiObjects.CanaryDeployment.Microservices.CanaryDeploymentRoutingAction;
 using static ApiObjects.CanaryDeployment.Microservices.MicroservicesCanaryDeploymentRoutingService;
 
@@ -6,23 +7,22 @@ namespace ApiObjects.CanaryDeployment.Microservices
 {
     public static class CanaryDeploymentRoutingActionLists
     {
-        public static readonly Dictionary<CanaryDeploymentRoutingAction, MicroservicesCanaryDeploymentRoutingService>
-            RoutingActionsToMsRoutingService =
-                new Dictionary<CanaryDeploymentRoutingAction, MicroservicesCanaryDeploymentRoutingService>()
+        public static readonly Dictionary<CanaryDeploymentRoutingAction, HashSet<MicroservicesCanaryDeploymentRoutingService>> RoutingActionsToMsRoutingService =
+                new Dictionary<CanaryDeploymentRoutingAction, HashSet<MicroservicesCanaryDeploymentRoutingService>>()
                 {
-                    {AppTokenController, PhoenixRestProxy},
-                    {UserLoginPinController, PhoenixRestProxy},
-                    {SsoAdapterProfileController, PhoenixRestProxy},
-                    {SessionController, PhoenixRestProxy},
-                    {HouseHoldDevicePinActions, PhoenixRestProxy },
-                    {RefreshSession, PhoenixRestProxy},
-                    {Login, PhoenixRestProxy},
-                    {Logout, PhoenixRestProxy},
-                    {AnonymousLogin, PhoenixRestProxy},
-                    {MultiRequestController, MultiRequestMicroService},
-                    {HouseholdUser, HouseholdService},
-                    {PlaybackController, PlaybackService},
-                    {CanaryDeploymentRoutingAction.Segmentation, PhoenixRestProxy}
+                    {AppTokenController, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy }},
+                    {UserLoginPinController, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy }},
+                    {SsoAdapterProfileController, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy }},
+                    {SessionController, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy }},
+                    {HouseHoldDevicePinActions, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy } },
+                    {RefreshSession, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy }},
+                    {Login, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy }},
+                    {Logout, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy }},
+                    {AnonymousLogin, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy }},
+                    {MultiRequestController, new HashSet<MicroservicesCanaryDeploymentRoutingService> { MultiRequestMicroService }},
+                    {HouseholdUser, new HashSet<MicroservicesCanaryDeploymentRoutingService> { HouseholdService }},
+                    {PlaybackController, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PlaybackService, PlaybackV2Service }},
+                    {CanaryDeploymentRoutingAction.Segmentation, new HashSet<MicroservicesCanaryDeploymentRoutingService> { PhoenixRestProxy }}
                 };
                 
         public static readonly List<string> AppTokenControllerRouting = new List<string>() { "appToken/action/add", "appToken/action/delete", "appToken/action/get", "appToken/action/startSession" };
@@ -45,7 +45,7 @@ namespace ApiObjects.CanaryDeployment.Microservices
             "drmProfile/action/add", "drmProfile/action/delete", "drmProfile/action/list",
             "streamingDevice/action/bookPlaybackSession"
         };
-
+        
         public static readonly List<string> SegmentationRouting = new List<string>()
         {
             "segmentationType/action/add",
@@ -61,6 +61,12 @@ namespace ApiObjects.CanaryDeployment.Microservices
             "householdSegment/action/delete",
             "householdSegment/action/list",
         };
+        
+        public static readonly List<string> PlaybackV2ControllerRouting = new List<string>(PlaybackControllerRouting.Concat(new List<string> {
+            "streamingDevice/action/list",
+            "mediaConcurrencyRule/action/list",
+            "bookmark/action/add"
+        }));
     }    
 
     public enum MicroservicesCanaryDeploymentRoutingService
@@ -69,7 +75,8 @@ namespace ApiObjects.CanaryDeployment.Microservices
         PhoenixRestProxy = 1,       
         MultiRequestMicroService = 2,
         HouseholdService = 3,
-        PlaybackService = 4
+        PlaybackService = 4,
+        PlaybackV2Service = 5
     }
 
     public enum CanaryDeploymentRoutingAction

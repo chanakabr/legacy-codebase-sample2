@@ -36,6 +36,8 @@ namespace ApiObjects.TimeShiftedTv
         public bool? PersonalizedRecordingEnable { get; set; }
         public int? MaxRecordingConcurrency { get; set; }
         public int? MaxConcurrencyMargin { get; set; }
+        public int? AdapterId { get; set; }
+        public bool? IsDefault { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {
@@ -45,7 +47,7 @@ namespace ApiObjects.TimeShiftedTv
             long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
             bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeriod, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled,
             bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled, int? quotaOveragePolicy, int? protectionPolicy, int? recoveryGracePeriod,
-            bool? isPrivateCopyEnabled, int? defaultQuota, bool? personalizedRecording, int? maxRecordingConcurrency, int? maxConcurrencyMargin)
+            bool? isPrivateCopyEnabled, int? defaultQuota, bool? personalizedRecording, int? maxRecordingConcurrency, int? maxConcurrencyMargin, int? adapterId, bool? isDefault)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -71,7 +73,9 @@ namespace ApiObjects.TimeShiftedTv
             this.PersonalizedRecordingEnable = personalizedRecording;
             this.MaxRecordingConcurrency = maxRecordingConcurrency;
             this.MaxConcurrencyMargin = maxConcurrencyMargin;
-
+            this.AdapterId = adapterId;
+            this.IsDefault = isDefault;
+            
             if (quotaOveragePolicy.HasValue)
             {
                 this.QuotaOveragePolicy = (QuotaOveragePolicy)quotaOveragePolicy.Value;
@@ -112,6 +116,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("PersonalizedRecordingEnable: {0}, ", PersonalizedRecordingEnable.HasValue ? PersonalizedRecordingEnable.Value.ToString() : "Null"));
             sb.Append(string.Format("MaxRecordingConcurrency: {0}, ", MaxRecordingConcurrency.HasValue ? MaxRecordingConcurrency.Value.ToString() : "Null"));
             sb.Append(string.Format("MaxConcurrencyMargin: {0}, ", MaxConcurrencyMargin.HasValue ? MaxConcurrencyMargin.Value.ToString() : "Null"));
+            sb.Append(string.Format("AdapterId: {0}, ", AdapterId.HasValue ? AdapterId.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsDefault: {0}, ", IsDefault.HasValue ? IsDefault.Value.ToString() : "Null"));
 
             return sb.ToString();
         }

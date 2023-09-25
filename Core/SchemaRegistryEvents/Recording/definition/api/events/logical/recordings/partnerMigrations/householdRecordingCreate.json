@@ -1,0 +1,12 @@
+{
+  "$id": "http://ott.service.phoenix/api/events/logical/recordings/partnerMigrations/householdRecordingCreate",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HouseholdRecordingCreate",
+  "type": "object",
+  "description": "A migration event for creation of Household Recordings per partner",
+  "allOf": [
+    {
+      "$ref": "ott-schema-registry/events/logical/recordings/partnerMigrations/householdRecordingCreate"
+    }
+  ]
+}

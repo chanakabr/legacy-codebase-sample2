@@ -18,6 +18,6 @@ namespace Core.Pricing
 
         public abstract MediaFilePPVModule[] GetPPVModuleListForMediaFiles(Int32[] nMediaFileIDs, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME);
 
-        public abstract MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(Int32[] nMediaFileIDs);
+        public abstract MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(Int32[] nMediaFileIDs, bool shouldGetOnlyValidForPurchase);
     }
 }

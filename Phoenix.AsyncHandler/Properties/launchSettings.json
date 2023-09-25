@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Phoenix.AsyncHandler": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "MONGO_DB_CONFIGURATION__PASSWORD": "Kaltura2020!"
+      }
+    }
+  }
+}

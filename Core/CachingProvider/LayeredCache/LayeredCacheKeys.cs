@@ -198,11 +198,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("priceCodeByCountryAndCurrency_g_{0}_pc_{1}_co_{2}_cu_{3}", groupId, priceCodeId, countryCode, currencyCode);
         }
 
-        public static string GetDiscountModuleCodeByCountryAndCurrencyKey(int groupId, int discountCodeId, string countryCode, string currencyCode)
-        {
-            return string.Format("discountModuleByCountryAndCurrency_g_{0}_dm_{1}_co_{2}_cu_{3}", groupId, discountCodeId, countryCode, currencyCode);
-        }
-
         public static string GetRoleIdKey(int roleId)
         {
             return string.Format("roleId_{0}", roleId);
@@ -263,7 +258,7 @@ namespace CachingProvider.LayeredCache
             return string.Format("AliasMappingFields_groupId_{0}", groupId);
         }
 
-        public static string GetPPVsforFileKey(int fileId)
+        public static string GetPPVsforFileKey(long fileId)
         {
             return $"file_to_ppvs_{fileId}";
         }
@@ -495,7 +490,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDiscountsKey(int groupId)
         {
-            return string.Format("discounts_groupId_{0}", groupId);
+            return string.Format("discounts_v1_groupId_{0}", groupId);
         }
 
         public static string GetUsageModulesKey(int groupId)
@@ -898,6 +893,11 @@ namespace CachingProvider.LayeredCache
             return string.Format($"{partnerId}_EpgV3PartnerConfiguration");
         }
 
+        public static string GetEpgV3IndexAliasBinding(int partnerId)
+        {
+            return $"epg_v3_alias_index_binding_{partnerId}";
+        }
+
         public static string GetDomainSubscriptionPurchaseKey(long domainId, string subscriptionId)
         {
             return $"domain_subcription_purchase_v1_{domainId}_{subscriptionId}";
@@ -963,6 +963,12 @@ namespace CachingProvider.LayeredCache
 
         public static string GetLiveToVodFullConfigurationKey(long groupId)
             => $"live_to_vod_full_configuration_{groupId}";
+
+        public static string GetAssetFileKey(int groupId, long assetFileId) =>
+            $"asset_file_{groupId}_{assetFileId}";
+
+        public static string GetAssetFilesByAssetIdKey(int groupId, long assetId) =>
+            $"asset_file_by_asset_{groupId}_{assetId}";
 
         #endregion
 
@@ -1356,6 +1362,11 @@ namespace CachingProvider.LayeredCache
         public static string GetEpgV3PartnerConfigurationInvalidationKey(int partnerId)
         {
             return $"{partnerId}_InvalidateEpgV3PartnerConfiguration";
+        }
+
+        public static string GetEpgV3IndexAliasBindingInvalidationKey(int partnerId)
+        {
+            return $"invalidationKey_epg_v3_alias_index_binding_{partnerId}";
         }
 
         public static string GetDeviceConcurrencyPriorityKey(int groupId)
@@ -1808,6 +1819,12 @@ namespace CachingProvider.LayeredCache
         {
             return $"invalidationKey_file_to_ppvs_{groupId}_{fileId}";
         }
+
+        public static string GetAssetFileInvalidationKey(int groupId, long assetFileId) =>
+            $"invalidationKey_asset_file_{groupId}_{assetFileId}";
+
+        public static string GetAssetFilesByAssetIdInvalidationKey(int groupId, long assetId) =>
+            $"invalidationKey_asset_file_by_asset_{groupId}_{assetId}";
 
         #endregion
 

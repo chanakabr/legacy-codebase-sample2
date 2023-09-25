@@ -19,6 +19,8 @@ using Core.Catalog.CatalogManagement;
 using Core.ConditionalAccess;
 using DAL;
 using Phx.Lib.Log;
+using ApiObjects.Roles;
+using KalturaRequestContext;
 
 namespace Core.Pricing
 {
@@ -45,7 +47,7 @@ namespace Core.Pricing
             GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
-                var status = ValidatePvvModuleExist(contextData, assetFilePpv.PpvModuleId);
+                var status = ValidatePpvModuleExist(contextData, assetFilePpv.PpvModuleId);
                 if (!status.IsOkStatusCode())
                 {
                     return new GenericResponse<AssetFilePpv>(status);
@@ -122,7 +124,7 @@ namespace Core.Pricing
             GenericResponse<AssetFilePpv> response = new GenericResponse<AssetFilePpv>();
             try
             {
-                var status = ValidatePvvModuleExist(contextData, request.PpvModuleId);
+                var status = ValidatePpvModuleExist(contextData, request.PpvModuleId);
                 if (!status.IsOkStatusCode())
                 {
                     return new GenericResponse<AssetFilePpv>(status);
@@ -186,7 +188,7 @@ namespace Core.Pricing
             try
             {
                 // Validate mediaFileId && ppvModuleId
-                var validationStatus = ValidatePvvModuleExist(contextData, ppvModuleId);
+                var validationStatus = ValidatePpvModuleExist(contextData, ppvModuleId);
                 if (!validationStatus.IsOkStatusCode())
                 {
                     return validationStatus;
@@ -225,88 +227,90 @@ namespace Core.Pricing
 
         public GenericListResponse<AssetFilePpv> GetAssetFilePPVList(ContextData contextData, long assetId, long assetFileId)
         {
-            GenericListResponse<AssetFilePpv> response = new GenericListResponse<AssetFilePpv>();
-            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-            try
+            var response = new GenericListResponse<AssetFilePpv>();
+            response.SetStatus(Status.Ok);
+            List<AssetFile> assetFiles = null;
+            
+            if (assetId > 0)
             {
-                List<AssetFilePpv> assetFilePPVList = new List<AssetFilePpv>();
-                List<AssetFile> assetFiles = null;
-                List<int> fileIds = new List<int>();
-                if (assetId > 0)
+                // check if assetId exist
+                GenericResponse<Asset> assetResponse =
+                    AssetManager.Instance.GetAsset(contextData.GroupId, assetId, eAssetTypes.MEDIA, true);
+                if (assetResponse != null && assetResponse.Status != null &&
+                    assetResponse.Status.Code != (int)eResponseStatus.OK)
                 {
-                    // check if assetId exist
-                    GenericResponse<Asset> assetResponse =
-                        AssetManager.Instance.GetAsset(contextData.GroupId, assetId, eAssetTypes.MEDIA, true);
-                    if (assetResponse != null && assetResponse.Status != null &&
-                        assetResponse.Status.Code != (int)eResponseStatus.OK)
-                    {
-                        response.SetStatus(assetResponse.Status);
-                        return response;
-                    }
-
-                    assetFiles = FileManager.GetAssetFilesByAssetId(contextData.GroupId, assetId);
-                    // Get Asset Files
-                    if (assetFiles == null)
-                    {
-                        log.ErrorFormat("Error while getting assetFiles. groupId: {0}, assetId {1}", contextData.GroupId, assetId);
-                        response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        return response;
-                    }
-                }
-                else if (assetFileId > 0)
-                {
-                    // check assetFileId  exist
-                    var assetFile = FileManager.GetAssetFileById(contextData.GroupId, assetFileId);
-
-                    // Get Asset Files
-                    assetFiles = assetFile == null ? new List<AssetFile>() : new List<AssetFile> { assetFile };
+                    response.SetStatus(assetResponse.Status);
+                    return response;
                 }
 
-                if (assetFiles.Count > 0)
+                assetFiles = FileManager.GetAssetFilesByAssetId(contextData.GroupId, assetId);
+                // Get Asset Files
+                if (assetFiles == null)
                 {
-                    fileIds = assetFiles.Select(x => (int)x.Id).ToList();
-                    if (fileIds.Count > 0)
-                    {
-                        assetFilePPVList = GetAssetFilePPVByFileIds(contextData.GroupId, fileIds);
-                        response.Objects.AddRange(assetFilePPVList);
-                        response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
+                    log.ErrorFormat("Error while getting assetFiles. groupId: {0}, assetId {1}", contextData.GroupId, assetId);
+                    response.SetStatus(Status.Error);
+                    return response;
                 }
             }
-            catch (Exception ex)
+            else if (assetFileId > 0)
             {
-                log.ErrorFormat("Failed GetAssetFilePPVList with groupId: {0}. assetId: {1}, assetFileId: {2}. ex: {3}",
-                    contextData.GroupId, assetId, assetFileId, ex);
+                // check assetFileId  exist
+                var assetFile = FileManager.Instance.GetAssetFileById(contextData.GroupId, assetFileId);
+
+                // Get Asset Files
+                assetFiles = assetFile == null ? new List<AssetFile>() : new List<AssetFile> { assetFile };
             }
 
-            // Validate mediaFileId && ppvModuleId, *move?
-            if (response.HasObjects())
+            if (assetFiles.Count > 0)
             {
-                response.Objects = response.Objects.Where(x =>
-                    ValidateAssetFilePPV(contextData, x.AssetFileId, x.PpvModuleId).IsOkStatusCode()).ToList();
+                var assetFileIds = assetFiles.Select(x => (int)x.Id).ToArray();
+                var assetFilePPVList = GetAssetFilePPVByFileIds(contextData, assetFileIds);
+                if (assetFilePPVList != null && assetFilePPVList.Count > 0)
+                {
+                    response.Objects.AddRange(assetFilePPVList);
+                }
             }
+
             return response;
         }
 
-        private static List<AssetFilePpv> GetAssetFilePPVByFileIds(int groupId, List<int> fileIds)
+        private static List<AssetFilePpv> GetAssetFilePPVByFileIds(ContextData contextData, int[] assetFileIds)
         {
-            List<AssetFilePpv> assetFilePPVList = new List<AssetFilePpv>();
-            DataTable dt = PricingDAL.Get_PPVModuleForMediaFiles(groupId, fileIds);
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                AssetFilePpv assetFilePPV = null;
-                foreach (DataRow dr in dt.Rows)
-                {
-                    assetFilePPV = new AssetFilePpv()
-                    {
-                        AssetFileId = ODBCWrapper.Utils.GetLongSafeVal(dr, "mfid"),
-                        PpvModuleId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ppmid"),
-                        StartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "PPMF_START_DATE"),
-                        EndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "PPMF_END_DATE")
-                    };
+            var mediaFilePPVContainerList = Module.GetPPVModuleListForMediaFilesWithExpiry(contextData.GroupId, assetFileIds, false);
+            if (mediaFilePPVContainerList == null || mediaFilePPVContainerList.Length == 0) return null;
 
-                    assetFilePPVList.Add(assetFilePPV);
+            var assetFilePPVList = new List<AssetFilePpv>();
+
+            // BEO-14526 filter files only if request is impersonate or by master
+            var shouldFilterFileByDates = RequestContextUtilsInstance.Get().IsImpersonateRequest() || contextData.UserRoleIds.All(x => x <= PredefinedRoleId.MASTER);
+            foreach (var mediaFilePPVContainer in mediaFilePPVContainerList)
+            {
+                // validate assetFileId Exists
+                if (mediaFilePPVContainer.m_oPPVModules == null || 
+                    mediaFilePPVContainer.m_oPPVModules.Length == 0 || 
+                    !GetAssetFile(contextData.GroupId, mediaFilePPVContainer.m_nMediaFileID).HasObject()) { continue; }
+
+                foreach (var ppvModule in mediaFilePPVContainer.m_oPPVModules)
+                {
+                    var ppvModuleId = long.Parse(ppvModule.PPVModule.m_sObjectCode);
+                    if (!ValidatePpvModuleExist(contextData, ppvModuleId).IsOkStatusCode()) { continue; }
+
+                    var startDate = ppvModule.GetStartDate();
+                    var endDate = ppvModule.GetEndDate();
+
+                    if (shouldFilterFileByDates)
+                    {
+                        var now = DateTime.UtcNow;
+                        if ((startDate.HasValue && startDate > now) || (endDate.HasValue && endDate < now)) { continue; }
+                    }
+
+                    assetFilePPVList.Add(new AssetFilePpv()
+                    {
+                        AssetFileId = mediaFilePPVContainer.m_nMediaFileID,
+                        PpvModuleId = ppvModuleId,
+                        StartDate = startDate,
+                        EndDate = endDate
+                    });
                 }
             }
 
@@ -419,21 +423,7 @@ namespace Core.Pricing
             return assetFilePPV;
         }
 
-        private static Status ValidateAssetFilePPV(ContextData contextData, long mediaFileId, long ppvModuleId)
-        {
-            var validationStatus = ValidatePvvModuleExist(contextData, ppvModuleId);
-            if (!validationStatus.IsOkStatusCode())
-            {
-                return validationStatus;
-            }
-
-            // validate mediaFileId Exists
-            var assetFileResponse = GetAssetFile(contextData.GroupId, mediaFileId);
-
-            return assetFileResponse.Status;
-        }
-
-        private static Status ValidatePvvModuleExist(ContextData contextData, long ppvModuleId)
+        private static Status ValidatePpvModuleExist(ContextData contextData, long ppvModuleId)
         {
             // validate ppvModuleId Exists
             var ppvById = PpvManager.Instance.GetPpvById(contextData, ppvModuleId);
@@ -450,7 +440,7 @@ namespace Core.Pricing
 
         private static GenericResponse<AssetFile> GetAssetFile(int partnerId, long mediaFileId)
         {
-            var assetFile = FileManager.GetAssetFileById(partnerId, mediaFileId);
+            var assetFile = FileManager.Instance.GetAssetFileById(partnerId, mediaFileId);
             if (assetFile == null)
             {
                 log.ErrorFormat("Error. Unknown mediaFileId: {0} for groupId: {1}", mediaFileId, partnerId);

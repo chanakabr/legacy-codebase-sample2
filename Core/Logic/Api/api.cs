@@ -2626,11 +2626,16 @@ namespace Core.Api
             Country country = null;
             try
             {
-                string key = LayeredCacheKeys.GetKeyForCountryName(countryName);
-                if (!LayeredCache.Instance.Get<Country>(key, ref country, APILogic.Utils.GetCountryByCountryNameFromES, new Dictionary<string, object>() { { "countryName", countryName } },
-                                                        groupId, LayeredCacheConfigNames.COUNTRY_BY_COUNTRY_NAME_LAYERED_CACHE_CONFIG_NAME))
+                if (string.IsNullOrEmpty(countryName))
                 {
-                    log.ErrorFormat("Failed getting country by countryName from LayeredCache, countryName: {0}, key: {1}", countryName, key);
+                    return country;
+                }
+
+                var countries = APILogic.Utils.GetAllCountries(groupId); 
+
+                if (countries?.Count > 0)
+                {
+                    country = countries.FirstOrDefault(x => x.Code.ToLower() == countryName.ToLower());
                 }
             }
             catch (Exception ex)
@@ -9776,17 +9781,7 @@ namespace Core.Api
             List<Country> countries = null;
             try
             {
-                string key = LayeredCacheKeys.GetAllCountryListKey();
-
-                if (!LayeredCache.Instance.Get<List<Country>>(key,
-                                                              ref countries,
-                                                              APILogic.Utils.GetAllCountryList,
-                                                              new Dictionary<string, object>(),
-                                                              groupId,
-                                                              LayeredCacheConfigNames.GET_ALL_COUNTRY_LIST_LAYERED_CACHE_CONFIG_NAME))
-                {
-                    log.ErrorFormat("Failed getting country list by Ids from LayeredCache, groupId: {0}, countryIds: {1}, key: {2}", groupId, string.Join(", ", countryIds), key);
-                }
+                countries = APILogic.Utils.GetAllCountries(groupId);
 
                 if (countries != null && countryIds != null && countryIds.Count > 0)
                 {
