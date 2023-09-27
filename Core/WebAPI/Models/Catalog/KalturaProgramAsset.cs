@@ -111,6 +111,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "externalOfferIds")]
         [JsonProperty("externalOfferIds")]
         [XmlElement("externalOfferIds")]
+        [SchemeProperty(IsNullable = true)]
         public string ExternalOfferIds { get; set; }
     }
 }

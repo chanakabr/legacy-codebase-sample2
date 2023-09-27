@@ -29141,6 +29141,20 @@ namespace WebAPI.Models.Catalog
             MaxItems = -1,
             UniqueItems = false,
         };
+        private static RuntimeSchemePropertyAttribute ExternalOfferIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            ValidationState = WebAPI.Managers.eKSValidation.All,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+            UniqueItems = false,
+        };
         public KalturaProgramAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters, fromRequest)
         {
             if (parameters != null)
@@ -29193,6 +29207,7 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("externalOfferIds") && parameters["externalOfferIds"] != null)
                 {
+                    ExternalOfferIdsSchemaProperty.Validate("externalOfferIds", parameters["externalOfferIds"]);
                     ExternalOfferIds = (String) Convert.ChangeType(parameters["externalOfferIds"], typeof(String));
                 }
             }
