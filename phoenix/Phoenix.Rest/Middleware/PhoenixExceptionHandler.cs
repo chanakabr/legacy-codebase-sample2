@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using ApiObjects.Response;
 using Core.Middleware;
@@ -61,12 +62,13 @@ namespace Phoenix.Rest.Middleware
                 args = null;
             }
 
+            var headerMessage = GetAsciiHeaderMessage(message);
             context.Items[INTERNAL_ERROR_CODE] = code;
-            context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {message}");
+            context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {headerMessage}");
             context.Response.Headers.Add("X-Kaltura", $"error-{code}");
             
             context.Response.Headers.Add("x-kaltura-error-code", code.ToString());
-            context.Response.Headers.Add("x-kaltura-error-msg", message);
+            context.Response.Headers.Add("x-kaltura-error-msg", headerMessage);
             string enumName = "";
             if(Enum.IsDefined(typeof(eResponseStatus), code))
             {
@@ -123,6 +125,16 @@ namespace Phoenix.Rest.Middleware
             };
 
             return response;
+        }
+
+        /// <summary>
+        /// This method will replace all non-ASCII symbols with '?' to prevent erroring.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        private static string GetAsciiHeaderMessage(string message)
+        {
+            return Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(message));
         }
     }
 }
