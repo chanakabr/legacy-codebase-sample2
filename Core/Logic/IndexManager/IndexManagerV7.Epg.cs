@@ -173,11 +173,49 @@ namespace Core.Catalog
             var epgFeatureVersion = _groupSettingsManager.GetEpgFeatureVersion(_partnerId);
             if (epgFeatureVersion == EpgFeatureVersion.V3)
             {
-                var epgV3IndexName = NamingHelper.GetEpgIndexAlias(_partnerId);
+                var epgV3IndexName = GetEpgV3IndexName(_partnerId, _elasticClient, _layeredCache);
                 query = WrapFilterWithCommittedOnlyTransactionsForEpgV3(epgV3IndexName, query);
             }
 
             return query;
+        }
+
+        private static string GetEpgV3IndexName(int partnerId, IElasticClient esClient, ILayeredCache layeredCache)
+        {
+            var key = LayeredCacheKeys.GetEpgV3Es7IndexAliasBinding(partnerId);
+            var invalidationKeys = new List<string>
+            {
+                LayeredCacheKeys.GetEpgV3Es7IndexAliasBindingInvalidationKey(partnerId)
+            };
+
+            layeredCache.SetInvalidationKey(invalidationKeys.FirstOrDefault());
+            var parameters = new Dictionary<string, object>
+            {
+                {"partnerId", partnerId},
+                {"esClient", esClient}
+            };
+
+            string epgV3IndexName = null;
+            var res = layeredCache.Get(key,
+                ref epgV3IndexName,
+                GetEpgV3AliasIndexBinding,
+                parameters,
+                partnerId,
+                LayeredCacheConfigNames.GET_EPG_V3_ALIAS_INDEX_BINDING_CONFIGURATION,
+                inValidationKeys: invalidationKeys,
+                shouldUseAutoNameTypeHandling: false);
+            return !res ? null : epgV3IndexName;
+        }
+
+        private static Tuple<string, bool> GetEpgV3AliasIndexBinding(Dictionary<string, object> parameters)
+        {
+            var partnerId = (int)parameters["partnerId"];
+            var esClient = (IElasticClient)parameters["esClient"];
+
+            var epgAlias = NamingHelper.GetEpgIndexAlias(partnerId);
+
+            var indexName = esClient.Cat.Aliases(a => a.Name(epgAlias)).Records.FirstOrDefault()?.Index;
+            return string.IsNullOrEmpty(indexName) ? new Tuple<string, bool>(null, false) : new Tuple<string, bool>(indexName, true);
         }
     }
 }

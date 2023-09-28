@@ -898,6 +898,11 @@ namespace CachingProvider.LayeredCache
             return $"epg_v3_alias_index_binding_{partnerId}";
         }
 
+        public static string GetEpgV3Es7IndexAliasBinding(int partnerId)
+        {
+            return $"epg_v3_es7_alias_index_binding_{partnerId}";
+        }
+
         public static string GetDomainSubscriptionPurchaseKey(long domainId, string subscriptionId)
         {
             return $"domain_subcription_purchase_v1_{domainId}_{subscriptionId}";
@@ -1367,6 +1372,11 @@ namespace CachingProvider.LayeredCache
         public static string GetEpgV3IndexAliasBindingInvalidationKey(int partnerId)
         {
             return $"invalidationKey_epg_v3_alias_index_binding_{partnerId}";
+        }
+
+        public static string GetEpgV3Es7IndexAliasBindingInvalidationKey(int partnerId)
+        {
+            return $"invalidationKey_epg_v3_es7_alias_index_binding_{partnerId}";
         }
 
         public static string GetDeviceConcurrencyPriorityKey(int groupId)
