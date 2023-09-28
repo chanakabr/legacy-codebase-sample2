@@ -475,44 +475,41 @@ namespace WebAPI.Clients
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
                 searchResponse.aggregationResults[0].results != null && responseProfile != null)
             {
-                if (doesGroupUsesTemplates)
+
+                var assetsBaseDataList = new List<BaseObject>();
+                foreach (AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
                 {
-                    // TODO this is duplicate. we have the same logic in 'else' inside CatalogUtils.GetAssets
-
-                    List<BaseObject> assetsBaseDataList = new List<BaseObject>();
-
-                    foreach (AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
+                    if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
                     {
-                        if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
+                        if (aggregationResult.value == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
                         {
-                            if (aggregationResult.value == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
-                            {
-                                //take all hits from 'missing' bucket
-                                assetsBaseDataList.AddRange(aggregationResult.topHits);
-                            }
-                            else
-                            {
-                                assetsBaseDataList.Add(aggregationResult.topHits[0]);
-                            }
+                            //take all hits from 'missing' bucket
+                            assetsBaseDataList.AddRange(aggregationResult.topHits);
+                        }
+                        else
+                        {
+                            assetsBaseDataList.Add(aggregationResult.topHits[0]);
                         }
                     }
+                }
 
+                assetsBaseDataList = assetsBaseDataList
+                    .Skip(request.m_nPageIndex * request.m_nPageSize)
+                    .Take(request.m_nPageSize)
+                    .ToList();
+
+                var aggregationResults = searchResponse.aggregationResults[0].results;
+                if (doesGroupUsesTemplates)
+                {
                     result = GetAssetsForOPCAccount(groupId, request.domainId, assetsBaseDataList, isAllowedToViewInactiveAssets, responseProfile, priorityGroupsMapping);
 
-                    var aggregationResults = searchResponse.aggregationResults[0].results;
-                    List<KalturaAsset> tempAssets = result.Objects;
-                    CatalogUtils.SetTopHitCount(responseProfile, aggregationResults, tempAssets);
+                    CatalogUtils.SetTopHitCount(responseProfile, aggregationResults, result.Objects);
                 }
                 else
                 {
                     // build the assetsBaseDataList from the hit array
-                    result.Objects = CatalogUtils.GetAssets(searchResponse.aggregationResults[0].results, request, managementData, responseProfile);
+                    result.Objects = CatalogUtils.GetAssets(aggregationResults, assetsBaseDataList, request, managementData, responseProfile);
                 }
-
-                result.Objects = result.Objects?
-                    .Skip(request.m_nPageIndex * request.m_nPageSize)
-                    .Take(request.m_nPageSize)
-                    .ToList();
 
                 result.TotalCount = searchResponse.aggregationResults[0].totalItems;
             }

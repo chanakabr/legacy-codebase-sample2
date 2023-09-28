@@ -443,24 +443,14 @@ namespace WebAPI.Utils
             return result;
         }
 
-        internal static List<KalturaAsset> GetAssets(List<AggregationResult> aggregationResults, BaseRequest request, bool managementData, KalturaBaseResponseProfile responseProfile)
+        internal static List<KalturaAsset> GetAssets(
+            List<AggregationResult> aggregationResults,
+            List<BaseObject> assetsBaseDataList,
+            BaseRequest request,
+            bool managementData,
+            KalturaBaseResponseProfile responseProfile)
         {
             // get base objects list
-
-            List<BaseObject> assetsBaseDataList = new List<BaseObject>();
-            foreach (AggregationResult aggregationResult in aggregationResults)
-            {
-                if (aggregationResult.topHits != null && aggregationResult.value == ESUnifiedQueryBuilder.MissedHitBucketKeyString)
-                {
-                    //take all hits from 'missing' bucket
-                    var _hits = aggregationResult.topHits.Select(x => x as BaseObject).ToList();
-                    assetsBaseDataList.AddRange(_hits);
-                }
-                else
-                {
-                    assetsBaseDataList.Add(aggregationResult.topHits[0] as BaseObject);
-                }
-            }
 
             List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID, assetsBaseDataList, request.m_oFilter, managementData);
 
