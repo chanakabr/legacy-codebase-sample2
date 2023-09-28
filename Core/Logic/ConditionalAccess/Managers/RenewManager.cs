@@ -423,7 +423,8 @@ namespace Core.ConditionalAccess
                 purchaseId = (int)renewDetails.PurchaseId,
                 siteGuid = renewDetails.UserId,
                 productId = subscription.m_SubscriptionCode,
-                status = SubscriptionPurchaseStatus.Fail
+                status = SubscriptionPurchaseStatus.Fail,
+                houseHoldId = renewDetails.DomainId
             };
 
             bool success = subscriptionPurchase.Update();

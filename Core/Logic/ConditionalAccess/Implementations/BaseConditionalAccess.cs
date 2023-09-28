@@ -1757,7 +1757,8 @@ namespace Core.ConditionalAccess
                     productId = productId,
                     siteGuid = domainSubscriptionPurchase.PurchasingUserId.ToString(),
                     status = SubscriptionPurchaseStatus.Cancel,
-                    UpdateFromCancelRenewal = true
+                    UpdateFromCancelRenewal = true,
+                    houseHoldId = domainId
                 };
 
                 if (subscriptionPurchase.Update())
@@ -1892,7 +1893,8 @@ namespace Core.ConditionalAccess
                                 productId = subscriptionCode,
                                 siteGuid = purchasingSiteGuid,
                                 status = SubscriptionPurchaseStatus.Cancel,
-                                UpdateFromCancelRenewal = true
+                                UpdateFromCancelRenewal = true,
+                                houseHoldId = domainId
                             };
 
                             cancelResult = subscriptionPurchase.Update();
