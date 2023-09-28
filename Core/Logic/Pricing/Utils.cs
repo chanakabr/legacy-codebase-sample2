@@ -332,7 +332,7 @@ namespace Core.Pricing
                             if (localizationDiscount != null)
                             {
                                 discountModule = new DiscountModule();
-                                discountModule.Initialize(discount.Name, localizationDiscount, descriptions, discountCodeId,
+                                discountModule.Initialize(discount.Name, new Price(localizationDiscount), descriptions, discountCodeId,
                                                           localizationDiscount.Percentage, discount.RelationType, discount.StartDate,
                                                           discount.EndDate, new WhenAlgo() { m_eAlgoType = discount.WhenAlgoType, m_nNTimes = discount.WhenAlgoTimes });
                             }
@@ -343,7 +343,7 @@ namespace Core.Pricing
                             var defaultDiscount = discount.MultiCurrencyDiscounts[0]; //default = first item in MultiCurrencyDiscounts
 
                             discountModule = new DiscountModule();
-                            discountModule.Initialize(discount.Name, defaultDiscount, descriptions, discountCodeId,
+                            discountModule.Initialize(discount.Name, new Price(defaultDiscount), descriptions, discountCodeId,
                                                       defaultDiscount.Percentage, discount.RelationType, discount.StartDate,
                                                       discount.EndDate, new WhenAlgo() { m_eAlgoType = discount.WhenAlgoType, m_nNTimes = discount.WhenAlgoTimes });
                         }
