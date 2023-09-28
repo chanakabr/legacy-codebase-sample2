@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog;
 using ApiLogic.Catalog.CatalogManagement.Managers;
@@ -34,6 +36,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -118,19 +121,18 @@ namespace Phoenix.AsyncHandler
             //Pending CB library fix
             //services.AddPhoenixCouchbase();
 
-            services.AddKronosHandlers(kafkaConfig[KafkaConfigKeys.BootstrapServers],
-                p => p
-                    .AddHandler<ScheduleRecordingEvictionsHandler>(ScheduleRecordingEvictions.ScheduleRecordingEvictionsQualifiedName)
-                    .AddHandler<RenewHandler>(RenewSubscription.RenewSubscriptionQualifiedName)
-                    .AddHandler<LiveToVodTearDownHandler>(LiveToVodTearDown.LiveToVodTearDownQualifiedName)
-                    .AddHandler<EpgV3CleanupHandler>(EpgV3Cleanup.EpgV3CleanupQualifiedName)
-                    .AddHandler<VerifyRecordingFinalStatusHandler>(VerifyRecordingFinalStatus.VerifyRecordingFinalStatusQualifiedName)
-                    .AddHandler<RetryRecordingHandler>(RetryRecording.RetryRecordingQualifiedName)
-                    .AddHandler<EvictRecordingHandler>(EvictRecording.EvictRecordingQualifiedName)
-                    .AddHandler<RecordingsCleanupHandler>(RecordingsCleanup.RecordingsCleanupQualifiedName)
-                    .AddHandler<RecordingsLifetimeHandler>(RecordingsLifetime.RecordingsLifetimeQualifiedName)
-                    .AddHandler<RecordingsScheduledTasksHandler>(RecordingsScheduledTasks.RecordingsScheduledTasksQualifiedName)
-            );
+            var bcs = kafkaConfig[KafkaConfigKeys.BootstrapServers];
+            services
+                .AddKronosHandler<ScheduleRecordingEvictionsHandler>(bcs, ScheduleRecordingEvictions.ScheduleRecordingEvictionsQualifiedName)
+                .AddKronosHandler<RenewHandler>(bcs, RenewSubscription.RenewSubscriptionQualifiedName)
+                .AddKronosHandler<LiveToVodTearDownHandler>(bcs, LiveToVodTearDown.LiveToVodTearDownQualifiedName)
+                .AddKronosHandler<EpgV3CleanupHandler>(bcs, EpgV3Cleanup.EpgV3CleanupQualifiedName)
+                .AddKronosHandler<VerifyRecordingFinalStatusHandler>(bcs, VerifyRecordingFinalStatus.VerifyRecordingFinalStatusQualifiedName)
+                .AddKronosHandler<RetryRecordingHandler>(bcs, RetryRecording.RetryRecordingQualifiedName)
+                .AddKronosHandler<EvictRecordingHandler>(bcs, EvictRecording.EvictRecordingQualifiedName)
+                .AddKronosHandler<RecordingsCleanupHandler>(bcs, RecordingsCleanup.RecordingsCleanupQualifiedName)
+                .AddKronosHandler<RecordingsLifetimeHandler>(bcs, RecordingsLifetime.RecordingsLifetimeQualifiedName)
+                .AddKronosHandler<RecordingsScheduledTasksHandler>(bcs, RecordingsScheduledTasks.RecordingsScheduledTasksQualifiedName);
 
             services.AddKafkaProducerFactory(kafkaConfig);
             services
@@ -198,7 +200,7 @@ namespace Phoenix.AsyncHandler
 
         public static IServiceCollection AddKafkaHandlers(this IServiceCollection services)
         {
-            services.AddKafkaConsumer<MediaMarkHandler, MediaMark>("media-mark-event", MediaMark.GetTopic());
+            services.AddKafkaConsumer<MediaMarkHandler, MediaMark>(KafkaConfig.GetConsumerGroup("media-mark-event"), MediaMark.GetTopic());
             services.AddKafkaConsumer<IndexRecordingHandler, IndexRecording>(KafkaConfig.GetConsumerGroup("Index-Recording"), IndexRecording.GetTopic());
             services.AddKafkaConsumer<RebuildRecordingsIndexHandler, RebuildRecordingsIndex>(KafkaConfig.GetConsumerGroup("rebuild-recordings-index"), RebuildRecordingsIndex.GetTopic());
             services.AddKafkaConsumer<HouseholdNpvrAccountHandler, Household>(KafkaConfig.GetConsumerGroup("household-npvr-account"), Household.GetTopic());
@@ -208,7 +210,7 @@ namespace Phoenix.AsyncHandler
             services.AddKafkaConsumer<RecordingFailedHandler, RecordingFailed>(KafkaConfig.GetConsumerGroup("recording-failed"), RecordingFailed.GetTopic());
             services.AddKafkaConsumer<PersonalActivityCleanupHandler, PersonalActivityCleanup>(KafkaConfig.GetConsumerGroup("personal-activity-cleanup"), PersonalActivityCleanup.GetTopic());
             services.AddKafkaConsumer<Recording.HouseholdRetentionPeriodExpiredHandler, HouseholdRetentionPeriodExpired>(KafkaConfig.GetConsumerGroup("gdpr-recording"), HouseholdRetentionPeriodExpired.GetTopic());
-            services.AddKafkaConsumer<OttUserRetentionPeriodExpiredHandler, OttUserRetentionPeriodExpired>("gdpr-ott-user", OttUserRetentionPeriodExpired.GetTopic());
+            services.AddKafkaConsumer<OttUserRetentionPeriodExpiredHandler, OttUserRetentionPeriodExpired>(KafkaConfig.GetConsumerGroup("gdpr-ott-user"), OttUserRetentionPeriodExpired.GetTopic());
             services.AddKafkaConsumer<HouseholdRecordingCreateHandler, HouseholdRecordingCreate>(KafkaConfig.GetConsumerGroup("household-recording-create"), HouseholdRecordingCreate.GetTopic());
             services.AddKafkaConsumer<HouseholdRecordingDeleteHandler, HouseholdRecordingDelete>(KafkaConfig.GetConsumerGroup("household-recording-delete"), HouseholdRecordingDelete.GetTopic());
             return services;
@@ -221,31 +223,10 @@ namespace Phoenix.AsyncHandler
         //     return services;
         // }
 
-        private static IServiceCollection AddKronosHandlers(this IServiceCollection services,
-            string brokerConnectionString,
-            Action<KronosConfigurationProvider> configure)
+        private static IServiceCollection AddKronosHandler<THandler>(this IServiceCollection services, string brokerConnectionString, string taskName)
+            where THandler : class, IKronosTaskHandler
         {
-            var provider = new KronosConfigurationProvider();
-            configure(provider);
-            services.AddSingleton<TaskHandler.TaskHandlerBase, KronosTaskHandler>(
-                p => new KronosTaskHandler(p.GetService<IServiceScopeFactory>(), provider));
-
-            foreach (var (taskName, type) in provider.Handlers)
-            {
-                services
-                    .AddScoped(type)
-                    .AddSingleton<IHostedService>(p =>
-                    {
-                        // we do not use AddAsyncGrpcTaskHandlerService because it will call addHostedService which will register only a single hosted service
-                        // see: https://github.com/dotnet/runtime/issues/38751
-                        // as a special case we allow phoenix.asyncHandler to hold multiple task handlers, so we will register the hosted services manually like this.
-                        TaskHandler.TaskHandlerBase requiredService = p.GetRequiredService<TaskHandler.TaskHandlerBase>();
-                        IHostApplicationLifetime service = p.GetService<IHostApplicationLifetime>();
-                        ILoggerFactory service2 = p.GetService<ILoggerFactory>();
-                        return new AsyncGrpcTaskHandlerServerHostedService(taskName, requiredService, brokerConnectionString, service, service2);
-                    });          
-            }
-
+            services.AddKronosHandler<THandler, KronosTaskHandlerTyped<THandler>>(brokerConnectionString, taskName);
             return services;
         }
 

@@ -8,16 +8,14 @@ using Phx.Lib.Log;
 
 namespace Phoenix.AsyncHandler.Kronos
 {
-    internal class KronosTaskHandler : TaskHandler.TaskHandlerBase
+    internal class KronosTaskHandlerTyped<T> : TaskHandler.TaskHandlerBase
+        where T : class, IKronosTaskHandler
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly KronosConfigurationProvider _configurationProvider;
 
-        public KronosTaskHandler(
-            IServiceScopeFactory serviceScopeFactory, KronosConfigurationProvider configurationProvider)
+        public KronosTaskHandlerTyped(IServiceScopeFactory serviceScopeFactory)
         {
             _serviceScopeFactory = serviceScopeFactory;
-            _configurationProvider = configurationProvider;
         }
 
         public override Task<ExecuteTaskResponse> ExecuteTask(ExecuteTaskRequest request, ServerCallContext context)
@@ -25,19 +23,18 @@ namespace Phoenix.AsyncHandler.Kronos
             SetKLogger(request, context);
             using (var serviceScope = _serviceScopeFactory.CreateScope())
             {
-                if (_configurationProvider.TryGetHandler(request.TaskMetaData.QualifiedName, out var implementation))
+                SetKafkaContext(request, context, serviceScope);
+                var handler = (IKronosTaskHandler) serviceScope.ServiceProvider.GetService<T>();
+                if (handler == null)
                 {
-                    SetKafkaContext(request, context, serviceScope);
-                    var handler = (IKronosTaskHandler)serviceScope.ServiceProvider.GetRequiredService(implementation);
-
-                    return handler.ExecuteTask(request, context);
+                    return Task.FromResult(new ExecuteTaskResponse
+                    {
+                        IsSuccess = false,
+                        Message = $"Service is subscribed for {request.TaskMetaData.QualifiedName} event, but doesn't implement handler."
+                    });
                 }
 
-                return Task.FromResult(new ExecuteTaskResponse
-                {
-                    IsSuccess = false,
-                    Message = $"Service is subscribed for {request.TaskMetaData.QualifiedName} event, but doesn't implement handler."
-                });
+                return handler.ExecuteTask(request, context);
             }
         }
 
