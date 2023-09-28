@@ -291,7 +291,6 @@ namespace Core.Catalog.Request
             int fileDuration = 0;
 
             long recordingId = 0;
-            long linearChannelMediaId = 0;
             bool isGroupHaveNPVRImpl = false;
 
             if (assetType == eAssetTypes.EPG)
@@ -303,12 +302,6 @@ namespace Core.Catalog.Request
                 {
                     var firstEpg = epgProgramList.First();
                     fileDuration = Convert.ToInt32((firstEpg.EndDate - firstEpg.StartDate).TotalSeconds);
-
-                    ApiObjects.TimeShiftedTv.Recording recording = null;
-                    EPGChannelProgrammeObject programObject = null;
-
-                    Core.ConditionalAccess.Utils.GetMediaIdForAsset(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, assetType, this.m_sSiteGuid, null,
-                                                                    this.m_oMediaPlayRequestData.m_sUDID, out linearChannelMediaId, out recording, out programObject);
                 }
                 else
                 {
@@ -347,8 +340,8 @@ namespace Core.Catalog.Request
             bool isError = false;
             bool isConcurrent = false;
 
-            HandleNpvrEpgPlayAction(mediaMarkAction, ref isConcurrent, ref isError, fileDuration, assetType, this.m_oMediaPlayRequestData.ProgramId,
-                                    this.m_oMediaPlayRequestData.IsReportingMode, linearChannelMediaId, isGroupHaveNPVRImpl);
+            HandleNpvrEpgPlayAction(mediaMarkAction, ref isConcurrent, ref isError, fileDuration, assetType,
+                                    this.m_oMediaPlayRequestData.IsReportingMode, isGroupHaveNPVRImpl);
             if (isConcurrent)
             {
                 mediaMarkResponse.status.Set((int)eResponseStatus.ConcurrencyLimitation, "Concurrent play limitation");
@@ -548,9 +541,7 @@ namespace Core.Catalog.Request
         /// <param name="fileDuration"></param>
         /// <param name="assetType"></param>
         /// <param name="recordingId"></param>
-        /// <param name="linearChannelMediaId"></param>
-        private void HandleNpvrEpgPlayAction(MediaPlayActions mediaPlayAction, ref bool isConcurrent, ref bool isError, int fileDuration, eAssetTypes assetType,
-                                             long programId, bool isReportingMode, long linearChannelMediaId, bool isGroupHaveNPVRImpl)
+        private void HandleNpvrEpgPlayAction(MediaPlayActions mediaPlayAction, ref bool isConcurrent, ref bool isError, int fileDuration, eAssetTypes assetType, bool isReportingMode, bool isGroupHaveNPVRImpl)
         {
             int assetId = 0;
             string npvrId = assetType == eAssetTypes.NPVR ? this.m_oMediaPlayRequestData.m_sAssetID : string.Empty;
