@@ -3370,7 +3370,7 @@ namespace Core.Catalog
                             f.Bool(b2 =>
                                 b2.Must(
                                     m => m.Terms(t => t.Field(f1 => f1.EpgID).Terms(epgIdsList)),
-                                    m => m.Terms(t => t.Field(f1 => f1.LanguageId).Terms(languages.Select(x => x.ID)))
+                                    m => m.Terms(t => t.Field(f1 => f1.Language).Terms(languages.Select(x => x.Code)))
                                 )
                             )
                         )
