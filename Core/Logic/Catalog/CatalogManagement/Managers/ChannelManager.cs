@@ -843,6 +843,12 @@ namespace Core.Catalog.CatalogManagement
                 int totalItems = 0;
                 List<int> channelIds = indexManager.SearchChannels(definitions, ref totalItems);
                 result = GetChannelsListResponseByChannelIds(contextData, channelIds, isAllowedToViewInactiveAssets, totalItems, false);
+
+                if (result.IsOkStatusCode())
+                {
+                    var channelsMap = result.Objects.ToDictionary(x => x.m_nChannelID);
+                    result.Objects = channelIds.Select(x => channelsMap.TryGetValue(x, out var channel) ? channel : null).Where(ch => ch != null).ToList();
+                }
             }
             catch (Exception ex)
             {
