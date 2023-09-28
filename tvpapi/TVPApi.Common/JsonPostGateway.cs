@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using KalturaRequestContext;
 using TVPApiServices;
 using TVPPro.SiteManager.Helper;
 
@@ -96,7 +97,10 @@ namespace TVPApi.Common
                             {
                                 // get user ID
                                 if (initObj.SiteGuid != null)
+                                {
                                     HttpContext.Current.Items[Constants.USER_ID] = initObj.SiteGuid;
+                                    HttpContext.Current.Items[RequestContextConstants.REQUEST_USER_ID] = initObj.SiteGuid;
+                                }
 
                                 // get group ID
                                 if (initObj.ApiUser != null && initObj.ApiUser != null)
@@ -107,6 +111,7 @@ namespace TVPApi.Common
                                     
                                     int groupId = ConnectionHelper.GetGroupID("tvpapi", "Gateways_JsonPostGW", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
                                     HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
+                                    HttpContext.Current.Items[RequestContextConstants.REQUEST_GROUP_ID] = groupId;
                                     KLogger.SetGroupId(groupId.ToString());
                                 }
                             }
