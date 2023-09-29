@@ -562,6 +562,7 @@ namespace Core.Catalog.CatalogManagement
             ingestResponse.Set(coGuid, "succeeded delete media", "OK", mediaId);
             ingestResponse.AssetsStatus[mediaIndex].InternalAssetId = mediaId;
             ingestResponse.AssetsStatus[mediaIndex].ExternalAssetId = coGuid;
+            ingestResponse.AssetsStatus[mediaIndex].Status.Set(eResponseStatus.OK);
 
             return true;
         }
