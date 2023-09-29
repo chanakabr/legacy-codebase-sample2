@@ -32,7 +32,6 @@ namespace Core.Catalog
         public const string UPDATE_ACTION = "update";
 
         private const string MISSING_EXTERNAL_IDENTIFIER = "External identifier is missing ";
-        private const string MISSING_ENTRY_ID = "entry_id is missing";
         private const string MISSING_ACTION = "action is missing";
         private const string CANNOT_BE_EMPTY = "{0} cannot be empty";
 
@@ -139,11 +138,6 @@ namespace Core.Catalog
                 response.AssetsStatus[index].Status.Set((int)eResponseStatus.MissingExternalIdentifier, MISSING_EXTERNAL_IDENTIFIER);
                 response.AddError("Missing co_guid");
                 return false;
-            }
-            
-            if (string.IsNullOrEmpty(this.EntryId))
-            {
-                response.AssetsStatus[index].Warnings.Add(new Status((int)IngestWarnings.MissingEntryId, MISSING_ENTRY_ID));
             }
 
             if (string.IsNullOrEmpty(this.Action))
