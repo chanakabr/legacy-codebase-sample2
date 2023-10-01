@@ -179,7 +179,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 m_sUserIP = string.Empty
             };
 
-            if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
+            if (!string.IsNullOrEmpty(channel.filterQuery))
             {
                 BooleanPhraseNode filterTree = null;
                 var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
@@ -191,11 +191,14 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 definitions.filterPhrase = filterTree;
                 CatalogLogic.UpdateNodeTreeFields(dummyRequest,
                     ref definitions.filterPhrase, definitions, group, channel.m_nParentGroupID, _catalogManager);
+            }
 
+            if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
+            {
                 var searchOptionsContext = new ChannelSearchOptionsContext
                 {
                     CatalogGroupCache = GetCatalogGroupCache(definitions.groupId),
-                    InitialTree = filterTree,
+                    InitialTree = definitions.filterPhrase,
                     MediaTypes = definitions.mediaTypes
                 };
 
