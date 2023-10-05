@@ -37,6 +37,7 @@ namespace APILogic
         private static readonly ApiLogic.FileManager dataLakeFileManager = IsDataLakeConfiguredInTCM() ? new ApiLogic.FileManager(new S3FileHandler(ApplicationConfiguration.Current.DataLake.S3, false)) :
                                                                                                          ApiLogic.FileManager.Instance;
         private static string exportBasePath = ApplicationConfiguration.Current.ExportConfiguration.BasePath.Value;
+        private static string exportBasePathKronos = "/tmp";// "/var/tmp";
         private static string exportPathFormat = ApplicationConfiguration.Current.ExportConfiguration.PathFormat.Value; // {0}/{1}/{2}
         private static string exportFileNameFormat = ApplicationConfiguration.Current.ExportConfiguration.FileNameFormat.Value; // {0}_{1}.xml
         private static string exportFileNameDateFormat = ApplicationConfiguration.Current.ExportConfiguration.FileNameDateFormat.Value; // yyyyMMddHHmmss
@@ -86,24 +87,28 @@ namespace APILogic
             switch (task.DataType)
             {
                 case eBulkExportDataType.VOD:
-                    return ExportVod(groupId, ids, unactiveAssets, task.Id, task.ExternalKey, out filename);
+                    return ExportVod(groupId, ids, unactiveAssets, task.Id, task.ExternalKey, out filename, task.IsUseKronos);
                 case eBulkExportDataType.EPG:
-                    return ExportEpg(groupId, ids, unactiveAssets, task.Id, task.ExternalKey, out filename);
+                    return ExportEpg(groupId, ids, unactiveAssets, task.Id, task.ExternalKey, out filename, task.IsUseKronos);
             }
 
             return false;
         }
 
-        private static bool ExportVod(int groupId, List<long> updatedAssetsIds, DataSet unactiveAssets, long taskId, string externalKey, out string filename)
+        private static string GetExportBasePath(bool isKronos)
+        {
+            return isKronos ? exportBasePathKronos : exportBasePath;
+        }
+        private static bool ExportVod(int groupId, List<long> updatedAssetsIds, DataSet unactiveAssets, long taskId, string externalKey, out string filename, bool isKronos = false)
         {
             filename = null;
 
             // build the full path for saving the export file
             string exportFormattedFileName = string.Format(exportFileNameFormat, DateTime.UtcNow.ToString(exportFileNameDateFormat), externalKey);
-            string exportVodBasePath = string.Format(exportPathFormat, exportBasePath, groupId, "VOD");
+            string exportVodBasePath = string.Format(exportPathFormat, GetExportBasePath(isKronos), groupId, "VOD");
             string exportVodFullPath = string.Format("{0}/{1}", exportVodBasePath, exportFormattedFileName);
             bool result = false;
-
+            // var delete = true;
             try
             {
                 // get main language
@@ -122,11 +127,13 @@ namespace APILogic
                 {
                     if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                     {
-                        RunExportTasks(groupId, updatedAssetsIds, taskId, exportVodFullPath, mainLang, DoOpcExportUpdatedMediaJob);
+                        RunExportTasks(groupId, updatedAssetsIds, taskId, exportVodFullPath, mainLang,
+                            DoOpcExportUpdatedMediaJob);
                     }
                     else
                     {
-                        RunExportTasks(groupId, updatedAssetsIds, taskId, exportVodFullPath, mainLang, DoExportUpdatedMediaJob);
+                        RunExportTasks(groupId, updatedAssetsIds, taskId, exportVodFullPath, mainLang,
+                            DoExportUpdatedMediaJob);
                     }
                 }
 
@@ -143,39 +150,49 @@ namespace APILogic
                 if (Utils.CompressFile(exportVodFullPath, exportVodBasePath))
                 {
                     filename = Path.GetFileNameWithoutExtension(exportVodFullPath);
-                    Task.Run(() => SaveExportToS3(groupId, taskId, exportVodBasePath, $"{exportFormattedFileName}{Utils.CompressedFileExtension}"));
+                    Task.Run(() => SaveExportToS3(groupId, taskId, exportVodBasePath,
+                        $"{exportFormattedFileName}{Utils.CompressedFileExtension}"));
                 }
 
                 result = true;
             }
+            // catch (IOException ex)
+            // {
+            //     delete = false;
+            //     result = false;
+            //     log.Warn($"Export VOD: IO error in XML creation process, " +
+            //              $"file not created. task id= {taskId}, file full path= {exportVodFullPath}, exception= {ex}", ex);
+            // }
             catch (Exception ex)
             {
-                log.Warn($"Export VOD: error in XML creation process, file has been removed. task id={taskId}, exception={ex.ToString()}");
+                log.Warn($"Export VOD: error in XML creation process, file has been removed. task id= {taskId}, file full path= {exportVodFullPath}, exception= {ex}", ex);
             }
             finally
             {
                 // delete the created file
                 try
                 {
+                    //Don't delete if not created
+                    // if (delete)
                     File.Delete(exportVodFullPath);
                 }
                 catch (Exception innerEx)
                 {
-                    log.Error($"Export VOD: error on removing file after error in export process. task id={taskId}, file full path={1}, innerEx={innerEx.ToString()}");
+                    log.Error($"Export VOD: error on removing file after error in export process. task id={taskId}, file full path={exportVodFullPath}, innerEx={innerEx.ToString()}", innerEx);
                     result = false;
                 }
             }
 
             return result;
         }
-
-        private static bool ExportEpg(int groupId, List<long> updatedAssetsIds, DataSet unactiveAssets, long taskId, string externalKey, out string filename)
+        
+        private static bool ExportEpg(int groupId, List<long> updatedAssetsIds, DataSet unactiveAssets, long taskId, string externalKey, out string filename, bool isKronos = false)
         {
             filename = null;
 
             // build the full path for saving the export file
             string exportFormattedFileName = string.Format(exportFileNameFormat, DateTime.UtcNow.ToString(exportFileNameDateFormat), externalKey);
-            string exportEpgBasePath = string.Format(exportPathFormat, exportBasePath, groupId, "EPG");
+            string exportEpgBasePath = string.Format(exportPathFormat, GetExportBasePath(isKronos), groupId, "EPG");
             string exportEpgFullPath = string.Format("{0}/{1}", exportEpgBasePath, exportFormattedFileName);
             bool result = false;
 
@@ -224,6 +241,8 @@ namespace APILogic
                 if (Utils.CompressFile(exportEpgFullPath, exportEpgBasePath))
                 {
                     filename = Path.GetFileNameWithoutExtension(exportEpgFullPath);
+                    log.Warn($"*** Export to S3: epgBaseFilePath: {exportEpgBasePath} - File name: {exportFormattedFileName}{Utils.CompressedFileExtension} ***");
+                    
                     // Save the compressed xml to S3
                     Task.Run(() => SaveExportToS3(groupId, taskId, exportEpgBasePath, $"{exportFormattedFileName}{Utils.CompressedFileExtension}"));
                 }
@@ -263,8 +282,9 @@ namespace APILogic
                 var newFile = new OTTFile($"{basePath}/{fileName}", fileName, false);
                 var prefix = string.Format(ApplicationConfiguration.Current.DataLake.PrefixFormat.Value, DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, groupId);
 
-                if (IsDataLakeConfiguredInTCM())
+                if (IsDataLakeConfiguredInTCM() || ApplicationConfiguration.Current.FileUpload.Type.Value == eFileUploadType.S3)
                 {
+                    //Matan - in this case we can't use file system
                     response = dataLakeFileManager.SaveFile(taskId, newFile, "KalturaExportTask", prefix, fileName);
                 }
                 else if (ApplicationConfiguration.Current.FileUpload.Type.Value == eFileUploadType.S3)

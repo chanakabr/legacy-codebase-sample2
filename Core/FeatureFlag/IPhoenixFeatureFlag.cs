@@ -7,10 +7,11 @@
         bool IsStrictUnlockDisabled();
         bool IsEfficientSerializationUsed();
         bool IsRenewUseKronos();
-        bool IsRenewUseKronosPog();
+        bool IsRenewUseKronosPog(); 
         bool IsUnifiedRenewUseKronos();
         bool IsRenewalReminderUseKronos();
         bool IsRenewSubscriptionEndsUseKronos();
+        bool IsCatalogExportUseKronos();
         bool IsCloudfrontInvalidationEnabled();
         bool IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed();
         bool IsKafkaIdempotencyShieldShouldNotBeUsed();

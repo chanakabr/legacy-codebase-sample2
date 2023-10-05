@@ -44,11 +44,15 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using ApiLogic.Catalog;
+using ApiLogic.kronos;
 using ApiLogic.Repositories;
 using ApiLogic.Segmentation;
 using ApiObjects.MediaMarks;
 using Core.GroupManagers;
 using CouchbaseManager;
+using FeatureFlag;
+using Newtonsoft.Json;
+using Phoenix.Generated.Tasks.Scheduled.CatalogExport;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
@@ -8087,14 +8091,18 @@ namespace Core.Api
                 // generate task version 
                 string version = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow).ToString();
 
+                var useKronosEnvVar = Environment.GetEnvironmentVariable("IS_CATALOG_EXPORT_USE_KRONOS");
+                bool useKronos = useKronosEnvVar?.ToLower() == "true";
+                    //PhoenixFeatureFlagInstance.Get().IsCatalogExportUseKronos();
+
                 // insert task
-                response.Task = DAL.ApiDAL.InsertBulkExportTask(groupId, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, version, isActive);
+                response.Task = DAL.ApiDAL.InsertBulkExportTask(groupId, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, version, isActive, useKronos);
 
                 if (response.Task != null)
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     // insert new message to tasks queue (for celery)
-                    EnqueueExportTask(groupId, response.Task.Id, version);
+                    EnqueueExportTask(groupId, response.Task.Id, version, isUseKronos: useKronos);
                 }
             }
             catch (Exception ex)
@@ -8148,7 +8156,7 @@ namespace Core.Api
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     // insert new message to tasks queue (for celery)
-                    EnqueueExportTask(groupId, response.Task.Id, version);
+                    EnqueueExportTask(groupId, response.Task.Id, version, isUseKronos: response.Task.IsUseKronos);
                 }
 
             }
@@ -8223,7 +8231,7 @@ namespace Core.Api
             }
 
             // insert new message to tasks queue (for celery)
-            EnqueueExportTask(groupId, taskId, version, task.Frequency);
+            EnqueueExportTask(groupId, taskId, version, task.Frequency, isUseKronos: task.IsUseKronos);
 
             // task is already in process
             if (task.InProcess)
@@ -8296,10 +8304,8 @@ namespace Core.Api
             return EnqueueExportTask(groupId, taskId, task.Version);
         }
 
-        public static ApiObjects.Response.Status EnqueueExportTask(int groupId, long taskId, string version, long taskFrequency = 0)
+        public static ApiObjects.Response.Status EnqueueExportTask(int groupId, long taskId, string version, long taskFrequency = 0, Boolean isUseKronos = false)
         {
-            log.DebugFormat("EnqueueExportTask: inserting task to rabbit mq. task id = {0}, version = {1}, frequency {2}", taskId, version, taskFrequency);
-
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             try
@@ -8318,16 +8324,35 @@ namespace Core.Api
                     data = new ExportTaskData(groupId, taskId, version);
                 }
 
-                log.DebugFormat("EnqueueExportTask: inserting data to rabbit mq. data = ", data);
-
-                if (queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_EXPORT, groupId)))
+                if (isUseKronos)
                 {
+                    log.Info($"Kronos - catalog export groupId:{groupId}, id:{taskId}, version:{version}");
+                    CatalogExport catalogExport = new CatalogExport
+                    {
+                      Id = taskId,
+                      PartnerId = groupId,
+                      Version = version
+                    };
+                    long kronosEta = taskFrequency != 0 ? eta.ToUtcUnixTimestampSeconds() : DateTime.UtcNow.ToUtcUnixTimestampSeconds();
+                    string body = JsonConvert.SerializeObject(catalogExport);
+                    KronosClient.Instance.ScheduledTask(groupId, Phoenix.Generated.Tasks.Scheduled.CatalogExport.CatalogExport.CatalogExportQualifiedName, kronosEta, body, "catalog", 600);
                     status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    log.DebugFormat("EnqueueExportTask: successfully inserted task to rabbit mq. task id = {0}, version = {1}, frequency {2}", taskId, version, taskFrequency);
                 }
                 else
                 {
-                    log.ErrorFormat("Enqueue of new export task failed", data);
+                    log.DebugFormat("EnqueueExportTask: inserting data to rabbit mq. data = ", data);
+
+                    if (queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_EXPORT, groupId)))
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        log.DebugFormat(
+                            "EnqueueExportTask: successfully inserted task to rabbit mq. task id = {0}, version = {1}, frequency {2}",
+                            taskId, version, taskFrequency);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Enqueue of new export task failed", data);
+                    }
                 }
             }
             catch (Exception ex)

@@ -28,6 +28,7 @@ namespace FeatureFlag
         public bool IsUnifiedRenewUseKronos() => _featureFlag.Enabled("is-unified-renew-use-kronos", GetUser());
         public bool IsRenewalReminderUseKronos() => _featureFlag.Enabled("is-renew-reminder-use-kronos", GetUser());
         public bool IsRenewSubscriptionEndsUseKronos() => _featureFlag.Enabled("is-renew-subscription-ends-use-kronos", GetUser());
+        public bool IsCatalogExportUseKronos() => _featureFlag.Enabled("is-catalog-export-use-kronos", GetUser());
         public bool IsCloudfrontInvalidationEnabled() => _featureFlag.Enabled("cloudfront-invalidation", GetUser()); //BEO-12440
         public bool IsImprovedUpdateMediaAssetStoredProcedureShouldBeUsed() => _featureFlag.Enabled("is-improved-update-media-asset-stored-procedure-should-be-used", GetUser());
         public bool IsKafkaIdempotencyShieldShouldNotBeUsed() => _featureFlag.Enabled("is-kafka-idempotency-shield-should-not-be-used", GetUser()); // BEO-13733

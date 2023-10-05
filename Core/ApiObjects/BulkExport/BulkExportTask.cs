@@ -32,6 +32,7 @@ namespace ApiObjects.BulkExport
         public string NotificationUrl { get; set; }
 
         public bool IsActive { get; set; }
+        public bool IsUseKronos { get; set; }
 
         public BulkExportTask()
         {

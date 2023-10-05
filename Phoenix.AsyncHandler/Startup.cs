@@ -73,6 +73,8 @@ using Phoenix.Generated.Tasks.Recurring.RecordingsCleanup;
 using Phoenix.Generated.Tasks.Recurring.RecordingsLifetime;
 using Phoenix.Generated.Tasks.Recurring.RecordingsScheduledTasks;
 using Phoenix.Generated.Tasks.Recurring.ScheduleRecordingEvictions;
+using Phoenix.Generated.Tasks.Scheduled.CatalogExport;
+using Phoenix.Generated.Tasks.Scheduled.DistributeRecording;
 using Phoenix.Generated.Tasks.Scheduled.EvictRecording;
 using Phoenix.Generated.Tasks.Scheduled.renewSubscription;
 using Phoenix.Generated.Tasks.Scheduled.RetryRecording;
@@ -120,11 +122,12 @@ namespace Phoenix.AsyncHandler
 
             //Pending CB library fix
             //services.AddPhoenixCouchbase();
-
+            
             var bcs = kafkaConfig[KafkaConfigKeys.BootstrapServers];
             services
                 .AddKronosHandler<ScheduleRecordingEvictionsHandler>(bcs, ScheduleRecordingEvictions.ScheduleRecordingEvictionsQualifiedName)
                 .AddKronosHandler<RenewHandler>(bcs, RenewSubscription.RenewSubscriptionQualifiedName)
+                .AddKronosHandler<CatalogExportHandler>(bcs, CatalogExport.CatalogExportQualifiedName)
                 .AddKronosHandler<LiveToVodTearDownHandler>(bcs, LiveToVodTearDown.LiveToVodTearDownQualifiedName)
                 .AddKronosHandler<EpgV3CleanupHandler>(bcs, EpgV3Cleanup.EpgV3CleanupQualifiedName)
                 .AddKronosHandler<VerifyRecordingFinalStatusHandler>(bcs, VerifyRecordingFinalStatus.VerifyRecordingFinalStatusQualifiedName)

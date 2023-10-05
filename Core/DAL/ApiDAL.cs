@@ -2816,7 +2816,7 @@ namespace DAL
         #region Bulk Export
 
         public static BulkExportTask InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
-            string notificationUrl, List<int> vodTypes, string version, bool isActive)
+            string notificationUrl, List<int> vodTypes, string version, bool isActive, bool isUseKronos)
         {
             BulkExportTask task = null;
 
@@ -2833,6 +2833,7 @@ namespace DAL
             storedProcedure.AddParameter("@version", version);
             storedProcedure.AddParameter("@notification_url", notificationUrl);
             storedProcedure.AddParameter("@is_active", isActive ? 1 : 0);
+            storedProcedure.AddParameter("@is_use_kronos", isUseKronos ? 1 : 0);
             storedProcedure.AddIDListParameter("@vod_types", vodTypes, "ID");
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
@@ -2926,7 +2927,8 @@ namespace DAL
                 InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false : true,
                 LastProcess = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "LAST_PROCESS"),
                 NotificationUrl = ODBCWrapper.Utils.GetSafeStr(row, "NOTIFICATION_URL"),
-                IsActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE") == 0 ? false : true
+                IsActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE") == 0 ? false : true,
+                IsUseKronos = ODBCWrapper.Utils.GetIntSafeVal(row, "is_use_kronos") == 0 ? false : true
             };
         }
 

@@ -117,7 +117,15 @@ namespace ApiLogic.Api.Managers.Handlers
         {
             GenericResponse<string> saveResponse = new GenericResponse<string>();
             var destDir = Path.Combine(Destination, subDir);
-            CreateSubDir(destDir);
+
+            try
+            {
+                CreateSubDir(destDir);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Save file: {fileName}, destDir: {destDir} error: {ex}", ex);
+            }
 
             var destPath = Path.Combine(destDir, fileName);
 
@@ -140,6 +148,9 @@ namespace ApiLogic.Api.Managers.Handlers
             }
 
             saveResponse.Object = GetUrl(subDir, fileName);
+            
+            log.Warn($"*** The file was saved at File system in the following path: {saveResponse.Object} ***");
+
             saveResponse.SetStatus(eResponseStatus.OK);
             return saveResponse;
         }

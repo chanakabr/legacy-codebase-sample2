@@ -62,7 +62,7 @@ namespace ApiLogic.Api.Managers.Handlers
         {
             GenericResponse<string> saveResponse = new GenericResponse<string>();
             var filePath = prefix.IsNullOrEmpty() ? GetRelativeFilePath(subDir, fileName) : $"{prefix}/{GetRelativeFilePath(subDir, fileName)}";
-            for (int i = 0; i < NumberOfRetries; i++)
+            for (var i = 0; i < NumberOfRetries; i++)
             {
                 using (var client = GetAmazonS3Client())
                 {
@@ -72,30 +72,42 @@ namespace ApiLogic.Api.Managers.Handlers
                         {
                             var fileTransferUtilityRequest = file.GetTransferUtilityUploadRequest();
                             fileTransferUtilityRequest.BucketName = BucketName;
-                            fileTransferUtilityRequest.Key = filePath;
 
-                            fileTransferUtility.Upload(fileTransferUtilityRequest);
+                            //https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
+                            if (filePath.Contains('\\'))
+                                filePath = filePath.Replace('\\', '/');
+                            
+                            fileTransferUtilityRequest.Key = filePath;
+                            if (fileTransferUtilityRequest.InputStream != null)
+                            {
+                                fileTransferUtility.Upload(fileTransferUtilityRequest.InputStream, BucketName, filePath);    
+                            }
+                            else
+                            {
+                                fileTransferUtility.Upload(fileTransferUtilityRequest);
+                            }
 
                             if (file.ShouldDeleteSourceFile && ShouldDeleteSourceFile)
                                 File.Delete(fileTransferUtilityRequest.FilePath);
 
                             saveResponse.Object = GetUrl(subDir, fileName);
+                            
+                            log.Warn($"*** The file was saved at S3 in the following path: {saveResponse.Object} ***");
+                            
                             saveResponse.SetStatus(eResponseStatus.OK);
                             return saveResponse;
                         }
                     }
                     catch (Exception ex)
                     {
-                        log.Warn(string.Format("An Exception was occurred in Save file to S3, attempt: {0}/{1}. fileName:{2}, fileInfo.FullName:{3}, subDir:{4}.",
-                                                i + 1, NumberOfRetries, fileName, filePath, subDir), ex);
-                        saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Error while save file:{0} to S3", fileName));
-                        return saveResponse;
+                        log.Warn(string.Format("An Exception was occurred in Save file to S3, attempt: {0}/{1}. fileName: {2}, fileInfo.FullName: {3}, subDir: {4}, bucketName: {5}.",
+                                                i + 1, NumberOfRetries, fileName, filePath, subDir, BucketName), ex);
                     }
                 }
             }
 
-            log.Error($"Could not save file:{fileName} to S3, all retries failed");
-            saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, string.Format("Could not save file:{0} to S3", fileName));
+            log.Error($"Could not save file: {fileName} to S3, all retries failed ({NumberOfRetries})");
+            saveResponse.SetStatus(eResponseStatus.ErrorSavingFile, $"Could not save file: {fileName} to S3");
             return saveResponse;
         }
 
