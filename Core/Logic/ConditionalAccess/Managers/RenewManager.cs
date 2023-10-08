@@ -244,9 +244,7 @@ namespace Core.ConditionalAccess
                             if (pendingThresholdDays == 0)
                                 pendingThresholdDays = PENDING_THRESHOLD_DAYS;
 
-                            bool isPendingSubscriptionFailed =
-                                new DateTime(1970, 1, 1).AddMilliseconds(nextEndDate).AddDays(pendingThresholdDays) <
-                                DateTime.UtcNow;
+                            bool isPendingSubscriptionFailed = DateUtils.UtcUnixTimestampSecondsToDateTime(nextEndDate).AddDays(pendingThresholdDays) < DateTime.UtcNow;
                             
                             if (!ignoreUnifiedBillingCycle && subscriptionCycle != null 
                                                            && subscriptionCycle.UnifiedBillingCycle != null
